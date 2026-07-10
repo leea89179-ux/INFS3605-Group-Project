@@ -5,9 +5,10 @@ import {
   ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, 
   MapPin, CheckSquare, Square, Info, ShieldCheck, ExternalLink,
   MessageCircle, Smartphone, AlertCircle, Share2, Settings, FileText,
-  CreditCard, User
+  CreditCard, User, BookOpen, Users, Shield, Clock, ChevronDown,
+  X, ChevronLeft, Download, Printer
 } from 'lucide-react';
-import { educationalSections, preCounsellingChecklist, faqs } from '../data/education';
+import { educationalSections, preCounsellingChecklist, faqs, helpfulResources, HelpfulResource } from '../data/education';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
@@ -17,6 +18,7 @@ interface PhoneSimulatorProps {
   reminderPrefs: ReminderPreferences;
   onUpdateReminderPrefs: (prefs: ReminderPreferences) => void;
   onTriggerNotification: () => void;
+  isFHReferred: boolean;
 }
 
 export default function PhoneSimulator({
@@ -27,6 +29,7 @@ export default function PhoneSimulator({
   reminderPrefs,
   onUpdateReminderPrefs,
   onTriggerNotification,
+  isFHReferred,
 }: PhoneSimulatorProps) {
   // Local state for interactive elements
   const [eduExpanded, setEduExpanded] = useState<Record<string, boolean>>({});
@@ -35,6 +38,22 @@ export default function PhoneSimulator({
   const [checklist, setChecklist] = useState(preCounsellingChecklist);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [videoFrame, setVideoFrame] = useState(0);
+  const [showTranscript, setShowTranscript] = useState(false);
+  const [faqActiveIdx, setFaqActiveIdx] = useState<number | null>(null);
+
+  // Deep-read document viewer states
+  const [selectedResource, setSelectedResource] = useState<HelpfulResource | null>(null);
+  const [resourcePage, setResourcePage] = useState<number>(0);
+  const [downloadToast, setDownloadToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (downloadToast) {
+      const timer = setTimeout(() => {
+        setDownloadToast(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [downloadToast]);
 
   // Calendar booking state
   const [selectedDate, setSelectedDate] = useState('Fri, 17 Feb 2026');
@@ -115,15 +134,25 @@ export default function PhoneSimulator({
     : faqs.filter(faq => faq.category === activeFaqCategory);
 
   // Icon selector helper
-  const getIcon = (name: string) => {
+  const getIcon = (name: string, customColor?: string) => {
+    const color = customColor || "text-[#008375]";
     switch (name) {
-      case 'HeartPulse': return <HeartPulse className="w-5 h-5 text-teal-600" />;
-      case 'Dna': return <Dna className="w-5 h-5 text-teal-600" />;
-      case 'ClipboardList': return <ClipboardList className="w-5 h-5 text-teal-600" />;
-      case 'Coins': return <Coins className="w-5 h-5 text-teal-600" />;
-      case 'ShieldAlert': return <ShieldAlert className="w-5 h-5 text-teal-600" />;
-      case 'Pills': return <Pill className="w-5 h-5 text-teal-600" />;
-      default: return <Info className="w-5 h-5 text-teal-600" />;
+      case 'HeartPulse': return <HeartPulse className={`w-5 h-5 ${color}`} />;
+      case 'Dna': return <Dna className={`w-5 h-5 ${color}`} />;
+      case 'ClipboardList': return <ClipboardList className={`w-5 h-5 ${color}`} />;
+      case 'Coins': return <Coins className={`w-5 h-5 ${color}`} />;
+      case 'ShieldAlert': return <ShieldAlert className={`w-5 h-5 ${color}`} />;
+      case 'Pills': return <Pill className={`w-5 h-5 ${color}`} />;
+      case 'Pill': return <Pill className={`w-5 h-5 ${color}`} />;
+      case 'Heart': return <HeartPulse className={`w-5 h-5 ${color}`} />;
+      case 'HelpCircle': return <Info className={`w-5 h-5 ${color}`} />;
+      case 'FileText': return <FileText className={`w-5 h-5 ${color}`} />;
+      case 'BookOpen': return <BookOpen className={`w-5 h-5 ${color}`} />;
+      case 'Users': return <Users className={`w-5 h-5 ${color}`} />;
+      case 'Shield': return <Shield className={`w-5 h-5 ${color}`} />;
+      case 'ShieldCheck': return <ShieldCheck className={`w-5 h-5 ${color}`} />;
+      case 'Play': return <Play className={`w-5 h-5 ${color} fill-current ml-0.5`} />;
+      default: return <Info className={`w-5 h-5 ${color}`} />;
     }
   };
 
@@ -199,128 +228,130 @@ export default function PhoneSimulator({
               </div>
 
               {/* 3. Primary Focus: Personalised FH Genetic Testing Referral Banner */}
-              <div className="px-4">
-                <div className="bg-[#e6f4f2] border border-teal-100 shadow-[0_4px_16px_rgba(0,131,117,0.06)] rounded-2xl p-5 space-y-4" id="hh-referral-banner-card">
-                  
-                  {/* Status Chip and Title */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center">
-                      <span className="bg-white text-[#008375] text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-teal-100/80 font-sans shadow-xs">
-                        Action Recommended
-                      </span>
-                    </div>
-                    <h3 className="font-display font-bold text-sm text-slate-900 tracking-tight leading-snug">
-                      FH Genetic Testing Referral
-                    </h3>
-                  </div>
-
-                  {/* One sentence explaining WHY (Concise, preferred wording) */}
-                  <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                    Based on your recent cholesterol results, your doctor recommends FH genetic testing to better understand your condition.
-                  </p>
-
-                  {/* Recommended Next Step or Next Appointment Box */}
-                  <div className="bg-white/80 p-3.5 rounded-xl border border-teal-100/40 space-y-1" id="hh-next-step-box">
-                    {appointment.status === 'booked' ? (
-                      <>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Next Appointment</p>
-                        <p className="text-xs font-extrabold text-slate-800">Thursday, 9 July</p>
-                        <p className="text-[11px] text-slate-500 font-medium">10:00 AM</p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#008375] font-mono">Recommended Next Step</p>
-                        <p className="text-xs font-extrabold text-slate-800 leading-tight">
-                          Book your pre-test counselling appointment.
-                        </p>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Primary & Secondary Call to Actions */}
-                  <div className="flex flex-col gap-2">
-                    <button
-                      id="hh-home-primary-cta"
-                      onClick={() => onChangeScreen(ScreenId.Education)}
-                      className="w-full h-10 bg-[#008375] hover:bg-teal-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent"
-                    >
-                      Learn Why <ChevronRight className="w-4 h-4" />
-                    </button>
-                    <button
-                      id="hh-home-secondary-cta"
-                      onClick={() => onChangeScreen(ScreenId.Booking)}
-                      className="w-full h-10 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
-                    >
-                      {appointment.status === 'booked' ? 'Manage Appointment' : 'Book Appointment'}
-                    </button>
-                  </div>
-
-                  {/* Patient Journey Progress Pathway */}
-                  <div className="space-y-3 pt-3.5 border-t border-teal-100/50">
-                    <p className="text-[10px] font-bold text-teal-800/80 uppercase tracking-widest font-sans">YOUR JOURNEY</p>
-                    <div className="relative flex items-start justify-between px-3 pt-1" style={{ minHeight: '52px' }}>
-                      {/* Connecting Line Background */}
-                      <div className="absolute top-2.5 left-[12%] right-[12%] h-[1.5px] bg-slate-200" />
-                      {/* Colored Active Line */}
-                      <div 
-                        className="absolute top-2.5 left-[12%] h-[1.5px] bg-[#008375] transition-all duration-300" 
-                        style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
-                      />
-
-                      {/* Step 1: Referral */}
-                      <div className="flex flex-col items-center relative z-10 w-[64px]">
-                        <div className="w-5 h-5 rounded-full bg-[#008375] text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
-                          ✓
-                        </div>
-                        <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
-                          Referral
+              {isFHReferred && (
+                <div className="px-4">
+                  <div className="bg-[#e6f4f2] border border-teal-100 shadow-[0_4px_16px_rgba(0,131,117,0.06)] rounded-2xl p-5 space-y-4" id="hh-referral-banner-card">
+                    
+                    {/* Status Chip and Title */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center">
+                        <span className="bg-white text-[#008375] text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-teal-100/80 font-sans shadow-xs">
+                          Action Recommended
                         </span>
                       </div>
-
-                      {/* Step 2: Book Counselling */}
-                      <div className="flex flex-col items-center relative z-10 w-[96px]">
-                        {appointment.status === 'booked' ? (
-                          <>
-                            <div className="w-5 h-5 rounded-full bg-[#008375] text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
-                              ✓
-                            </div>
-                            <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
-                              Book Counselling
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <div className="w-5 h-5 rounded-full border-2 border-[#008375] bg-white flex items-center justify-center shadow-xs">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#008375]" />
-                            </div>
-                            <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
-                              Book Counselling
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Step 3: Genetic Testing */}
-                      <div className="flex flex-col items-center relative z-10 w-[80px]">
-                        <div className="w-5 h-5 rounded-full border border-slate-300 bg-white flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
-                        </div>
-                        <span className="text-[9px] font-semibold text-slate-400 mt-1.5 text-center leading-tight">
-                          Genetic Testing
-                        </span>
-                      </div>
+                      <h3 className="font-display font-bold text-sm text-slate-900 tracking-tight leading-snug">
+                        FH Genetic Testing Referral
+                      </h3>
                     </div>
-                  </div>
 
-                  {/* Subtle Reassurance Statement */}
-                  <div className="text-center pt-2 border-t border-teal-100/30">
-                    <p className="text-[10px] text-slate-500 font-medium">
-                      Your doctor has already reviewed your eligibility.
+                    {/* One sentence explaining WHY (Concise, preferred wording) */}
+                    <p className="text-xs text-slate-600 leading-relaxed font-sans">
+                      Based on your recent cholesterol results, your doctor recommends FH genetic testing to better understand your condition.
                     </p>
-                  </div>
 
+                    {/* Recommended Next Step or Next Appointment Box */}
+                    <div className="bg-white/80 p-3.5 rounded-xl border border-teal-100/40 space-y-1" id="hh-next-step-box">
+                      {appointment.status === 'booked' ? (
+                        <>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Next Appointment</p>
+                          <p className="text-xs font-extrabold text-slate-800">Thursday, 9 July</p>
+                          <p className="text-[11px] text-slate-500 font-medium">10:00 AM</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#008375] font-mono">Recommended Next Step</p>
+                          <p className="text-xs font-extrabold text-slate-800 leading-tight">
+                            Book your pre-test counselling appointment.
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Primary & Secondary Call to Actions */}
+                    <div className="flex flex-col gap-2">
+                      <button
+                        id="hh-home-primary-cta"
+                        onClick={() => onChangeScreen(ScreenId.Education)}
+                        className="w-full h-10 bg-[#008375] hover:bg-teal-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent"
+                      >
+                        Learn Why <ChevronRight className="w-4 h-4" />
+                      </button>
+                      <button
+                        id="hh-home-secondary-cta"
+                        onClick={() => onChangeScreen(ScreenId.Booking)}
+                        className="w-full h-10 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
+                      >
+                        {appointment.status === 'booked' ? 'Manage Appointment' : 'Book Appointment'}
+                      </button>
+                    </div>
+
+                    {/* Patient Journey Progress Pathway */}
+                    <div className="space-y-3 pt-3.5 border-t border-teal-100/50">
+                      <p className="text-[10px] font-bold text-teal-800/80 uppercase tracking-widest font-sans">YOUR JOURNEY</p>
+                      <div className="relative flex items-start justify-between px-3 pt-1" style={{ minHeight: '52px' }}>
+                        {/* Connecting Line Background */}
+                        <div className="absolute top-2.5 left-[12%] right-[12%] h-[1.5px] bg-slate-200" />
+                        {/* Colored Active Line */}
+                        <div 
+                          className="absolute top-2.5 left-[12%] h-[1.5px] bg-[#008375] transition-all duration-300" 
+                          style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
+                        />
+
+                        {/* Step 1: Referral */}
+                        <div className="flex flex-col items-center relative z-10 w-[64px]">
+                          <div className="w-5 h-5 rounded-full bg-[#008375] text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
+                            ✓
+                          </div>
+                          <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
+                            Referral
+                          </span>
+                        </div>
+
+                        {/* Step 2: Book Counselling */}
+                        <div className="flex flex-col items-center relative z-10 w-[96px]">
+                          {appointment.status === 'booked' ? (
+                            <>
+                              <div className="w-5 h-5 rounded-full bg-[#008375] text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
+                                ✓
+                              </div>
+                              <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
+                                Book Counselling
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <div className="w-5 h-5 rounded-full border-2 border-[#008375] bg-white flex items-center justify-center shadow-xs">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#008375]" />
+                              </div>
+                              <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
+                                Book Counselling
+                              </span>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Step 3: Genetic Testing */}
+                        <div className="flex flex-col items-center relative z-10 w-[80px]">
+                          <div className="w-5 h-5 rounded-full border border-slate-300 bg-white flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                          </div>
+                          <span className="text-[9px] font-semibold text-slate-400 mt-1.5 text-center leading-tight">
+                            Genetic Testing
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Subtle Reassurance Statement */}
+                    <div className="text-center pt-2 border-t border-teal-100/30">
+                      <p className="text-[10px] text-slate-500 font-medium">
+                        Your doctor has already reviewed your eligibility.
+                      </p>
+                    </div>
+
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
               <div className="space-y-2">
@@ -453,232 +484,528 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 2: EDUCATION HUB ----------------- */}
         {activeScreen === ScreenId.Education && (
-          <div className="flex-col flex flex-1 pb-6">
+          <div className="flex-col flex flex-1 pb-6 bg-slate-50">
             {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-              <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full">
-                <ArrowLeft className="w-5 h-5 text-slate-700" />
-              </button>
-              <span className="font-bold text-sm text-slate-800">FH Education Hub</span>
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0">
+              <div className="flex items-center gap-2">
+                <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer">
+                  <ArrowLeft className="w-5 h-5 text-slate-700" />
+                </button>
+                <span className="font-bold text-[11px] sm:text-xs text-slate-800 tracking-tight">Understanding Familial Hypercholestrolaemia (FH)</span>
+              </div>
             </div>
 
-            {/* Profile Info Row */}
-            <div className="bg-teal-50/60 border-b border-teal-100 px-4 py-2.5 flex justify-between items-center text-[11px]">
-              <span className="text-slate-600">Patient: <strong className="text-slate-800">Lisa Ho (SXXXX321A)</strong></span>
-              <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold border border-emerald-200/50">MOH Referred</span>
-            </div>
-
-            <div className="p-4 space-y-4">
-              <div>
-                <h3 className="font-extrabold text-base text-slate-800">Understanding Familial Hypercholesterolaemia (FH)</h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">Personalized educational guide on genetic screening.</p>
-              </div>
-
-              {/* Patient Experience Video Section */}
-              <div className="bg-slate-900 rounded-2xl overflow-hidden relative shadow-md">
-                {/* Simulated Video Frame */}
-                <div className="h-44 flex flex-col items-center justify-center relative p-4 text-center">
-                  {isPlayingVideo ? (
-                    <div className="absolute inset-0 bg-teal-950/80 flex flex-col justify-between p-4 text-white">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-teal-300 self-start">Patient Experience Story (Sarah, 38)</span>
-                      
-                      {/* CSS cartoon animations based on active simulated frame */}
-                      <div className="flex-1 flex flex-col items-center justify-center text-center">
-                        {videoFrame === 0 && (
-                          <div className="animate-fade-in space-y-1">
-                            <span className="text-2xl">👩‍⚕️</span>
-                            <p className="text-xs font-semibold">"My cardiologist explained my heart risk was genetic."</p>
-                          </div>
-                        )}
-                        {videoFrame === 1 && (
-                          <div className="animate-fade-in space-y-1">
-                            <span className="text-2xl">🧬</span>
-                            <p className="text-xs font-semibold">"The genetic blood test confirmed my FH genotype safely."</p>
-                          </div>
-                        )}
-                        {videoFrame === 2 && (
-                          <div className="animate-fade-in space-y-1">
-                            <span className="text-2xl">🛡️</span>
-                            <p className="text-xs font-semibold">"My subsidies covered 75%. No insurance worries!"</p>
-                          </div>
-                        )}
-                        {videoFrame === 3 && (
-                          <div className="animate-fade-in space-y-1">
-                            <span className="text-2xl">👨‍👩‍👧</span>
-                            <p className="text-xs font-semibold">"Now my children are tested and protected early!"</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Video progress indicator bar */}
-                      <div className="w-full flex items-center gap-2">
-                        <div className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden">
-                          <div className="bg-teal-400 h-full transition-all duration-300" style={{ width: `${(videoFrame + 1) * 25}%` }} />
-                        </div>
-                        <span className="text-[9px] font-mono">0:{(videoFrame + 1) * 10} / 0:45</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 bg-slate-900/90 flex flex-col justify-center items-center text-white p-4">
-                      <div className="w-12 h-12 rounded-full bg-teal-600/90 hover:bg-teal-500 flex items-center justify-center shadow-lg cursor-pointer transform active:scale-95 transition" onClick={() => setIsPlayingVideo(true)}>
-                        <Play className="w-6 h-6 text-white ml-0.5 fill-current" />
-                      </div>
-                      <h4 className="font-bold text-xs mt-3">Watch Sarah’s FH Screening Journey</h4>
-                      <p className="text-[10px] text-slate-400 mt-1 max-w-[240px]">See what to expect at your appointment in under 45 seconds.</p>
-                    </div>
-                  )}
+            {!isFHReferred ? (
+              /* Fallback state when patient is not referred */
+              <div className="flex-col flex flex-1 pb-12 items-center justify-center p-6 text-center space-y-4 my-auto">
+                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
+                  <ShieldAlert className="w-8 h-8 text-teal-600" />
                 </div>
-
-                {/* Video controls */}
-                <div className="bg-slate-950 px-4 py-2 flex justify-between items-center text-xs text-slate-300 border-t border-slate-800">
-                  <button 
-                    onClick={() => setIsPlayingVideo(!isPlayingVideo)}
-                    className="text-teal-400 font-bold hover:text-teal-300 flex items-center gap-1"
-                  >
-                    {isPlayingVideo ? <><Pause className="w-3.5 h-3.5" /> Pause Story</> : <><Play className="w-3.5 h-3.5" /> Play Story</>}
-                  </button>
-                  <span className="text-[10px] text-slate-500 font-mono">Singapore GovHealth Studio</span>
-                </div>
-              </div>
-
-              {/* Personalized Education Accordion Sections */}
-              <div className="space-y-2">
-                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">Clinically Vetted Information</h4>
-                
-                {educationalSections.map((sec) => (
-                  <div key={sec.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-                    <button
-                      onClick={() => toggleEdu(sec.id)}
-                      className="w-full text-left p-3.5 flex items-start gap-3 justify-between hover:bg-slate-50 transition"
-                    >
-                      <div className="flex gap-2.5 items-start">
-                        <div className="mt-0.5 p-1 bg-teal-50 rounded-lg shrink-0">
-                          {getIcon(sec.iconName)}
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-xs text-slate-800">{sec.title}</h4>
-                          <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">{sec.shortSummary}</p>
-                        </div>
-                      </div>
-                      <ChevronRight className={`w-4 h-4 text-slate-400 mt-1 shrink-0 transition-transform ${eduExpanded[sec.id] ? 'rotate-90' : ''}`} />
-                    </button>
-                    
-                    {eduExpanded[sec.id] && (
-                      <div className="px-4 pb-4 pt-1 border-t border-slate-100 bg-slate-50/50 text-[11px] text-slate-600 leading-relaxed space-y-3">
-                        <p>{sec.content}</p>
-                        {sec.subsections && (
-                          <div className="space-y-2 pt-1 border-t border-slate-100">
-                            {sec.subsections.map((sub, i) => (
-                              <div key={i} className="bg-white p-2.5 rounded-lg border border-slate-100 space-y-0.5">
-                                <h5 className="font-bold text-[10px] text-teal-800 uppercase tracking-tight">{sub.title}</h5>
-                                <p className="text-slate-600 leading-normal">{sub.text}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Pre-counselling Preparation Checklist */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
-                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                  <div className="flex items-center gap-1.5">
-                    <CheckSquare className="w-4 h-4 text-teal-600" />
-                    <h4 className="font-bold text-xs text-slate-800">Pre-Counselling Prep Checklist</h4>
-                  </div>
-                  <span className="text-[9px] bg-teal-50 text-[#008375] font-extrabold px-1.5 py-0.5 rounded font-mono border border-teal-200/50">
-                    Seniors Friendly
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 leading-relaxed">
-                  Completing this checklist reduces appointment anxiety and helps your genetic counsellor tailor your care plan:
+                <h3 className="font-bold text-sm text-slate-800">No Active Genetic Referrals</h3>
+                <p className="text-xs text-slate-500 leading-relaxed max-w-[280px]">
+                  This personalized educational hub is only visible for patients with an active clinical referral for FH genetic testing.
                 </p>
-                <div className="space-y-2.5">
-                  {checklist.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => toggleChecklist(item.id)}
-                      className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition"
-                    >
-                      {item.checked ? (
-                        <CheckSquare className="w-4 h-4 text-teal-600 mt-0.5 shrink-0" />
-                      ) : (
-                        <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0" />
-                      )}
-                      <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400' : ''}`}>
-                        {item.text}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* FAQ Accordion Section */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">Frequently Asked Questions</h4>
-                  <span className="text-[10px] text-slate-500">Subsidized & Vetted</span>
-                </div>
-
-                {/* FAQ Category pills */}
-                <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
-                  {['all', 'cost', 'insurance', 'testing', 'medication'].map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => {
-                        setActiveFaqCategory(cat);
-                        setFaqExpanded({});
-                      }}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider transition ${
-                        activeFaqCategory === cat 
-                          ? 'bg-teal-600 text-white' 
-                          : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="space-y-2">
-                  {filteredFaqs.map((faq, idx) => (
-                    <div key={idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-3xs">
-                      <button
-                        onClick={() => setFaqExpanded(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                        className="w-full text-left p-3 text-xs font-bold text-slate-800 flex justify-between items-center hover:bg-slate-50 transition"
-                      >
-                        <span className="leading-snug">{faq.question}</span>
-                        <ChevronRight className={`w-3.5 h-3.5 text-slate-400 shrink-0 ml-2 transition-transform ${faqExpanded[idx] ? 'rotate-90' : ''}`} />
-                      </button>
-                      
-                      {faqExpanded[idx] && (
-                        <div className="px-3 pb-3 text-[11px] text-slate-600 leading-relaxed border-t border-slate-50 bg-slate-50/50">
-                          {faq.answer}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Booking CTA prompt */}
-              <div className="bg-[#008375] text-white p-4 rounded-2xl shadow-sm text-center space-y-2">
-                <h4 className="font-bold text-xs">Ready to book your subsidized slot?</h4>
-                <p className="text-[10px] text-teal-100 max-w-[260px] mx-auto">
-                  Take the active step today. Booking takes under 20 seconds within Singapore HealthHub.
-                </p>
-                <button
-                  onClick={() => onChangeScreen(ScreenId.Booking)}
-                  className="w-full py-2 bg-white hover:bg-slate-100 text-[#008375] rounded-xl text-xs font-bold shadow-xs transition"
+                <button 
+                  onClick={() => onChangeScreen(ScreenId.Home)} 
+                  className="px-4 py-2.5 bg-[#008375] hover:bg-teal-800 text-white rounded-xl text-xs font-bold shadow-sm transition cursor-pointer"
                 >
-                  Go to Secure Booking
+                  Back to HealthHub Home
                 </button>
               </div>
+            ) : (
+              /* High-fidelity Education Hub content for referred patients */
+              <>
+                {/* Profile Info Row */}
+                <div className="bg-teal-50/60 border-b border-teal-100 px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0">
+                  <span className="text-slate-600">Patient: <strong className="text-slate-800">Lisa Ho (SXXXX321A)</strong></span>
+                  <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold border border-emerald-200/50">MOH Referred</span>
+                </div>
 
-            </div>
+                {/* Hero Section - Edge-to-edge Deep Teal Banner */}
+                <div className="bg-[#008375] text-white px-5 py-5 space-y-1.5 shrink-0">
+                  <span className="text-[9.5px] font-bold tracking-widest text-teal-100 font-mono uppercase">HI LISA,</span>
+                  <h3 className="font-display font-extrabold text-sm text-white tracking-tight leading-snug">
+                    Your FH Learning Guide
+                  </h3>
+                  <p className="text-[11px] text-teal-50/90 leading-relaxed font-sans">
+                    A personalised guide on why and how to prepare after you have been referred for FH genetic testing.
+                  </p>
+                </div>
+
+                <div className="p-4 space-y-4">
+
+                  {/* Natural Clinical Note Banner */}
+                  <div className="bg-teal-50/50 border border-teal-100/80 rounded-xl p-3 flex items-start gap-2.5">
+                    <Info className="w-4 h-4 text-[#008375] shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-teal-800 leading-normal font-medium">
+                      Please note: Being referred for a genetic test does not mean you have FH. It is simply a proactive measure to assess your natural risk.
+                    </p>
+                  </div>
+
+                  {/* Patient Experience Video Section */}
+                  <div className="bg-slate-900 rounded-2xl overflow-hidden relative shadow-md">
+                    {/* Simulated Video Frame */}
+                    <div className="h-44 flex flex-col items-center justify-center relative p-4 text-center">
+                      {isPlayingVideo ? (
+                        <div className="absolute inset-0 bg-teal-950/85 flex flex-col justify-between p-4 text-white">
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-teal-300 self-start">Patient Experience Story (Chloe, 21)</span>
+                          
+                          {/* CSS cartoon animations based on active simulated frame */}
+                          <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+                            {videoFrame === 0 && (
+                              <div className="animate-fade-in space-y-1">
+                                <span className="text-2xl">💡</span>
+                                <p className="text-[11px] font-semibold">"I eat healthy and stay active. I thought high cholesterol was only for elderly people or those who lead an unhealthy lifestyle."</p>
+                              </div>
+                            )}
+                            {videoFrame === 1 && (
+                              <div className="animate-fade-in space-y-1">
+                                <span className="text-2xl">🤝</span>
+                                <p className="text-[11px] font-semibold">"The genetic counsellor didn't push me at all. They just laid out the facts and let me make my own decision."</p>
+                              </div>
+                            )}
+                            {videoFrame === 2 && (
+                              <div className="animate-fade-in space-y-1">
+                                <span className="text-2xl">🛡️</span>
+                                <p className="text-[11px] font-semibold">"I found out existing health insurance is fully protected, and MOH subsidies cover up to 75% of the cost."</p>
+                              </div>
+                            )}
+                            {videoFrame === 3 && (
+                              <div className="animate-fade-in space-y-1">
+                                <span className="text-2xl">❤️</span>
+                                <p className="text-[11px] font-semibold">"I decided to do the test because getting clear facts helped me take control of my health and clarity on how to keep myself healthy."</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Video progress indicator bar */}
+                          <div className="w-full flex items-center gap-2">
+                            <div className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden">
+                              <div className="bg-teal-400 h-full transition-all duration-300" style={{ width: `${(videoFrame + 1) * 25}%` }} />
+                            </div>
+                            <span className="text-[9px] font-mono">0:{(videoFrame + 1) * 11} / 0:45</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0 bg-slate-900/90 flex flex-col justify-center items-center text-white p-4">
+                          <div className="w-12 h-12 rounded-full bg-teal-600 hover:bg-teal-500 flex items-center justify-center shadow-lg cursor-pointer transform active:scale-95 transition" onClick={() => setIsPlayingVideo(true)}>
+                            <Play className="w-6 h-6 text-white ml-0.5 fill-current" />
+                          </div>
+                          <h4 className="font-bold text-xs mt-3">▶ What happens during FH testing?</h4>
+                          <p className="text-[10px] text-slate-400 mt-1 max-w-[240px]">See what to expect before your appointment.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Video controls */}
+                    <div className="bg-slate-950 px-4 py-2 flex justify-between items-center text-xs text-slate-300 border-t border-slate-800">
+                      <button 
+                        onClick={() => setIsPlayingVideo(!isPlayingVideo)}
+                        className="text-teal-400 font-bold hover:text-teal-300 flex items-center gap-1 cursor-pointer"
+                      >
+                        {isPlayingVideo ? <><Pause className="w-3.5 h-3.5" /> Pause Story</> : <><Play className="w-3.5 h-3.5" /> Play Story</>}
+                      </button>
+                      
+                      <button 
+                        onClick={() => setShowTranscript(!showTranscript)}
+                        className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-medium transition cursor-pointer"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-teal-400" />
+                        {showTranscript ? 'Hide Transcript' : 'View Transcript'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Accessible Transcript Container */}
+                  {showTranscript && (
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-[10px] text-slate-600 leading-relaxed space-y-1.5 shadow-3xs animate-fade-in">
+                      <p className="font-bold text-teal-800 uppercase tracking-wider text-[8px] font-mono border-b border-slate-100 pb-1">Video Transcript & Captions</p>
+                      <p><strong>[Chloe, 21]:</strong> "Hey everyone, I'm Chloe. When a screening flagged my LDL cholesterol as extremely high, I was totally confused. I live a healthy lifestyle, exercise regularly, and eat well, so I assumed high cholesterol was something only older people get, or maybe people who lead unhealty lifestyles. My doctor explained that FH is inherited from birth—it has nothing to do with lifestyle or age."</p>
+                      <p><strong>[Skepticism & Counselling]:</strong> "I was really skeptical about genetic counselling at first but, the counsellor didn't try to push me. She just explained how the genetics work, answered my questions about privacy, and left the decision completely up to me."</p>
+                      <p><strong>[The Facts]:</strong> "We talked about the practical side too. She clarified that under Singapore's guidelines, existing health insurance can't be touched, and MOH covers up to 75% of the costs. There were no hidden catches."</p>
+                      <p><strong>[My Decision]:</strong> "In the end, I decided to go ahead and take the blood test. Getting the facts didn't change who I am, but it did give me clarity on how to keep myself healthy. It's about knowing your body, not living in fear."</p>
+                    </div>
+                  )}
+
+                  {/* Spec 4: Statistics 2x2 Grid 'Did You Know?' */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs">💡</span>
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#008375] font-mono">Did You Know?</h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Stat 1 */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
+                        <div className="text-xl">🇸🇬</div>
+                        <div>
+                          <h5 className="font-display font-extrabold text-[#008375] text-[15px] leading-tight">1 in 250</h5>
+                          <p className="font-bold text-[10px] text-slate-800 leading-snug">Singaporeans have FH</p>
+                        </div>
+                        <p className="text-[9.5px] text-slate-500 leading-relaxed">
+                          More common than most realize — over 22,000 Singaporeans are affected.
+                        </p>
+                      </div>
+
+                      {/* Stat 2 */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
+                        <div className="text-xl">🔍</div>
+                        <div>
+                          <h5 className="font-display font-extrabold text-[#008375] text-[15px] leading-tight">~90%</h5>
+                          <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">go undiagnosed</p>
+                        </div>
+                        <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
+                          9 out of 10 people with FH currently do not know they have it.
+                        </p>
+                      </div>
+
+                      {/* Stat 3 */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
+                        <div className="text-xl">❤️</div>
+                        <div>
+                          <h5 className="font-display font-extrabold text-[#008375] text-[15px] leading-tight">Up to 80%</h5>
+                          <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">lower heart risk</p>
+                        </div>
+                        <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
+                          Early diagnosis and simple treatment make a very big difference.
+                        </p>
+                      </div>
+
+                      {/* Stat 4 */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
+                        <div className="text-xl">👥</div>
+                        <div>
+                          <h5 className="font-display font-extrabold text-[#008375] text-[15px] leading-tight">1 in 2</h5>
+                          <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">family risk</p>
+                        </div>
+                        <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
+                          Each parent, sibling, or child has a 50% chance of inheritance.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Personalized Education Accordion Sections */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">LEARNING HUB</h4>
+                      <span className="text-[10px] text-slate-500 font-medium">{educationalSections.length} Topics</span>
+                    </div>
+                    
+                    {educationalSections.map((sec) => {
+                      const isExpanded = !!eduExpanded[sec.id];
+
+                      // Custom high fidelity titles and subtitles for collapsed/expanded states
+                      let displayTitle = sec.title;
+                      let displaySubtitle = sec.shortSummary;
+
+                      if (sec.id === 'what-is-fh') {
+                        displayTitle = isExpanded ? 'What is FH?' : 'Understanding FH';
+                        displaySubtitle = isExpanded 
+                          ? 'Familial Hypercholesterolaemia (FH) is a common genetic condition that causes very high cholesterol.' 
+                          : 'What FH is and why early diagnosis matters.';
+                      } else if (sec.id === 'fh-symptoms') {
+                        displayTitle = isExpanded ? 'Symptoms & Physical Signs' : 'Visible Physical Signs';
+                        displaySubtitle = isExpanded 
+                          ? 'Learn the three main visible indicators of inherited high cholesterol on the body.' 
+                          : 'Identify waxy deposits and yellow patches.';
+                      } else if (sec.id === 'testing-guide') {
+                        displayTitle = 'Your Testing Guide';
+                        displaySubtitle = isExpanded 
+                          ? 'Six straightforward steps from referral to your personal care plan.' 
+                          : 'Step by step from counselling to your results.';
+                      } else if (sec.id === 'medication-fh') {
+                        displayTitle = 'Medication & FH';
+                        displaySubtitle = isExpanded 
+                          ? 'Highly effective, subsidized medical therapies to safeguard your heart.' 
+                          : 'How statins work and what to expect.';
+                      } else if (sec.id === 'why-testing-matters') {
+                        displayTitle = 'Protecting Your Family';
+                        displaySubtitle = isExpanded 
+                          ? 'Confirming FH unlocks personalized care and protects your loved ones through cascade screening.' 
+                          : 'How cascade screening keeps your loved ones safe.';
+                      } else if (sec.id === 'costs-subsidies') {
+                        displayTitle = 'Costs and Subsidies';
+                        displaySubtitle = isExpanded 
+                          ? 'Up to 75% Ministry of Health (MOH) subsidies for eligible Singapore citizens.' 
+                          : 'What you pay and how subsidies and MediSave help.';
+                      } else if (sec.id === 'insurance-rights') {
+                        displayTitle = 'Insurance & Your Rights';
+                        displaySubtitle = isExpanded 
+                          ? 'National guidelines completely safeguard your right to take a proactive test without any policy impact.' 
+                          : 'How the LIA Moratorium protects you.';
+                      }
+
+                      return (
+                        <div key={sec.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs transition-all duration-200">
+                          <button
+                            onClick={() => toggleEdu(sec.id)}
+                            className="w-full text-left p-4 flex items-start gap-3.5 justify-between hover:bg-slate-50/50 transition cursor-pointer"
+                          >
+                            <div className="flex gap-3 items-start flex-1 min-w-0">
+                              <div className="mt-0.5 p-2 bg-teal-50 rounded-full border border-teal-100/55 shrink-0 flex items-center justify-center">
+                                {getIcon(sec.iconName || 'HelpCircle')}
+                              </div>
+                              <div className="flex-1 min-w-0 space-y-0.5">
+                                <h4 className="font-display font-extrabold text-[12px] text-slate-900 leading-tight tracking-tight">
+                                  {displayTitle}
+                                </h4>
+                                <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                                  {displaySubtitle}
+                                </p>
+                                
+                                {/* Keyword Tag Bubbles - only shown when collapsed */}
+                                {!isExpanded && sec.tags && sec.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1.5 pt-1.5">
+                                    {sec.tags.map((tag, tIdx) => (
+                                      <span key={tIdx} className="text-[9px] bg-slate-50 text-slate-500 font-medium px-2 py-0.5 rounded-md border border-slate-200/50">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''} self-start mt-1`} />
+                          </button>
+                          
+                          {isExpanded && (
+                            <div className="px-4 pb-4 pt-3 border-t border-slate-100 bg-slate-50/55 text-[11px] text-slate-600 leading-relaxed space-y-3.5">
+                              <p className="mt-1 text-slate-600 font-sans leading-relaxed text-[11px]">{sec.content}</p>
+
+                              {/* Structured vertical steps timeline if steps exist */}
+                              {sec.steps && sec.steps.length > 0 && (
+                                <div className="relative pl-5 border-l-2 border-teal-100 my-4.5 ml-2.5 space-y-4">
+                                  {sec.steps.map((st) => (
+                                    <div key={st.num} className="relative">
+                                      {/* Numbered visual dot */}
+                                      <div className="absolute -left-[28.5px] top-0.5 w-4.5 h-4.5 rounded-full bg-[#008375] text-white flex items-center justify-center text-[10px] font-extrabold ring-4 ring-slate-50">
+                                        {st.num}
+                                      </div>
+                                      <div className="space-y-0.5">
+                                        <h5 className="font-bold text-[10px] text-slate-800">{st.title}</h5>
+                                        <p className="text-[9.5px] text-slate-500 leading-normal">{st.description}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Dynamic subsections like cascade screening/cost details */}
+                              {sec.subsections && sec.subsections.length > 0 && (
+                                <div className="space-y-3 my-3">
+                                  {sec.subsections.map((sub, sIdx) => (
+                                    <div key={sIdx} className="bg-white border border-slate-200 p-3.5 rounded-xl shadow-3xs space-y-1">
+                                      <h5 className="font-bold text-[10px] text-[#008375] tracking-wider uppercase font-sans">{sub.title}</h5>
+                                      <p className="text-[10.5px] text-slate-600 leading-relaxed font-sans">{sub.text}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="border-l-4 border-teal-500 bg-teal-50/80 px-3 py-2 rounded-r-lg">
+                                <p className="font-bold text-[9px] text-teal-900 uppercase tracking-tight font-mono">Key Takeaway</p>
+                                <p className="text-teal-800 text-[10.5px] mt-0.5 leading-normal">{sec.keyTakeaway}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Pre-counselling Preparation Checklist */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                      <div className="flex items-center gap-1.5">
+                        <CheckSquare className="w-4 h-4 text-[#008375]" />
+                        <h4 className="font-bold text-xs text-slate-800 font-sans">Pre-Counselling Checklist</h4>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-500 leading-relaxed font-sans">
+                      Completing these simple tasks reduces appointment anxiety and ensures highly customized care:
+                    </p>
+                    <div className="space-y-2.5">
+                      {checklist.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => toggleChecklist(item.id)}
+                          className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition cursor-pointer"
+                        >
+                          {item.checked ? (
+                            <CheckSquare className="w-4 h-4 text-[#008375] mt-0.5 shrink-0" />
+                          ) : (
+                            <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0 bg-white" />
+                          )}
+                          <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-700 font-medium'}`}>
+                            {item.text}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* FAQ Accordion Section - ONLY ONE EXPANDED AT A TIME */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">FREQUENTLY ASKED QUESTIONS</h4>
+                    </div>
+
+                    {/* Category Filter Tabs */}
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                      {[
+                        { id: 'all', label: 'ALL' },
+                        { id: 'cost', label: 'COST' },
+                        { id: 'insurance', label: 'INSURANCE' },
+                        { id: 'testing', label: 'TESTING' },
+                        { id: 'medication', label: 'MEDICATION' },
+                      ].map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            setActiveFaqCategory(cat.id);
+                            setFaqActiveIdx(null);
+                          }}
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-extrabold tracking-tight shrink-0 transition cursor-pointer border ${
+                            activeFaqCategory === cat.id
+                              ? 'bg-[#008375] text-white border-[#008375] shadow-3xs'
+                              : 'bg-white text-slate-600 hover:text-slate-800 border-slate-200'
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2">
+                      {faqs
+                        .filter(faq => activeFaqCategory === 'all' || faq.category === activeFaqCategory)
+                        .map((faq, idx) => {
+                          const isFaqExpanded = faqActiveIdx === idx;
+                          return (
+                            <div key={idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-3xs">
+                              <button
+                                onClick={() => setFaqActiveIdx(isFaqExpanded ? null : idx)}
+                                className="w-full text-left p-3.5 text-xs font-bold text-slate-800 flex justify-between items-center hover:bg-slate-50 transition cursor-pointer"
+                              >
+                                <span className="leading-snug pr-3">{faq.question}</span>
+                                <ChevronRight className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isFaqExpanded ? 'rotate-90' : ''}`} />
+                              </button>
+                              
+                              {isFaqExpanded && (
+                                <div className="px-4 pb-3.5 text-[11px] text-slate-600 leading-relaxed border-t border-slate-50 bg-slate-50/50 animate-fade-in">
+                                  {faq.answer}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+
+                  {/* Helpful Resources Section */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono font-sans">Helpful Resources</h4>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {helpfulResources.map((res) => {
+                        // Dynamic color configurations for appealing & diverse icon cards
+                        let bgClass = "bg-slate-50 group-hover:bg-teal-50 border-slate-100 group-hover:border-teal-150";
+                        let iconColor = "text-[#008375]";
+                        let typeTagClass = "bg-teal-50 text-[#008375] border-teal-100/55";
+                        let viewLinkColor = "text-[#008375] group-hover:text-teal-700";
+                        let hoverBorderClass = "hover:border-teal-200 hover:bg-teal-50/10";
+
+                        if (res.type === 'Video Story') {
+                          bgClass = "bg-rose-50 group-hover:bg-rose-100/80 border-rose-100 group-hover:border-rose-150";
+                          iconColor = "text-rose-600";
+                          typeTagClass = "bg-rose-50 text-rose-700 border-rose-100";
+                          viewLinkColor = "text-rose-600 group-hover:text-rose-700";
+                          hoverBorderClass = "hover:border-rose-200 hover:bg-rose-50/10";
+                        } else if (res.id === 'res-9') { // Insurance/Moratorium
+                          bgClass = "bg-indigo-50 group-hover:bg-indigo-100/80 border-indigo-100 group-hover:border-indigo-150";
+                          iconColor = "text-indigo-600";
+                          typeTagClass = "bg-indigo-50 text-indigo-700 border-indigo-100";
+                          viewLinkColor = "text-indigo-600 group-hover:text-indigo-700";
+                          hoverBorderClass = "hover:border-indigo-200 hover:bg-indigo-50/10";
+                        } else if (res.id === 'res-5') { // Singapore Heart Foundation
+                          bgClass = "bg-emerald-50 group-hover:bg-emerald-100/80 border-emerald-100 group-hover:border-emerald-150";
+                          iconColor = "text-emerald-600";
+                          typeTagClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
+                          viewLinkColor = "text-emerald-600 group-hover:text-emerald-700";
+                          hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
+                        } else if (res.type === 'Clinical Guide') {
+                          bgClass = "bg-amber-50 group-hover:bg-amber-100/80 border-amber-100 group-hover:border-amber-150";
+                          iconColor = "text-amber-600";
+                          typeTagClass = "bg-amber-50 text-amber-700 border-amber-100";
+                          viewLinkColor = "text-amber-600 group-hover:text-amber-700";
+                          hoverBorderClass = "hover:border-amber-200 hover:bg-amber-50/10";
+                        } else if (res.type === 'PDF Brochure') {
+                          bgClass = "bg-sky-50 group-hover:bg-sky-100/80 border-sky-100 group-hover:border-sky-150";
+                          iconColor = "text-sky-600";
+                          typeTagClass = "bg-sky-50 text-sky-700 border-sky-100";
+                          viewLinkColor = "text-sky-600 group-hover:text-sky-700";
+                          hoverBorderClass = "hover:border-sky-200 hover:bg-sky-50/10";
+                        }
+
+                        return (
+                          <a
+                            key={res.id}
+                            href={res.externalUrl || '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`block w-full text-left bg-white border border-slate-200 rounded-xl p-3.5 space-y-2.5 shadow-3xs transition group cursor-pointer ${hoverBorderClass}`}
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <div className={`p-1.5 rounded-lg border shrink-0 mt-0.5 transition ${bgClass}`}>
+                                {getIcon(res.iconName, iconColor)}
+                              </div>
+                              <div className="space-y-0.5 flex-1 min-w-0">
+                                <div className="flex justify-between items-start gap-2">
+                                  <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#008375] transition leading-tight">{res.title}</h5>
+                                  <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 border ${typeTagClass}`}>{res.type}</span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 leading-normal mt-1">{res.summary}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex justify-between items-center pl-9 pt-0.5">
+                              {/* Resource Keyword Tags */}
+                              <div className="flex flex-wrap gap-1">
+                                {res.keywords.map((kw, i) => (
+                                  <span key={i} className="text-[8px] bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded font-sans border border-slate-200/50">
+                                    #{kw}
+                                  </span>
+                                ))}
+                              </div>
+                              <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor}`}>
+                                <span>View Resource</span>
+                                <ExternalLink className="w-2.5 h-2.5 transition" />
+                              </div>
+                            </div>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Secure Booking CTA prompt */}
+                  <div className="bg-[#008375] text-white p-5 rounded-2xl shadow-sm text-center space-y-2.5">
+                    <h4 className="font-bold text-xs">Ready to book your GAC counselling slot?</h4>
+                    <p className="text-[10px] text-teal-100 max-w-[260px] mx-auto leading-normal">
+                      Take the active step today. Booking takes under 20 seconds within HealthHub.
+                    </p>
+                    <button
+                      onClick={() => onChangeScreen(ScreenId.Booking)}
+                      className="w-full py-2.5 bg-white hover:bg-slate-100 text-[#008375] rounded-xl text-xs font-bold shadow-sm transition cursor-pointer select-none border border-transparent"
+                    >
+                      Go to Secure Booking
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -1223,13 +1550,152 @@ export default function PhoneSimulator({
           </div>
         )}
 
+        {/* SIMULATED PDF / CLINICAL BROCHURE DOCUMENT VIEWER MODAL */}
+        {selectedResource && (
+          <div className="absolute inset-0 bg-slate-900/45 backdrop-blur-xs flex flex-col justify-end z-50 animate-fade-in select-none">
+            <div className="bg-white rounded-t-3xl h-[94%] flex flex-col shadow-2xl overflow-hidden animate-slide-up">
+              {/* Document Header */}
+              <div className="bg-slate-50 px-4 py-3.5 border-b border-slate-200 flex justify-between items-center">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-teal-50 text-[#008375] rounded-lg border border-teal-150">
+                    <FileText className="w-4 h-4 text-[#008375]" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-[8px] font-extrabold text-[#008375] uppercase tracking-wider font-mono bg-teal-50 px-1 py-0.2 border border-teal-100/50 rounded">
+                      {selectedResource.type}
+                    </span>
+                    <h3 className="font-bold text-[11px] text-slate-800 line-clamp-1 max-w-[210px] mt-0.5">
+                      {selectedResource.title}
+                    </h3>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedResource(null)}
+                  className="p-1.5 hover:bg-slate-200 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Document Sub-Header / Tool Controls */}
+              <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 flex justify-between items-center text-[10px] text-slate-600 font-mono">
+                <span className="font-bold text-[9px]">PAGE {resourcePage + 1} OF {selectedResource.pages.length}</span>
+                <div className="flex items-center gap-1.5">
+                  {selectedResource.externalUrl && (
+                    <a 
+                      href={selectedResource.externalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-[#008375] hover:text-teal-800 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs"
+                    >
+                      <ExternalLink className="w-3 h-3 text-[#008375]" /> WEBSITE
+                    </a>
+                  )}
+                  <button 
+                    onClick={() => {
+                      setDownloadToast(`Saved ${selectedResource.title} (${selectedResource.downloadSize}) to local storage.`);
+                    }}
+                    className="flex items-center gap-1 hover:text-teal-700 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs"
+                  >
+                    <Download className="w-3 h-3 text-[#008375]" /> {selectedResource.downloadSize}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setDownloadToast("Sent document to printer...");
+                    }}
+                    className="flex items-center gap-1 hover:text-teal-700 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs"
+                  >
+                    <Printer className="w-3 h-3 text-slate-500" /> PRINT
+                  </button>
+                </div>
+              </div>
+
+              {/* Document Page Canvas */}
+              <div className="flex-1 bg-slate-200 p-4 overflow-y-auto flex justify-center">
+                <div className="bg-white w-full max-w-[340px] min-h-[380px] rounded-lg shadow-md p-4.5 flex flex-col border border-slate-300 relative select-text">
+                  {/* Subtle watermarks and page header */}
+                  <div className="border-b border-slate-100 pb-2 mb-3 flex justify-between items-center text-[8px] text-slate-400 font-bold uppercase tracking-wider font-mono">
+                    <span>FIRST HEALTH GROUP • EDUCATIONAL SERVICES</span>
+                    <span>CONFIDENTIAL</span>
+                  </div>
+
+                  <h4 className="font-display font-extrabold text-[12.5px] text-slate-900 tracking-tight leading-snug border-l-4 border-teal-500 pl-2">
+                    {selectedResource.pages[resourcePage].title}
+                  </h4>
+
+                  <div className="mt-3.5 space-y-3 text-[10px] text-slate-700 leading-relaxed font-sans flex-1 text-left">
+                    {selectedResource.pages[resourcePage].paragraphs.map((p, pIdx) => (
+                      <p key={pIdx} className="indent-2">{p}</p>
+                    ))}
+                  </div>
+
+                  {/* Watermark Logo */}
+                  <div className="absolute bottom-16 right-5 opacity-5 pointer-events-none">
+                    <HeartPulse className="w-20 h-20 text-slate-950" />
+                  </div>
+
+                  {/* Page Footer */}
+                  <div className="border-t border-slate-100 pt-2.5 mt-5 flex justify-between items-center text-[8px] text-slate-400 font-medium font-sans">
+                    <span>MOH Clinical Excellence Alliance</span>
+                    <span>Page {resourcePage + 1}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document Page Navigation Footer */}
+              <div className="bg-slate-50 px-4 py-3 border-t border-slate-200 flex justify-between items-center shrink-0">
+                <button
+                  disabled={resourcePage === 0}
+                  onClick={() => setResourcePage(prev => Math.max(0, prev - 1))}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 border border-slate-200 cursor-pointer ${
+                    resourcePage === 0 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-100' : 'bg-white text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" /> Prev
+                </button>
+                
+                <span className="text-[10px] text-slate-500 font-mono font-bold">
+                  {resourcePage + 1} / {selectedResource.pages.length}
+                </span>
+
+                {resourcePage < selectedResource.pages.length - 1 ? (
+                  <button
+                    onClick={() => setResourcePage(prev => prev + 1)}
+                    className="px-3 py-1.5 bg-teal-600 text-white rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-teal-700 cursor-pointer shadow-3xs"
+                  >
+                    Next Page <ChevronRight className="w-4 h-4 text-white" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setSelectedResource(null)}
+                    className="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold hover:bg-slate-900 cursor-pointer shadow-3xs"
+                  >
+                    Finish Reading
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Dynamic download success notification toast */}
+        {downloadToast && (
+          <div className="absolute bottom-20 left-4 right-4 bg-slate-900/95 text-white py-2.5 px-3.5 rounded-xl text-[10.5px] font-medium shadow-lg flex items-center gap-2 z-50 animate-slide-up border border-slate-800">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="flex-1 leading-snug text-left">{downloadToast}</span>
+            <button onClick={() => setDownloadToast(null)} className="text-slate-400 hover:text-white cursor-pointer p-0.5">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
       </div>
 
       {/* Simulated Device Home Indicator Button */}
       <div className="bg-white border-t border-slate-200 py-3 px-4 flex justify-around items-center z-40 select-none shrink-0">
         {[
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
-          { icon: <Dna className="w-5 h-5" />, label: 'Learn FH', screen: ScreenId.Education },
+          ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn FH', screen: ScreenId.Education }] : []),
           { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
           { icon: <Bell className="w-5 h-5" />, label: 'Reminders', screen: ScreenId.ReminderSettings },
           { icon: <ClipboardList className="w-5 h-5" />, label: 'Journey', screen: ScreenId.ProgressTimeline }

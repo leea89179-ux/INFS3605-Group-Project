@@ -12,6 +12,7 @@ import {
 export default function App() {
   // Global Shared States for the Figma Prototype
   const [activeScreen, setActiveScreen] = useState<ScreenId>(ScreenId.Home);
+  const [isFHReferred, setIsFHReferred] = useState<boolean>(true);
   
   const [appointment, setAppointment] = useState<Appointment>({
     date: 'Fri, 17 Feb 2026',
@@ -41,6 +42,7 @@ export default function App() {
       frequency: '7days_before',
       previewText: 'Hi Lisa, your FH genetic testing is in 7 days.',
     });
+    setIsFHReferred(true);
     setActiveScreen(ScreenId.Home);
   };
 
@@ -123,6 +125,51 @@ export default function App() {
               </h3>
               <p className="text-xs text-slate-400 mt-1">
                 Fast-forward the clinical journey to test specific behavioral triggers:
+              </p>
+            </div>
+
+            {/* Referral Status Toggle */}
+            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-300">FH Referral Status</span>
+                <span className={`text-[10px] px-2.5 py-0.5 rounded font-mono font-bold ${
+                  isFHReferred 
+                    ? 'bg-teal-950/80 text-teal-400 border border-teal-800/50' 
+                    : 'bg-rose-950/40 text-rose-400 border border-rose-900/30'
+                }`}>
+                  {isFHReferred ? 'REFERRED' : 'NON-REFERRED'}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setIsFHReferred(true);
+                    setActiveScreen(ScreenId.Home);
+                  }}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    isFHReferred
+                      ? 'bg-teal-600 text-white shadow-md shadow-teal-900/30'
+                      : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
+                  }`}
+                >
+                  <Check className="w-3.5 h-3.5" /> Referred
+                </button>
+                <button
+                  onClick={() => {
+                    setIsFHReferred(false);
+                    setActiveScreen(ScreenId.Home);
+                  }}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    !isFHReferred
+                      ? 'bg-rose-600 text-white shadow-md shadow-rose-900/30'
+                      : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
+                  }`}
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" /> Non-Referred
+                </button>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-snug">
+                Toggle to simulate referred vs non-referred view. Non-referred patients do not see any FH-related reminders, tabs, banners, or educational modules.
               </p>
             </div>
 
@@ -219,6 +266,7 @@ export default function App() {
             reminderPrefs={reminderPrefs}
             onUpdateReminderPrefs={setReminderPrefs}
             onTriggerNotification={handleSimulateNotification}
+            isFHReferred={isFHReferred}
           />
 
           <div className="bg-slate-900/60 border border-slate-800/80 px-4 py-2 rounded-xl text-[10px] font-mono text-slate-400 flex items-center gap-1.5">

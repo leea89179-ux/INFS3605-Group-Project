@@ -24,7 +24,7 @@ export interface ReminderPreferences {
 export interface FAQItem {
   question: string;
   answer: string;
-  category: 'about' | 'testing' | 'cost' | 'insurance' | 'medication';
+  category: 'about' | 'testing' | 'cost' | 'insurance' | 'medication' | 'family';
 }
 
 export interface Annotation {
