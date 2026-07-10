@@ -4,7 +4,8 @@ import {
   HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, 
   ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, 
   MapPin, CheckSquare, Square, Info, ShieldCheck, ExternalLink,
-  MessageCircle, Smartphone, AlertCircle, Share2
+  MessageCircle, Smartphone, AlertCircle, Share2, Settings, FileText,
+  CreditCard, User
 } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs } from '../data/education';
 
@@ -150,165 +151,301 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 1: HOME ----------------- */}
         {activeScreen === ScreenId.Home && (
-          <div className="flex-col flex flex-1">
-            {/* HealthHub User Header */}
-            <div className="bg-[#008375] text-white px-4 pt-4 pb-5 rounded-b-[24px] shadow-sm">
-              <div className="flex justify-between items-start">
+          <div className="flex-col flex flex-1 bg-slate-50">
+            {/* 1. Official HealthHub Top Header Row */}
+            <div className="bg-white px-4 py-3 flex justify-between items-center border-b border-slate-100 shrink-0">
+              {/* Notification Bell */}
+              <div className="relative cursor-pointer hover:opacity-80 transition" onClick={() => onChangeScreen(ScreenId.ReminderSettings)}>
+                <Bell className="w-5 h-5 text-slate-700" />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white" />
+              </div>
+
+              {/* HealthHub Center Logo */}
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-slate-800 text-sm tracking-tight">Health</span>
+                <span className="font-black text-[#008375] text-sm tracking-tight mr-1">Hub</span>
+                {/* Custom multi-color flower logo SVG resembling Singapore HealthHub */}
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="8" cy="8" r="6" fill="#FBBF24" fillOpacity="0.85" />
+                  <circle cx="16" cy="8" r="6" fill="#10B981" fillOpacity="0.85" />
+                  <circle cx="12" cy="15" r="6" fill="#3B82F6" fillOpacity="0.85" />
+                  <circle cx="10" cy="12" r="4.5" fill="#EF4444" fillOpacity="0.75" />
+                </svg>
+              </div>
+
+              {/* Settings Cog */}
+              <div className="cursor-pointer hover:opacity-80 transition" onClick={() => onChangeScreen(ScreenId.ReminderSettings)}>
+                <Settings className="w-5 h-5 text-slate-700" />
+              </div>
+            </div>
+
+            {/* Scrollable Container */}
+            <div className="flex-1 overflow-y-auto pb-6 space-y-4">
+              
+              {/* 2. User Welcome Greeting Row */}
+              <div className="bg-white px-4 py-3 border-b border-slate-100 flex justify-between items-center">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-full bg-white text-[#008375] font-bold flex items-center justify-center text-sm shadow-inner">
+                  <div className="w-8 h-8 rounded-full bg-teal-50 text-[#008375] font-extrabold flex items-center justify-center text-xs border border-teal-100 shadow-inner">
                     LH
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm tracking-tight">Lisa Ho</h4>
-                    <p className="text-[10px] text-teal-100 font-mono">SXXXX321A</p>
+                    <h4 className="font-bold text-xs text-slate-800">Lisa Ho</h4>
+                    <p className="text-[9px] text-slate-400 font-medium">SXXXX321A • Active User</p>
                   </div>
                 </div>
-                <div className="flex flex-col items-end">
-                  <div className="flex items-center gap-1 bg-teal-900/30 px-2 py-0.5 rounded-full text-[10px] border border-teal-400/20">
-                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
-                    <span>Active User</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* CHAS Cards and Badges */}
-              <div className="flex gap-1.5 mt-3">
-                <span className="bg-teal-900/40 text-[9px] font-semibold px-2 py-1 rounded border border-teal-300/30 flex items-center gap-1">
-                  <Check className="w-3 h-3 text-teal-300" /> CHAS Blue Member
-                </span>
-                <span className="bg-emerald-900/40 text-[9px] font-semibold px-2 py-1 rounded border border-emerald-300/30 flex items-center gap-1">
-                  <Check className="w-3 h-3 text-emerald-300" /> Screen for Life Eligible
+                <span className="bg-teal-50 text-[#008375] text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border border-teal-100/70 font-sans">
+                  CHAS Blue Member
                 </span>
               </div>
-            </div>
 
-            {/* HealthHub Nav Tabs */}
-            <div className="bg-white border-b border-slate-200 flex text-center text-xs font-semibold text-slate-500">
-              <button className="flex-1 py-3 text-[#008375] border-b-2 border-[#008375]">Health Plan</button>
-              <button className="flex-1 py-3 hover:text-slate-700">Health Records</button>
-              <button className="flex-1 py-3 hover:text-slate-700">About</button>
-            </div>
-
-            {/* Personalized Referral Banner */}
-            <div className="p-4">
-              <div className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-2xl p-4 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/5 rounded-full translate-x-4 -translate-y-4" />
-                
-                <div className="flex items-center gap-2 mb-2">
-                  <HeartPulse className="w-5 h-5 text-teal-600 shrink-0 animate-pulse" />
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-teal-700 font-mono">MOH Action Recommended</span>
-                </div>
-                
-                <h3 className="font-bold text-sm text-slate-800 leading-snug">
-                  You have been referred for FH Genetic Testing
-                </h3>
-                
-                <p className="text-[11px] text-slate-600 mt-1 leading-normal">
-                  Your cardiologist at Serangoon Health Hub has requested a genetic test to protect you and your family.
-                </p>
-
-                {/* Progress Mini-Indicator */}
-                <div className="mt-4">
-                  <div className="flex justify-between text-[10px] text-slate-500 font-medium mb-1.5">
-                    <span>Referral Active</span>
-                    <span className="font-semibold text-teal-700">
-                      {appointment.status === 'booked' ? 'Appointment Booked' : 'Action Required'}
-                    </span>
-                  </div>
-                  {/* Visual Progress Bar */}
-                  <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden flex">
-                    <div className="h-full bg-[#008375]" style={{ width: '33.3%' }} />
-                    <div className={`h-full ${appointment.status === 'booked' ? 'bg-[#008375]' : 'bg-slate-200'}`} style={{ width: '33.3%' }} />
-                    <div className="h-full bg-slate-200" style={{ width: '33.3%' }} />
-                  </div>
+              {/* 3. Primary Focus: Personalised FH Genetic Testing Referral Banner */}
+              <div className="px-4">
+                <div className="bg-[#e6f4f2] border border-teal-100 shadow-[0_4px_16px_rgba(0,131,117,0.06)] rounded-2xl p-5 space-y-4" id="hh-referral-banner-card">
                   
-                  {/* Status Steps */}
-                  <div className="grid grid-cols-3 text-[9px] text-slate-400 font-semibold mt-1">
-                    <span className="text-teal-700">1. Referred</span>
-                    <span className={`text-center ${appointment.status === 'booked' ? 'text-teal-700' : ''}`}>2. Booked</span>
-                    <span className="text-right">3. Complete</span>
+                  {/* Status Chip and Title */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center">
+                      <span className="bg-white text-[#008375] text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-teal-100/80 font-sans shadow-xs">
+                        Action Recommended
+                      </span>
+                    </div>
+                    <h3 className="font-display font-bold text-sm text-slate-900 tracking-tight leading-snug">
+                      FH Genetic Testing Referral
+                    </h3>
                   </div>
-                </div>
 
-                {/* Current Booking status details */}
-                <div className="mt-3.5 pt-3 border-t border-teal-100 flex items-center justify-between text-[11px]">
-                  <div>
-                    <span className="text-slate-500">Next Step:</span>
-                    <p className="font-bold text-slate-700">
-                      {appointment.status === 'booked' ? `${appointment.date} @ ${appointment.timeSlot}` : 'Book Genetic Counselling'}
+                  {/* One sentence explaining WHY (Concise, preferred wording) */}
+                  <p className="text-xs text-slate-600 leading-relaxed font-sans">
+                    Based on your recent cholesterol results, your doctor recommends FH genetic testing to better understand your condition.
+                  </p>
+
+                  {/* Recommended Next Step or Next Appointment Box */}
+                  <div className="bg-white/80 p-3.5 rounded-xl border border-teal-100/40 space-y-1" id="hh-next-step-box">
+                    {appointment.status === 'booked' ? (
+                      <>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Next Appointment</p>
+                        <p className="text-xs font-extrabold text-slate-800">Thursday, 9 July</p>
+                        <p className="text-[11px] text-slate-500 font-medium">10:00 AM</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#008375] font-mono">Recommended Next Step</p>
+                        <p className="text-xs font-extrabold text-slate-800 leading-tight">
+                          Book your pre-test counselling appointment.
+                        </p>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Primary & Secondary Call to Actions */}
+                  <div className="flex flex-col gap-2">
+                    <button
+                      id="hh-home-primary-cta"
+                      onClick={() => onChangeScreen(ScreenId.Education)}
+                      className="w-full h-10 bg-[#008375] hover:bg-teal-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent"
+                    >
+                      Learn Why <ChevronRight className="w-4 h-4" />
+                    </button>
+                    <button
+                      id="hh-home-secondary-cta"
+                      onClick={() => onChangeScreen(ScreenId.Booking)}
+                      className="w-full h-10 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
+                    >
+                      {appointment.status === 'booked' ? 'Manage Appointment' : 'Book Appointment'}
+                    </button>
+                  </div>
+
+                  {/* Patient Journey Progress Pathway */}
+                  <div className="space-y-3 pt-3.5 border-t border-teal-100/50">
+                    <p className="text-[10px] font-bold text-teal-800/80 uppercase tracking-widest font-sans">YOUR JOURNEY</p>
+                    <div className="relative flex items-start justify-between px-3 pt-1" style={{ minHeight: '52px' }}>
+                      {/* Connecting Line Background */}
+                      <div className="absolute top-2.5 left-[12%] right-[12%] h-[1.5px] bg-slate-200" />
+                      {/* Colored Active Line */}
+                      <div 
+                        className="absolute top-2.5 left-[12%] h-[1.5px] bg-[#008375] transition-all duration-300" 
+                        style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
+                      />
+
+                      {/* Step 1: Referral */}
+                      <div className="flex flex-col items-center relative z-10 w-[64px]">
+                        <div className="w-5 h-5 rounded-full bg-[#008375] text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
+                          ✓
+                        </div>
+                        <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
+                          Referral
+                        </span>
+                      </div>
+
+                      {/* Step 2: Book Counselling */}
+                      <div className="flex flex-col items-center relative z-10 w-[96px]">
+                        {appointment.status === 'booked' ? (
+                          <>
+                            <div className="w-5 h-5 rounded-full bg-[#008375] text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
+                              ✓
+                            </div>
+                            <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
+                              Book Counselling
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-5 h-5 rounded-full border-2 border-[#008375] bg-white flex items-center justify-center shadow-xs">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#008375]" />
+                            </div>
+                            <span className="text-[9px] font-bold text-[#008375] mt-1.5 text-center leading-tight">
+                              Book Counselling
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Step 3: Genetic Testing */}
+                      <div className="flex flex-col items-center relative z-10 w-[80px]">
+                        <div className="w-5 h-5 rounded-full border border-slate-300 bg-white flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                        </div>
+                        <span className="text-[9px] font-semibold text-slate-400 mt-1.5 text-center leading-tight">
+                          Genetic Testing
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Subtle Reassurance Statement */}
+                  <div className="text-center pt-2 border-t border-teal-100/30">
+                    <p className="text-[10px] text-slate-500 font-medium">
+                      Your doctor has already reviewed your eligibility.
                     </p>
                   </div>
-                  {appointment.status === 'booked' ? (
-                    <button 
-                      onClick={() => onChangeScreen(ScreenId.ProgressTimeline)}
-                      className="text-[#008375] font-bold flex items-center gap-0.5 hover:underline"
-                    >
-                      View Journey <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  ) : (
-                    <span className="bg-amber-400/20 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded border border-amber-400/30">
-                      Urgent Booking
-                    </span>
-                  )}
+
+                </div>
+              </div>
+
+              {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center px-4">
+                  <h3 className="font-display font-bold text-slate-900 text-xs tracking-tight">Quick Links</h3>
+                  <button className="text-blue-600 text-[11px] font-bold hover:underline">Edit</button>
                 </div>
 
-                {/* CTAs */}
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  <button
-                    onClick={() => onChangeScreen(ScreenId.Education)}
-                    className="py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
-                  >
-                    Learn More
-                  </button>
-                  <button
+                <div className="grid grid-cols-3 gap-2.5 px-4">
+                  {/* Card 1: Appointments */}
+                  <button 
                     onClick={() => onChangeScreen(ScreenId.Booking)}
-                    className="py-2 px-3 bg-[#008375] hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm shadow-teal-700/20"
+                    className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square"
                   >
-                    {appointment.status === 'booked' ? 'Manage Book' : 'Book Now'}
+                    <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center mb-1.5 shrink-0">
+                      <Calendar className="w-4.5 h-4.5 text-rose-500" />
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-700 leading-tight">Appointments</span>
+                  </button>
+
+                  {/* Card 2: CHAS */}
+                  <div className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mb-1.5 shrink-0">
+                      <div className="border-1.5 border-blue-400 rounded px-1.5 py-0.5 text-[8px] font-black text-blue-500 bg-white leading-none scale-90">CHAS</div>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-700 leading-tight">CHAS</span>
+                  </div>
+
+                  {/* Card 3: Lab Reports */}
+                  <div className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                    <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1.5 shrink-0">
+                      <ClipboardList className="w-4.5 h-4.5 text-emerald-600" />
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-700 leading-tight">Lab reports</span>
+                  </div>
+
+                  {/* Card 4: Medical reports / certs */}
+                  <div className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                    <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center mb-1.5 shrink-0">
+                      <FileText className="w-4.5 h-4.5 text-teal-600" />
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-700 leading-tight">Medical reports / requests</span>
+                  </div>
+
+                  {/* Card 5: Medication Refill */}
+                  <div className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                    <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center mb-1.5 shrink-0">
+                      <Pill className="w-4.5 h-4.5 text-amber-600" />
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-700 leading-tight">Medication refill</span>
+                  </div>
+
+                  {/* Card 6: Payment */}
+                  <div className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                    <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center mb-1.5 shrink-0">
+                      <CreditCard className="w-4.5 h-4.5 text-sky-600" />
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-700 leading-tight">Payment</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 5. Health Profiles Section (1:1 with reference screenshot) */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center px-4">
+                  <h3 className="font-display font-bold text-slate-900 text-xs tracking-tight">Health Profiles</h3>
+                  <button className="text-slate-500 text-[11px] font-semibold hover:underline flex items-center gap-0.5">
+                    View all <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </div>
-            </div>
 
-            {/* Rest of standard HealthHub items */}
-            <div className="px-4 space-y-3 pb-6 flex-1">
-              <h5 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">Your Recommended Actions</h5>
-              
-              {/* Card 2: Vaccination */}
-              <div className="bg-white border border-slate-200 rounded-xl p-3 flex gap-3 shadow-sm hover:border-slate-300 transition">
-                <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                  <ClipboardList className="w-4 h-4 text-blue-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-xs text-slate-800">Get vaccinated</h4>
-                  <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">3 recommended vaccination(s) pending.</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 self-center" />
-              </div>
+                <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-none">
+                  {/* Lisa's card */}
+                  <div className="bg-white border border-slate-100 rounded-2xl p-3.5 flex items-center gap-3 shadow-[0_2px_6px_rgba(0,0,0,0.02)] min-w-[200px] shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <User className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-slate-800">SXXXX321A</p>
+                      <p className="text-[9px] text-slate-400 font-semibold uppercase">LISA HO</p>
+                    </div>
+                  </div>
 
-              {/* Card 3: Healthy 365 */}
-              <div className="bg-white border border-slate-200 rounded-xl p-3 flex gap-3 shadow-sm hover:border-slate-300 transition">
-                <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
-                  <HeartPulse className="w-4 h-4 text-rose-500" />
+                  {/* Dependent card (Spouse) */}
+                  <div className="bg-white border border-slate-100 rounded-2xl p-3.5 flex items-center gap-3 shadow-[0_2px_6px_rgba(0,0,0,0.02)] min-w-[200px] shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <User className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-slate-800">TXXXX456B</p>
+                      <p className="text-[9px] text-slate-400 font-semibold uppercase">HO CHIN TECK</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-xs text-slate-800">Move towards Health goals with Healthy 365</h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Track steps, complete events and earn HPB Healthpoints.</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 self-center" />
               </div>
 
-              {/* Card 4: Quit Smoking */}
-              <div className="bg-white border border-slate-200 rounded-xl p-3 flex gap-3 shadow-sm hover:border-slate-300 transition">
-                <div className="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
-                  <ShieldAlert className="w-4 h-4 text-slate-600" />
+              {/* 6. Programmes Section (1:1 with reference screenshot) */}
+              <div className="space-y-2">
+                <div className="px-4">
+                  <h3 className="font-display font-bold text-slate-900 text-xs tracking-tight">Programmes</h3>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-xs text-slate-800">Get support to quit smoking</h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Free 28-day smoke-free challenges. Earn e-vouchers.</p>
+
+                <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-none">
+                  {/* Card 1: Diabetes Hub (Beautiful custom stylized graphic matching screenshot style) */}
+                  <div className="bg-amber-100/90 border border-amber-200 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
+                    <div className="absolute right-2 bottom-2 text-5xl opacity-40 select-none">🩺</div>
+                    <div>
+                      <span className="bg-amber-500/20 text-amber-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">Active Hub</span>
+                      <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">Diabetes Hub</h4>
+                    </div>
+                    <p className="text-[9px] text-slate-600 leading-snug">Personalized guides for managing and preventing diabetes.</p>
+                  </div>
+
+                  {/* Card 2: Mental Well-being */}
+                  <div className="bg-teal-50 border border-teal-100 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
+                    <div className="absolute right-2 bottom-2 text-5xl opacity-40 select-none">🧠</div>
+                    <div>
+                      <span className="bg-teal-500/20 text-teal-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">Resource</span>
+                      <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">Mental Well-being</h4>
+                    </div>
+                    <p className="text-[9px] text-slate-600 leading-snug">Mindfulness guides and support networks for emotional safety.</p>
+                  </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 self-center" />
               </div>
+
             </div>
           </div>
         )}
