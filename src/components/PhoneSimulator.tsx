@@ -4,7 +4,7 @@ import {
   HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, 
   ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, 
   MapPin, CheckSquare, Square, Info, ShieldCheck, ExternalLink,
-  MessageCircle, Smartphone, AlertCircle, Share2
+  MessageCircle, Smartphone, AlertCircle, Share2, Users, Sparkles, BookOpen
 } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs } from '../data/education';
 
@@ -255,7 +255,7 @@ export default function PhoneSimulator({
                 {/* CTAs */}
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   <button
-                    onClick={() => onChangeScreen(ScreenId.Education)}
+                    onClick={() => onChangeScreen(ScreenId.ReferralIntro)}
                     className="py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
                   >
                     Learn More
@@ -313,6 +313,170 @@ export default function PhoneSimulator({
           </div>
         )}
 
+
+        {/* ----------------- SCREEN 1b: WHY WAS I REFERRED? ----------------- */}
+        {activeScreen === ScreenId.ReferralIntro && (
+          <div className="flex-col flex flex-1 pb-6">
+            {/* Top Navigation */}
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
+              <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full">
+                <ArrowLeft className="w-5 h-5 text-slate-600" />
+              </button>
+              <h4 className="text-sm font-bold text-slate-800">Why Was I Referred?</h4>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 bg-slate-50">
+              {/* Page subtitle */}
+              <div className="text-center">
+                <h3 className="text-base font-bold text-slate-800 leading-snug">Why Was I Referred?</h3>
+                <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                  Understanding why your doctor recommended FH genetic testing.
+                </p>
+              </div>
+
+              {/* SECTION 1 — Personalised Explanation */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-11 h-11 rounded-full bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                    <HeartPulse className="w-5 h-5 text-[#008375]" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xs font-bold text-slate-800 mb-2">Why your doctor referred you</h4>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Your recent cholesterol results suggest you may have a higher chance of having Familial Hypercholesterolaemia (FH).
+                    </p>
+                    <p className="text-[11px] text-slate-800 font-semibold leading-relaxed mt-2">
+                      This does NOT mean you have FH.
+                    </p>
+                    <p className="text-[11px] text-slate-600 leading-relaxed mt-2">
+                      Genetic testing is recommended to help confirm whether FH is the cause of your high cholesterol so you and your healthcare team can make informed decisions about your care.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 2 — Why this matters */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-3">Why this matters</h4>
+                <div className="space-y-2.5">
+                  {/* Card 1 */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-start shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                      <Check className="w-4 h-4 text-[#008375]" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-xs font-bold text-slate-800">Early diagnosis</h5>
+                      <p className="text-[11px] text-slate-600 leading-relaxed mt-0.5">
+                        Finding FH early allows treatment to begin sooner and reduces future health risks.
+                      </p>
+                    </div>
+                  </div>
+                  {/* Card 2 */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-start shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                      <Users className="w-4 h-4 text-[#008375]" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-xs font-bold text-slate-800">Protect your family</h5>
+                      <p className="text-[11px] text-slate-600 leading-relaxed mt-0.5">
+                        FH can be inherited. Knowing your diagnosis may help protect your family members.
+                      </p>
+                    </div>
+                  </div>
+                  {/* Card 3 */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-start shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                      <Sparkles className="w-4 h-4 text-[#008375]" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-xs font-bold text-slate-800">Personalised care</h5>
+                      <p className="text-[11px] text-slate-600 leading-relaxed mt-0.5">
+                        Your results help doctors recommend the most appropriate treatment for you.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3 — What happens next? */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-3">What happens next?</h4>
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                  {/* Progress indicator */}
+                  <div className="space-y-3">
+                    {/* Step 1 — done */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-[#008375] flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <span className="text-[11px] text-slate-500 line-through">Referral received</span>
+                    </div>
+                    {/* Step 2 — current */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-[#008375] flex items-center justify-center shrink-0 ring-2 ring-teal-200 ring-offset-1">
+                        <BookOpen className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <span className="text-[11px] font-bold text-[#008375]">Learn about FH</span>
+                    </div>
+                    {/* Step 3 — upcoming */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                        <ClipboardList className="w-3.5 h-3.5 text-slate-400" />
+                      </div>
+                      <span className="text-[11px] text-slate-400">Pre-test counselling</span>
+                    </div>
+                    {/* Step 4 — future */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                        <Dna className="w-3.5 h-3.5 text-slate-400" />
+                      </div>
+                      <span className="text-[11px] text-slate-400">Genetic testing results</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-slate-100">
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      The next step is learning more about FH before attending your pre-test counselling appointment.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 4 — Continue Learning */}
+              <div className="bg-gradient-to-br from-teal-50 to-slate-50 border border-teal-100 rounded-xl p-4 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border border-teal-100 shadow-sm">
+                    <BookOpen className="w-5 h-5 text-[#008375]" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xs font-bold text-slate-800 mb-1.5">Ready to learn more?</h4>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      You can now explore easy-to-understand information about FH, genetic testing, costs, insurance, medications and frequently asked questions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Buttons */}
+            <div className="px-4 py-3 bg-white border-t border-slate-200 space-y-2 shrink-0">
+              <button
+                onClick={() => onChangeScreen(ScreenId.Education)}
+                className="w-full py-3 bg-[#008375] hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-teal-700/20"
+              >
+                Continue to Education Hub
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onChangeScreen(ScreenId.Home)}
+                className="w-full py-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Back to Home
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ----------------- SCREEN 2: EDUCATION HUB ----------------- */}
         {activeScreen === ScreenId.Education && (

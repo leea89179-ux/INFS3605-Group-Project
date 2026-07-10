@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScreenId } from '../types';
-import { ShieldCheck, BookOpen, Clock, Heart, Users, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
+import { ShieldCheck, BookOpen, Clock, Heart, Users, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Sparkles } from 'lucide-react';
 
 interface AnnotationsPanelProps {
   activeScreen: ScreenId;
@@ -33,6 +33,22 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       ],
       accessibilityForSeniors: 'Uses high contrast text, large 44px touch targets for CTAs, and a clean sans-serif layout. The layout mimics the familiar Singapore HealthHub card system.',
       dropOffImpact: 'Reduces referral-to-booking leakage by keeping the genetic testing task top-of-mind every time the patient opens HealthHub for their health records, vaccination schedules, or family health tracking.'
+    },
+    [ScreenId.ReferralIntro]: {
+      title: 'Screen 1b: Why Was I Referred?',
+      problemSolved: 'Shock and confusion. Patients receive a referral labelled "genetic testing" without understanding why. The word "genetic" alone triggers fear of serious illness, leading to avoidance and inaction before the patient even reads the education materials.',
+      uxGuidelines: [
+        'Reassurance First: The page opens with a clear, reassuring statement that the referral does NOT mean the patient has FH. This directly counters catastrophic thinking before it begins.',
+        'Three-Card Summary: Instead of a wall of text, three small icon cards (early diagnosis, family protection, personalised care) communicate the value of testing in seconds.',
+        'Progressive Disclosure: The journey progress indicator shows the patient where they are and what comes next, reducing the unknown and building momentum to continue.',
+        'Single Clear CTA: The primary "Continue to Education Hub" button gives one obvious next step, with a secondary "Back to Home" for those not yet ready.',
+      ],
+      govTechPrinciples: [
+        { label: 'Calm Onboarding', desc: 'Acts as a psychological bridge between the clinical referral and the detailed education hub, easing patients into information at their own pace.' },
+        { label: 'Patient Agency', desc: 'Explains the referral in plain English so the patient understands their own care pathway, fostering trust in the public health system.' }
+      ],
+      accessibilityForSeniors: 'Uses short 2-3 line paragraphs, large icon cards with clear labels, and a simple vertical progress indicator. Language is plain and reassuring, avoiding alarming medical jargon.',
+      dropOffImpact: 'Reduces pre-education drop-off caused by fear and confusion. Patients who understand why they were referred are significantly more likely to proceed to the Education Hub and complete booking.'
     },
     [ScreenId.Education]: {
       title: 'Screen 2: Personalised Education Hub',

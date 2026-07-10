@@ -1,5 +1,6 @@
 export enum ScreenId {
   Home = 'home',
+  ReferralIntro = 'referral-intro',
   Education = 'education',
   Booking = 'booking',
   ReminderSettings = 'reminders',
