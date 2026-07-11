@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScreenId, Appointment, ReminderPreferences } from '../types';
-import { 
-  HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, 
-  ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, 
-  MapPin, CheckSquare, Square, Info, ShieldCheck, ExternalLink,
-  MessageCircle, Smartphone, AlertCircle, Share2, Settings, FileText,
-  CreditCard, User, BookOpen, Users, Shield, Clock, ChevronDown,
-  X, ChevronLeft, Download, Printer
-} from 'lucide-react';
-import { educationalSections, preCounsellingChecklist, faqs, helpfulResources, HelpfulResource } from '../data/education';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen } from 'lucide-react';
+import { educationalSections, preCounsellingChecklist, faqs } from '../data/education';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
@@ -687,9 +680,15 @@ export default function PhoneSimulator({
                   <button className="text-blue-600 text-[11px] font-bold hover:underline">Edit</button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 px-4">
-                  {/* Card 1: Appointments */}
-                  <button 
+                {/* CTAs */}
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  <button
+                    onClick={() => onChangeScreen(ScreenId.ReferralIntro)}
+                    className="py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
+                  >
+                    Learn More
+                  </button>
+                  <button
                     onClick={() => onChangeScreen(ScreenId.Booking)}
                     className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square"
                   >
@@ -808,6 +807,205 @@ export default function PhoneSimulator({
           </div>
         )}
 
+
+        {/* ----------------- SCREEN 1b: WHY WAS I REFERRED? ----------------- */}
+        {activeScreen === ScreenId.ReferralIntro && (
+          <div className="flex-col flex flex-1 pb-6">
+            {/* Top Navigation */}
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
+              <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full">
+                <ArrowLeft className="w-5 h-5 text-slate-600" />
+              </button>
+              <h4 className="text-sm font-bold text-slate-800">Why Was I Referred?</h4>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6 bg-slate-50">
+              {/* Page title + subtitle (three short sentences) */}
+              <div>
+                <h3 className="text-base font-bold text-slate-800 leading-snug">Why Was I Referred?</h3>
+                <div className="mt-2 space-y-2">
+                  <p className="text-xs text-slate-700 leading-relaxed">Hi Lisa.</p>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Your doctor has recommended <strong className="font-bold text-slate-800">Genetic testing</strong> after reviewing your recent cholesterol results.
+                  </p>
+                  <p className="text-xs text-slate-600 leading-relaxed">Here's what this means.</p>
+                </div>
+              </div>
+
+              {/* SECTION 1 — Personalised Explanation */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                    <HeartPulse className="w-5 h-5 text-[#008375]" />
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-800">Why your doctor referred you</h4>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Your recent cholesterol results suggest you <strong className="font-bold text-slate-800">may</strong> have Familial Hypercholesterolaemia (<strong className="font-bold text-slate-800">FH</strong>).
+                </p>
+                {/* Reassurance highlighted box — strongest visual element */}
+                <div className="mt-4 bg-teal-50 border-2 border-teal-300 rounded-lg px-4 py-4 flex items-center justify-center">
+                  <p className="text-sm text-[#008375] font-bold leading-relaxed text-center">
+                    This does NOT mean you have FH.
+                  </p>
+                </div>
+                {/* Two icon rows — top-aligned with first line of text */}
+                <div className="mt-4 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                      <Dna className="w-5 h-5 text-[#008375]" />
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed pt-2">
+                      <strong className="font-bold text-slate-800">Genetic testing</strong> helps confirm whether FH is the cause.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                      <HeartPulse className="w-5 h-5 text-[#008375]" />
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed pt-2">
+                      Your results help your healthcare team recommend the right care.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 2 — Why this matters */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-4">Why this matters</h4>
+                <div className="space-y-3">
+                  {/* Card 1 */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
+                    <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                      <Check className="w-5 h-5 text-[#008375]" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-xs font-bold text-slate-800">Early diagnosis</h5>
+                      <p className="text-xs text-slate-600 leading-relaxed mt-1">Start treatment sooner.</p>
+                    </div>
+                  </div>
+                  {/* Card 2 */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
+                    <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                      <Users className="w-5 h-5 text-[#008375]" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-xs font-bold text-slate-800">Protect your family</h5>
+                      <p className="text-xs text-slate-600 leading-relaxed mt-1">FH can run in families.</p>
+                    </div>
+                  </div>
+                  {/* Card 3 */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
+                    <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                      <Sparkles className="w-5 h-5 text-[#008375]" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-xs font-bold text-slate-800">Personalised care</h5>
+                      <p className="text-xs text-slate-600 leading-relaxed mt-1">Results help guide your care.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3 — What happens next? */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-4">What happens next?</h4>
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                  {/* Progress indicator */}
+                  <div className="space-y-4">
+                    {/* Step 1 — done */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-[#008375] flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <span className="text-xs text-slate-500 line-through">Referral received</span>
+                    </div>
+                    {/* Step 2 — current */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-[#008375] flex items-center justify-center shrink-0 ring-4 ring-teal-100">
+                        <BookOpen className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <span className="text-xs font-bold text-[#008375]">Learn about FH</span>
+                      <span className="text-[9px] text-[#008375] bg-teal-50 border border-teal-200 px-1.5 py-0.5 rounded-full font-bold ml-2">Current</span>
+                    </div>
+                    {/* Step 3 — upcoming */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                        <ClipboardList className="w-3.5 h-3.5 text-slate-400" />
+                      </div>
+                      <span className="text-xs text-slate-400">Pre-test counselling</span>
+                    </div>
+                    {/* Step 4 — future */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                        <Dna className="w-3.5 h-3.5 text-slate-400" />
+                      </div>
+                      <span className="text-xs text-slate-400">Genetic testing results</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      The next step is learning more about FH before attending your pre-test counselling appointment.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 4 — Before your appointment */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-2">Before your appointment</h4>
+                <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                  Spend just 2–3 minutes learning about FH before your counselling appointment.
+                </p>
+                {/* Five compact preview cards */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
+                    <Dna className="w-5 h-5 text-[#008375]" />
+                    <span className="text-xs font-bold text-slate-800 text-center">What is FH?</span>
+                  </div>
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
+                    <ClipboardList className="w-5 h-5 text-[#008375]" />
+                    <span className="text-xs font-bold text-slate-800 text-center">Why testing?</span>
+                  </div>
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
+                    <HeartPulse className="w-5 h-5 text-[#008375]" />
+                    <span className="text-xs font-bold text-slate-800 text-center">Testing process</span>
+                  </div>
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
+                    <Coins className="w-5 h-5 text-[#008375]" />
+                    <span className="text-xs font-bold text-slate-800 text-center">Costs</span>
+                  </div>
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm col-span-2">
+                    <ShieldAlert className="w-5 h-5 text-[#008375]" />
+                    <span className="text-xs font-bold text-slate-800 text-center">Insurance</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Buttons */}
+            <div className="px-4 py-4 bg-white border-t border-slate-200 space-y-2 shrink-0">
+              <p className="text-[10px] text-slate-400 text-center leading-relaxed">
+                Continue to learn about FH before your appointment.
+              </p>
+              <button
+                onClick={() => onChangeScreen(ScreenId.Education)}
+                className="w-full py-3 bg-[#008375] hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-teal-700/20"
+              >
+                Learn About FH
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onChangeScreen(ScreenId.Home)}
+                className="w-full py-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Back to Home
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ----------------- SCREEN 2: EDUCATION HUB ----------------- */}
         {activeScreen === ScreenId.Education && (
