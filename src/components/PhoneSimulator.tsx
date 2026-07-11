@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScreenId, Appointment, ReminderPreferences } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen } from 'lucide-react';
-import { educationalSections, preCounsellingChecklist, faqs } from '../data/education';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Shield, Pill, ChevronRight, ChevronLeft, ChevronDown, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, Settings, X, Download, Printer, Clock, FileText, CreditCard, User } from 'lucide-react';
+import { educationalSections, preCounsellingChecklist, faqs, helpfulResources, type HelpfulResource } from '../data/education';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
