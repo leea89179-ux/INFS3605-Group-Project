@@ -6,7 +6,7 @@
 
 This contains everything you need to run your app locally.
 
-View your app in Bolt: https://leea89179-ux-infs360-7jx6.bolt.host
+(https://ai.studio/apps/3488350d-8b63-452d-8826-810746196302)
 
 ## Run Locally
 
