@@ -1,12 +1,9 @@
 {
-  "name": "Remix: Remix: Remix: HealthHub - FH Genetic Testing Referral",
+  "name": "HealthHub - FH Genetic Testing Referral",
   "description": "An interactive GovTech Singapore HealthHub prototype for the FH genetic testing referral journey, designed to increase appointment compliance, reduce anxiety, and minimize cognitive load for patients.",
   "requestFramePermissions": [
     "geolocation"
   ],
-  "name": "Remix: Remix: HealthHub - FH Genetic Testing Referral",
-  "description": "An interactive GovTech Singapore HealthHub prototype for the FH genetic testing referral journey, designed to increase appointment compliance, reduce anxiety, and minimize cognitive load for patients.",
-  "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]

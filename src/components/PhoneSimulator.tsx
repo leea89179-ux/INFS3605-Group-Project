@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScreenId, Appointment, ReminderPreferences } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen } from 'lucide-react';
-import { educationalSections, preCounsellingChecklist, faqs } from '../data/education';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, HelpCircle } from 'lucide-react';
+import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
@@ -25,7 +25,7 @@ export const clinicalSlots = [
     duration: '45 mins',
     clinic: 'National University Hospital Genetic Clinic',
     address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074',
-    cost: 'S$18.50 (CHAS Subsidized)'
+    cost: 'S$18.50'
   },
   {
     date: '23 July 2026',
@@ -35,7 +35,7 @@ export const clinicalSlots = [
     duration: '45 mins',
     clinic: 'National University Hospital Genetic Clinic',
     address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074',
-    cost: 'S$18.50 (CHAS Subsidized)'
+    cost: 'S$18.50'
   },
   {
     date: '24 July 2026',
@@ -45,7 +45,7 @@ export const clinicalSlots = [
     duration: '45 mins',
     clinic: 'National University Hospital Genetic Clinic',
     address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074',
-    cost: 'S$18.50 (CHAS Subsidized)'
+    cost: 'S$18.50'
   }
 ];
 
@@ -145,74 +145,376 @@ export interface ClinicSlot {
   address: string;
 }
 
-export const CLINIC_SLOTS_DB: Record<string, Record<number, ClinicSlot[]>> = {
+export const CLINIC_SLOTS_DB: Record<string, Record<string, Record<number, ClinicSlot[]>>> = {
   nuh: {
-    22: [
-      { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-      { date: '22 July 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
-    ],
-    23: [
-      { date: '23 July 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-      { date: '23 July 2026', time: '2:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
-    ],
-    24: [
-      { date: '24 July 2026', time: '9:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-      { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-      { date: '24 July 2026', time: '4:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
-    ]
+    'July 2026': {
+      21: [
+        { date: '21 July 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      22: [
+        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      23: [
+        { date: '23 July 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '11:00 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '2:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      24: [
+        { date: '24 July 2026', time: '9:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ]
+    },
+    'August 2026': {
+      12: [
+        { date: '12 August 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      13: [
+        { date: '13 August 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '13 August 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      14: [
+        { date: '14 August 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '14 August 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      18: [
+        { date: '18 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '18 August 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ]
+    },
+    'September 2026': {
+      8: [
+        { date: '8 September 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      9: [
+        { date: '9 September 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '9 September 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      10: [
+        { date: '10 September 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '10 September 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ],
+      15: [
+        { date: '15 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '15 September 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+      ]
+    }
   },
   sgh: {
-    22: [
-      { date: '22 July 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-      { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
-    ],
-    23: [
-      { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-      { date: '23 July 2026', time: '3:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
-    ],
-    25: [
-      { date: '25 July 2026', time: '10:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-      { date: '25 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
-    ]
+    'July 2026': {
+      22: [
+        { date: '22 July 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ],
+      23: [
+        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '23 July 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '23 July 2026', time: '3:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ],
+      25: [
+        { date: '25 July 2026', time: '10:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '25 July 2026', time: '11:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '25 July 2026', time: '2:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ]
+    },
+    'August 2026': {
+      12: [
+        { date: '12 August 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '12 August 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ],
+      13: [
+        { date: '13 August 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '13 August 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ],
+      19: [
+        { date: '19 August 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '19 August 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ]
+    },
+    'September 2026': {
+      8: [
+        { date: '8 September 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '8 September 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ],
+      9: [
+        { date: '9 September 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '9 September 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ],
+      16: [
+        { date: '16 September 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '16 September 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+      ]
+    }
   },
   ttsh: {
-    21: [
-      { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-      { date: '21 July 2026', time: '3:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
-    ],
-    23: [
-      { date: '23 July 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-      { date: '23 July 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
-    ],
-    24: [
-      { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-      { date: '24 July 2026', time: '2:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
-    ]
+    'July 2026': {
+      21: [
+        { date: '21 July 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '21 July 2026', time: '3:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+      ],
+      23: [
+        { date: '23 July 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '23 July 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+      ],
+      24: [
+        { date: '24 July 2026', time: '9:00 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '24 July 2026', time: '2:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+      ]
+    },
+    'August 2026': {
+      14: [
+        { date: '14 August 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '14 August 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+      ],
+      20: [
+        { date: '20 August 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '20 August 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+      ]
+    },
+    'September 2026': {
+      10: [
+        { date: '10 September 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '10 September 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+      ],
+      17: [
+        { date: '17 September 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '17 September 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+      ]
+    }
   },
   kkh: {
-    22: [
-      { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-      { date: '22 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
-    ],
-    24: [
-      { date: '24 July 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-      { date: '24 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
-    ],
-    27: [
-      { date: '27 July 2026', time: '10:00 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-      { date: '27 July 2026', time: '1:00 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
-    ]
+    'July 2026': {
+      22: [
+        { date: '22 July 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '22 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+      ],
+      24: [
+        { date: '24 July 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '24 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+      ],
+      27: [
+        { date: '27 July 2026', time: '10:00 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '27 July 2026', time: '1:00 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '27 July 2026', time: '3:00 PM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+      ]
+    },
+    'August 2026': {
+      12: [
+        { date: '12 August 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+      ],
+      18: [
+        { date: '18 August 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '18 August 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+      ]
+    },
+    'September 2026': {
+      8: [
+        { date: '8 September 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+      ],
+      15: [
+        { date: '15 September 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '15 September 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+      ]
+    }
   }
 };
 
+// Dynamically generate extra monthly offerings throughout 2026 and 2027 to satisfy the user request beautifully
+const extraOfferingsMonths = [
+  'October 2026', 'November 2026', 'December 2026',
+  'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027',
+  'June 2027', 'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
+];
+
+const referenceClinicDetails: Record<string, { provider: string; role: string; cost: string; clinic: string; address: string }[]> = {
+  nuh: [
+    { provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+    { provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+  ],
+  sgh: [
+    { provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+    { provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+  ],
+  ttsh: [
+    { provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+    { provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+  ],
+  kkh: [
+    { provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+    { provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+  ]
+};
+
+for (const clinicId of Object.keys(referenceClinicDetails)) {
+  const clinicSlots = CLINIC_SLOTS_DB[clinicId];
+  if (clinicSlots) {
+    for (const monthYear of extraOfferingsMonths) {
+      clinicSlots[monthYear] = {
+        12: [
+          {
+            date: `12 ${monthYear}`,
+            time: '10:00 AM',
+            provider: referenceClinicDetails[clinicId][0].provider,
+            role: referenceClinicDetails[clinicId][0].role,
+            duration: '45 mins',
+            cost: referenceClinicDetails[clinicId][0].cost,
+            clinic: referenceClinicDetails[clinicId][0].clinic,
+            address: referenceClinicDetails[clinicId][0].address
+          },
+          {
+            date: `12 ${monthYear}`,
+            time: '1:30 PM',
+            provider: referenceClinicDetails[clinicId][1].provider,
+            role: referenceClinicDetails[clinicId][1].role,
+            duration: '45 mins',
+            cost: referenceClinicDetails[clinicId][1].cost,
+            clinic: referenceClinicDetails[clinicId][1].clinic,
+            address: referenceClinicDetails[clinicId][1].address
+          }
+        ],
+        13: [
+          {
+            date: `13 ${monthYear}`,
+            time: '11:00 AM',
+            provider: referenceClinicDetails[clinicId][1].provider,
+            role: referenceClinicDetails[clinicId][1].role,
+            duration: '45 mins',
+            cost: referenceClinicDetails[clinicId][1].cost,
+            clinic: referenceClinicDetails[clinicId][1].clinic,
+            address: referenceClinicDetails[clinicId][1].address
+          },
+          {
+            date: `13 ${monthYear}`,
+            time: '3:00 PM',
+            provider: referenceClinicDetails[clinicId][0].provider,
+            role: referenceClinicDetails[clinicId][0].role,
+            duration: '45 mins',
+            cost: referenceClinicDetails[clinicId][0].cost,
+            clinic: referenceClinicDetails[clinicId][0].clinic,
+            address: referenceClinicDetails[clinicId][0].address
+          }
+        ],
+        20: [
+          {
+            date: `20 ${monthYear}`,
+            time: '9:30 AM',
+            provider: referenceClinicDetails[clinicId][0].provider,
+            role: referenceClinicDetails[clinicId][0].role,
+            duration: '45 mins',
+            cost: referenceClinicDetails[clinicId][0].cost,
+            clinic: referenceClinicDetails[clinicId][0].clinic,
+            address: referenceClinicDetails[clinicId][0].address
+          },
+          {
+            date: `20 ${monthYear}`,
+            time: '2:30 PM',
+            provider: referenceClinicDetails[clinicId][1].provider,
+            role: referenceClinicDetails[clinicId][1].role,
+            duration: '45 mins',
+            cost: referenceClinicDetails[clinicId][1].cost,
+            clinic: referenceClinicDetails[clinicId][1].clinic,
+            address: referenceClinicDetails[clinicId][1].address
+          }
+        ]
+      };
+    }
+  }
+}
+
+export const availableMonths = [
+  'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
+  'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027', 'June 2027',
+  'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
+];
+
+export const getAppointmentSlotDetails = (clinicName: string, date: string, timeSlot: string) => {
+  const clinicKey = Object.keys(CLINIC_SLOTS_DB).find(key => {
+    const months = CLINIC_SLOTS_DB[key];
+    const firstMonth = Object.keys(months)[0];
+    const days = months[firstMonth];
+    const firstDay = Object.keys(days)[0];
+    const firstSlot = days[Number(firstDay)]?.[0];
+    return firstSlot && (firstSlot.clinic === clinicName || clinicName.toLowerCase().includes(key.toLowerCase()));
+  });
+  if (clinicKey) {
+    const months = CLINIC_SLOTS_DB[clinicKey];
+    for (const mKey of Object.keys(months)) {
+      const days = months[mKey];
+      for (const day of Object.keys(days)) {
+        const slots = days[Number(day)];
+        for (const slot of slots) {
+          if (slot.date === date && slot.time === timeSlot) {
+            return slot;
+          }
+        }
+      }
+    }
+  }
+  return {
+    provider: getClinicSpecialist(clinicName).split(' (')[0],
+    role: getClinicSpecialist(clinicName).includes('(') ? getClinicSpecialist(clinicName).split('(')[1].replace(')', '') : 'Specialist',
+    cost: 'S$18.50',
+    duration: '45 mins',
+    clinic: clinicName,
+    address: getClinicAddress(clinicName)
+  };
+};
+
+const getFormattedDatePart = (dateStr: string) => {
+  const parts = dateStr.trim().split(/\s+/);
+  if (parts.length === 3) {
+    const dayVal = parseInt(parts[0], 10);
+    const day = dayVal < 10 ? `0${dayVal}` : `${dayVal}`;
+    const monthStr = parts[1].toLowerCase();
+    let month = "07";
+    if (monthStr.includes("aug")) month = "08";
+    else if (monthStr.includes("sep")) month = "09";
+    const year = parts[2];
+    return `${year}${month}${day}`;
+  }
+  return "20260722";
+};
+
+const getMonthConfig = (monthStr: string) => {
+  const parts = monthStr.split(' ');
+  const monthName = parts[0];
+  const year = parts[1] ? parseInt(parts[1], 10) : 2026;
+  
+  const monthIndex = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ].indexOf(monthName);
+  
+  if (monthIndex === -1) {
+    return { emptyCells: 3, totalDays: 31 };
+  }
+  
+  const firstDay = new Date(year, monthIndex, 1);
+  const emptyCells = firstDay.getDay(); // Sunday-start offset
+  const totalDays = new Date(year, monthIndex + 1, 0).getDate();
+  
+  return { emptyCells, totalDays };
+};
+
 export const downloadICSFile = (slot: { date: string; time: string; clinic: string; address: string }) => {
-  let datePart = "20260722";
-  if (slot.date.includes("21")) datePart = "20260721";
-  else if (slot.date.includes("22")) datePart = "20260722";
-  else if (slot.date.includes("23")) datePart = "20260723";
-  else if (slot.date.includes("24")) datePart = "20260724";
-  else if (slot.date.includes("25")) datePart = "20260725";
-  else if (slot.date.includes("27")) datePart = "20260727";
+  const datePart = getFormattedDatePart(slot.date);
 
   let timeStart = "103000";
   let timeEnd = "111500";
@@ -269,13 +571,7 @@ END:VCALENDAR`;
 };
 
 export const getGoogleCalendarUrl = (slot: { date: string; time: string; clinic: string; address: string }) => {
-  let datePart = "20260722";
-  if (slot.date.includes("21")) datePart = "20260721";
-  else if (slot.date.includes("22")) datePart = "20260722";
-  else if (slot.date.includes("23")) datePart = "20260723";
-  else if (slot.date.includes("24")) datePart = "20260724";
-  else if (slot.date.includes("25")) datePart = "20260725";
-  else if (slot.date.includes("27")) datePart = "20260727";
+  const datePart = getFormattedDatePart(slot.date);
 
   let timeStart = "103000";
   let timeEnd = "111500";
@@ -352,8 +648,34 @@ export default function PhoneSimulator({
   const [showClinicDropdown, setShowClinicDropdown] = useState<boolean>(false);
 
   // Calendar Booking States (User request 2)
-  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(22); // Day of July 2026
+  const [selectedCalendarMonth, setSelectedCalendarMonth] = useState<string>('July 2026');
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(22); // Day of the month
   const [selectedSlotObj, setSelectedSlotObj] = useState<ClinicSlot | null>(null);
+
+  const selectMonth = (month: string) => {
+    setSelectedCalendarMonth(month);
+    const availableDays = Object.keys(CLINIC_SLOTS_DB[selectedClinicId]?.[month] || {}).map(Number);
+    if (availableDays.length > 0) {
+      setSelectedCalendarDay(availableDays[0]);
+    } else {
+      setSelectedCalendarDay(1);
+    }
+  };
+
+  // Custom non-blocking alert/confirm dialog states to bypass iframe restrictions
+  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+  };
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   const detectLiveLocation = () => {
     if (!navigator.geolocation) {
@@ -478,6 +800,73 @@ export default function PhoneSimulator({
 
   return (
     <div className="relative w-[375px] h-[780px] bg-slate-950 rounded-[55px] border-[12px] border-slate-800 shadow-2xl overflow-hidden flex flex-col shrink-0 select-none">
+      
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[11px] font-bold py-2 px-4 rounded-full shadow-lg z-50 flex items-center gap-2 border border-slate-800 animate-fade-in whitespace-nowrap">
+          <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* iOS-style Action Sheet Modal Overlay (User request 1) */}
+      {showCancelConfirmModal && (
+        <div className="absolute inset-0 bg-slate-950/60 flex items-end justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl w-full p-5 space-y-4.5 shadow-2xl text-left border border-slate-100 animate-slide-up">
+            <div className="space-y-2">
+              <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                <span className="p-1 bg-teal-50 text-[#008375] rounded-lg">
+                  <Calendar className="w-4 h-4" />
+                </span>
+                Reschedule or Cancel Appointment?
+              </h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Keeping or rescheduling this appointment is crucial to understand familial cardiac risk. Subsidized slots are highly limited.
+              </p>
+            </div>
+
+            {/* Link to FAQ Section */}
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-[10.5px] text-slate-600 leading-snug">
+              Have worries about costs, safety, or procedures? Address your concerns in our{' '}
+              <button
+                onClick={() => {
+                  setShowCancelConfirmModal(false);
+                  onChangeScreen(ScreenId.Education);
+                }}
+                className="text-[#008375] font-extrabold hover:underline inline-flex items-center gap-0.5 cursor-pointer"
+              >
+                FAQ section <HelpCircle className="w-3 h-3 text-[#008375]" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              {/* Highlighted Reschedule Button */}
+              <button
+                onClick={() => {
+                  setShowCancelConfirmModal(false);
+                  handleCancelBooking();
+                  triggerToast('Reschedule mode active: Select a new slot below.');
+                }}
+                className="w-full py-3 bg-[#008375] hover:bg-teal-850 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center shadow-md shadow-teal-800/10 flex items-center justify-center gap-1.5"
+              >
+                <Calendar className="w-4 h-4" /> Reschedule Appointment
+              </button>
+
+              {/* Plain Cancel Button */}
+              <button
+                onClick={() => {
+                  setShowCancelConfirmModal(false);
+                  handleCancelBooking();
+                  triggerToast('Appointment slot cancelled successfully.');
+                }}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+              >
+                Cancel Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Physical Dynamic Island/Notch */}
       <div className="absolute top-2 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-950 rounded-full z-50 flex items-center justify-center">
@@ -1569,37 +1958,48 @@ export default function PhoneSimulator({
                     </p>
                   </div>
 
-                  {/* Relational details matching preselected July dates */}
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-left space-y-2.5 text-xs">
-                    <div className="flex justify-between items-start gap-4">
-                      <span className="text-slate-500 font-medium">Counselling Care Clinic:</span>
-                      <strong className="text-slate-800 text-right font-semibold">
-                        {appointment.clinic || "National University Hospital Genetic Clinic"}
-                      </strong>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500 font-medium">Assigned Specialist:</span>
-                      <strong className="text-slate-800 font-semibold">
-                        {getClinicSpecialist(appointment.clinic || "NUH")}
-                      </strong>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500 font-medium">Scheduled Date:</span>
-                      <strong className="text-slate-800 font-semibold font-mono">{appointment.date}</strong>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500 font-medium">Confirmed Time:</span>
-                      <strong className="text-slate-800 font-semibold font-mono">{appointment.timeSlot}</strong>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500 font-medium">Session Duration:</span>
-                      <strong className="text-slate-850 font-semibold">45 minutes</strong>
-                    </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-                      <span className="text-slate-500 font-medium">Your Out-of-pocket Cost:</span>
-                      <span className="text-teal-700 font-extrabold font-mono">S$18.50 (CHAS Subsidized)</span>
-                    </div>
-                  </div>
+                  {/* Relational details matching selected July dates */}
+                  {(() => {
+                    const details = getAppointmentSlotDetails(
+                      appointment.clinic || "National University Hospital Genetic Clinic",
+                      appointment.date,
+                      appointment.timeSlot
+                    );
+                    return (
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left space-y-3 text-xs">
+                        <div className="grid grid-cols-12 gap-x-2 items-start">
+                          <span className="col-span-5 text-slate-500 font-medium">Care Clinic:</span>
+                          <strong className="col-span-7 text-slate-800 text-right font-semibold leading-relaxed">
+                            {appointment.clinic || "National University Hospital Genetic Clinic"}
+                          </strong>
+                        </div>
+                        <div className="grid grid-cols-12 gap-x-2 items-start">
+                          <span className="col-span-5 text-slate-500 font-medium">Specialist:</span>
+                          <strong className="col-span-7 text-slate-800 text-right font-semibold leading-relaxed">
+                            {details.provider} <span className="text-[10px] text-slate-500 font-normal block">({details.role})</span>
+                          </strong>
+                        </div>
+                        <div className="grid grid-cols-12 gap-x-2 items-center">
+                          <span className="col-span-5 text-slate-500 font-medium">Scheduled Date:</span>
+                          <strong className="col-span-7 text-slate-800 text-right font-semibold font-mono">{appointment.date}</strong>
+                        </div>
+                        <div className="grid grid-cols-12 gap-x-2 items-center">
+                          <span className="col-span-5 text-slate-500 font-medium">Confirmed Time:</span>
+                          <strong className="col-span-7 text-slate-800 text-right font-semibold font-mono">{appointment.timeSlot}</strong>
+                        </div>
+                        <div className="grid grid-cols-12 gap-x-2 items-center">
+                          <span className="col-span-5 text-slate-500 font-medium">Session Duration:</span>
+                          <strong className="col-span-7 text-slate-800 text-right font-semibold">{details.duration}</strong>
+                        </div>
+                        <div className="grid grid-cols-12 gap-x-2 items-start pt-2 border-t border-slate-200">
+                          <span className="col-span-5 text-slate-500 font-bold">Out-of-pocket Cost:</span>
+                          <strong className="col-span-7 text-teal-700 text-right font-extrabold font-mono">
+                            {details.cost} <span className="text-[10px] text-slate-550 font-normal block">(CHAS Subsidized)</span>
+                          </strong>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Feature 3: Calendar Integration buttons with elegant toggle menu */}
                   <div className="space-y-2.5 pt-1.5">
@@ -1622,7 +2022,7 @@ export default function PhoneSimulator({
                               address: getClinicAddress(appointment.clinic)
                             });
                             onAddCalendarEvent();
-                            alert('Apple Calendar .ics event downloaded successfully!');
+                            triggerToast('Apple Calendar .ics event downloaded successfully!');
                           }}
                           className="py-2 px-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer animate-fade-in"
                         >
@@ -1655,7 +2055,7 @@ export default function PhoneSimulator({
                     <Info className="w-4 h-4 text-teal-600 shrink-0" /> Essential Preparation Instructions
                   </h4>
                   <p className="text-slate-600 leading-relaxed text-[11px]">
-                    No medical fasting is needed for the genetic panel test. Bring your NRIC or check in via Singpass. Please review our pre-counselling learning modules before arriving.
+                    No medical fasting is needed for the genetic panel test. Bring your NRIC or check in via Singpass. You can optionally view our pre-counselling learning modules if you would like additional helpful information before your appointment.
                   </p>
                   <button 
                     onClick={() => onChangeScreen(ScreenId.Education)}
@@ -1670,7 +2070,7 @@ export default function PhoneSimulator({
                   <button
                     onClick={() => {
                       handleCancelBooking();
-                      alert('Reschedule mode active: Please select a new genetic counselling appointment slot below.');
+                      triggerToast('Reschedule mode active: Select a new slot below.');
                     }}
                     className="w-full py-2.5 bg-white hover:bg-slate-50 text-[#008375] border border-teal-600/40 rounded-xl text-xs font-bold transition cursor-pointer"
                   >
@@ -1678,9 +2078,7 @@ export default function PhoneSimulator({
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm('Cancel genetic testing slot? Keeping this appointment is crucial to understand familial cardiac risk.')) {
-                        handleCancelBooking();
-                      }
+                      setShowCancelConfirmModal(true);
                     }}
                     className="w-full py-2.5 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-xl text-xs font-semibold border border-slate-200 transition cursor-pointer"
                   >
@@ -1693,7 +2091,7 @@ export default function PhoneSimulator({
               <div className="p-4 space-y-4 text-left">
                 {/* Step 1: Available list */}
                 {bookingStep === 'available' && (() => {
-                  // Pre-compute distances to find nearest clinic
+                  // Pre-compute distances to find nearest clinic and sort by shortest to longest distance
                   const clinicsWithDistances = CLINICS.map(clinic => {
                     const dist = calculateDistance(
                       patientCoords.lat,
@@ -1702,7 +2100,7 @@ export default function PhoneSimulator({
                       clinic.lng
                     );
                     return { ...clinic, distance: dist };
-                  });
+                  }).sort((a, b) => a.distance - b.distance);
                   const minDistance = Math.min(...clinicsWithDistances.map(c => c.distance));
 
                   return (
@@ -1841,7 +2239,7 @@ export default function PhoneSimulator({
                                       setShowClinicDropdown(false);
                                       
                                       // Auto-select first available day for the clinic
-                                      const availableDays = Object.keys(CLINIC_SLOTS_DB[clinic.id]).map(Number);
+                                      const availableDays = Object.keys(CLINIC_SLOTS_DB[clinic.id]?.[selectedCalendarMonth] || {}).map(Number);
                                       if (availableDays.length > 0) {
                                         setSelectedCalendarDay(availableDays[0]);
                                       }
@@ -1878,12 +2276,44 @@ export default function PhoneSimulator({
                       </div>
 
                       {/* Feature 1 Calendar Layout Month Grid (User request 2) */}
-                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-3xs text-left">
-                        <div className="flex justify-between items-center border-b border-slate-150 pb-2">
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left animate-fade-in">
+                        <div className="flex flex-col gap-2.5 border-b border-slate-150 pb-3">
                           <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 font-mono">
-                            Select Session Date
+                            Select Month & Session Date
                           </h4>
-                          <span className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">July 2026</span>
+                          
+                          {/* Easy Month-Flipping Header */}
+                          <div className="flex justify-between items-center bg-slate-50 border border-slate-200/60 p-2 rounded-xl">
+                            <button
+                              onClick={() => {
+                                const idx = availableMonths.indexOf(selectedCalendarMonth);
+                                if (idx > 0) {
+                                  selectMonth(availableMonths[idx - 1]);
+                                }
+                              }}
+                              disabled={availableMonths.indexOf(selectedCalendarMonth) === 0}
+                              className="p-1.5 hover:bg-slate-200 disabled:hover:bg-transparent rounded-lg disabled:opacity-25 cursor-pointer transition text-slate-600 self-center"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            
+                            <span className="font-extrabold text-xs text-slate-800 tracking-wide select-none">
+                              {selectedCalendarMonth}
+                            </span>
+                            
+                            <button
+                              onClick={() => {
+                                const idx = availableMonths.indexOf(selectedCalendarMonth);
+                                if (idx < availableMonths.length - 1) {
+                                  selectMonth(availableMonths[idx + 1]);
+                                }
+                              }}
+                              disabled={availableMonths.indexOf(selectedCalendarMonth) === availableMonths.length - 1}
+                              className="p-1.5 hover:bg-slate-200 disabled:hover:bg-transparent rounded-lg disabled:opacity-25 cursor-pointer transition text-slate-600 self-center"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
 
                         {/* Calendar Grid */}
@@ -1899,15 +2329,15 @@ export default function PhoneSimulator({
                           </div>
 
                           <div className="grid grid-cols-7 gap-1">
-                            {/* July 1st 2026 is Wednesday, so 3 empty cells */}
-                            {Array.from({ length: 3 }).map((_, i) => (
+                            {/* Empty cells to align correct starting weekday */}
+                            {Array.from({ length: getMonthConfig(selectedCalendarMonth).emptyCells }).map((_, i) => (
                               <div key={`empty-${i}`} className="h-8" />
                             ))}
 
-                            {/* Days 1 to 31 */}
-                            {Array.from({ length: 31 }).map((_, i) => {
+                            {/* Days 1 to totalDays */}
+                            {Array.from({ length: getMonthConfig(selectedCalendarMonth).totalDays }).map((_, i) => {
                               const dayNum = i + 1;
-                              const hasSlots = !!CLINIC_SLOTS_DB[selectedClinicId]?.[dayNum];
+                              const hasSlots = !!CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum];
                               const isSelected = selectedCalendarDay === dayNum;
 
                               return (
@@ -1948,12 +2378,12 @@ export default function PhoneSimulator({
                       {/* Dynamic Slots for Selected Calendar Day */}
                       <div className="space-y-2.5 text-left">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between items-center">
-                          <span>Available Counselling Slots (July {selectedCalendarDay})</span>
+                          <span>Available Counselling Slots ({selectedCalendarMonth} {selectedCalendarDay})</span>
                           <span className="text-[#008375] font-semibold">MOH Approved</span>
                         </label>
                         <div className="space-y-2">
-                          {CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarDay] ? (
-                            CLINIC_SLOTS_DB[selectedClinicId][selectedCalendarDay].map((slot, idx) => (
+                          {CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarMonth]?.[selectedCalendarDay] ? (
+                            CLINIC_SLOTS_DB[selectedClinicId][selectedCalendarMonth][selectedCalendarDay].map((slot, idx) => (
                               <button
                                 key={idx}
                                 onClick={() => {
@@ -1993,12 +2423,11 @@ export default function PhoneSimulator({
                         </div>
                       </div>
 
-                      <div className="bg-slate-100 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center text-xs text-left">
-                        <div className="flex items-center gap-2 text-slate-600">
-                          <Coins className="w-4 h-4 text-[#008375]" />
-                          <span>MOH Subsidy Applied (CHAS Blue)</span>
-                        </div>
-                        <strong className="text-slate-800 font-mono">Est: S$18.50</strong>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-150 flex gap-2.5 items-center text-xs text-slate-600">
+                        <Coins className="w-4 h-4 text-[#008375] shrink-0" />
+                        <p className="text-[11px] leading-snug">
+                          MOH Subsidies automatically computed via your linked Singpass status.
+                        </p>
                       </div>
                     </div>
                   );
@@ -2051,7 +2480,7 @@ export default function PhoneSimulator({
                           </div>
                           <div className="flex justify-between border-t border-slate-100 pt-2.5 mt-2.5">
                             <span className="text-slate-500 font-bold">Total Estimated Out-of-pocket Cost:</span>
-                            <span className="text-[#008375] font-extrabold font-mono">S$18.50</span>
+                            <span className="text-[#008375] font-extrabold font-mono">{slot.cost}</span>
                           </div>
                         </div>
                       </div>
@@ -2398,7 +2827,7 @@ export default function PhoneSimulator({
             {/* Notification Bubble (Feature 5) */}
             <div className="relative z-10 space-y-4 my-auto">
               
-              <div className="bg-slate-900/85 backdrop-blur-md text-white border border-slate-700/50 p-4 rounded-2xl shadow-xl space-y-3 max-w-[320px] mx-auto animate-bounce-short text-left">
+              <div className="bg-slate-900/85 backdrop-blur-md text-white border border-slate-700/50 p-4 rounded-2xl shadow-xl space-y-3 max-w-[320px] mx-auto text-left">
                 {/* Header info */}
                 <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                   <div className="flex items-center gap-1.5">
@@ -2412,16 +2841,10 @@ export default function PhoneSimulator({
 
                 {/* Body message */}
                 <div className="space-y-1">
-                  <h4 className="font-bold text-xs text-slate-100">Confirm your counselling appointment</h4>
+                  <h4 className="font-bold text-xs text-slate-100">Counselling Appointment Reminder</h4>
                   <p className="text-[11px] text-slate-300 leading-snug font-sans">
-                    Your subsidized FH Genetic Counselling at <strong className="text-white">NUH Genetic Clinic</strong> is scheduled on <strong className="text-white">{appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026'} @ {appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM'}</strong>.
+                    Confirm your FH Genetic Counselling on <strong className="text-white">{appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026'} @ {appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM'}</strong>.
                   </p>
-                </div>
-
-                {/* Subsidized tag */}
-                <div className="bg-teal-900/30 border border-teal-850 p-2 rounded-lg text-[10px] text-teal-300 flex items-center justify-between">
-                  <span>MOH Subsidized Slot</span>
-                  <strong className="font-mono">S$18.50</strong>
                 </div>
 
                 {/* Lock Screen buttons */}
@@ -2606,9 +3029,8 @@ export default function PhoneSimulator({
       <div className="bg-white border-t border-slate-200 py-3 px-4 flex justify-around items-center z-40 select-none shrink-0">
         {[
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
-          ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn FH', screen: ScreenId.Education }] : []),
+          ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : []),
           { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
-          { icon: <Bell className="w-5 h-5" />, label: 'Reminders', screen: ScreenId.ReminderSettings },
           { icon: <ClipboardList className="w-5 h-5" />, label: 'Journey', screen: ScreenId.ProgressTimeline }
         ].map((tab) => (
           <button
