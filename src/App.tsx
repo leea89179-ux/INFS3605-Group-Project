@@ -1,68 +1,296 @@
 import React, { useState } from 'react';
-import { ScreenId, Appointment, ReminderPreferences } from './types';
+import { 
+  ScreenId, 
+  Appointment, 
+  ReminderPreferences,
+  PatientRecord,
+  AppointmentRecord,
+  ReminderPreferenceRecord,
+  NotificationHistoryRecord,
+  DBQueryLog
+} from './types';
 import PhoneSimulator from './components/PhoneSimulator';
 import AnnotationsPanel from './components/AnnotationsPanel';
+import DatabaseViewer from './components/DatabaseViewer';
 import Chatbot from './components/Chatbot';
 import { 
   HeartPulse, Compass, Settings, Layers, Users, BookOpen, 
   Sparkles, Smartphone, CheckCircle2, ShieldAlert, Undo2, 
-  Calendar, Check, ArrowRight, HelpCircle
+  Calendar, Check, ArrowRight, HelpCircle, Database
 } from 'lucide-react';
 
 export default function App() {
   // Global Shared States for the Figma Prototype
   const [activeScreen, setActiveScreen] = useState<ScreenId>(ScreenId.Home);
+  const [isFHReferred, setIsFHReferred] = useState<boolean>(true);
+  const [rightPanelTab, setRightPanelTab] = useState<'annotations' | 'database'>('database');
   
-  const [appointment, setAppointment] = useState<Appointment>({
-    date: 'Fri, 17 Feb 2026',
-    timeSlot: '9.00 AM',
-    clinic: 'First Health Group (Serangoon)',
-    status: 'pending', // 'pending' | 'booked' | 'completed'
-  });
+  // Feature 6: Relational Database Tables State
+  const [patientTable, setPatientTable] = useState<PatientRecord[]>([
+    { patient_id: 'LH321', name: 'Lisa Ho', contact_details: '+65 9123 4567' }
+  ]);
 
-  const [reminderPrefs, setReminderPrefs] = useState<ReminderPreferences>({
-    enabled: true,
-    channel: 'both',
-    frequency: '7days_before',
-    previewText: 'Hi Lisa, your FH genetic testing is in 7 days.',
-  });
-
-  // Action Helpers to Fast-Forward Prototype States
-  const handleSimulateReset = () => {
-    setAppointment({
-      date: 'Fri, 17 Feb 2026',
-      timeSlot: '9.00 AM',
-      clinic: 'First Health Group (Serangoon)',
+  const [appointmentTable, setAppointmentTable] = useState<AppointmentRecord[]>([
+    {
+      appointment_id: 'APT101',
+      patient_id: 'LH321',
+      appointment_date: '22 July 2026',
+      appointment_time: '10:30 AM',
+      clinic: 'National University Hospital Genetic Clinic',
       status: 'pending',
-    });
-    setReminderPrefs({
+      calendar_added: false,
+    }
+  ]);
+
+  const [reminderPrefTable, setReminderPrefTable] = useState<ReminderPreferenceRecord[]>([
+    {
+      reminder_id: 'REM201',
+      patient_id: 'LH321',
       enabled: true,
-      channel: 'both',
-      frequency: '7days_before',
-      previewText: 'Hi Lisa, your FH genetic testing is in 7 days.',
+      notification_channel: 'both',
+      frequency: '1_week',
+      next_notification_date: '15 July 2026',
+    }
+  ]);
+
+  const [notificationHistoryTable, setNotificationHistoryTable] = useState<NotificationHistoryRecord[]>([
+    {
+      notification_id: 'NOT501',
+      patient_id: 'LH321',
+      appointment_id: 'APT101',
+      sent_date: '15 July 2026',
+      opened_status: 'sent',
+      action_taken: 'none',
+    }
+  ]);
+
+  // SQL rolling log stream (Feature 6)
+  const [queryLogs, setQueryLogs] = useState<DBQueryLog[]>([
+    {
+      timestamp: '12:35:01',
+      query: 'CREATE TABLE Patient (\n  patient_id VARCHAR(50) PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  contact_details VARCHAR(150) NOT NULL\n);',
+      type: 'DDL'
+    },
+    {
+      timestamp: '12:35:02',
+      query: 'CREATE TABLE Appointment (\n  appointment_id VARCHAR(50) PRIMARY KEY,\n  patient_id VARCHAR(50) REFERENCES Patient(patient_id),\n  appointment_date VARCHAR(50) NOT NULL,\n  appointment_time VARCHAR(20) NOT NULL,\n  clinic VARCHAR(100) NOT NULL,\n  status VARCHAR(20) DEFAULT \'pending\',\n  calendar_added BOOLEAN DEFAULT FALSE\n);',
+      type: 'DDL'
+    },
+    {
+      timestamp: '12:35:03',
+      query: 'CREATE TABLE ReminderPreference (\n  reminder_id VARCHAR(50) PRIMARY KEY,\n  patient_id VARCHAR(50) REFERENCES Patient(patient_id),\n  enabled BOOLEAN DEFAULT TRUE,\n  notification_channel VARCHAR(20) NOT NULL,\n  frequency VARCHAR(50) DEFAULT \'monthly\',\n  next_notification_date VARCHAR(50) NOT NULL\n);',
+      type: 'DDL'
+    },
+    {
+      timestamp: '12:35:04',
+      query: 'CREATE TABLE NotificationHistory (\n  notification_id VARCHAR(50) PRIMARY KEY,\n  patient_id VARCHAR(50) REFERENCES Patient(patient_id),\n  appointment_id VARCHAR(50) REFERENCES Appointment(appointment_id),\n  sent_date VARCHAR(50) NOT NULL,\n  opened_status VARCHAR(20) DEFAULT \'sent\',\n  action_taken VARCHAR(50) DEFAULT \'none\'\n);',
+      type: 'DDL'
+    },
+    {
+      timestamp: '12:35:05',
+      query: 'INSERT INTO Patient VALUES (\'LH321\', \'Lisa Ho\', \'+65 9123 4567\');',
+      type: 'INSERT'
+    },
+    {
+      timestamp: '12:35:06',
+      query: 'INSERT INTO Appointment VALUES (\'APT101\', \'LH321\', \'22 July 2026\', \'10:30 AM\', \'National University Hospital Genetic Clinic\', \'pending\', FALSE);',
+      type: 'INSERT'
+    },
+    {
+      timestamp: '12:35:07',
+      query: 'INSERT INTO ReminderPreference VALUES (\'REM201\', \'LH321\', TRUE, \'both\', \'1_week\', \'15 July 2026\\);',
+      type: 'INSERT'
+    },
+    {
+      timestamp: '12:35:08',
+      query: 'INSERT INTO NotificationHistory VALUES (\'NOT501\', \'LH321\', \'APT101\', \'15 July 2026\', \'sent\', \'none\');',
+      type: 'INSERT'
+    }
+  ]);
+
+  // Sync state helpers
+  const logSQL = (query: string, type: 'SELECT' | 'INSERT' | 'UPDATE' | 'DELETE' | 'DDL') => {
+    const now = new Date();
+    const pad = (num: number) => String(num).padStart(2, '0');
+    const timestamp = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    setQueryLogs(prev => [...prev, { timestamp, query, type }]);
+  };
+
+  // Maps relational appointment back to simple state required by phone components
+  const activeAppointment: Appointment = {
+    date: appointmentTable[0]?.appointment_date || '22 July 2026',
+    timeSlot: appointmentTable[0]?.appointment_time || '10:30 AM',
+    clinic: appointmentTable[0]?.clinic || 'National University Hospital Genetic Clinic',
+    status: appointmentTable[0]?.status || 'pending',
+  };
+
+  const activeReminderPrefs: ReminderPreferences = {
+    enabled: reminderPrefTable[0]?.enabled ?? true,
+    channel: reminderPrefTable[0]?.notification_channel || 'both',
+    frequency: reminderPrefTable[0]?.frequency || '1_week',
+    previewText: 'Your FH Genetic Testing appointment is in 7 days.\nPlease confirm your attendance or reschedule if needed.',
+  };
+
+  // Relational SQL Database Transactions
+  const handleBookingTransaction = (date: string, time: string, clinic: string) => {
+    setAppointmentTable(prev => prev.map(apt => 
+      apt.appointment_id === 'APT101' 
+        ? { ...apt, appointment_date: date, appointment_time: time, clinic, status: 'booked' }
+        : apt
+    ));
+
+    logSQL(
+      `UPDATE Appointment\nSET status = 'booked',\n    appointment_date = '${date}',\n    appointment_time = '${time}',\n    clinic = '${clinic}'\nWHERE appointment_id = 'APT101';`,
+      'UPDATE'
+    );
+  };
+
+  const handleCalendarAddedTransaction = () => {
+    setAppointmentTable(prev => prev.map(apt => 
+      apt.appointment_id === 'APT101' ? { ...apt, calendar_added: true } : apt
+    ));
+
+    logSQL(
+      `UPDATE Appointment\nSET calendar_added = TRUE\nWHERE appointment_id = 'APT101';`,
+      'UPDATE'
+    );
+  };
+
+  const handleReminderPrefsTransaction = (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => {
+    setReminderPrefTable(prev => prev.map(pref => 
+      pref.reminder_id === 'REM201' 
+        ? { ...pref, enabled, notification_channel: channel, frequency }
+        : pref
+    ));
+
+    logSQL(
+      `UPDATE ReminderPreference\nSET enabled = ${enabled ? 'TRUE' : 'FALSE'},\n    notification_channel = '${channel}',\n    frequency = '${frequency}'\nWHERE patient_id = 'LH321';`,
+      'UPDATE'
+    );
+  };
+
+  const handleTriggerNotificationTransaction = () => {
+    const nextId = `NOT${Math.floor(100 + Math.random() * 900)}`;
+    const newRecord: NotificationHistoryRecord = {
+      notification_id: nextId,
+      patient_id: 'LH321',
+      appointment_id: 'APT101',
+      sent_date: '10 July 2026', // Current mock date
+      opened_status: 'sent',
+      action_taken: 'none'
+    };
+
+    setNotificationHistoryTable(prev => [...prev, newRecord]);
+    setActiveScreen(ScreenId.NotificationMock);
+
+    logSQL(
+      `INSERT INTO NotificationHistory (\n  notification_id, patient_id, appointment_id, sent_date, opened_status, action_taken\n) VALUES (\n  '${nextId}', 'LH321', 'APT101', '10 July 2026', 'sent', 'none'\n);`,
+      'INSERT'
+    );
+  };
+
+  const handleNotificationActionTransaction = (action: 'confirmed' | 'rescheduled' | 'education_viewed') => {
+    // 1. Update appointment table state if confirmed
+    if (action === 'confirmed') {
+      setAppointmentTable(prev => prev.map(apt => 
+        apt.appointment_id === 'APT101' ? { ...apt, status: 'confirmed' } : apt
+      ));
+      logSQL(
+        `UPDATE Appointment\nSET status = 'confirmed'\nWHERE appointment_id = 'APT101';`,
+        'UPDATE'
+      );
+    } else if (action === 'rescheduled') {
+      setAppointmentTable(prev => prev.map(apt => 
+        apt.appointment_id === 'APT101' ? { ...apt, status: 'pending' } : apt
+      ));
+      logSQL(
+        `UPDATE Appointment\nSET status = 'pending'\nWHERE appointment_id = 'APT101';`,
+        'UPDATE'
+      );
+    }
+
+    // 2. Update Notification History action
+    setNotificationHistoryTable(prev => {
+      if (prev.length === 0) return prev;
+      const last = prev[prev.length - 1];
+      return [
+        ...prev.slice(0, -1),
+        { ...last, opened_status: 'opened', action_taken: action }
+      ];
     });
+
+    const lastRecordId = notificationHistoryTable[notificationHistoryTable.length - 1]?.notification_id || 'NOT501';
+    logSQL(
+      `UPDATE NotificationHistory\nSET opened_status = 'opened',\n    action_taken = '${action}'\nWHERE notification_id = '${lastRecordId}';`,
+      'UPDATE'
+    );
+  };
+
+  // Controller Actions (Fast-forward Simulator States)
+  const handleSimulateReset = () => {
+    setAppointmentTable([
+      {
+        appointment_id: 'APT101',
+        patient_id: 'LH321',
+        appointment_date: '22 July 2026',
+        appointment_time: '10:30 AM',
+        clinic: 'National University Hospital Genetic Clinic',
+        status: 'pending',
+        calendar_added: false,
+      }
+    ]);
+    
+    setReminderPrefTable([
+      {
+        reminder_id: 'REM201',
+        patient_id: 'LH321',
+        enabled: true,
+        notification_channel: 'both',
+        frequency: '1_week',
+        next_notification_date: '15 July 2026',
+      }
+    ]);
+
+    setNotificationHistoryTable([
+      {
+        notification_id: 'NOT501',
+        patient_id: 'LH321',
+        appointment_id: 'APT101',
+        sent_date: '15 July 2026',
+        opened_status: 'sent',
+        action_taken: 'none',
+      }
+    ]);
+
+    setIsFHReferred(true);
     setActiveScreen(ScreenId.Home);
+
+    logSQL('-- DATABASE AND APPLICATION STATE RESET', 'DDL');
+    logSQL(
+      "UPDATE Appointment SET status = 'pending', calendar_added = FALSE WHERE appointment_id = 'APT101';",
+      'UPDATE'
+    );
+    logSQL(
+      "UPDATE ReminderPreference SET enabled = TRUE, notification_channel = 'both', frequency = '1_week' WHERE patient_id = 'LH321';",
+      'UPDATE'
+    );
+    logSQL(
+      "DELETE FROM NotificationHistory WHERE notification_id <> 'NOT501';",
+      'DELETE'
+    );
   };
 
   const handleSimulateBooked = () => {
-    setAppointment({
-      date: 'Fri, 17 Feb 2026',
-      timeSlot: '9.00 AM',
-      clinic: 'First Health Group (Serangoon)',
-      status: 'booked',
-    });
+    handleBookingTransaction('22 July 2026', '10:30 AM', 'National University Hospital Genetic Clinic');
     setActiveScreen(ScreenId.Booking);
   };
 
   const handleSimulateNotification = () => {
-    setActiveScreen(ScreenId.NotificationMock);
+    handleTriggerNotificationTransaction();
   };
 
   const handleSimulateReminders = () => {
-    setReminderPrefs({
-      ...reminderPrefs,
-      enabled: true
-    });
+    handleReminderPrefsTransaction(true, 'both', '1_week');
     setActiveScreen(ScreenId.ReminderSettings);
   };
 
@@ -123,6 +351,51 @@ export default function App() {
               </h3>
               <p className="text-xs text-slate-400 mt-1">
                 Fast-forward the clinical journey to test specific behavioral triggers:
+              </p>
+            </div>
+
+            {/* Referral Status Toggle */}
+            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-300">FH Referral Status</span>
+                <span className={`text-[10px] px-2.5 py-0.5 rounded font-mono font-bold ${
+                  isFHReferred 
+                    ? 'bg-teal-950/80 text-teal-400 border border-teal-800/50' 
+                    : 'bg-rose-950/40 text-rose-400 border border-rose-900/30'
+                }`}>
+                  {isFHReferred ? 'REFERRED' : 'NON-REFERRED'}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setIsFHReferred(true);
+                    setActiveScreen(ScreenId.Home);
+                  }}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    isFHReferred
+                      ? 'bg-teal-600 text-white shadow-md shadow-teal-900/30'
+                      : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
+                  }`}
+                >
+                  <Check className="w-3.5 h-3.5" /> Referred
+                </button>
+                <button
+                  onClick={() => {
+                    setIsFHReferred(false);
+                    setActiveScreen(ScreenId.Home);
+                  }}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    !isFHReferred
+                      ? 'bg-rose-600 text-white shadow-md shadow-rose-900/30'
+                      : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
+                  }`}
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" /> Non-Referred
+                </button>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-snug">
+                Toggle to simulate referred vs non-referred view. Non-referred patients do not see any FH-related reminders, tabs, banners, or educational modules.
               </p>
             </div>
 
@@ -214,11 +487,14 @@ export default function App() {
           <PhoneSimulator
             activeScreen={activeScreen}
             onChangeScreen={setActiveScreen}
-            appointment={appointment}
-            onUpdateAppointment={setAppointment}
-            reminderPrefs={reminderPrefs}
-            onUpdateReminderPrefs={setReminderPrefs}
+            appointment={activeAppointment}
+            onBookAppointment={handleBookingTransaction}
+            onAddCalendarEvent={handleCalendarAddedTransaction}
+            reminderPrefs={activeReminderPrefs}
+            onUpdateReminderPrefs={handleReminderPrefsTransaction}
             onTriggerNotification={handleSimulateNotification}
+            onNotificationAction={handleNotificationActionTransaction}
+            isFHReferred={isFHReferred}
           />
 
           <div className="bg-slate-900/60 border border-slate-800/80 px-4 py-2 rounded-xl text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
@@ -228,26 +504,64 @@ export default function App() {
 
         </div>
 
-        {/* RIGHT COLUMN (Lg: 4/12) - Figma Wireframe Annotations Panel */}
-        <div className="lg:col-span-4 space-y-6">
+        {/* RIGHT COLUMN (Lg: 4/12) - Integrated Annotations or Database Panel */}
+        <div className="lg:col-span-4 flex flex-col space-y-4">
           
-          {/* Interactive Annotations Syncing */}
-          <div className="h-[680px]">
-            <AnnotationsPanel 
-              activeScreen={activeScreen} 
-              onSelectScreen={setActiveScreen} 
-            />
+          {/* Column Tab Selector */}
+          <div className="bg-slate-950 p-1.5 rounded-xl border border-slate-800/80 flex gap-2 shrink-0">
+            <button
+              onClick={() => setRightPanelTab('database')}
+              className={`flex-1 py-2 px-3 text-center rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
+                rightPanelTab === 'database'
+                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-900/30'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Database className="w-4 h-4" /> Live Database (F6)
+            </button>
+            <button
+              onClick={() => setRightPanelTab('annotations')}
+              className={`flex-1 py-2 px-3 text-center rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
+                rightPanelTab === 'annotations'
+                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-900/30'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Layers className="w-4 h-4" /> Figma UX Spec
+            </button>
           </div>
 
-          {/* Additional UX Strategy Box */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-3">
-            <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider font-mono flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-teal-500" />
-              Prevention of Patient Leakage
-            </h4>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              GovTech's review highlights that clinic referrals leak due to <strong>cognitive latency</strong> and <strong>administrative drag</strong>. By integrating the educational cards directly into the booking journey, reassurance on subsidies (MediSave) and insurance (LIA moratorium) is delivered <em>before</em> the patient leaves the digital frame.
-            </p>
+          {/* Right Panel Main View */}
+          <div className="flex-1 min-h-[580px] lg:h-[630px]">
+            {rightPanelTab === 'database' ? (
+              <DatabaseViewer 
+                patients={patientTable}
+                appointments={appointmentTable}
+                reminderPreferences={reminderPrefTable}
+                notificationHistory={notificationHistoryTable}
+                queryLogs={queryLogs}
+              />
+            ) : (
+              <div className="space-y-6 h-full overflow-y-auto pr-1">
+                <div className="h-[550px]">
+                  <AnnotationsPanel 
+                    activeScreen={activeScreen} 
+                    onSelectScreen={setActiveScreen} 
+                  />
+                </div>
+
+                {/* Additional UX Strategy Box */}
+                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-3 shrink-0">
+                  <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider font-mono flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-teal-500" />
+                    Prevention of Patient Leakage
+                  </h4>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    GovTech's review highlights that clinic referrals leak due to <strong>cognitive latency</strong> and <strong>administrative drag</strong>. By integrating the educational cards directly into the booking journey, reassurance on subsidies (MediSave) and insurance (LIA moratorium) is delivered <em>before</em> the patient leaves the digital frame.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
         </div>
