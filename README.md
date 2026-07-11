@@ -6,7 +6,8 @@
 
 This contains everything you need to run your app locally.
 
-(https://ai.studio/apps/3488350d-8b63-452d-8826-810746196302)
+https://ai.studio/apps/3746a8c9-fbbd-47be-8063-cbef6699170a
+
 
 ## Run Locally
 
