@@ -14,21 +14,310 @@ interface PhoneSimulatorProps {
   activeScreen: ScreenId;
   onChangeScreen: (screenId: ScreenId) => void;
   appointment: Appointment;
-  onUpdateAppointment: (app: Appointment) => void;
+  onBookAppointment: (date: string, time: string, clinic: string) => void;
+  onAddCalendarEvent: () => void;
   reminderPrefs: ReminderPreferences;
-  onUpdateReminderPrefs: (prefs: ReminderPreferences) => void;
+  onUpdateReminderPrefs: (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => void;
   onTriggerNotification: () => void;
+  onNotificationAction: (action: 'confirmed' | 'rescheduled' | 'education_viewed') => void;
   isFHReferred: boolean;
 }
+
+export const clinicalSlots = [
+  {
+    date: '22 July 2026',
+    time: '10:30 AM',
+    provider: 'Dr. Helen Lim',
+    role: 'Senior Genetic Counsellor',
+    duration: '45 mins',
+    clinic: 'National University Hospital Genetic Clinic',
+    address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074',
+    cost: 'S$18.50 (CHAS Subsidized)'
+  },
+  {
+    date: '23 July 2026',
+    time: '2:00 PM',
+    provider: 'Dr. Helen Lim',
+    role: 'Senior Genetic Counsellor',
+    duration: '45 mins',
+    clinic: 'National University Hospital Genetic Clinic',
+    address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074',
+    cost: 'S$18.50 (CHAS Subsidized)'
+  },
+  {
+    date: '24 July 2026',
+    time: '9:30 AM',
+    provider: 'Dr. Helen Lim',
+    role: 'Senior Genetic Counsellor',
+    duration: '45 mins',
+    clinic: 'National University Hospital Genetic Clinic',
+    address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074',
+    cost: 'S$18.50 (CHAS Subsidized)'
+  }
+];
+
+export interface ClinicOption {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  provider: string;
+  role: string;
+}
+
+export const CLINICS: ClinicOption[] = [
+  {
+    id: 'nuh',
+    name: 'National University Hospital Genetic Clinic',
+    address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074',
+    lat: 1.2941,
+    lng: 103.7831,
+    provider: 'Dr. Helen Lim',
+    role: 'Senior Genetic Counsellor'
+  },
+  {
+    id: 'sgh',
+    name: 'Singapore General Hospital Genetics Service',
+    address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608',
+    lat: 1.2798,
+    lng: 103.8329,
+    provider: 'Dr. Marcus Goh',
+    role: 'Principal Genetics Specialist'
+  },
+  {
+    id: 'ttsh',
+    name: 'Tan Tock Seng Hospital Clinical Genomics',
+    address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433',
+    lat: 1.3214,
+    lng: 103.8458,
+    provider: 'Dr. Sarah Tan',
+    role: 'Senior Clinical Geneticist'
+  },
+  {
+    id: 'kkh',
+    name: 'KK Women\'s and Children\'s Hospital Genetics Clinic',
+    address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899',
+    lat: 1.3094,
+    lng: 103.8456,
+    provider: 'Dr. Jeanette Tan',
+    role: 'Lead Paediatric Counsellor'
+  }
+];
+
+export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371; // km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+};
+
+export const getClinicAddress = (clinicName: string) => {
+  if (clinicName.includes("National University") || clinicName.includes("NUH")) {
+    return "5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074";
+  } else if (clinicName.includes("Singapore General") || clinicName.includes("SGH")) {
+    return "Outram Rd, Academic Medicine Basement 1, Singapore 169608";
+  } else if (clinicName.includes("Tan Tock Seng") || clinicName.includes("TTSH")) {
+    return "11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433";
+  } else if (clinicName.includes("KK Women") || clinicName.includes("KKH")) {
+    return "100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899";
+  }
+  return "Singapore Specialty Genetics Centre";
+};
+
+export const getClinicSpecialist = (clinicName: string) => {
+  if (clinicName.includes("Singapore General") || clinicName.includes("SGH")) {
+    return "Dr. Marcus Goh (Principal Genetics Specialist)";
+  } else if (clinicName.includes("Tan Tock Seng") || clinicName.includes("TTSH")) {
+    return "Dr. Sarah Tan (Senior Clinical Geneticist)";
+  } else if (clinicName.includes("KK Women") || clinicName.includes("KKH")) {
+    return "Dr. Jeanette Tan (Lead Paediatric Counsellor)";
+  }
+  return "Dr. Helen Lim (Senior Genetic Counsellor)";
+};
+
+export interface ClinicSlot {
+  date: string;
+  time: string;
+  provider: string;
+  role: string;
+  duration: string;
+  cost: string;
+  clinic: string;
+  address: string;
+}
+
+export const CLINIC_SLOTS_DB: Record<string, Record<number, ClinicSlot[]>> = {
+  nuh: {
+    22: [
+      { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+      { date: '22 July 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+    ],
+    23: [
+      { date: '23 July 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+      { date: '23 July 2026', time: '2:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+    ],
+    24: [
+      { date: '24 July 2026', time: '9:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+      { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+      { date: '24 July 2026', time: '4:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+    ]
+  },
+  sgh: {
+    22: [
+      { date: '22 July 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+      { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+    ],
+    23: [
+      { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+      { date: '23 July 2026', time: '3:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+    ],
+    25: [
+      { date: '25 July 2026', time: '10:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+      { date: '25 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+    ]
+  },
+  ttsh: {
+    21: [
+      { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+      { date: '21 July 2026', time: '3:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+    ],
+    23: [
+      { date: '23 July 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+      { date: '23 July 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+    ],
+    24: [
+      { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+      { date: '24 July 2026', time: '2:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18.50', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+    ]
+  },
+  kkh: {
+    22: [
+      { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+      { date: '22 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+    ],
+    24: [
+      { date: '24 July 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+      { date: '24 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+    ],
+    27: [
+      { date: '27 July 2026', time: '10:00 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+      { date: '27 July 2026', time: '1:00 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+    ]
+  }
+};
+
+export const downloadICSFile = (slot: { date: string; time: string; clinic: string; address: string }) => {
+  let datePart = "20260722";
+  if (slot.date.includes("21")) datePart = "20260721";
+  else if (slot.date.includes("22")) datePart = "20260722";
+  else if (slot.date.includes("23")) datePart = "20260723";
+  else if (slot.date.includes("24")) datePart = "20260724";
+  else if (slot.date.includes("25")) datePart = "20260725";
+  else if (slot.date.includes("27")) datePart = "20260727";
+
+  let timeStart = "103000";
+  let timeEnd = "111500";
+  if (slot.time.includes("9:00")) { timeStart = "090000"; timeEnd = "094500"; }
+  else if (slot.time.includes("9:30")) { timeStart = "093000"; timeEnd = "101500"; }
+  else if (slot.time.includes("10:00")) { timeStart = "100000"; timeEnd = "104500"; }
+  else if (slot.time.includes("10:30")) { timeStart = "103000"; timeEnd = "111500"; }
+  else if (slot.time.includes("11:00")) { timeStart = "110000"; timeEnd = "114500"; }
+  else if (slot.time.includes("11:30")) { timeStart = "113000"; timeEnd = "121500"; }
+  else if (slot.time.includes("1:00")) { timeStart = "130000"; timeEnd = "134500"; }
+  else if (slot.time.includes("1:30")) { timeStart = "133000"; timeEnd = "141500"; }
+  else if (slot.time.includes("2:00")) { timeStart = "140000"; timeEnd = "144500"; }
+  else if (slot.time.includes("2:30")) { timeStart = "143000"; timeEnd = "151500"; }
+  else if (slot.time.includes("3:00")) { timeStart = "150000"; timeEnd = "154500"; }
+  else if (slot.time.includes("3:30")) { timeStart = "153000"; timeEnd = "161500"; }
+  else if (slot.time.includes("4:00")) { timeStart = "160000"; timeEnd = "164500"; }
+
+  const start = `${datePart}T${timeStart}`;
+  const end = `${datePart}T${timeEnd}`;
+
+  const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//GovTech Singapore//HealthHub//EN
+BEGIN:VEVENT
+UID:fh-genetic-testing-${Date.now()}@healthhub.sg
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTART;TZID=Asia/Singapore:${start}
+DTEND;TZID=Asia/Singapore:${end}
+SUMMARY:FH Genetic Testing Appointment
+DESCRIPTION:Pre-test counselling appointment for Familial Hypercholesterolaemia genetic testing.
+LOCATION:${slot.clinic}, ${slot.address}
+BEGIN:VALARM
+TRIGGER:-P7D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: FH Genetic Testing Appointment in 7 days
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: FH Genetic Testing Appointment in 1 day
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'FH_Genetic_Testing_Appointment.ics');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+export const getGoogleCalendarUrl = (slot: { date: string; time: string; clinic: string; address: string }) => {
+  let datePart = "20260722";
+  if (slot.date.includes("21")) datePart = "20260721";
+  else if (slot.date.includes("22")) datePart = "20260722";
+  else if (slot.date.includes("23")) datePart = "20260723";
+  else if (slot.date.includes("24")) datePart = "20260724";
+  else if (slot.date.includes("25")) datePart = "20260725";
+  else if (slot.date.includes("27")) datePart = "20260727";
+
+  let timeStart = "103000";
+  let timeEnd = "111500";
+  if (slot.time.includes("9:00")) { timeStart = "090000"; timeEnd = "094500"; }
+  else if (slot.time.includes("9:30")) { timeStart = "093000"; timeEnd = "101500"; }
+  else if (slot.time.includes("10:00")) { timeStart = "100000"; timeEnd = "104500"; }
+  else if (slot.time.includes("10:30")) { timeStart = "103000"; timeEnd = "111500"; }
+  else if (slot.time.includes("11:00")) { timeStart = "110000"; timeEnd = "114500"; }
+  else if (slot.time.includes("11:30")) { timeStart = "113000"; timeEnd = "121500"; }
+  else if (slot.time.includes("1:00")) { timeStart = "130000"; timeEnd = "134500"; }
+  else if (slot.time.includes("1:30")) { timeStart = "133000"; timeEnd = "141500"; }
+  else if (slot.time.includes("2:00")) { timeStart = "140000"; timeEnd = "144500"; }
+  else if (slot.time.includes("2:30")) { timeStart = "143000"; timeEnd = "151500"; }
+  else if (slot.time.includes("3:00")) { timeStart = "150000"; timeEnd = "154500"; }
+  else if (slot.time.includes("3:30")) { timeStart = "153000"; timeEnd = "161500"; }
+  else if (slot.time.includes("4:00")) { timeStart = "160000"; timeEnd = "164500"; }
+
+  const title = encodeURIComponent("FH Genetic Testing Appointment");
+  const details = encodeURIComponent("Pre-test counselling appointment for Familial Hypercholesterolaemia genetic testing.");
+  const location = encodeURIComponent(`${slot.clinic}, ${slot.address}`);
+  const dates = `${datePart}T${timeStart}/${datePart}T${timeEnd}`;
+  
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}&ctz=Asia/Singapore`;
+};
 
 export default function PhoneSimulator({
   activeScreen,
   onChangeScreen,
   appointment,
-  onUpdateAppointment,
+  onBookAppointment,
+  onAddCalendarEvent,
   reminderPrefs,
   onUpdateReminderPrefs,
   onTriggerNotification,
+  onNotificationAction,
   isFHReferred,
 }: PhoneSimulatorProps) {
   // Local state for interactive elements
@@ -56,8 +345,47 @@ export default function PhoneSimulator({
   }, [downloadToast]);
 
   // Calendar booking state
-  const [selectedDate, setSelectedDate] = useState('Fri, 17 Feb 2026');
-  const [selectedSlot, setSelectedSlot] = useState('9.00 AM');
+  const [bookingStep, setBookingStep] = useState<'available' | 'review' | 'confirmed'>('available');
+  const [selectedSlotIdx, setSelectedSlotIdx] = useState<number | null>(null);
+  const [calendarMenuOpen, setCalendarMenuOpen] = useState(false);
+
+  // Geolocation and clinic selection state (User request 1)
+  const [selectedClinicId, setSelectedClinicId] = useState<string>('nuh');
+  const [patientCoords, setPatientCoords] = useState<{ lat: number; lng: number }>({ lat: 1.3036, lng: 103.8318 }); // default Orchard (Central)
+  const [patientLocName, setPatientLocName] = useState<string>('Orchard (Central)');
+  const [isDetectingLoc, setIsDetectingLoc] = useState<boolean>(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
+  const [showClinicDropdown, setShowClinicDropdown] = useState<boolean>(false);
+
+  // Calendar Booking States (User request 2)
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(22); // Day of July 2026
+  const [selectedSlotObj, setSelectedSlotObj] = useState<ClinicSlot | null>(null);
+
+  const detectLiveLocation = () => {
+    if (!navigator.geolocation) {
+      setGpsError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setIsDetectingLoc(true);
+    setGpsError(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setPatientCoords({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        setPatientLocName('My Live GPS');
+        setIsDetectingLoc(false);
+      },
+      (error) => {
+        console.error(error);
+        setGpsError('Iframe sandbox or permission blocked GPS access. Please select a town below to simulate location.');
+        setIsDetectingLoc(false);
+      },
+      { timeout: 8000 }
+    );
+  };
   
   // Simulated dates (Singapore hospital calendar)
   const availableDates = [
@@ -98,33 +426,32 @@ export default function PhoneSimulator({
     );
   };
 
-  const handleBookSubmit = () => {
-    onUpdateAppointment({
-      date: selectedDate,
-      timeSlot: selectedSlot,
-      clinic: 'First Health Group (Serangoon)',
-      status: 'booked'
-    });
+  const handleBookSubmit = (slotIdx: number) => {
+    const slot = selectedSlotObj || clinicalSlots[slotIdx] || clinicalSlots[0];
+    onBookAppointment(slot.date, slot.time, slot.clinic);
+    setBookingStep('confirmed');
   };
 
   const handleCancelBooking = () => {
-    onUpdateAppointment({
-      ...appointment,
-      status: 'pending'
-    });
+    onNotificationAction('rescheduled');
+    setBookingStep('available');
+    setSelectedSlotIdx(null);
+    setSelectedSlotObj(null);
+    setSelectedCalendarDay(22);
   };
 
   const handleNotificationClickAction = (action: 'confirm' | 'reschedule' | 'learn') => {
     if (action === 'confirm') {
-      onUpdateAppointment({
-        ...appointment,
-        status: 'booked' // Keep as booked but marked verified
-      });
-      alert('MOH HealthHub: Thank you for confirming your attendance for Fri, 17 Feb 2026 at 9:00 AM! See you there.');
+      onNotificationAction('confirmed');
       onChangeScreen(ScreenId.ProgressTimeline);
     } else if (action === 'reschedule') {
+      onNotificationAction('rescheduled');
+      setBookingStep('available');
+      setSelectedSlotIdx(null);
+      setSelectedSlotObj(null);
       onChangeScreen(ScreenId.Booking);
     } else if (action === 'learn') {
+      onNotificationAction('education_viewed');
       onChangeScreen(ScreenId.Education);
     }
   };
@@ -1015,204 +1342,543 @@ export default function PhoneSimulator({
           <div className="flex-col flex flex-1 pb-6">
             {/* Top Navigation */}
             <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-              <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full">
+              <button 
+                onClick={() => {
+                  setBookingStep('available');
+                  onChangeScreen(ScreenId.Home);
+                }} 
+                className="p-1 hover:bg-slate-100 rounded-full"
+              >
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
               <span className="font-bold text-sm text-slate-800">Secure Appointment Booking</span>
             </div>
 
-            {/* If appointment is BOOKED, show the confirmation / rescheduling / calendar page */}
-            {appointment.status === 'booked' ? (
-              <div className="p-4 space-y-4 animate-fade-in">
-                {/* Booking Confirmation Card */}
-                <div className="bg-white border border-emerald-200 rounded-2xl p-4 shadow-sm text-center space-y-3 relative overflow-hidden">
+            {/* If appointment is BOOKED or CONFIRMED, show Feature 2 Confirmation Screen */}
+            {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
+              <div className="p-4 space-y-4 animate-fade-in text-left">
+                {/* Booking Confirmation Card (Feature 2) */}
+                <div className="bg-white border border-emerald-200 rounded-2xl p-4 shadow-xs text-center space-y-3.5 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-500" />
                   <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   
                   <div>
-                    <h3 className="font-extrabold text-base text-slate-800">Appointment Confirmed</h3>
-                    <p className="text-[10px] text-slate-500 mt-0.5">MOH Subsidy Pre-Approved</p>
+                    <h3 className="font-extrabold text-base text-slate-850">Your appointment is confirmed</h3>
+                    <p className="text-[10px] text-[#008375] font-extrabold uppercase tracking-wide mt-1 bg-teal-50 px-2.5 py-0.5 rounded-full inline-block border border-teal-100">
+                      MOH Subsidized Slot
+                    </p>
                   </div>
 
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-left space-y-2 text-xs">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500">Clinic Location:</span>
-                      <strong className="text-slate-800 text-right">{appointment.clinic}</strong>
+                  {/* Relational details matching preselected July dates */}
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-left space-y-2.5 text-xs">
+                    <div className="flex justify-between items-start gap-4">
+                      <span className="text-slate-500 font-medium">Counselling Care Clinic:</span>
+                      <strong className="text-slate-800 text-right font-semibold">
+                        {appointment.clinic || "National University Hospital Genetic Clinic"}
+                      </strong>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-500">Date:</span>
-                      <strong className="text-slate-800">{appointment.date}</strong>
+                      <span className="text-slate-500 font-medium">Assigned Specialist:</span>
+                      <strong className="text-slate-800 font-semibold">
+                        {getClinicSpecialist(appointment.clinic || "NUH")}
+                      </strong>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-500">Time Slot:</span>
-                      <strong className="text-slate-800">{appointment.timeSlot}</strong>
+                      <span className="text-slate-500 font-medium">Scheduled Date:</span>
+                      <strong className="text-slate-800 font-semibold font-mono">{appointment.date}</strong>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500 font-medium">Confirmed Time:</span>
+                      <strong className="text-slate-800 font-semibold font-mono">{appointment.timeSlot}</strong>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500 font-medium">Session Duration:</span>
+                      <strong className="text-slate-850 font-semibold">45 minutes</strong>
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-                      <span className="text-slate-500">Estimated Cost:</span>
+                      <span className="text-slate-500 font-medium">Your Out-of-pocket Cost:</span>
                       <span className="text-teal-700 font-extrabold font-mono">S$18.50 (CHAS Subsidized)</span>
                     </div>
                   </div>
 
-                  {/* NICE TO HAVE: Calendar Integration Buttons */}
-                  <div className="space-y-1.5">
-                    <p className="text-[9px] text-slate-400 uppercase font-bold tracking-wider font-mono">Export to Device Calendar</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button 
-                        onClick={() => alert('Apple Calendar export complete! Created "FH Genetic Counselling" on 17 Feb 2026.')}
-                        className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1"
-                      >
-                        <Smartphone className="w-3.5 h-3.5" /> Apple Cal
-                      </button>
-                      <button 
-                        onClick={() => alert('Google Calendar sync complete! Added event to your registered Gmail address.')}
-                        className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1"
-                      >
-                        <Calendar className="w-3.5 h-3.5 text-[#008375]" /> Google Cal
-                      </button>
-                    </div>
+                  {/* Feature 3: Calendar Integration buttons with elegant toggle menu */}
+                  <div className="space-y-2.5 pt-1.5">
+                    <button 
+                      onClick={() => setCalendarMenuOpen(!calendarMenuOpen)}
+                      className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                    >
+                      <Calendar className="w-4 h-4 text-emerald-400" />
+                      Add to Device Calendar
+                    </button>
+
+                    {calendarMenuOpen && (
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 grid grid-cols-2 gap-2 animate-fade-in">
+                        <button 
+                          onClick={() => {
+                            downloadICSFile({
+                              date: appointment.date,
+                              time: appointment.timeSlot,
+                              clinic: appointment.clinic,
+                              address: getClinicAddress(appointment.clinic)
+                            });
+                            onAddCalendarEvent();
+                            alert('Apple Calendar .ics event downloaded successfully!');
+                          }}
+                          className="py-2 px-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer animate-fade-in"
+                        >
+                          <Smartphone className="w-3.5 h-3.5 text-slate-500" /> Apple Calendar
+                        </button>
+                        <a 
+                          href={getGoogleCalendarUrl({
+                            date: appointment.date,
+                            time: appointment.timeSlot,
+                            clinic: appointment.clinic,
+                            address: getClinicAddress(appointment.clinic)
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => {
+                            onAddCalendarEvent();
+                          }}
+                          className="py-2 px-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer text-center"
+                        >
+                          <Calendar className="w-3.5 h-3.5 text-[#008375]" /> Google Calendar
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Important Pre-counselling reminders */}
-                <div className="bg-teal-50/50 border border-teal-200 rounded-xl p-4 space-y-2 text-xs">
-                  <h4 className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <Info className="w-4 h-4 text-teal-600 shrink-0" /> Preparation Instructions
+                {/* Secure, calm prep card */}
+                <div className="bg-teal-50/50 border border-teal-150 rounded-xl p-4 space-y-2.5 text-xs text-left">
+                  <h4 className="font-bold text-teal-900 flex items-center gap-2">
+                    <Info className="w-4 h-4 text-teal-600 shrink-0" /> Essential Preparation Instructions
                   </h4>
                   <p className="text-slate-600 leading-relaxed text-[11px]">
-                    No fasting is required. Please remember to bring along your registered NRIC or Singpass credentials, and review the pre-counselling checklist.
+                    No medical fasting is needed for the genetic panel test. Bring your NRIC or check in via Singpass. Please review our pre-counselling learning modules before arriving.
                   </p>
                   <button 
                     onClick={() => onChangeScreen(ScreenId.Education)}
-                    className="text-[#008375] font-bold text-[11px] underline flex items-center gap-0.5 hover:text-teal-800 mt-1"
+                    className="text-[#008375] font-extrabold text-[11px] hover:underline flex items-center gap-0.5 text-left"
                   >
-                    Open Preparation Checklist <ChevronRight className="w-3.5 h-3.5" />
+                    View Pre-Appointment Checklist <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                {/* Manage options */}
-                <div className="space-y-2 pt-2">
+                {/* Manage and reschedule options */}
+                <div className="space-y-2 pt-1 text-left">
                   <button
                     onClick={() => {
-                      // Prompt reschedule state
                       handleCancelBooking();
-                      alert('Reschedule active: Please select a new date and time from the calendar grid below.');
+                      alert('Reschedule mode active: Please select a new genetic counselling appointment slot below.');
                     }}
-                    className="w-full py-2 bg-[#008375] hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition"
+                    className="w-full py-2.5 bg-white hover:bg-slate-50 text-[#008375] border border-teal-600/40 rounded-xl text-xs font-bold transition cursor-pointer"
                   >
-                    Reschedule Appointment
+                    Reschedule Appointment Slot
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm('Are you sure you want to cancel your referral counselling slot? Cancellations increase cardiac risk.')) {
+                      if (confirm('Cancel genetic testing slot? Keeping this appointment is crucial to understand familial cardiac risk.')) {
                         handleCancelBooking();
                       }
                     }}
-                    className="w-full py-2 bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-xl text-xs font-semibold border border-slate-200 transition"
+                    className="w-full py-2.5 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-xl text-xs font-semibold border border-slate-200 transition cursor-pointer"
                   >
                     Cancel Appointment Booking
                   </button>
                 </div>
               </div>
             ) : (
-              // Active Booking Grid View
-              <div className="p-4 space-y-4">
-                {/* Doctor Referral Note info */}
-                <div className="bg-teal-50 border border-teal-200 rounded-xl p-3 flex gap-2.5 items-start text-xs text-teal-900 shadow-2xs">
-                  <Info className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="font-extrabold text-teal-950">Active Clinic Referral:</strong>
-                    <p className="text-[11px] text-teal-800 mt-0.5">Familial Hypercholesterolaemia (FH) Genetic Test. Pre-subsidized by Singapore Ministry of Health.</p>
-                  </div>
-                </div>
+              /* Active Booking Steps */
+              <div className="p-4 space-y-4 text-left">
+                {/* Step 1: Available list */}
+                {bookingStep === 'available' && (() => {
+                  // Pre-compute distances to find nearest clinic
+                  const clinicsWithDistances = CLINICS.map(clinic => {
+                    const dist = calculateDistance(
+                      patientCoords.lat,
+                      patientCoords.lng,
+                      clinic.lat,
+                      clinic.lng
+                    );
+                    return { ...clinic, distance: dist };
+                  });
+                  const minDistance = Math.min(...clinicsWithDistances.map(c => c.distance));
 
-                {/* Section 1: Clinic preloaded */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Enrolled Specialized Clinic</label>
-                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 shadow-2xs">
-                    <div className="p-2 bg-teal-50 rounded-lg shrink-0 self-center">
-                      <MapPin className="w-4.5 h-4.5 text-[#008375]" />
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-xs text-slate-800">First Health Group (Serangoon)</h4>
-                      <p className="text-[10px] text-slate-500 leading-snug mt-0.5">Block 24, Serangoon Central #01-87, Singapore 550024</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 2: Choose Date */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Select Booking Date</label>
-                    <span className="text-[10px] text-[#008375] font-semibold">Available slots shown</span>
-                  </div>
-                  
-                  {/* Horizon scroll available dates */}
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                    {availableDates.map((d) => (
-                      <button
-                        key={d.num}
-                        onClick={() => setSelectedDate(d.full)}
-                        className={`p-3.5 rounded-xl border text-center transition shrink-0 min-w-[62px] ${
-                          selectedDate === d.full
-                            ? 'bg-[#008375] border-[#008375] text-white shadow-xs'
-                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <p className={`text-[10px] uppercase tracking-wide font-mono ${selectedDate === d.full ? 'text-teal-200' : 'text-slate-400'}`}>{d.day}</p>
-                        <p className="text-sm font-extrabold mt-0.5">{d.num}</p>
-                        <p className={`text-[8px] font-bold mt-1 ${selectedDate === d.full ? 'text-teal-100' : 'text-slate-400'}`}>Feb 26</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Section 3: Time Slot Grid */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Available Time Slots ({selectedDate.split(',')[0]})</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {availableSlots.map((s) => (
-                      <button
-                        key={s.time}
-                        onClick={() => setSelectedSlot(s.time)}
-                        className={`p-3 rounded-xl border text-center transition flex justify-between items-center px-4 ${
-                          selectedSlot === s.time
-                            ? 'bg-teal-50 border-[#008375] text-[#008375] font-bold shadow-2xs'
-                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="text-left">
-                          <p className="text-xs font-extrabold">{s.time}</p>
-                          <p className="text-[9px] text-slate-400 font-semibold">{s.period}</p>
+                  return (
+                    <div className="space-y-4">
+                      {/* Clinical recommendation banner */}
+                      <div className="bg-teal-50 border border-teal-200 rounded-xl p-3.5 flex gap-2.5 items-start text-xs text-teal-900">
+                        <ShieldAlert className="w-4.5 h-4.5 text-teal-700 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="font-extrabold text-teal-950">Active Genetic Referral Enrolled:</strong>
+                          <p className="text-[11px] text-teal-800 leading-relaxed mt-0.5">
+                            Referral for familial high-cholesterol (FH) testing is active. Please book a pre-test counselling slot below to clear subsidized status.
+                          </p>
                         </div>
-                        {selectedSlot === s.time && <Check className="w-4 h-4 text-[#008375]" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                      </div>
 
-                {/* Subsidized Cost transparent info */}
-                <div className="bg-slate-100 p-3 rounded-xl border border-slate-200 flex justify-between items-center text-xs">
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <Coins className="w-4 h-4 text-[#008375]" />
-                    <span>CHAS Blue Subsidy Applied</span>
-                  </div>
-                  <strong className="text-slate-800 font-mono text-xs">Est: S$18.50</strong>
-                </div>
+                      {/* Your Location & Geolocation Control (User request 1) */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Your Location</span>
+                          <button 
+                            onClick={() => setShowLocationModal(!showLocationModal)}
+                            className="text-[11px] text-[#008375] font-extrabold hover:underline flex items-center gap-1 cursor-pointer"
+                          >
+                            <MapPin className="w-3.5 h-3.5" />
+                            {showLocationModal ? 'Close Selector' : 'Change Estate / GPS'}
+                          </button>
+                        </div>
+                        
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-2 bg-teal-50 rounded-lg shrink-0">
+                            <MapPin className="w-4 h-4 text-[#008375]" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-xs text-slate-800">{patientLocName}</h4>
+                            <p className="text-[9px] text-slate-500">
+                              Coordinates: {patientCoords.lat.toFixed(4)}°N, {patientCoords.lng.toFixed(4)}°E
+                            </p>
+                          </div>
+                        </div>
 
-                {/* Section 4: Book Submit CTA */}
-                <div className="pt-2">
-                  <button
-                    onClick={handleBookSubmit}
-                    className="w-full py-3 bg-[#008375] hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-700/20 transition transform active:scale-98 text-center"
-                  >
-                    Confirm Appointment Booking (S$18.50)
-                  </button>
-                  <p className="text-[10px] text-slate-400 text-center mt-2 leading-relaxed">
-                    By booking, your referral card is locked. Reminders are pre-configured to keep you informed.
-                  </p>
-                </div>
+                        {showLocationModal && (
+                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2.5 animate-fade-in text-xs">
+                            <p className="text-[10px] text-slate-500 leading-normal">
+                              We use your location to calculate real-time distances to Singapore clinics:
+                            </p>
+                            
+                            <button
+                              onClick={detectLiveLocation}
+                              disabled={isDetectingLoc}
+                              className="w-full py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                            >
+                              {isDetectingLoc ? 'Detecting GPS...' : '📍 Find Nearest via Live GPS'}
+                            </button>
+
+                            {gpsError && (
+                              <p className="text-[9px] text-red-600 font-semibold leading-tight bg-red-50 border border-red-100 p-2 rounded">
+                                ⚠️ {gpsError}
+                              </p>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-1.5 pt-1">
+                              {[
+                                { name: 'Orchard (Central)', lat: 1.3036, lng: 103.8318 },
+                                { name: 'Jurong East (West)', lat: 1.3329, lng: 103.7436 },
+                                { name: 'Bedok (East)', lat: 1.3240, lng: 103.9302 },
+                                { name: 'Ang Mo Kio (North)', lat: 1.3691, lng: 103.8454 },
+                                { name: 'Woodlands (North-West)', lat: 1.4382, lng: 103.7890 },
+                                { name: 'Punggol (North-East)', lat: 1.4052, lng: 103.9023 }
+                              ].map((loc) => (
+                                <button
+                                  key={loc.name}
+                                  onClick={() => {
+                                    setPatientCoords({ lat: loc.lat, lng: loc.lng });
+                                    setPatientLocName(loc.name);
+                                    setGpsError(null);
+                                    setShowLocationModal(false);
+                                  }}
+                                  className={`py-1.5 px-2 rounded-lg text-[10px] font-semibold border text-center transition cursor-pointer ${
+                                    patientLocName === loc.name 
+                                      ? 'bg-teal-50 border-teal-600 text-[#008375]' 
+                                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                                  }`}
+                                >
+                                  {loc.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Specialized Clinic Location Dropdown (User request 1) */}
+                      <div className="space-y-1.5 text-left">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Specialized Clinic Location</label>
+                        <div className="relative">
+                          <button
+                            onClick={() => setShowClinicDropdown(!showClinicDropdown)}
+                            className="w-full bg-white border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-3xs cursor-pointer text-left transition hover:border-teal-600/40"
+                          >
+                            <div className="flex gap-3 min-w-0">
+                              <div className="p-2 bg-teal-50 rounded-lg shrink-0 self-center">
+                                <MapPin className="w-4.5 h-4.5 text-[#008375]" />
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="font-bold text-xs text-slate-800 truncate">
+                                  {CLINICS.find(c => c.id === selectedClinicId)?.name}
+                                </h4>
+                                <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
+                                  {CLINICS.find(c => c.id === selectedClinicId)?.address}
+                                </p>
+                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                  <span className="text-[9px] font-mono font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded">
+                                    Distance: {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance.toFixed(1)} km
+                                  </span>
+                                  {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance === minDistance && (
+                                    <span className="text-[9px] font-sans font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 flex items-center gap-0.5">
+                                      ⭐ Nearest Clinic
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+                          </button>
+
+                          {showClinicDropdown && (
+                            <div className="absolute top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 shadow-md z-40 overflow-hidden divide-y divide-slate-100 animate-fade-in max-h-52 overflow-y-auto">
+                              {clinicsWithDistances.map((clinic) => {
+                                const isSelected = selectedClinicId === clinic.id;
+                                const isNearest = clinic.distance === minDistance;
+                                return (
+                                  <button
+                                    key={clinic.id}
+                                    onClick={() => {
+                                      setSelectedClinicId(clinic.id);
+                                      setShowClinicDropdown(false);
+                                      
+                                      // Auto-select first available day for the clinic
+                                      const availableDays = Object.keys(CLINIC_SLOTS_DB[clinic.id]).map(Number);
+                                      if (availableDays.length > 0) {
+                                        setSelectedCalendarDay(availableDays[0]);
+                                      }
+                                    }}
+                                    className={`w-full text-left p-3.5 transition flex justify-between items-start gap-3 hover:bg-teal-50/10 cursor-pointer ${
+                                      isSelected ? 'bg-teal-50/20' : 'bg-white'
+                                    }`}
+                                  >
+                                    <div className="space-y-1 min-w-0 flex-1">
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                        <h5 className={`font-bold text-xs ${isSelected ? 'text-[#008375]' : 'text-slate-800'}`}>
+                                          {clinic.name}
+                                        </h5>
+                                        {isNearest && (
+                                          <span className="text-[8px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100">
+                                            NEAREST
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-[10px] text-slate-500 leading-tight truncate">
+                                        {clinic.address}
+                                      </p>
+                                      <p className="text-[9px] font-mono font-bold text-slate-400">
+                                        Distance: <span className="text-teal-700">{clinic.distance.toFixed(1)} km</span>
+                                      </p>
+                                    </div>
+                                    {isSelected && <Check className="w-4 h-4 text-[#008375] shrink-0 mt-0.5" />}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Feature 1 Calendar Layout Month Grid (User request 2) */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-3xs text-left">
+                        <div className="flex justify-between items-center border-b border-slate-150 pb-2">
+                          <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 font-mono">
+                            Select Session Date
+                          </h4>
+                          <span className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">July 2026</span>
+                        </div>
+
+                        {/* Calendar Grid */}
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400">
+                            <span>S</span>
+                            <span>M</span>
+                            <span>T</span>
+                            <span>W</span>
+                            <span>T</span>
+                            <span>F</span>
+                            <span>S</span>
+                          </div>
+
+                          <div className="grid grid-cols-7 gap-1">
+                            {/* July 1st 2026 is Wednesday, so 3 empty cells */}
+                            {Array.from({ length: 3 }).map((_, i) => (
+                              <div key={`empty-${i}`} className="h-8" />
+                            ))}
+
+                            {/* Days 1 to 31 */}
+                            {Array.from({ length: 31 }).map((_, i) => {
+                              const dayNum = i + 1;
+                              const hasSlots = !!CLINIC_SLOTS_DB[selectedClinicId]?.[dayNum];
+                              const isSelected = selectedCalendarDay === dayNum;
+
+                              return (
+                                <button
+                                  key={`day-${dayNum}`}
+                                  disabled={!hasSlots}
+                                  onClick={() => setSelectedCalendarDay(dayNum)}
+                                  className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-[#008375] text-white shadow-xs'
+                                      : hasSlots
+                                      ? 'bg-teal-50 text-[#008375] border border-teal-200/55 hover:bg-teal-100/60'
+                                      : 'text-slate-300 pointer-events-none'
+                                  }`}
+                                >
+                                  <span>{dayNum}</span>
+                                  {hasSlots && !isSelected && (
+                                    <span className="absolute bottom-1 w-1 h-1 bg-[#008375] rounded-full" />
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-4 items-center justify-center text-[9px] text-slate-400 pt-1.5 border-t border-slate-100">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center"><span className="w-1 h-1 bg-[#008375] rounded-full" /></span>
+                            <span>Slots Available</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#008375]" />
+                            <span>Selected Day</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Dynamic Slots for Selected Calendar Day */}
+                      <div className="space-y-2.5 text-left">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between items-center">
+                          <span>Available Counselling Slots (July {selectedCalendarDay})</span>
+                          <span className="text-[#008375] font-semibold">MOH Approved</span>
+                        </label>
+                        <div className="space-y-2">
+                          {CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarDay] ? (
+                            CLINIC_SLOTS_DB[selectedClinicId][selectedCalendarDay].map((slot, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => {
+                                  setSelectedSlotObj(slot);
+                                  setSelectedSlotIdx(idx);
+                                  setBookingStep('review');
+                                }}
+                                className="w-full bg-white hover:bg-teal-50/15 border border-slate-200 hover:border-[#008375]/40 p-3.5 rounded-xl text-left transition flex justify-between items-center cursor-pointer shadow-3xs hover:shadow-2xs"
+                                style={{ minHeight: '64px' }}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2 bg-slate-50 text-slate-500 rounded-lg shrink-0">
+                                    <Clock className="w-4 h-4 text-[#008375]" />
+                                  </div>
+                                  <div className="space-y-0.5">
+                                    <p className="text-xs font-extrabold text-slate-800">{slot.time}</p>
+                                    <div className="flex items-center gap-1 text-[10px] text-slate-500">
+                                      <span className="font-semibold text-slate-600">{slot.provider}</span>
+                                      <span className="text-slate-300">•</span>
+                                      <span>{slot.duration}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] font-bold text-[#008375] font-mono bg-teal-50 px-2 py-0.5 rounded-full border border-teal-100">
+                                    {slot.cost}
+                                  </span>
+                                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                                </div>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
+                              No slots available on this date. Please select a highlighted day on the calendar above.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-100 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center text-xs text-left">
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <Coins className="w-4 h-4 text-[#008375]" />
+                          <span>MOH Subsidy Applied (CHAS Blue)</span>
+                        </div>
+                        <strong className="text-slate-800 font-mono">Est: S$18.50</strong>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Step 2: Review state */}
+                {bookingStep === 'review' && (selectedSlotObj !== null || selectedSlotIdx !== null) && (() => {
+                  const slot = selectedSlotObj || clinicalSlots[selectedSlotIdx || 0];
+                  return (
+                    <div className="space-y-4 animate-fade-in text-left">
+                      <div>
+                        <h3 className="font-extrabold text-sm text-slate-800">Review Booking Request</h3>
+                        <p className="text-[11px] text-slate-500 mt-0.5">Please review before locking your counselling slot.</p>
+                      </div>
+
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left">
+                        <div className="space-y-1 border-b border-slate-100 pb-3 text-left font-sans">
+                          <span className="text-[9px] font-mono text-slate-400 uppercase font-bold tracking-wider">Assigned Clinical Specialist</span>
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-slate-150 text-[#008375] font-extrabold flex items-center justify-center text-xs">
+                              {slot.provider.split(' ').pop()?.substring(0, 2).toUpperCase() || 'HL'}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-xs text-slate-800">{slot.provider}</h4>
+                              <p className="text-[10px] text-slate-500">{slot.role}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 text-xs text-left">
+                          <div className="flex justify-between items-start gap-4">
+                            <span className="text-slate-500 font-medium">Location:</span>
+                            <span className="text-slate-800 text-right font-semibold">{slot.clinic}</span>
+                          </div>
+                          <div className="flex justify-between items-start gap-4">
+                            <span className="text-slate-500 font-medium">Address:</span>
+                            <span className="text-slate-500 text-right text-[11px] leading-snug">{slot.address}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 font-medium">Date:</span>
+                            <span className="text-slate-800 font-semibold font-mono">{slot.date}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 font-medium">Time:</span>
+                            <span className="text-slate-800 font-semibold font-mono">{slot.time}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 font-medium">Session Duration:</span>
+                            <span className="text-slate-800 font-semibold">{slot.duration}</span>
+                          </div>
+                          <div className="flex justify-between border-t border-slate-100 pt-2.5 mt-2.5">
+                            <span className="text-slate-500 font-bold">Total Estimated Out-of-pocket Cost:</span>
+                            <span className="text-[#008375] font-extrabold font-mono">S$18.50</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 space-y-2">
+                        <button
+                          onClick={() => handleBookSubmit(selectedSlotIdx || 0)}
+                          className="w-full py-3 bg-[#008375] hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-700/10 transition cursor-pointer"
+                        >
+                          Confirm Appointment Booking
+                        </button>
+                        <button
+                          onClick={() => {
+                            setBookingStep('available');
+                            setSelectedSlotIdx(null);
+                            setSelectedSlotObj(null);
+                          }}
+                          className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition cursor-pointer border border-slate-200"
+                        >
+                          Change Date/Time
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </div>
@@ -1223,49 +1889,52 @@ export default function PhoneSimulator({
         {activeScreen === ScreenId.ReminderSettings && (
           <div className="flex-col flex flex-1 pb-6">
             {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-              <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full">
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left">
+              <button 
+                onClick={() => onChangeScreen(ScreenId.Home)} 
+                className="p-1 hover:bg-slate-100 rounded-full"
+              >
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
               <span className="font-bold text-sm text-slate-800">Reminder Preferences</span>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4 text-left">
               <div>
                 <h3 className="font-extrabold text-base text-slate-800">Your Communication Settings</h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">Control how and when you receive genetic testing reminders.</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Configure how and when you receive genetic testing referrals and appointment alerts.</p>
               </div>
 
               {/* Master Toggle */}
               <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex justify-between items-center">
                 <div>
                   <h4 className="font-bold text-xs text-slate-800">Active FH Reminders</h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Monthly resources & upcoming booking alerts.</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Receive educational updates and countdown reminders.</p>
                 </div>
                 <button
-                  onClick={() => onUpdateReminderPrefs({ ...reminderPrefs, enabled: !reminderPrefs.enabled })}
-                  className={`w-11 h-6 rounded-full transition-colors relative ${reminderPrefs.enabled ? 'bg-[#008375]' : 'bg-slate-300'}`}
+                  onClick={() => onUpdateReminderPrefs(!reminderPrefs.enabled, reminderPrefs.channel, reminderPrefs.frequency)}
+                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${reminderPrefs.enabled ? 'bg-[#008375]' : 'bg-slate-300'}`}
                 >
                   <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${reminderPrefs.enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
 
               {reminderPrefs.enabled && (
-                <div className="space-y-4 animate-fade-in">
+                <div className="space-y-4 animate-fade-in text-left">
                   
                   {/* Select Channel */}
                   <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Notification Channel</label>
                     <div className="space-y-2">
                       {[
-                        { id: 'sms', label: 'SMS Messages', desc: 'Direct secure texts to +65 9123 4567' },
-                        { id: 'push', label: 'HealthHub App Push', desc: 'Receive rich notifications on your home lockscreen' },
-                        { id: 'both', label: 'Send via Both Channels', desc: 'Highly recommended for older adults to prevent drop-off' }
+                        { id: 'sms', label: 'SMS Messages Only', desc: 'Sent directly to your registered mobile: +65 9123 4567' },
+                        { id: 'push', label: 'HealthHub App Push Only', desc: 'Secure local notifications on your lockscreen' },
+                        { id: 'both', label: 'Send via Both Channels', desc: 'Highly recommended for older adults to prevent referral drop-off' }
                       ].map((ch) => (
                         <button
                           key={ch.id}
-                          onClick={() => onUpdateReminderPrefs({ ...reminderPrefs, channel: ch.id as any })}
-                          className={`w-full text-left p-3 rounded-xl border transition flex gap-3 ${
+                          onClick={() => onUpdateReminderPrefs(reminderPrefs.enabled, ch.id as any, reminderPrefs.frequency)}
+                          className={`w-full text-left p-3 rounded-xl border transition flex gap-3 cursor-pointer ${
                             reminderPrefs.channel === ch.id
                               ? 'bg-teal-50 border-[#008375]'
                               : 'bg-white border-slate-200 hover:bg-slate-50'
@@ -1290,17 +1959,18 @@ export default function PhoneSimulator({
                     <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Reminder Frequency</label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { id: '7days_before', label: '7 Days Before', sub: 'Standard alert' },
-                        { id: 'weekly', label: 'Weekly', sub: 'Highly protective' },
-                        { id: 'monthly', label: 'Monthly Info', sub: 'Education updates' },
-                        { id: 'daily', label: 'Daily (Last Week)', sub: 'Critical countdown' }
+                        { id: 'monthly', label: 'Monthly Info', sub: 'Education resources' },
+                        { id: '2_weeks', label: '2 Weeks Before', sub: 'Initial nudge' },
+                        { id: '1_week', label: '1 Week Before', sub: 'Highly protective' },
+                        { id: '1_day', label: '1 Day Before', sub: 'Final prep check' },
+                        { id: 'custom', label: 'Custom spacing', sub: 'User defined' }
                       ].map((f) => (
                         <button
                           key={f.id}
-                          onClick={() => onUpdateReminderPrefs({ ...reminderPrefs, frequency: f.id as any })}
-                          className={`p-3 rounded-xl border text-left transition ${
+                          onClick={() => onUpdateReminderPrefs(reminderPrefs.enabled, reminderPrefs.channel, f.id as any)}
+                          className={`p-3 rounded-xl border text-left transition cursor-pointer ${
                             reminderPrefs.frequency === f.id
-                              ? 'bg-teal-50/50 border-[#008375] font-bold'
+                              ? 'bg-teal-50 border-[#008375] font-bold'
                               : 'bg-white border-slate-200 hover:bg-slate-50'
                           }`}
                         >
@@ -1311,28 +1981,50 @@ export default function PhoneSimulator({
                     </div>
                   </div>
 
-                  {/* SMS live preview container */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
-                      <span>SMS Broadcast Preview</span>
-                      <span className="text-emerald-700">Verified sender</span>
-                    </label>
-                    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 border-b border-slate-100 pb-2">
-                        <Smartphone className="w-3.5 h-3.5 text-slate-400" />
-                        <span>MOH-HealthHub</span>
-                        <span className="ml-auto text-[9px] font-mono">Today, 09:41 AM</span>
-                      </div>
-                      <div className="bg-slate-100 p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-slate-200/50">
-                        MOH HealthHub: Hi Lisa, your FH Genetic Counselling slot at First Health Group Serangoon is scheduled on {appointment.status === 'booked' ? appointment.date : 'Fri, 17 Feb 2026'} at {appointment.status === 'booked' ? appointment.timeSlot : '9.00 AM'}. Subsidies of up to 75% are applied. Please bring your Singpass. Ref: https://hh.gov.sg/fh-ref
+                  {/* Dynamic previews based on selected channels */}
+                  {(reminderPrefs.channel === 'sms' || reminderPrefs.channel === 'both') && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
+                        <span>SMS Broadcast Preview</span>
+                        <span className="text-emerald-700">Verified MOH Sender</span>
+                      </label>
+                      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 border-b border-slate-100 pb-2">
+                          <Smartphone className="w-3.5 h-3.5 text-slate-400" />
+                          <span>MOH-HealthHub</span>
+                          <span className="ml-auto text-[9px] font-mono">Today, 09:41 AM</span>
+                        </div>
+                        <div className="bg-slate-100 p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-slate-200/50">
+                          MOH HealthHub: Hi Lisa, your FH Genetic Counselling slot at National University Hospital Genetic Clinic is confirmed on {appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026'} at {appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM'}. Subsidies up to 75% are cleared. Bring Singpass. Info: https://hh.gov.sg/fh-ref
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
+
+                  {(reminderPrefs.channel === 'push' || reminderPrefs.channel === 'both') && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                        HealthHub App Lockscreen Preview
+                      </label>
+                      <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
+                        <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
+                          <div className="w-4 h-4 bg-[#008375] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
+                          <span>HealthHub Singapore • Just Now</span>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-bold text-slate-100">Counselling Appointment Reminder</h4>
+                          <p className="text-[10.5px] text-slate-300 leading-snug">
+                            Your genetic counseling is confirmed for {appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026'} at {appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM'}. Tap to complete checklist.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Mock notify trigger */}
                   <button
                     onClick={onTriggerNotification}
-                    className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
+                    className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                   >
                     <Bell className="w-4 h-4" /> Trigger Simulated Push Alert
                   </button>
@@ -1347,24 +2039,31 @@ export default function PhoneSimulator({
         {activeScreen === ScreenId.ProgressTimeline && (
           <div className="flex-col flex flex-1 pb-6">
             {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-              <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full">
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left">
+              <button 
+                onClick={() => onChangeScreen(ScreenId.Home)} 
+                className="p-1 hover:bg-slate-100 rounded-full"
+              >
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
               <span className="font-bold text-sm text-slate-800">Your Appointment Progress</span>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4 text-left">
               {/* Countdown Header */}
-              <div className="bg-gradient-to-r from-teal-800 to-teal-900 text-white p-4 rounded-2xl shadow-sm">
-                <p className="text-[10px] font-mono uppercase tracking-widest text-teal-300">Appointment Countdown</p>
-                <h3 className="font-extrabold text-lg mt-1">
-                  {appointment.status === 'booked' ? 'Your appointment is in 6 days' : 'Awaiting Appointment Booking'}
+              <div className="bg-gradient-to-r from-teal-800 to-teal-900 text-white p-4 rounded-2xl shadow-sm text-left">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-teal-300 font-bold">Appointment Status</p>
+                <h3 className="font-extrabold text-base mt-1">
+                  {appointment.status === 'confirmed' 
+                    ? 'Attendance Confirmed' 
+                    : appointment.status === 'booked' 
+                      ? 'Appointment Scheduled' 
+                      : 'Counselling Booking Required'}
                 </h3>
-                <p className="text-[10px] text-teal-100 mt-1 max-w-[240px]">
-                  {appointment.status === 'booked' 
-                    ? `Confirmed for ${appointment.date} at ${appointment.timeSlot} at First Health Group (Serangoon).` 
-                    : 'Your cardiac referral requires you to schedule a counselling session soon.'
+                <p className="text-[11px] text-teal-100 mt-1 max-w-[280px] leading-relaxed">
+                  {appointment.status === 'confirmed' || appointment.status === 'booked'
+                    ? `Confirmed for ${appointment.date} at ${appointment.timeSlot} at National University Hospital Genetic Clinic.` 
+                    : 'Your active cardiac genetic referral requires you to schedule a counselling session.'
                   }
                 </p>
               </div>
@@ -1373,7 +2072,7 @@ export default function PhoneSimulator({
               <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-5">
                 <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Interactive Referral Timeline</h4>
                 
-                <div className="relative pl-6 space-y-6">
+                <div className="relative pl-6 space-y-6 text-left">
                   {/* Vertical connecting line */}
                   <div className="absolute left-2.5 top-2.5 bottom-2 w-0.5 bg-slate-200" />
 
@@ -1384,7 +2083,7 @@ export default function PhoneSimulator({
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">Referral received</h5>
-                      <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Recommended by Cardiopulmonary Specialist at Outpatient Clinic on 12 Jan 2026.</p>
+                      <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Recommended by Clinical Cardiology Specialist on 12 Jul 2026.</p>
                     </div>
                   </div>
 
@@ -1395,27 +2094,27 @@ export default function PhoneSimulator({
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">Education materials reviewed</h5>
-                      <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Personalised information guide read on Singapore HealthHub Education Hub.</p>
+                      <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Subsidies, clinical video, and FAQs completed on Singapore HealthHub.</p>
                     </div>
                   </div>
 
                   {/* Step 3: Appointment Booked */}
                   <div className="relative">
                     <div className={`absolute -left-[21px] w-5 h-5 rounded-full border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs ${
-                      appointment.status === 'booked' ? 'bg-emerald-500' : 'bg-amber-500'
+                      (appointment.status === 'booked' || appointment.status === 'confirmed') ? 'bg-emerald-500' : 'bg-amber-500'
                     }`}>
-                      {appointment.status === 'booked' ? '✓' : '3'}
+                      {(appointment.status === 'booked' || appointment.status === 'confirmed') ? '✓' : '3'}
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">Counselling slot booked</h5>
-                      {appointment.status === 'booked' ? (
-                        <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Successfully scheduled for {appointment.date} at First Health Group.</p>
+                      {(appointment.status === 'booked' || appointment.status === 'confirmed') ? (
+                        <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Successfully scheduled for {appointment.date} @ {appointment.timeSlot} at NUH Genetic Clinic.</p>
                       ) : (
                         <div className="space-y-1.5 mt-1">
-                          <p className="text-[10px] text-amber-700 font-semibold">Action needed: Choose your subsidized appointment slot.</p>
+                          <p className="text-[10px] text-amber-700 font-semibold">Action needed: Choose your subsidized genetic counselling slot.</p>
                           <button 
                             onClick={() => onChangeScreen(ScreenId.Booking)}
-                            className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-bold transition"
+                            className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-bold transition cursor-pointer"
                           >
                             Book Now
                           </button>
@@ -1427,13 +2126,27 @@ export default function PhoneSimulator({
                   {/* Step 4: Attend Counselling */}
                   <div className="relative">
                     <div className={`absolute -left-[21px] w-5 h-5 rounded-full border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs ${
-                      appointment.status === 'booked' ? 'bg-[#008375] animate-pulse' : 'bg-slate-300'
+                      appointment.status === 'confirmed' 
+                        ? 'bg-emerald-500' 
+                        : appointment.status === 'booked' 
+                          ? 'bg-teal-600 animate-pulse' 
+                          : 'bg-slate-300'
                     }`}>
-                      4
+                      {appointment.status === 'confirmed' ? '✓' : '4'}
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">Attend genetic counselling</h5>
-                      <p className="text-[10px] text-slate-500 leading-normal mt-0.5">30-minute session to answer family worries and complete the simple blood test.</p>
+                      {appointment.status === 'confirmed' ? (
+                        <p className="text-[10px] text-emerald-700 font-bold leading-normal mt-0.5 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
+                          Ready & Registered • NRIC/Singpass pre-cleared for clinical intake.
+                        </p>
+                      ) : appointment.status === 'booked' ? (
+                        <p className="text-[10px] text-teal-700 font-semibold leading-normal mt-0.5">
+                          Attendance is unverified. Tap on lockscreen push alerts or settings to confirm attendance.
+                        </p>
+                      ) : (
+                        <p className="text-[10px] text-slate-500 leading-normal mt-0.5">45-minute session to answer family worries and finalize testing.</p>
+                      )}
                     </div>
                   </div>
 
@@ -1444,24 +2157,24 @@ export default function PhoneSimulator({
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">Receive genetic results</h5>
-                      <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Discussion with clinical specialists 4-6 weeks after testing to adjust preventive medications.</p>
+                      <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Discussion of preventative steps and tailored medicine 4 weeks after blood drawn.</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Prep Checklist link shortcut */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2 text-xs">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2 text-xs text-left">
                 <h5 className="font-bold text-slate-800 flex items-center gap-1.5">
                   <CheckSquare className="w-4 h-4 text-teal-600" />
-                  Need to review your checklist?
+                  Preparation Checklist
                 </h5>
                 <p className="text-slate-500 text-[11px] leading-relaxed">
-                  Make sure you are ready for your session on 17 Feb 2026. Review what documents to bring.
+                  Make sure you know what to expect and what family history reports to bring. Review our guides.
                 </p>
                 <button
                   onClick={() => onChangeScreen(ScreenId.Education)}
-                  className="text-[#008375] font-bold underline text-[11px] hover:text-teal-800 flex items-center gap-0.5 mt-1"
+                  className="text-[#008375] font-bold underline text-[11px] hover:text-teal-800 flex items-center gap-0.5 mt-1 cursor-pointer"
                 >
                   Review checklist now <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -1474,20 +2187,20 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 6: LOCK SCREEN NOTIFICATION ----------------- */}
         {activeScreen === ScreenId.NotificationMock && (
-          <div className="flex-1 flex flex-col justify-between p-6 bg-cover bg-center relative" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80')" }}>
+          <div className="flex-1 flex flex-col justify-between p-6 bg-cover bg-center relative select-none" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80')" }}>
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs" />
             
             {/* Top Time Details */}
             <div className="relative text-center text-white space-y-1.5 pt-8 z-10">
               <span className="text-[11px] font-mono uppercase tracking-widest text-slate-200">Singapore Telecommunications</span>
-              <h2 className="text-5xl font-thin tracking-tight font-sans">23:50</h2>
-              <p className="text-xs font-medium text-slate-200">Monday, June 29, 2026</p>
+              <h2 className="text-5xl font-thin tracking-tight font-sans">09:41</h2>
+              <p className="text-xs font-medium text-slate-200">Wednesday, July 15, 2026</p>
             </div>
 
-            {/* Notification Bubble */}
+            {/* Notification Bubble (Feature 5) */}
             <div className="relative z-10 space-y-4 my-auto">
               
-              <div className="bg-slate-900/85 backdrop-blur-md text-white border border-slate-700/50 p-4 rounded-2xl shadow-xl space-y-3 max-w-[320px] mx-auto animate-bounce-short">
+              <div className="bg-slate-900/85 backdrop-blur-md text-white border border-slate-700/50 p-4 rounded-2xl shadow-xl space-y-3 max-w-[320px] mx-auto animate-bounce-short text-left">
                 {/* Header info */}
                 <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                   <div className="flex items-center gap-1.5">
@@ -1501,45 +2214,45 @@ export default function PhoneSimulator({
 
                 {/* Body message */}
                 <div className="space-y-1">
-                  <h4 className="font-bold text-xs text-slate-100">Your FH Genetic Counselling is in 7 days</h4>
-                  <p className="text-[11px] text-slate-300 leading-snug">
-                    Your appointment at <strong className="text-white">First Health Group Serangoon</strong> is scheduled on <strong className="text-white">Fri, 17 Feb 2026 @ 9:00 AM</strong>.
+                  <h4 className="font-bold text-xs text-slate-100">Confirm your counselling appointment</h4>
+                  <p className="text-[11px] text-slate-300 leading-snug font-sans">
+                    Your subsidized FH Genetic Counselling at <strong className="text-white">NUH Genetic Clinic</strong> is scheduled on <strong className="text-white">{appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026'} @ {appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM'}</strong>.
                   </p>
                 </div>
 
                 {/* Subsidized tag */}
-                <div className="bg-teal-900/30 border border-teal-800/50 p-2 rounded-lg text-[10px] text-teal-300 flex items-center justify-between">
+                <div className="bg-teal-900/30 border border-teal-850 p-2 rounded-lg text-[10px] text-teal-300 flex items-center justify-between">
                   <span>MOH Subsidized Slot</span>
                   <strong className="font-mono">S$18.50</strong>
                 </div>
 
                 {/* Lock Screen buttons */}
-                <div className="flex flex-col gap-1.5 pt-1">
+                <div className="flex flex-col gap-1.5 pt-1 text-left">
                   <button
                     onClick={() => handleNotificationClickAction('confirm')}
-                    className="w-full py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 shadow-sm"
+                    className="w-full py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 shadow-sm cursor-pointer text-center"
                   >
                     Confirm Attendance
                   </button>
                   <div className="grid grid-cols-2 gap-1.5">
                     <button
                       onClick={() => handleNotificationClickAction('reschedule')}
-                      className="py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-semibold transition"
+                      className="py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-semibold transition cursor-pointer text-center"
                     >
                       Reschedule
                     </button>
                     <button
                       onClick={() => handleNotificationClickAction('learn')}
-                      className="py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-semibold transition"
+                      className="py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-semibold transition cursor-pointer text-center"
                     >
-                      Read Subsidies Guide
+                      Read Prep Guide
                     </button>
                   </div>
                 </div>
               </div>
 
               <p className="text-[10px] text-slate-300 text-center leading-normal max-w-[240px] mx-auto text-shadow-sm font-medium">
-                Tap on "Confirm Attendance" to mark as attending in Singapore HealthHub instantly.
+                Tap "Confirm Attendance" to log your confirmation instantly in Singapore HealthHub database.
               </p>
             </div>
 
