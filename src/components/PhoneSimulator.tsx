@@ -1207,7 +1207,7 @@ export default function PhoneSimulator({
                     {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
                       <span key={d} className="text-[9px] font-bold text-slate-400">{d}</span>
                     ))}
-                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).firstDayOfWeek }).map((_, i) => (
+                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).emptyCells }).map((_, i) => (
                       <span key={`pad-${i}`} />
                     ))}
                     {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
