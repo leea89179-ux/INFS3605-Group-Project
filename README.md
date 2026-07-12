@@ -6,7 +6,7 @@
 
 This contains everything you need to run your app locally.
 
-https://ai.studio/apps/7ef7e294-92f5-4584-bf2e-21f0001eecc0
+https://leea89179-ux-infs360-27x3.bolt.host
 
 ## Run Locally
 
