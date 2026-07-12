@@ -6,6 +6,7 @@ export enum ScreenId {
   ReminderSettings = 'reminders',
   ProgressTimeline = 'timeline',
   NotificationMock = 'notification',
+  Profile = 'profile',
 }
 
 export interface Appointment {

@@ -15,7 +15,7 @@ import DatabaseViewer from './components/DatabaseViewer';
 import Chatbot from './components/Chatbot';
 import { 
   HeartPulse, Compass, Settings, Layers, Users, BookOpen, 
-  Sparkles, Smartphone, CheckCircle2, ShieldAlert, Undo2, 
+  Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, 
   Calendar, Check, ArrowRight, HelpCircle, Database
 } from 'lucide-react';
 
@@ -295,7 +295,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-teal-600 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-600 selection:text-white">
       
       {/* 1. Official Singapore GovTech Styled Header banner */}
       <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 shrink-0 shadow-lg">
@@ -305,12 +305,12 @@ export default function App() {
               <span className="bg-rose-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-sm font-mono">
                 GovTech Singapore
               </span>
-              <span className="bg-teal-500/10 text-teal-400 text-[10px] font-semibold px-2 py-0.5 rounded border border-teal-500/20">
+              <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded border border-emerald-500/20">
                 HealthHub v12.4
               </span>
             </div>
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-100 flex items-center gap-2 font-display">
-              <HeartPulse className="w-6 h-6 text-teal-500 shrink-0" />
+              <HeartPulse className="w-6 h-6 text-emerald-500 shrink-0" />
               FH Genetic Referral Compliance Prototype
             </h1>
             <p className="text-xs text-slate-400">
@@ -322,15 +322,15 @@ export default function App() {
           <div className="flex flex-wrap gap-2">
             <div className="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
               <p className="text-[9px] uppercase tracking-wider text-slate-500 font-mono">Subsidies</p>
-              <p className="text-xs font-bold text-teal-400">Up to 75% MOH</p>
+              <p className="text-xs font-bold text-emerald-400">Up to 75% MOH</p>
             </div>
             <div className="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
               <p className="text-[9px] uppercase tracking-wider text-slate-500 font-mono">Elderly UX</p>
-              <p className="text-xs font-bold text-teal-400">44px Targets</p>
+              <p className="text-xs font-bold text-emerald-400">44px Targets</p>
             </div>
             <div className="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
               <p className="text-[9px] uppercase tracking-wider text-slate-500 font-mono">LIA Protection</p>
-              <p className="text-xs font-bold text-teal-400">No Premium Impact</p>
+              <p className="text-xs font-bold text-emerald-400">No Premium Impact</p>
             </div>
           </div>
         </div>
@@ -345,8 +345,8 @@ export default function App() {
           {/* Box 1: Interactive State Controller */}
           <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-4">
             <div>
-              <h3 className="text-sm font-bold text-teal-400 uppercase tracking-wider font-mono flex items-center gap-2">
-                <Compass className="w-4 h-4 text-teal-500" />
+              <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-wider font-mono flex items-center gap-2">
+                <Compass className="w-4 h-4 text-emerald-500" />
                 Prototype Controller
               </h3>
               <p className="text-xs text-slate-400 mt-1">
@@ -360,7 +360,7 @@ export default function App() {
                 <span className="text-xs font-bold text-slate-300">FH Referral Status</span>
                 <span className={`text-[10px] px-2.5 py-0.5 rounded font-mono font-bold ${
                   isFHReferred 
-                    ? 'bg-teal-950/80 text-teal-400 border border-teal-800/50' 
+                    ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50' 
                     : 'bg-rose-950/40 text-rose-400 border border-rose-900/30'
                 }`}>
                   {isFHReferred ? 'REFERRED' : 'NON-REFERRED'}
@@ -374,7 +374,7 @@ export default function App() {
                   }}
                   className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                     isFHReferred
-                      ? 'bg-teal-600 text-white shadow-md shadow-teal-900/30'
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/30'
                       : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
                   }`}
                 >
@@ -406,7 +406,7 @@ export default function App() {
                 className="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 hover:border-slate-700 transition flex items-center justify-between font-medium group"
               >
                 <span className="flex items-center gap-2">
-                  <Undo2 className="w-3.5 h-3.5 text-slate-400" />
+                  <Undo className="w-3.5 h-3.5 text-slate-400" />
                   1. Referral Active (Reset)
                 </span>
                 <span className="text-[10px] text-slate-500 bg-slate-900 px-1.5 py-0.5 rounded font-mono group-hover:text-slate-300">
@@ -420,10 +420,10 @@ export default function App() {
                 className="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 hover:border-slate-700 transition flex items-center justify-between font-medium group"
               >
                 <span className="flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-teal-500" />
+                  <Calendar className="w-3.5 h-3.5 text-emerald-500" />
                   2. Booked Confirmation
                 </span>
-                <span className="text-[10px] text-teal-400 bg-teal-950/40 px-1.5 py-0.5 rounded font-mono">
+                <span className="text-[10px] text-emerald-400 bg-emerald-950/40 px-1.5 py-0.5 rounded font-mono">
                   Booked
                 </span>
               </button>
@@ -460,7 +460,7 @@ export default function App() {
             {/* Quick Informational Box on the Clinical Journey */}
             <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 space-y-2 text-xs">
               <h4 className="font-bold text-slate-300 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-[#008375]" />
+                <CircleCheck className="w-4 h-4 text-[#00a859]" />
                 Compliance Journey Summary
               </h4>
               <p className="text-slate-400 leading-normal text-[11px]">
@@ -481,7 +481,7 @@ export default function App() {
           
           <div className="text-center">
             <span className="text-xs uppercase tracking-widest font-mono text-slate-500">Live Interactive Mockup</span>
-            <p className="text-xs text-teal-400 font-semibold">Click any element inside the device to test flows</p>
+            <p className="text-xs text-emerald-400 font-semibold">Click any element inside the device to test flows</p>
           </div>
 
           <PhoneSimulator
@@ -498,7 +498,7 @@ export default function App() {
           />
 
           <div className="bg-slate-900/60 border border-slate-800/80 px-4 py-2 rounded-xl text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
-            <Smartphone className="w-3.5 h-3.5 text-teal-500" />
+            <Smartphone className="w-3.5 h-3.5 text-emerald-500" />
             <span>Figma Component: HealthHub_Simulator_iOS</span>
           </div>
 
@@ -513,7 +513,7 @@ export default function App() {
               onClick={() => setRightPanelTab('database')}
               className={`flex-1 py-2 px-3 text-center rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
                 rightPanelTab === 'database'
-                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-900/30'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/30'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -523,7 +523,7 @@ export default function App() {
               onClick={() => setRightPanelTab('annotations')}
               className={`flex-1 py-2 px-3 text-center rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
                 rightPanelTab === 'annotations'
-                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-900/30'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/30'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -552,8 +552,8 @@ export default function App() {
 
                 {/* Additional UX Strategy Box */}
                 <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-3 shrink-0">
-                  <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider font-mono flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-teal-500" />
+                  <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider font-mono flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-500" />
                     Prevention of Patient Leakage
                   </h4>
                   <p className="text-xs text-slate-300 leading-relaxed">
