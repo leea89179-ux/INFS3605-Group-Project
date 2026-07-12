@@ -852,12 +852,22 @@ export default function PhoneSimulator({
 
   const handleEnterReschedule = () => {
     setProposedSlotObj(null);
-    // Initialise reschedule selectors to match the current booking clinic/month
     const currentClinicId = CLINICS.find(c => c.name === appointment?.clinic)?.id || 'nuh';
     setRescheduleClinicId(currentClinicId);
-    setRescheduleCalendarMonth('July 2026');
-    const availableDays = Object.keys(CLINIC_SLOTS_DB[currentClinicId]?.['July 2026'] || {}).map(Number).filter(d => !isDateBeforeToday('July 2026', d));
-    setRescheduleCalendarDay(availableDays[0] ?? 22);
+
+    // Derive month and day from appointment.date (format: "22 July 2026")
+    const dateParts = appointment?.date?.split(' ');
+    const apptDay = dateParts?.length === 3 ? parseInt(dateParts[0], 10) : NaN;
+    const apptMonth = dateParts?.length === 3 ? `${dateParts[1]} ${dateParts[2]}` : 'July 2026';
+    const derivedMonth = isNaN(apptDay) ? 'July 2026' : apptMonth;
+
+    setRescheduleCalendarMonth(derivedMonth);
+    const availableDays = Object.keys(CLINIC_SLOTS_DB[currentClinicId]?.[derivedMonth] || {})
+      .map(Number)
+      .filter(d => !isDateBeforeToday(derivedMonth, d));
+    const apptDayAvailable = !isNaN(apptDay) && availableDays.includes(apptDay);
+    setRescheduleCalendarDay(apptDayAvailable ? apptDay : (availableDays[0] ?? 22));
+
     setShowRescheduleClinicDropdown(false);
     setBookingSubFlow('reschedule-select');
   };
@@ -901,8 +911,7 @@ export default function PhoneSimulator({
       onChangeScreen(ScreenId.ProgressTimeline);
     } else if (action === 'reschedule') {
       onChangeScreen(ScreenId.Booking);
-      setProposedSlotObj(null);
-      setBookingSubFlow('reschedule-select');
+      handleEnterReschedule();
     } else if (action === 'learn') {
       onNotificationAction('education_viewed');
       onChangeScreen(ScreenId.Education);
