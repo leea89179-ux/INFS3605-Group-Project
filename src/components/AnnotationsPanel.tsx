@@ -23,7 +23,7 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       title: 'Screen 1: HealthHub Home Screen & Banner',
       problemSolved: 'Out of sight, out of mind. Patients leave the clinic with a physical referral letter, pack it away, and forget to take action. They have no high-visibility reminder that they have an active genetic testing referral.',
       uxGuidelines: [
-        'Personalized Ambient Notification: Instead of a red alert (which creates cancer-like panic), use a gentle teal/amber background that looks informative and supportive.',
+        'Personalized Ambient Notification: Instead of a red alert (which creates cancer-like panic), use a gentle emerald/amber background that looks informative and supportive.',
         'Immediate Status Tracking: A simple 3-stage progress bar showing exactly where the user stands in their journey (Referral Recieved → Booked → Completed).',
         'Direct Action Button: High contrast "Book Appointment" button right on the banner, reducing steps to booking to a minimum.',
       ],
@@ -124,6 +124,22 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       ],
       accessibilityForSeniors: 'Bypasses the need to navigate complex app menus. The older adult can handle the entire appointment with a single tap from their phone’s notification screen.',
       dropOffImpact: 'Converts passive reminder receipt into active, immediate compliance. Overcomes booking forgetfulness at the critical 7-day pre-appointment window.'
+    },
+    [ScreenId.Profile]: {
+      title: 'Screen 7: Integrated Health & Family Profile',
+      problemSolved: 'Fragmented health records. Patients often do not see how their current clinical indicators (like severely elevated cholesterol) link directly to family history or genetic risks, making genetic testing seem unnecessary or abstract.',
+      uxGuidelines: [
+        'Singpass Verification Badge: A reassuring visual indicator that identity details are legally pre-cleared, boosting trust and security.',
+        'Structured Health Metrics: Highlighting key risk indicators (e.g. LDL cholesterol 5.4 mmol/L) alongside the active Familial Hypercholesterolemia (FH) referral.',
+        'Visual Family Risk Tree: Displaying maternal/paternal cardiac history (such as premature heart attacks) in a clean, high-contrast list format, making the genetic link immediate and scannable.',
+        'Data Privacy & Moratorium Reassurance: Explaining Singapore’s genetic data privacy protection in clear terms directly on the profile page, eliminating fear of insurance discrimination.',
+      ],
+      govTechPrinciples: [
+        { label: 'Citizen-Centric Design', desc: 'Pre-populates verified address, CHAS subsidy status, and MediSave balance from Singpass, reducing manual data entry to zero.' },
+        { label: 'Trustworthy & Secure', desc: 'Communicates legal privacy protections transparently alongside clinical metrics to foster long-term patient confidence.' }
+      ],
+      accessibilityForSeniors: 'Uses clean table grids with generous spacing, high color-contrast ratio tags, and simple, supportive descriptions instead of dense medical jargon.',
+      dropOffImpact: 'Reinforces the personal and familial importance of genetic testing. Seeing their elevated cholesterol level alongside their father\'s premature heart disease directly motivates patients to attend their appointment.'
     }
   };
 
@@ -132,13 +148,13 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
   return (
     <div className="flex flex-col h-full bg-slate-900 text-slate-100 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
       {/* Figma Annotation Header */}
-      <div className="bg-gradient-to-r from-teal-800 to-slate-900 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-emerald-800 to-slate-900 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-amber-400 animate-pulse" />
-          <span className="text-xs uppercase font-mono tracking-widest text-teal-300">Figma Wireframe Annotations</span>
+          <span className="text-xs uppercase font-mono tracking-widest text-emerald-300">Figma Wireframe Annotations</span>
         </div>
         <div className="flex items-center gap-2 bg-slate-800/80 px-2 py-1 rounded text-[11px] font-mono text-slate-300">
-          <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+          <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
           <span>GovTech SG UX Spec</span>
         </div>
       </div>
@@ -151,7 +167,7 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
             onClick={() => onSelectScreen(scrId)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               activeScreen === scrId
-                ? 'bg-teal-600 text-white shadow-md shadow-teal-900/30 font-semibold'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/30 font-semibold'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
@@ -163,8 +179,8 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       {/* Annotation Content */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         <div>
-          <h2 className="text-xl font-bold text-teal-300 flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-teal-400 shrink-0" />
+          <h2 className="text-xl font-bold text-emerald-300 flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
             {current.title}
           </h2>
           <p className="text-xs text-slate-400 mt-1 font-mono">Singapore HealthHub Extension Initiative</p>
@@ -194,14 +210,14 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
 
         {/* UX Guidelines (Figma Spec Style) */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-teal-400 font-mono flex items-center gap-1.5">
-            <BookOpen className="w-4 h-4 text-teal-500" />
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-400 font-mono flex items-center gap-1.5">
+            <BookOpen className="w-4 h-4 text-emerald-500" />
             Interaction & UX Decisions
           </h3>
           <ul className="space-y-3">
             {current.uxGuidelines.map((guideline, idx) => (
               <li key={idx} className="flex gap-2 text-sm text-slate-300">
-                <span className="font-mono text-teal-500 font-bold bg-teal-950/60 w-5 h-5 rounded-full flex items-center justify-center shrink-0 border border-teal-800/50">
+                <span className="font-mono text-emerald-500 font-bold bg-emerald-950/60 w-5 h-5 rounded-full flex items-center justify-center shrink-0 border border-emerald-800/50">
                   {idx + 1}
                 </span>
                 <span className="leading-relaxed">{guideline}</span>
@@ -212,14 +228,14 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
 
         {/* GovTech Design Principles Applied */}
         <div className="space-y-3 pt-2">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-teal-400 font-mono flex items-center gap-1.5">
-            <Heart className="w-4 h-4 text-teal-500" />
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-400 font-mono flex items-center gap-1.5">
+            <Heart className="w-4 h-4 text-emerald-500" />
             GovTech Design Principles Applied
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {current.govTechPrinciples.map((principle, idx) => (
               <div key={idx} className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                <p className="text-xs font-bold text-teal-300 uppercase tracking-wider font-mono">
+                <p className="text-xs font-bold text-emerald-300 uppercase tracking-wider font-mono">
                   {principle.label}
                 </p>
                 <p className="text-xs text-slate-400 mt-1 leading-relaxed">
@@ -232,8 +248,8 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
 
         {/* Seniors Accessibility Section */}
         <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800 space-y-2">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-teal-400 font-mono flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-teal-500" />
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-400 font-mono flex items-center gap-1.5">
+            <Users className="w-4 h-4 text-emerald-500" />
             Older Adult (Senior) Accessibility
           </h3>
           <p className="text-sm text-slate-300 leading-relaxed">
@@ -245,7 +261,7 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       {/* Figma Metadata Footer */}
       <div className="bg-slate-950 px-6 py-3 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400 font-mono">
         <div className="flex items-center gap-1">
-          <Clock className="w-3.5 h-3.5 text-teal-500" />
+          <Clock className="w-3.5 h-3.5 text-emerald-500" />
           <span>Figma Ver. 4.2 (Singapore GovTech)</span>
         </div>
         <span>Approved for HealthHub v12.4</span>
