@@ -977,14 +977,8 @@ export default function PhoneSimulator({
                 <Calendar className="w-4 h-4" /> Reschedule Instead
               </button>
               <button
-                onClick={handleExitCancelFlow}
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
-              >
-                Keep My Appointment
-              </button>
-              <button
                 onClick={handleContinueCancelling}
-                className="w-full py-2 text-slate-400 hover:text-slate-600 text-[10.5px] font-medium transition cursor-pointer text-center"
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
               >
                 Continue Cancelling
               </button>
@@ -1021,16 +1015,16 @@ export default function PhoneSimulator({
 
             <div className="flex flex-col gap-2.5">
               <button
-                onClick={handleExitCancelFlow}
-                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
-              >
-                Keep My Appointment
-              </button>
-              <button
                 onClick={handleConfirmCancellation}
-                className="w-full py-2.5 bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+                className="w-full py-3 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
               >
                 Yes, Cancel This Appointment
+              </button>
+              <button
+                onClick={handleExitCancelFlow}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+              >
+                Keep My Appointment
               </button>
             </div>
           </div>
@@ -1076,7 +1070,7 @@ export default function PhoneSimulator({
       {bookingSubFlow === 'reschedule-select' && (
         <div className="absolute inset-0 bg-slate-50 flex flex-col z-50 animate-fade-in overflow-y-auto">
           {/* Header */}
-          <div className="bg-white px-4 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between sticky top-0 z-10">
+          <div className="bg-white px-4 pt-14 pb-3 border-b border-slate-100 flex items-center justify-between sticky top-0 z-10">
             <h4 className="font-extrabold text-sm text-slate-900">Select a new slot</h4>
             <button
               onClick={handleExitReschedule}
@@ -1168,7 +1162,14 @@ export default function PhoneSimulator({
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Available slots</label>
               {CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarMonth]?.[selectedCalendarDay] ? (
-                CLINIC_SLOTS_DB[selectedClinicId][selectedCalendarMonth][selectedCalendarDay].map((slot, idx) => (
+                CLINIC_SLOTS_DB[selectedClinicId][selectedCalendarMonth][selectedCalendarDay]
+                  .filter(slot => !(
+                    appointment &&
+                    slot.date === appointment.date &&
+                    slot.time === appointment.timeSlot &&
+                    slot.clinic === appointment.clinic
+                  ))
+                  .map((slot, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleProposedSlotSelected(slot)}
@@ -1218,7 +1219,7 @@ export default function PhoneSimulator({
       {/* RESCHEDULE – review comparison */}
       {bookingSubFlow === 'reschedule-review' && proposedSlotObj && (
         <div className="absolute inset-0 bg-slate-50 flex flex-col z-50 animate-fade-in">
-          <div className="bg-white px-4 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between">
+          <div className="bg-white px-4 pt-14 pb-3 border-b border-slate-100 flex items-center justify-between">
             <button
               onClick={() => setBookingSubFlow('reschedule-select')}
               className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer flex items-center gap-1 text-[10.5px]"
