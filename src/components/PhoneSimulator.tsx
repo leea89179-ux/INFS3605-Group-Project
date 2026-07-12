@@ -1068,9 +1068,11 @@ export default function PhoneSimulator({
 
       {/* RESCHEDULE – select new slot */}
       {bookingSubFlow === 'reschedule-select' && (
-        <div className="absolute inset-0 bg-slate-50 flex flex-col z-50 animate-fade-in overflow-y-auto">
+        <div className="absolute inset-0 bg-slate-50 flex flex-col z-50 animate-fade-in">
+          {/* Safe-area spacer for dynamic island */}
+          <div className="h-14 bg-white shrink-0" />
           {/* Header */}
-          <div className="bg-white px-4 pt-14 pb-3 border-b border-slate-100 flex items-center justify-between sticky top-0 z-10">
+          <div className="bg-white px-4 pt-1 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0">
             <h4 className="font-extrabold text-sm text-slate-900">Select a new slot</h4>
             <button
               onClick={handleExitReschedule}
@@ -1081,6 +1083,8 @@ export default function PhoneSimulator({
             </button>
           </div>
 
+          {/* Scrollable body */}
+          <div className="flex-1 overflow-y-auto flex flex-col">
           {/* Current appointment banner */}
           {appointment && (
             <div className="mx-4 mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-start gap-2">
@@ -1098,7 +1102,7 @@ export default function PhoneSimulator({
           </p>
 
           {/* Calendar and slot picker */}
-          <div className="px-4 pb-6 mt-3 space-y-4">
+          <div className="px-4 pb-4 mt-3 space-y-4">
             {/* Month selector row */}
             <div className="flex items-center justify-between">
               <button
@@ -1204,8 +1208,10 @@ export default function PhoneSimulator({
             </div>
           </div>
 
-          {/* Footer cancel link */}
-          <div className="px-4 pb-4 text-center">
+          </div>{/* end scrollable body */}
+
+          {/* Pinned footer */}
+          <div className="px-4 py-4 text-center bg-slate-50 border-t border-slate-100 shrink-0">
             <button
               onClick={handleExitReschedule}
               className="text-[10.5px] text-slate-400 hover:text-slate-600 transition cursor-pointer"
@@ -1219,7 +1225,9 @@ export default function PhoneSimulator({
       {/* RESCHEDULE – review comparison */}
       {bookingSubFlow === 'reschedule-review' && proposedSlotObj && (
         <div className="absolute inset-0 bg-slate-50 flex flex-col z-50 animate-fade-in">
-          <div className="bg-white px-4 pt-14 pb-3 border-b border-slate-100 flex items-center justify-between">
+          {/* Safe-area spacer for dynamic island */}
+          <div className="h-14 bg-white shrink-0" />
+          <div className="bg-white px-4 pt-1 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0">
             <button
               onClick={() => setBookingSubFlow('reschedule-select')}
               className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer flex items-center gap-1 text-[10.5px]"
