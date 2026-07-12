@@ -77,7 +77,7 @@ export const educationalSections: EduSection[] = [
     iconName: 'ClipboardList',
     tags: ['blood test', 'counselling', 'what to expect'],
     steps: [
-      { num: 1, title: 'Learn about FH', description: 'Read these simple, personalized guides in your HealthHub app.' },
+      { num: 1, title: 'Learn about FH', description: 'Read these simple, personalised guides in your HealthHub app.' },
       { num: 2, title: 'Book counselling', description: 'Schedule your session easily directly on this app with your preferred slot.' },
       { num: 3, title: 'Attend the session', description: 'A friendly 30-minute talk with a genetic counsellor to review family history.' },
       { num: 4, title: 'Standard blood draw', description: 'A simple 10-minute draw at the clinic. No fasting or diet prep needed.' },
@@ -152,11 +152,9 @@ export const educationalSections: EduSection[] = [
 ];
 
 export const preCounsellingChecklist = [
-  { id: 'prep-1', text: 'Family history — who had high cholesterol or a heart attack, and at what age?', checked: false },
-  { id: 'prep-2', text: 'Current medications and supplements you are taking.', checked: false },
-  { id: 'prep-3', text: 'Questions you want to ask your genetic counsellor.', checked: false },
-  { id: 'prep-4', text: 'NRIC or Singpass for check-in.', checked: false },
-  { id: 'prep-5', text: 'No fasting needed — eat and drink normally beforehand.', checked: false },
+  { id: 'prep-1', text: 'Bring your NRIC or Singpass for identity verification', checked: false },
+  { id: 'prep-2', text: 'Prepare a list of your current medications & supplements', checked: false },
+  { id: 'prep-3', text: 'Review Learn section for resources and common questions.', checked: false },
 ];
 
 export const faqs: FAQItem[] = [
@@ -241,7 +239,7 @@ export const helpfulResources: HelpfulResource[] = [
         paragraphs: [
           'Joshua was an active, healthy young adult starting out his career when a routine insurance health check revealed extremely high cholesterol levels.',
           'Despite eating well and exercising regularly, his LDL level was over 7.5 mmol/L. "I couldn’t believe it," Joshua shares. "I thought cholesterol was only an issue for older, inactive people."',
-          'A referral to genetic counseling confirmed he had Familial Hypercholesterolaemia (FH), inherited from his father\'s side.'
+          'A referral to genetic counselling confirmed he had Familial Hypercholesterolaemia (FH), inherited from his father\'s side.'
         ]
       },
       {
@@ -360,7 +358,7 @@ export const helpfulResources: HelpfulResource[] = [
         paragraphs: [
           'Because FH is inherited in a 50/50 autosomal dominant pattern, identifying one person with FH means their close family members—parents, siblings, and children—are also at high risk.',
           'Cascade screening is the clinical process of testing these family members. By testing relatives, we can find others who have the condition and start treatment early, long before any cardiovascular damage or symptoms develop.',
-          'Subsidized cholesterol checks and genetic counseling are available in Singapore polyclinics to assist families with cascade screening.'
+          'Subsidised cholesterol checks and genetic counselling are available in Singapore polyclinics to assist families with cascade screening.'
         ]
       }
     ]
@@ -414,11 +412,11 @@ export const helpfulResources: HelpfulResource[] = [
     externalUrl: 'https://www.nuhs.edu.sg/docs/nuhslibraries/content-document/research/familial-hypercholesterolemia-english.pdf?sfvrsn=6b9d15ae_1',
     pages: [
       {
-        title: 'Understanding Your Referral & Genetic Counseling',
+        title: 'Understanding Your Referral & Genetic Counselling',
         paragraphs: [
           'Welcome to the National Heart Centre Singapore (NHCS). You have been referred here because your clinical profile or family history indicates a high likelihood of Familial Hypercholesterolaemia (FH).',
           'FH is a genetic condition present from birth. Unlike regular high cholesterol, which is heavily influenced by diet, FH is caused by an inherited variation that prevents your liver from clearing "bad" LDL cholesterol. Left untreated, high cholesterol silently damages coronary arteries.',
-          'Your first step is genetic counseling. A trained genetic counselor will review your 3-generation family tree, answer your questions, and walk you through the DNA test. No fasting is required for the test, and your results are completely confidential.'
+          'Your first step is genetic counselling. A trained genetic counsellor will review your 3-generation family tree, answer your questions, and walk you through the DNA test. No fasting is required for the test, and your results are completely confidential.'
         ]
       },
       {
