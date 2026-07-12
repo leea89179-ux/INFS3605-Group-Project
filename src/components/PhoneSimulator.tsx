@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScreenId, Appointment, ReminderPreferences } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, HelpCircle, Globe } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs } from '../data/translations';
 
@@ -14,6 +14,7 @@ interface PhoneSimulatorProps {
   onUpdateReminderPrefs: (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => void;
   onTriggerNotification: () => void;
   onNotificationAction: (action: 'confirmed' | 'rescheduled' | 'education_viewed') => void;
+  onCancelAppointment: () => void;
   isFHReferred: boolean;
 }
 
@@ -643,6 +644,7 @@ export default function PhoneSimulator({
   onUpdateReminderPrefs,
   onTriggerNotification,
   onNotificationAction,
+  onCancelAppointment,
   isFHReferred,
 }: PhoneSimulatorProps) {
   // Local state for interactive elements
@@ -742,7 +744,22 @@ export default function PhoneSimulator({
   };
 
   // Custom non-blocking alert/confirm dialog states to bypass iframe restrictions
-  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
+  const [bookingSubFlow, setBookingSubFlow] = useState<
+    | 'reschedule-select'
+    | 'reschedule-review'
+    | 'reschedule-success'
+    | 'cancel-initial'
+    | 'cancel-confirm'
+    | 'cancel-success'
+    | null
+  >(null);
+  const [proposedSlotObj, setProposedSlotObj] = useState<ClinicSlot | null>(null);
+
+  // Reschedule-specific clinic selection state
+  const [rescheduleClinicId, setRescheduleClinicId] = useState<string>('nuh');
+  const [showRescheduleClinicDropdown, setShowRescheduleClinicDropdown] = useState<boolean>(false);
+  const [rescheduleCalendarMonth, setRescheduleCalendarMonth] = useState<string>('July 2026');
+  const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number>(22);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const triggerToast = (msg: string) => {
@@ -827,11 +844,65 @@ export default function PhoneSimulator({
   };
 
   const handleCancelBooking = () => {
-    onNotificationAction('rescheduled');
     setBookingStep('available');
     setSelectedSlotIdx(null);
     setSelectedSlotObj(null);
     setSelectedCalendarDay(22);
+  };
+
+  const handleEnterReschedule = () => {
+    setProposedSlotObj(null);
+    const currentClinicId = CLINICS.find(c => c.name === appointment?.clinic)?.id || 'nuh';
+    setRescheduleClinicId(currentClinicId);
+
+    // Derive month and day from appointment.date (format: "22 July 2026")
+    const dateParts = appointment?.date?.split(' ');
+    const apptDay = dateParts?.length === 3 ? parseInt(dateParts[0], 10) : NaN;
+    const apptMonth = dateParts?.length === 3 ? `${dateParts[1]} ${dateParts[2]}` : 'July 2026';
+    const derivedMonth = isNaN(apptDay) ? 'July 2026' : apptMonth;
+
+    setRescheduleCalendarMonth(derivedMonth);
+    const availableDays = Object.keys(CLINIC_SLOTS_DB[currentClinicId]?.[derivedMonth] || {})
+      .map(Number)
+      .filter(d => !isDateBeforeToday(derivedMonth, d));
+    const apptDayAvailable = !isNaN(apptDay) && availableDays.includes(apptDay);
+    setRescheduleCalendarDay(apptDayAvailable ? apptDay : (availableDays[0] ?? 22));
+
+    setShowRescheduleClinicDropdown(false);
+    setBookingSubFlow('reschedule-select');
+  };
+
+  const handleExitReschedule = () => {
+    setProposedSlotObj(null);
+    setBookingSubFlow(null);
+  };
+
+  const handleProposedSlotSelected = (slot: ClinicSlot) => {
+    setProposedSlotObj(slot);
+    setBookingSubFlow('reschedule-review');
+  };
+
+  const handleConfirmReschedule = () => {
+    if (!proposedSlotObj) return;
+    onBookAppointment(proposedSlotObj.date, proposedSlotObj.time, proposedSlotObj.clinic);
+    setBookingSubFlow('reschedule-success');
+  };
+
+  const handleEnterCancelFlow = () => {
+    setBookingSubFlow('cancel-initial');
+  };
+
+  const handleExitCancelFlow = () => {
+    setBookingSubFlow(null);
+  };
+
+  const handleContinueCancelling = () => {
+    setBookingSubFlow('cancel-confirm');
+  };
+
+  const handleConfirmCancellation = () => {
+    onCancelAppointment();
+    setBookingSubFlow('cancel-success');
   };
 
   const handleNotificationClickAction = (action: 'confirm' | 'reschedule' | 'learn') => {
@@ -839,11 +910,8 @@ export default function PhoneSimulator({
       onNotificationAction('confirmed');
       onChangeScreen(ScreenId.ProgressTimeline);
     } else if (action === 'reschedule') {
-      onNotificationAction('rescheduled');
-      setBookingStep('available');
-      setSelectedSlotIdx(null);
-      setSelectedSlotObj(null);
       onChangeScreen(ScreenId.Booking);
+      handleEnterReschedule();
     } else if (action === 'learn') {
       onNotificationAction('education_viewed');
       onChangeScreen(ScreenId.Education);
@@ -888,65 +956,103 @@ export default function PhoneSimulator({
         </div>
       )}
 
-      {/* iOS-style Action Sheet Modal Overlay (User request 1) */}
-      {showCancelConfirmModal && (
+      {/* ── Booking sub-flow overlays ───────────────────────────────────────── */}
+
+      {/* CANCEL – initial screen */}
+      {bookingSubFlow === 'cancel-initial' && (
         <div className="absolute inset-0 bg-slate-950/60 flex items-end justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl w-full p-5 space-y-4.5 shadow-2xl text-left border border-slate-100 animate-slide-up">
-            <div className="space-y-2">
+          <div className="bg-white rounded-3xl w-full p-5 space-y-4 shadow-2xl text-left border border-slate-100 animate-slide-up">
+            {/* Header */}
+            <div className="flex items-start justify-between">
               <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
                 <span className="p-1 bg-emerald-50 text-[#00a859] rounded-lg">
                   <Calendar className="w-4 h-4" />
                 </span>
-                Reschedule or Cancel Appointment?
+                Change this appointment?
               </h4>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Keeping or rescheduling this appointment is crucial to understand familial cardiac risk. Subsidized slots are highly limited.
-              </p>
-            </div>
-
-            {/* Link to FAQ Section */}
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-[10.5px] text-slate-600 leading-snug">
-              Have worries about costs, safety, or procedures? Address your concerns in our{' '}
               <button
-                onClick={() => {
-                  setShowCancelConfirmModal(false);
-                  onChangeScreen(ScreenId.Education);
-                }}
-                className="text-[#00a859] font-extrabold hover:underline inline-flex items-center gap-0.5 cursor-pointer"
+                onClick={handleExitCancelFlow}
+                className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                aria-label="Close"
               >
-                FAQ section <HelpCircle className="w-3 h-3 text-[#00a859]" />
+                <X className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Appointment details */}
+            {appointment && (
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1">
+                <p className="text-[10.5px] font-bold text-slate-700">{appointment.date}</p>
+                <p className="text-[10.5px] text-slate-600">{appointment.timeSlot} · {appointment.clinic}</p>
+              </div>
+            )}
+
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              If you need a different time, you can reschedule without losing your place in the programme.
+            </p>
 
             <div className="flex flex-col gap-2.5">
-              {/* Highlighted Reschedule Button */}
               <button
-                onClick={() => {
-                  setShowCancelConfirmModal(false);
-                  handleCancelBooking();
-                  triggerToast('Reschedule mode active: Select a new slot below.');
-                }}
-                className="w-full py-3 bg-[#00a859] hover:bg-emerald-850 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center shadow-md shadow-emerald-800/10 flex items-center justify-center gap-1.5"
+                onClick={() => { handleExitCancelFlow(); handleEnterReschedule(); }}
+                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
               >
-                <Calendar className="w-4 h-4" /> Reschedule Appointment
+                <Calendar className="w-4 h-4" /> Reschedule Instead
               </button>
-
-              {/* Plain Cancel Button */}
               <button
-                onClick={() => {
-                  setShowCancelConfirmModal(false);
-                  handleCancelBooking();
-                  triggerToast('Appointment slot cancelled successfully.');
-                }}
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+                onClick={handleContinueCancelling}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
               >
-                Cancel Appointment
+                Continue Cancelling
               </button>
             </div>
           </div>
         </div>
       )}
-      
+
+      {/* CANCEL – final confirmation */}
+      {bookingSubFlow === 'cancel-confirm' && (
+        <div className="absolute inset-0 bg-slate-950/60 flex items-end justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl w-full p-5 space-y-4 shadow-2xl text-left border border-slate-100 animate-slide-up">
+            <div className="flex items-start justify-between">
+              <h4 className="font-extrabold text-sm text-slate-900">Confirm cancellation</h4>
+              <button
+                onClick={handleExitCancelFlow}
+                className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {appointment && (
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1">
+                <p className="text-[10.5px] font-bold text-slate-700">{appointment.date}</p>
+                <p className="text-[10.5px] text-slate-600">{appointment.timeSlot} · {appointment.clinic}</p>
+              </div>
+            )}
+
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Cancelling will release this booked slot. You are welcome to book again at any time, though availability may vary.
+            </p>
+
+            <div className="flex flex-col gap-2.5">
+              <button
+                onClick={handleConfirmCancellation}
+                className="w-full py-3 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
+              >
+                Yes, Cancel This Appointment
+              </button>
+              <button
+                onClick={handleExitCancelFlow}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+              >
+                Keep My Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Physical Dynamic Island/Notch */}
       <div className="absolute top-2 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-950 rounded-full z-50 flex items-center justify-center">
         <div className="w-3.5 h-3.5 bg-slate-900 rounded-full ml-auto mr-4" />
@@ -965,6 +1071,380 @@ export default function PhoneSimulator({
 
       {/* Screen Container with Scroll/Frame */}
       <div className="flex-1 overflow-y-auto bg-slate-50 text-slate-800 flex flex-col relative">
+
+        {/* ── Full-screen appointment sub-flows (inside chrome so status bar stays visible) ── */}
+
+        {/* RESCHEDULE – select new slot */}
+        {bookingSubFlow === 'reschedule-select' && (() => {
+          const rclinicsWithDistances = CLINICS.map(c => ({
+            ...c,
+            distance: calculateDistance(patientCoords.lat, patientCoords.lng, c.lat, c.lng),
+          })).sort((a, b) => a.distance - b.distance);
+          const rminDistance = Math.min(...rclinicsWithDistances.map(c => c.distance));
+          return (
+            <div className="flex flex-col flex-1 bg-slate-50 animate-fade-in">
+              {/* Header – matches "Secure Appointment Booking" layout */}
+              <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
+                <div className="w-8" />
+                <span className="flex-1 text-center font-bold text-sm text-slate-800">Select a new slot</span>
+                <button
+                  onClick={handleExitReschedule}
+                  className="w-8 flex items-center justify-center p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto flex flex-col">
+                {/* Current appointment banner */}
+                {appointment && (
+                  <div className="mx-4 mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-start gap-2">
+                    <span className="mt-0.5 text-[#00a859]"><Calendar className="w-4 h-4" /></span>
+                    <div>
+                      <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">Current appointment</p>
+                      <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{appointment.date}</p>
+                      <p className="text-[10.5px] text-emerald-700">{appointment.timeSlot} · {appointment.clinic}</p>
+                    </div>
+                  </div>
+                )}
+
+                <p className="mx-4 mt-3 text-[10.5px] text-slate-500">
+                  Choose a replacement clinic, date and time. Your current appointment stays confirmed until you complete the reschedule.
+                </p>
+
+                <div className="px-4 pb-4 mt-3 space-y-4">
+                  {/* Clinic selector */}
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Select clinic</label>
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowRescheduleClinicDropdown(!showRescheduleClinicDropdown)}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center shadow-3xs cursor-pointer text-left transition hover:border-emerald-600/40"
+                      >
+                        <div className="flex gap-2.5 min-w-0 items-center">
+                          <div className="p-1.5 bg-emerald-50 rounded-lg shrink-0">
+                            <MapPin className="w-4 h-4 text-[#00a859]" />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-xs text-slate-800 truncate">
+                              {CLINICS.find(c => c.id === rescheduleClinicId)?.name}
+                            </h4>
+                            <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
+                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} km away
+                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance === rminDistance && (
+                                <span className="ml-1 text-emerald-700 font-semibold">· Nearest</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+                      </button>
+
+                      {showRescheduleClinicDropdown && (
+                        <div className="absolute top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 shadow-md z-40 overflow-hidden divide-y divide-slate-100 animate-fade-in max-h-48 overflow-y-auto">
+                          {rclinicsWithDistances.map((clinic) => {
+                            const isSelected = rescheduleClinicId === clinic.id;
+                            const isNearest = clinic.distance === rminDistance;
+                            return (
+                              <button
+                                key={clinic.id}
+                                onClick={() => {
+                                  setRescheduleClinicId(clinic.id);
+                                  setShowRescheduleClinicDropdown(false);
+                                  const availableDays = Object.keys(CLINIC_SLOTS_DB[clinic.id]?.[rescheduleCalendarMonth] || {}).map(Number).filter(d => !isDateBeforeToday(rescheduleCalendarMonth, d));
+                                  setRescheduleCalendarDay(availableDays[0] ?? 1);
+                                }}
+                                className={`w-full text-left p-3 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${isSelected ? 'bg-emerald-50/20' : 'bg-white'}`}
+                              >
+                                <div className="space-y-0.5 min-w-0 flex-1">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <h5 className={`font-bold text-xs ${isSelected ? 'text-[#00a859]' : 'text-slate-800'}`}>{clinic.name}</h5>
+                                    {isNearest && <span className="text-[8px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">Nearest</span>}
+                                  </div>
+                                  <p className="text-[9px] font-mono text-slate-400">
+                                    <span className="text-emerald-700 font-bold">{clinic.distance.toFixed(1)} km</span>
+                                  </p>
+                                </div>
+                                {isSelected && <Check className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Month selector row */}
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => {
+                        const idx = availableMonths.indexOf(rescheduleCalendarMonth);
+                        if (idx > 0) {
+                          const m = availableMonths[idx - 1];
+                          setRescheduleCalendarMonth(m);
+                          const days = Object.keys(CLINIC_SLOTS_DB[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
+                          setRescheduleCalendarDay(days[0] ?? 1);
+                        }
+                      }}
+                      disabled={availableMonths.indexOf(rescheduleCalendarMonth) === 0}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 disabled:opacity-30 cursor-pointer"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-xs font-bold text-slate-700">{rescheduleCalendarMonth}</span>
+                    <button
+                      onClick={() => {
+                        const idx = availableMonths.indexOf(rescheduleCalendarMonth);
+                        if (idx < availableMonths.length - 1) {
+                          const m = availableMonths[idx + 1];
+                          setRescheduleCalendarMonth(m);
+                          const days = Object.keys(CLINIC_SLOTS_DB[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
+                          setRescheduleCalendarDay(days[0] ?? 1);
+                        }
+                      }}
+                      disabled={availableMonths.indexOf(rescheduleCalendarMonth) === availableMonths.length - 1}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 disabled:opacity-30 cursor-pointer"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Day grid */}
+                  <div className="grid grid-cols-7 gap-1 text-center">
+                    {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
+                      <span key={d} className="text-[9px] font-bold text-slate-400">{d}</span>
+                    ))}
+                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).emptyCells }).map((_, i) => (
+                      <span key={`pad-${i}`} />
+                    ))}
+                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
+                      const dayNum = i + 1;
+                      const hasSlots = !!CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
+                      const isSelected = rescheduleCalendarDay === dayNum;
+                      return (
+                        <button
+                          key={`day-${dayNum}`}
+                          disabled={!hasSlots}
+                          onClick={() => setRescheduleCalendarDay(dayNum)}
+                          className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer mx-auto ${
+                            isSelected ? 'bg-[#00a859] text-white shadow-xs' : hasSlots ? 'bg-emerald-50 text-[#00a859] border border-emerald-200/55 hover:bg-emerald-100/60' : 'text-slate-300 pointer-events-none'
+                          }`}
+                        >
+                          <span>{dayNum}</span>
+                          {hasSlots && !isSelected && <span className="absolute bottom-1 w-1 h-1 bg-[#00a859] rounded-full" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Time slots */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Available slots</label>
+                    {CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[rescheduleCalendarDay] ? (
+                      CLINIC_SLOTS_DB[rescheduleClinicId][rescheduleCalendarMonth][rescheduleCalendarDay]
+                        .filter(slot => !(
+                          appointment &&
+                          slot.date === appointment.date &&
+                          slot.time === appointment.timeSlot &&
+                          slot.clinic === appointment.clinic
+                        ))
+                        .map((slot, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleProposedSlotSelected(slot)}
+                            className="w-full bg-white hover:bg-emerald-50/15 border border-slate-200 hover:border-[#00a859]/40 p-3.5 rounded-xl text-left transition flex justify-between items-center cursor-pointer shadow-3xs hover:shadow-2xs"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-slate-50 rounded-lg shrink-0">
+                                <Clock className="w-4 h-4 text-[#00a859]" />
+                              </div>
+                              <div className="space-y-0.5">
+                                <p className="text-xs font-extrabold text-slate-800">{slot.time}</p>
+                                <div className="flex items-center gap-1 text-[10px] text-slate-500">
+                                  <span className="font-semibold text-slate-600">{slot.provider}</span>
+                                  <span className="text-slate-300">·</span>
+                                  <span>{slot.duration}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-bold text-[#00a859] font-mono bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">{slot.cost}</span>
+                              <ChevronRight className="w-4 h-4 text-slate-400" />
+                            </div>
+                          </button>
+                        ))
+                    ) : (
+                      <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
+                        No available slots on this day.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>{/* end scrollable body */}
+
+              {/* Pinned footer */}
+              <div className="px-4 py-4 text-center bg-slate-50 border-t border-slate-100 shrink-0">
+                <button
+                  onClick={handleExitReschedule}
+                  className="text-[10.5px] text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                >
+                  Keep current appointment
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* RESCHEDULE – review comparison */}
+        {bookingSubFlow === 'reschedule-review' && proposedSlotObj && (
+          <div className="flex flex-col flex-1 bg-slate-50 animate-fade-in">
+            {/* Header */}
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
+              <button
+                onClick={() => setBookingSubFlow('reschedule-select')}
+                className="w-16 flex items-center gap-0.5 p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer text-[10.5px]"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> Back
+              </button>
+              <span className="flex-1 text-center font-bold text-sm text-slate-800">Review change</span>
+              <button
+                onClick={handleExitReschedule}
+                className="w-16 flex items-center justify-end p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 px-4 py-5 space-y-4 overflow-y-auto">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Review the change before confirming. Your current appointment will remain active until you press Confirm Reschedule.
+              </p>
+
+              {/* Current appointment */}
+              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div className="bg-slate-50 px-3 py-2 border-b border-slate-100">
+                  <p className="text-[9.5px] font-bold text-slate-500 uppercase tracking-wide">Current appointment</p>
+                </div>
+                <div className="px-3 py-3 space-y-0.5">
+                  {appointment && (
+                    <>
+                      <p className="text-[11px] font-bold text-slate-800">{appointment.date}</p>
+                      <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
+                      <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex justify-center text-slate-300">
+                <ChevronDown className="w-5 h-5" />
+              </div>
+
+              {/* Proposed appointment */}
+              <div className="bg-white rounded-xl border border-emerald-200 overflow-hidden ring-1 ring-emerald-100">
+                <div className="bg-emerald-50 px-3 py-2 border-b border-emerald-100">
+                  <p className="text-[9.5px] font-bold text-emerald-700 uppercase tracking-wide">New appointment</p>
+                </div>
+                <div className="px-3 py-3 space-y-0.5">
+                  <p className="text-[11px] font-bold text-slate-800">{proposedSlotObj.date}</p>
+                  <p className="text-[10.5px] text-slate-600">{proposedSlotObj.time}</p>
+                  <p className="text-[10px] text-slate-500">{proposedSlotObj.clinic}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-4 pb-6 space-y-2.5 bg-white border-t border-slate-100 pt-4 shrink-0">
+              <button
+                onClick={handleConfirmReschedule}
+                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
+              >
+                Confirm Reschedule
+              </button>
+              <button
+                onClick={() => setBookingSubFlow('reschedule-select')}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+              >
+                Choose a Different Slot
+              </button>
+              <button
+                onClick={handleExitReschedule}
+                className="w-full py-2 text-slate-400 hover:text-slate-600 text-[10.5px] font-medium transition cursor-pointer text-center"
+              >
+                Keep current appointment
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* RESCHEDULE – success */}
+        {bookingSubFlow === 'reschedule-success' && (
+          <div className="flex flex-col flex-1 bg-white items-center justify-center p-6 text-center gap-5 animate-fade-in">
+            <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
+              <CheckCircle className="w-7 h-7 text-[#00a859]" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-extrabold text-base text-slate-900">Appointment rescheduled.</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Your appointment has been updated.</p>
+            </div>
+            {appointment && (
+              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 w-full text-left space-y-0.5">
+                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">New appointment</p>
+                <p className="text-[11px] font-bold text-slate-800 mt-1">{appointment.date}</p>
+                <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
+                <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
+              </div>
+            )}
+            <button
+              onClick={() => setBookingSubFlow(null)}
+              className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
+            >
+              Done
+            </button>
+          </div>
+        )}
+
+        {/* CANCEL – success */}
+        {bookingSubFlow === 'cancel-success' && (
+          <div className="flex flex-col flex-1 bg-white items-center justify-center p-6 text-center gap-5 animate-fade-in">
+            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
+              <CheckCircle className="w-7 h-7 text-slate-400" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-extrabold text-base text-slate-900">Your appointment has been cancelled.</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                You can book a new slot whenever you are ready.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2.5 w-full">
+              <button
+                onClick={() => {
+                  setBookingSubFlow(null);
+                  setBookingStep('available');
+                  setSelectedSlotIdx(null);
+                  setSelectedSlotObj(null);
+                  setSelectedCalendarDay(22);
+                }}
+                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
+              >
+                <Calendar className="w-4 h-4" /> Book a New Appointment
+              </button>
+              <button
+                onClick={() => { setBookingSubFlow(null); onChangeScreen(ScreenId.Home); }}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+              >
+                Return to Home
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Normal screens (only shown when no full-screen subflow is active) ── */}
+        {!bookingSubFlow || bookingSubFlow === 'cancel-initial' || bookingSubFlow === 'cancel-confirm' ? (
+          <>
 
         {/* ----------------- SCREEN 1: HOME ----------------- */}
         {activeScreen === ScreenId.Home && (
@@ -2359,18 +2839,13 @@ export default function PhoneSimulator({
                 {/* Manage and reschedule options */}
                 <div className="space-y-2 pt-1 text-left">
                   <button
-                    onClick={() => {
-                      handleCancelBooking();
-                      triggerToast(t('booking_reschedule_alert'));
-                    }}
+                    onClick={handleEnterReschedule}
                     className="w-full py-2.5 bg-white hover:bg-slate-50 text-[#00a859] border border-emerald-600/40 rounded-xl text-xs font-bold transition cursor-pointer"
                   >
                     {t('booking_reschedule_slot')}
                   </button>
                   <button
-                    onClick={() => {
-                      setShowCancelConfirmModal(true);
-                    }}
+                    onClick={handleEnterCancelFlow}
                     className="w-full py-2.5 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-xl text-xs font-semibold border border-slate-200 transition cursor-pointer"
                   >
                     {t('booking_cancel_slot')}
@@ -3578,6 +4053,8 @@ export default function PhoneSimulator({
             </button>
           </div>
         )}
+
+          </> ) : null }
 
       </div>
 
