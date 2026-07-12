@@ -13,7 +13,7 @@ export interface Appointment {
   date: string;
   timeSlot: string;
   clinic: string;
-  status: 'pending' | 'booked' | 'confirmed' | 'completed';
+  status: 'pending' | 'booked' | 'confirmed' | 'completed' | 'cancelled';
 }
 
 export interface ReminderPreferences {
@@ -52,7 +52,7 @@ export interface AppointmentRecord {
   appointment_date: string;
   appointment_time: string;
   clinic: string;
-  status: 'pending' | 'booked' | 'confirmed' | 'completed';
+  status: 'pending' | 'booked' | 'confirmed' | 'completed' | 'cancelled';
   calendar_added: boolean;
 }
 

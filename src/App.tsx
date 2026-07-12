@@ -13,11 +13,7 @@ import PhoneSimulator from './components/PhoneSimulator';
 import AnnotationsPanel from './components/AnnotationsPanel';
 import DatabaseViewer from './components/DatabaseViewer';
 import Chatbot from './components/Chatbot';
-import { 
-  HeartPulse, Compass, Settings, Layers, Users, BookOpen, 
-  Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, 
-  Calendar, Check, ArrowRight, HelpCircle, Database
-} from 'lucide-react';
+import { HeartPulse, Compass, Settings, Layers, Users, BookOpen, Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, Calendar, Check, ArrowRight, Circle as HelpCircle, Database } from 'lucide-react';
 
 export default function App() {
   // Global Shared States for the Figma Prototype
@@ -141,6 +137,16 @@ export default function App() {
 
     logSQL(
       `UPDATE Appointment\nSET status = 'booked',\n    appointment_date = '${date}',\n    appointment_time = '${time}',\n    clinic = '${clinic}'\nWHERE appointment_id = 'APT101';`,
+      'UPDATE'
+    );
+  };
+
+  const handleCancelAppointmentTransaction = () => {
+    setAppointmentTable(prev => prev.map(apt =>
+      apt.appointment_id === 'APT101' ? { ...apt, status: 'cancelled' } : apt
+    ));
+    logSQL(
+      `UPDATE Appointment\nSET status = 'cancelled'\nWHERE appointment_id = 'APT101';`,
       'UPDATE'
     );
   };
@@ -494,6 +500,7 @@ export default function App() {
             onUpdateReminderPrefs={handleReminderPrefsTransaction}
             onTriggerNotification={handleSimulateNotification}
             onNotificationAction={handleNotificationActionTransaction}
+            onCancelAppointment={handleCancelAppointmentTransaction}
             isFHReferred={isFHReferred}
           />
 

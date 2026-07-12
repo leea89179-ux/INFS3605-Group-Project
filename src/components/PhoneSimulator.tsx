@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, HelpCircle, Globe } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs } from '../data/translations';
 
@@ -14,13 +15,36 @@ interface PhoneSimulatorProps {
   onUpdateReminderPrefs: (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => void;
   onTriggerNotification: () => void;
   onNotificationAction: (action: 'confirmed' | 'rescheduled' | 'education_viewed') => void;
+  onCancelAppointment: () => void;
   isFHReferred: boolean;
 }
 
+export const formatMonthShorthand = (monthStr: string): string => {
+  const parts = monthStr.split(' ');
+  if (parts.length < 2) return monthStr;
+  const monthName = parts[0];
+  const year = parts[1];
+  const shortMap: Record<string, string> = {
+    'January': 'Jan',
+    'February': 'Feb',
+    'March': 'Mar',
+    'April': 'Apr',
+    'May': 'May',
+    'June': 'Jun',
+    'July': 'Jul',
+    'August': 'Aug',
+    'September': 'Sept',
+    'October': 'Oct',
+    'November': 'Nov',
+    'December': 'Dec',
+  };
+  return `${shortMap[monthName] || monthName} ${year}`;
+};
+
 export const clinicalSlots = [
   {
-    date: '22 July 2026',
-    time: '10:30 AM',
+    date: '21 July 2026',
+    time: '10:00 AM',
     provider: 'Dr. Helen Lim',
     role: 'Senior Genetic Counsellor',
     duration: '45 mins',
@@ -97,6 +121,19 @@ export const CLINICS: ClinicOption[] = [
     provider: 'Dr. Jeanette Tan',
     role: 'Lead Paediatric Counsellor'
   }
+];
+
+export const SEARCHABLE_LOCATIONS = [
+  { name: 'Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451', lat: 1.3625, lng: 103.8542 },
+  { name: 'Orchard Road (Central)', lat: 1.3036, lng: 103.8318 },
+  { name: 'Blk 233 Tampines Street 21, Singapore 520233', lat: 1.3534, lng: 103.9531 },
+  { name: 'Blk 12 Bedok South Ave 1, Singapore 460012', lat: 1.3240, lng: 103.9333 },
+  { name: 'Blk 812 Woodlands Street 82, Singapore 730812', lat: 1.4359, lng: 103.7869 },
+  { name: 'Blk 104 Jurong East Street 13, Singapore 600104', lat: 1.3329, lng: 103.7436 },
+  { name: 'Blk 721 Yishun Street 71, Singapore 760721', lat: 1.4285, lng: 103.8364 },
+  { name: 'Blk 201 Serangoon Central, Singapore 550201', lat: 1.3503, lng: 103.8727 },
+  { name: 'Blk 506 Bukit Batok Street 52, Singapore 650506', lat: 1.3443, lng: 103.7529 },
+  { name: 'Blk 49 Stirling Road, Singapore 141049', lat: 1.2942, lng: 103.8016 },
 ];
 
 export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -366,11 +403,20 @@ const referenceClinicDetails: Record<string, { provider: string; role: string; c
 for (const clinicId of Object.keys(referenceClinicDetails)) {
   const clinicSlots = CLINIC_SLOTS_DB[clinicId];
   if (clinicSlots) {
-    for (const monthYear of extraOfferingsMonths) {
+    extraOfferingsMonths.forEach((monthYear, monthIdx) => {
+      const clinicIdx = Object.keys(referenceClinicDetails).indexOf(clinicId);
+      // Generate 4 distinct days distributed across weeks 1, 2, 3, and 4
+      const seed = (monthIdx * 7 + clinicIdx * 13) % 5;
+      
+      const day1 = 4 + seed;               // Week 1: 4 to 8
+      const day2 = 11 + ((seed + 2) % 5); // Week 2: 11 to 15
+      const day3 = 18 + ((seed + 4) % 5); // Week 3: 18 to 22
+      const day4 = 25 + ((seed + 1) % 5); // Week 4: 25 to 29
+
       clinicSlots[monthYear] = {
-        12: [
+        [day1]: [
           {
-            date: `12 ${monthYear}`,
+            date: `${day1} ${monthYear}`,
             time: '10:00 AM',
             provider: referenceClinicDetails[clinicId][0].provider,
             role: referenceClinicDetails[clinicId][0].role,
@@ -380,7 +426,7 @@ for (const clinicId of Object.keys(referenceClinicDetails)) {
             address: referenceClinicDetails[clinicId][0].address
           },
           {
-            date: `12 ${monthYear}`,
+            date: `${day1} ${monthYear}`,
             time: '1:30 PM',
             provider: referenceClinicDetails[clinicId][1].provider,
             role: referenceClinicDetails[clinicId][1].role,
@@ -390,9 +436,9 @@ for (const clinicId of Object.keys(referenceClinicDetails)) {
             address: referenceClinicDetails[clinicId][1].address
           }
         ],
-        13: [
+        [day2]: [
           {
-            date: `13 ${monthYear}`,
+            date: `${day2} ${monthYear}`,
             time: '11:00 AM',
             provider: referenceClinicDetails[clinicId][1].provider,
             role: referenceClinicDetails[clinicId][1].role,
@@ -402,7 +448,7 @@ for (const clinicId of Object.keys(referenceClinicDetails)) {
             address: referenceClinicDetails[clinicId][1].address
           },
           {
-            date: `13 ${monthYear}`,
+            date: `${day2} ${monthYear}`,
             time: '3:00 PM',
             provider: referenceClinicDetails[clinicId][0].provider,
             role: referenceClinicDetails[clinicId][0].role,
@@ -412,9 +458,9 @@ for (const clinicId of Object.keys(referenceClinicDetails)) {
             address: referenceClinicDetails[clinicId][0].address
           }
         ],
-        20: [
+        [day3]: [
           {
-            date: `20 ${monthYear}`,
+            date: `${day3} ${monthYear}`,
             time: '9:30 AM',
             provider: referenceClinicDetails[clinicId][0].provider,
             role: referenceClinicDetails[clinicId][0].role,
@@ -424,7 +470,7 @@ for (const clinicId of Object.keys(referenceClinicDetails)) {
             address: referenceClinicDetails[clinicId][0].address
           },
           {
-            date: `20 ${monthYear}`,
+            date: `${day3} ${monthYear}`,
             time: '2:30 PM',
             provider: referenceClinicDetails[clinicId][1].provider,
             role: referenceClinicDetails[clinicId][1].role,
@@ -433,9 +479,31 @@ for (const clinicId of Object.keys(referenceClinicDetails)) {
             clinic: referenceClinicDetails[clinicId][1].clinic,
             address: referenceClinicDetails[clinicId][1].address
           }
+        ],
+        [day4]: [
+          {
+            date: `${day4} ${monthYear}`,
+            time: '10:30 AM',
+            provider: referenceClinicDetails[clinicId][1].provider,
+            role: referenceClinicDetails[clinicId][1].role,
+            duration: '45 mins',
+            cost: referenceClinicDetails[clinicId][1].cost,
+            clinic: referenceClinicDetails[clinicId][1].clinic,
+            address: referenceClinicDetails[clinicId][1].address
+          },
+          {
+            date: `${day4} ${monthYear}`,
+            time: '4:00 PM',
+            provider: referenceClinicDetails[clinicId][0].provider,
+            role: referenceClinicDetails[clinicId][0].role,
+            duration: '45 mins',
+            cost: referenceClinicDetails[clinicId][0].cost,
+            clinic: referenceClinicDetails[clinicId][0].clinic,
+            address: referenceClinicDetails[clinicId][0].address
+          }
         ]
       };
-    }
+    });
   }
 }
 
@@ -643,6 +711,7 @@ export default function PhoneSimulator({
   onUpdateReminderPrefs,
   onTriggerNotification,
   onNotificationAction,
+  onCancelAppointment,
   isFHReferred,
 }: PhoneSimulatorProps) {
   // Local state for interactive elements
@@ -716,8 +785,9 @@ export default function PhoneSimulator({
 
   // Geolocation and clinic selection state (User request 1)
   const [selectedClinicId, setSelectedClinicId] = useState<string>('nuh');
-  const [patientCoords, setPatientCoords] = useState<{ lat: number; lng: number }>({ lat: 1.3036, lng: 103.8318 }); // default Orchard (Central)
-  const [patientLocName, setPatientLocName] = useState<string>('Orchard (Central)');
+  const [patientCoords, setPatientCoords] = useState<{ lat: number; lng: number }>({ lat: 1.3625, lng: 103.8542 }); // default Ang Mo Kio Ave 10 (Home)
+  const [patientLocName, setPatientLocName] = useState<string>('Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451');
+  const [locationSearchQuery, setLocationSearchQuery] = useState<string>('');
   const [isDetectingLoc, setIsDetectingLoc] = useState<boolean>(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
@@ -725,7 +795,7 @@ export default function PhoneSimulator({
 
   // Calendar Booking States (User request 2)
   const [selectedCalendarMonth, setSelectedCalendarMonth] = useState<string>('July 2026');
-  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(22); // Day of the month
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(21); // Day of the month
   const [selectedSlotObj, setSelectedSlotObj] = useState<ClinicSlot | null>(null);
   const [showMonthPopup, setShowMonthPopup] = useState<boolean>(false);
 
@@ -742,8 +812,24 @@ export default function PhoneSimulator({
   };
 
   // Custom non-blocking alert/confirm dialog states to bypass iframe restrictions
-  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
+  const [bookingSubFlow, setBookingSubFlow] = useState<
+    | 'reschedule-select'
+    | 'reschedule-review'
+    | 'reschedule-success'
+    | 'cancel-initial'
+    | 'cancel-confirm'
+    | 'cancel-success'
+    | null
+  >(null);
+  const [proposedSlotObj, setProposedSlotObj] = useState<ClinicSlot | null>(null);
+
+  // Reschedule-specific clinic selection state
+  const [rescheduleClinicId, setRescheduleClinicId] = useState<string>('nuh');
+  const [showRescheduleClinicDropdown, setShowRescheduleClinicDropdown] = useState<boolean>(false);
+  const [rescheduleCalendarMonth, setRescheduleCalendarMonth] = useState<string>('July 2026');
+  const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number>(21);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [showNotificationPopup, setShowNotificationPopup] = useState<boolean>(false);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -757,27 +843,35 @@ export default function PhoneSimulator({
   }, [toastMessage]);
 
   const detectLiveLocation = () => {
-    if (!navigator.geolocation) {
-      setGpsError('Geolocation is not supported by your browser.');
-      return;
-    }
     setIsDetectingLoc(true);
     setGpsError(null);
+    if (!navigator.geolocation) {
+      setTimeout(() => {
+        setPatientCoords({ lat: 1.2931, lng: 103.7845 }); // Kent Ridge
+        setPatientLocName('My live location');
+        setIsDetectingLoc(false);
+        triggerToast('Simulated live location successfully!');
+      }, 600);
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setPatientCoords({
           lat: position.coords.latitude,
           lng: position.coords.longitude
         });
-        setPatientLocName('My Live GPS');
+        setPatientLocName('My live location');
         setIsDetectingLoc(false);
+        triggerToast('Detected live location!');
       },
       (error) => {
-        console.error(error);
-        setGpsError('Iframe sandbox or permission blocked GPS access. Please select a town below to simulate location.');
+        console.warn('GPS blocked, falling back to simulated location:', error);
+        setPatientCoords({ lat: 1.2931, lng: 103.7845 }); // Kent Ridge
+        setPatientLocName('My live location');
         setIsDetectingLoc(false);
+        triggerToast('Simulated live location successfully!');
       },
-      { timeout: 8000 }
+      { timeout: 4000 }
     );
   };
   
@@ -827,11 +921,65 @@ export default function PhoneSimulator({
   };
 
   const handleCancelBooking = () => {
-    onNotificationAction('rescheduled');
     setBookingStep('available');
     setSelectedSlotIdx(null);
     setSelectedSlotObj(null);
     setSelectedCalendarDay(22);
+  };
+
+  const handleEnterReschedule = () => {
+    setProposedSlotObj(null);
+    const currentClinicId = CLINICS.find(c => c.name === appointment?.clinic)?.id || 'nuh';
+    setRescheduleClinicId(currentClinicId);
+
+    // Derive month and day from appointment.date (format: "22 July 2026")
+    const dateParts = appointment?.date?.split(' ');
+    const apptDay = dateParts?.length === 3 ? parseInt(dateParts[0], 10) : NaN;
+    const apptMonth = dateParts?.length === 3 ? `${dateParts[1]} ${dateParts[2]}` : 'July 2026';
+    const derivedMonth = isNaN(apptDay) ? 'July 2026' : apptMonth;
+
+    setRescheduleCalendarMonth(derivedMonth);
+    const availableDays = Object.keys(CLINIC_SLOTS_DB[currentClinicId]?.[derivedMonth] || {})
+      .map(Number)
+      .filter(d => !isDateBeforeToday(derivedMonth, d));
+    const apptDayAvailable = !isNaN(apptDay) && availableDays.includes(apptDay);
+    setRescheduleCalendarDay(apptDayAvailable ? apptDay : (availableDays[0] ?? 22));
+
+    setShowRescheduleClinicDropdown(false);
+    setBookingSubFlow('reschedule-select');
+  };
+
+  const handleExitReschedule = () => {
+    setProposedSlotObj(null);
+    setBookingSubFlow(null);
+  };
+
+  const handleProposedSlotSelected = (slot: ClinicSlot) => {
+    setProposedSlotObj(slot);
+    setBookingSubFlow('reschedule-review');
+  };
+
+  const handleConfirmReschedule = () => {
+    if (!proposedSlotObj) return;
+    onBookAppointment(proposedSlotObj.date, proposedSlotObj.time, proposedSlotObj.clinic);
+    setBookingSubFlow('reschedule-success');
+  };
+
+  const handleEnterCancelFlow = () => {
+    setBookingSubFlow('cancel-initial');
+  };
+
+  const handleExitCancelFlow = () => {
+    setBookingSubFlow(null);
+  };
+
+  const handleContinueCancelling = () => {
+    setBookingSubFlow('cancel-confirm');
+  };
+
+  const handleConfirmCancellation = () => {
+    onCancelAppointment();
+    setBookingSubFlow('cancel-success');
   };
 
   const handleNotificationClickAction = (action: 'confirm' | 'reschedule' | 'learn') => {
@@ -839,11 +987,8 @@ export default function PhoneSimulator({
       onNotificationAction('confirmed');
       onChangeScreen(ScreenId.ProgressTimeline);
     } else if (action === 'reschedule') {
-      onNotificationAction('rescheduled');
-      setBookingStep('available');
-      setSelectedSlotIdx(null);
-      setSelectedSlotObj(null);
       onChangeScreen(ScreenId.Booking);
+      handleEnterReschedule();
     } else if (action === 'learn') {
       onNotificationAction('education_viewed');
       onChangeScreen(ScreenId.Education);
@@ -888,65 +1033,147 @@ export default function PhoneSimulator({
         </div>
       )}
 
-      {/* iOS-style Action Sheet Modal Overlay (User request 1) */}
-      {showCancelConfirmModal && (
+      {/* ── Booking sub-flow overlays ───────────────────────────────────────── */}
+
+            {/* CANCEL – initial screen */}
+      {bookingSubFlow === 'cancel-initial' && (
         <div className="absolute inset-0 bg-slate-950/60 flex items-end justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl w-full p-5 space-y-4.5 shadow-2xl text-left border border-slate-100 animate-slide-up">
-            <div className="space-y-2">
+          <div className="bg-white rounded-3xl w-full p-5 space-y-4 shadow-2xl text-left border border-slate-100 animate-slide-up">
+            {/* Header */}
+            <div className="flex items-start justify-between">
               <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
                 <span className="p-1 bg-emerald-50 text-[#00a859] rounded-lg">
                   <Calendar className="w-4 h-4" />
                 </span>
-                Reschedule or Cancel Appointment?
+                Change this appointment?
               </h4>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Keeping or rescheduling this appointment is crucial to understand familial cardiac risk. Subsidized slots are highly limited.
+              <button
+                onClick={handleExitCancelFlow}
+                className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Appointment details */}
+            {appointment && (
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1">
+                <p className="text-[10.5px] font-bold text-slate-700">{appointment.date}</p>
+                <p className="text-[10.5px] text-slate-600">{appointment.timeSlot} · {appointment.clinic}</p>
+              </div>
+            )}
+
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              If you need a different time, you can reschedule without losing your place in the programme.
+            </p>
+
+            {/* Custom interactive FAQ link block */}
+            <div className="bg-[#f8fafc] border border-slate-200/40 rounded-2xl p-3.5 text-left shadow-3xs">
+              <p className="text-[10.5px] text-slate-500 leading-normal font-medium">
+                Have worries about costs, safety, or procedures?
+              </p>
+              <p className="text-[10.5px] text-slate-500 leading-normal font-medium mt-0.5">
+                Address your concerns in our{' '}
+                <button
+                  onClick={() => {
+                    handleExitCancelFlow();
+                    setActiveFaqCategory('cost');
+                    setEduSubTab('faq');
+                    onChangeScreen(ScreenId.Education);
+                  }}
+                  className="font-bold text-[#00a859] hover:underline inline-flex items-center gap-0.5 cursor-pointer"
+                >
+                  FAQ section
+                  <HelpCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                </button>
               </p>
             </div>
 
-            {/* Link to FAQ Section */}
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-[10.5px] text-slate-600 leading-snug">
-              Have worries about costs, safety, or procedures? Address your concerns in our{' '}
-              <button
-                onClick={() => {
-                  setShowCancelConfirmModal(false);
-                  onChangeScreen(ScreenId.Education);
-                }}
-                className="text-[#00a859] font-extrabold hover:underline inline-flex items-center gap-0.5 cursor-pointer"
-              >
-                FAQ section <HelpCircle className="w-3 h-3 text-[#00a859]" />
-              </button>
-            </div>
-
             <div className="flex flex-col gap-2.5">
-              {/* Highlighted Reschedule Button */}
               <button
-                onClick={() => {
-                  setShowCancelConfirmModal(false);
-                  handleCancelBooking();
-                  triggerToast('Reschedule mode active: Select a new slot below.');
-                }}
-                className="w-full py-3 bg-[#00a859] hover:bg-emerald-850 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center shadow-md shadow-emerald-800/10 flex items-center justify-center gap-1.5"
+                onClick={() => { handleExitCancelFlow(); handleEnterReschedule(); }}
+                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
               >
-                <Calendar className="w-4 h-4" /> Reschedule Appointment
+                <Calendar className="w-4 h-4" /> Reschedule Instead
               </button>
-
-              {/* Plain Cancel Button */}
               <button
-                onClick={() => {
-                  setShowCancelConfirmModal(false);
-                  handleCancelBooking();
-                  triggerToast('Appointment slot cancelled successfully.');
-                }}
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+                onClick={handleContinueCancelling}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
               >
-                Cancel Appointment
+                Continue Cancelling
               </button>
             </div>
           </div>
         </div>
       )}
-      
+
+      {/* CANCEL – final confirmation */}
+      {bookingSubFlow === 'cancel-confirm' && (
+        <div className="absolute inset-0 bg-slate-950/60 flex items-end justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl w-full p-5 space-y-4 shadow-2xl text-left border border-slate-100 animate-slide-up">
+            <div className="flex items-start justify-between">
+              <h4 className="font-extrabold text-sm text-slate-900">Confirm cancellation</h4>
+              <button
+                onClick={handleExitCancelFlow}
+                className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {appointment && (
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1">
+                <p className="text-[10.5px] font-bold text-slate-700">{appointment.date}</p>
+                <p className="text-[10.5px] text-slate-600">{appointment.timeSlot} · {appointment.clinic}</p>
+              </div>
+            )}
+
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Cancelling will release this booked slot. You are welcome to book again at any time, though availability may vary.
+            </p>
+
+            {/* Custom interactive FAQ link block */}
+            <div className="bg-[#f8fafc] border border-slate-200/40 rounded-2xl p-3.5 text-left shadow-3xs">
+              <p className="text-[10.5px] text-slate-500 leading-normal font-medium">
+                Have worries about costs, safety, or procedures?
+              </p>
+              <p className="text-[10.5px] text-slate-500 leading-normal font-medium mt-0.5">
+                Address your concerns in our{' '}
+                <button
+                  onClick={() => {
+                    handleExitCancelFlow();
+                    setActiveFaqCategory('cost');
+                    setEduSubTab('faq');
+                    onChangeScreen(ScreenId.Education);
+                  }}
+                  className="font-bold text-[#00a859] hover:underline inline-flex items-center gap-0.5 cursor-pointer"
+                >
+                  FAQ section
+                  <HelpCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                </button>
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              <button
+                onClick={handleConfirmCancellation}
+                className="w-full py-3 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
+              >
+                Yes, Cancel This Appointment
+              </button>
+              <button
+                onClick={handleExitCancelFlow}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+              >
+                Keep My Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Physical Dynamic Island/Notch */}
       <div className="absolute top-2 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-950 rounded-full z-50 flex items-center justify-center">
         <div className="w-3.5 h-3.5 bg-slate-900 rounded-full ml-auto mr-4" />
@@ -964,18 +1191,411 @@ export default function PhoneSimulator({
       </div>
 
       {/* Screen Container with Scroll/Frame */}
-      <div className="flex-1 overflow-y-auto bg-slate-50 text-slate-800 flex flex-col relative">
+      <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col relative overflow-hidden">
+
+        {/* ── Full-screen appointment sub-flows (inside chrome so status bar stays visible) ── */}
+
+        {/* RESCHEDULE – select new slot */}
+        {bookingSubFlow === 'reschedule-select' && (() => {
+          const rclinicsWithDistances = CLINICS.map(c => ({
+            ...c,
+            distance: calculateDistance(patientCoords.lat, patientCoords.lng, c.lat, c.lng),
+          })).sort((a, b) => a.distance - b.distance);
+          const rminDistance = Math.min(...rclinicsWithDistances.map(c => c.distance));
+          return (
+            <div className="flex flex-col flex-1 bg-slate-50 animate-fade-in">
+              {/* Header – matches "Secure Appointment Booking" layout */}
+              <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
+                <div className="w-8" />
+                <span className="flex-1 text-center font-bold text-sm text-slate-800">Select a new slot</span>
+                <button
+                  onClick={handleExitReschedule}
+                  className="w-8 flex items-center justify-center p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto flex flex-col">
+                {/* Current appointment banner */}
+                {appointment && (
+                  <div className="mx-4 mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-start gap-2">
+                    <span className="mt-0.5 text-[#00a859]"><Calendar className="w-4 h-4" /></span>
+                    <div>
+                      <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">Current appointment</p>
+                      <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{appointment.date}</p>
+                      <p className="text-[10.5px] text-emerald-700">{appointment.timeSlot} · {appointment.clinic}</p>
+                    </div>
+                  </div>
+                )}
+
+                <p className="mx-4 mt-3 text-[10.5px] text-slate-500">
+                  Choose a replacement clinic, date and time. Your current appointment stays confirmed until you complete the reschedule.
+                </p>
+
+                <div className="px-4 pb-4 mt-3 space-y-4">
+                  {/* Clinic selector */}
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Select clinic</label>
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowRescheduleClinicDropdown(!showRescheduleClinicDropdown)}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center shadow-3xs cursor-pointer text-left transition hover:border-emerald-600/40"
+                      >
+                        <div className="flex gap-2.5 min-w-0 items-center">
+                          <div className="p-1.5 bg-emerald-50 rounded-lg shrink-0">
+                            <MapPin className="w-4 h-4 text-[#00a859]" />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-xs text-slate-800 truncate">
+                              {CLINICS.find(c => c.id === rescheduleClinicId)?.name}
+                            </h4>
+                            <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
+                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} km away
+                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance === rminDistance && (
+                                <span className="ml-1 text-emerald-700 font-semibold">· Nearest</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+                      </button>
+
+                      {showRescheduleClinicDropdown && (
+                        <div className="absolute top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 shadow-md z-40 overflow-hidden divide-y divide-slate-100 animate-fade-in max-h-48 overflow-y-auto">
+                          {rclinicsWithDistances.map((clinic) => {
+                            const isSelected = rescheduleClinicId === clinic.id;
+                            const isNearest = clinic.distance === rminDistance;
+                            return (
+                              <button
+                                key={clinic.id}
+                                onClick={() => {
+                                  setRescheduleClinicId(clinic.id);
+                                  setShowRescheduleClinicDropdown(false);
+                                  const availableDays = Object.keys(CLINIC_SLOTS_DB[clinic.id]?.[rescheduleCalendarMonth] || {}).map(Number).filter(d => !isDateBeforeToday(rescheduleCalendarMonth, d));
+                                  setRescheduleCalendarDay(availableDays[0] ?? 1);
+                                }}
+                                className={`w-full text-left p-3 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${isSelected ? 'bg-emerald-50/20' : 'bg-white'}`}
+                              >
+                                <div className="space-y-0.5 min-w-0 flex-1">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <h5 className={`font-bold text-xs ${isSelected ? 'text-[#00a859]' : 'text-slate-800'}`}>{clinic.name}</h5>
+                                    {isNearest && <span className="text-[8px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">Nearest</span>}
+                                  </div>
+                                  <p className="text-[9px] font-mono text-slate-400">
+                                    <span className="text-emerald-700 font-bold">{clinic.distance.toFixed(1)} km</span>
+                                  </p>
+                                </div>
+                                {isSelected && <Check className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Month selector row */}
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => {
+                        const idx = availableMonths.indexOf(rescheduleCalendarMonth);
+                        if (idx > 0) {
+                          const m = availableMonths[idx - 1];
+                          setRescheduleCalendarMonth(m);
+                          const days = Object.keys(CLINIC_SLOTS_DB[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
+                          setRescheduleCalendarDay(days[0] ?? 1);
+                        }
+                      }}
+                      disabled={availableMonths.indexOf(rescheduleCalendarMonth) === 0}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 disabled:opacity-30 cursor-pointer"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-xs font-bold text-slate-700">{formatMonthShorthand(rescheduleCalendarMonth)}</span>
+                    <button
+                      onClick={() => {
+                        const idx = availableMonths.indexOf(rescheduleCalendarMonth);
+                        if (idx < availableMonths.length - 1) {
+                          const m = availableMonths[idx + 1];
+                          setRescheduleCalendarMonth(m);
+                          const days = Object.keys(CLINIC_SLOTS_DB[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
+                          setRescheduleCalendarDay(days[0] ?? 1);
+                        }
+                      }}
+                      disabled={availableMonths.indexOf(rescheduleCalendarMonth) === availableMonths.length - 1}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 disabled:opacity-30 cursor-pointer"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Day grid */}
+                  <div className="grid grid-cols-7 gap-1 text-center">
+                    {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
+                      <span key={d} className="text-[9px] font-bold text-slate-400">{d}</span>
+                    ))}
+                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).emptyCells }).map((_, i) => (
+                      <span key={`pad-${i}`} />
+                    ))}
+                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
+                      const dayNum = i + 1;
+                      const hasSlots = !!CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
+                      const isSelected = rescheduleCalendarDay === dayNum;
+                      const isRescheduleCurrentDay = rescheduleCalendarMonth === 'July 2026' && dayNum === 12;
+                      return (
+                        <button
+                          key={`day-${dayNum}`}
+                          disabled={!hasSlots}
+                          onClick={() => setRescheduleCalendarDay(dayNum)}
+                          className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer mx-auto ${
+                            isSelected
+                              ? 'bg-[#00a859] text-white shadow-xs'
+                              : isRescheduleCurrentDay
+                              ? 'bg-slate-200/60 border border-slate-300 text-slate-800 hover:bg-slate-300/60'
+                              : hasSlots
+                              ? 'bg-emerald-50 text-[#00a859] border border-emerald-200/55 hover:bg-emerald-100/60'
+                              : 'text-slate-300 pointer-events-none'
+                          }`}
+                        >
+                          <span>{dayNum}</span>
+                          {hasSlots && !isSelected && <span className="absolute bottom-1 w-1 h-1 bg-[#00a859] rounded-full" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Time slots */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Available slots</label>
+                    {CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[rescheduleCalendarDay] ? (
+                      CLINIC_SLOTS_DB[rescheduleClinicId][rescheduleCalendarMonth][rescheduleCalendarDay]
+                        .filter(slot => !(
+                          appointment &&
+                          slot.date === appointment.date &&
+                          slot.time === appointment.timeSlot &&
+                          slot.clinic === appointment.clinic
+                        ))
+                        .map((slot, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleProposedSlotSelected(slot)}
+                            className="w-full bg-white hover:bg-emerald-50/15 border border-slate-200 hover:border-[#00a859]/40 p-3.5 rounded-xl text-left transition flex justify-between items-center cursor-pointer shadow-3xs hover:shadow-2xs"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-slate-50 rounded-lg shrink-0">
+                                <Clock className="w-4 h-4 text-[#00a859]" />
+                              </div>
+                              <div className="space-y-0.5">
+                                <p className="text-xs font-extrabold text-slate-800">{slot.time}</p>
+                                <div className="flex items-center gap-1 text-[10px] text-slate-500">
+                                  <span className="font-semibold text-slate-600">{slot.provider}</span>
+                                  <span className="text-slate-300">·</span>
+                                  <span>{slot.duration}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-bold text-[#00a859] font-mono bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">{slot.cost}</span>
+                              <ChevronRight className="w-4 h-4 text-slate-400" />
+                            </div>
+                          </button>
+                        ))
+                    ) : (
+                      <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
+                        No available slots on this day.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>{/* end scrollable body */}
+
+              {/* Pinned footer */}
+              <div className="px-4 py-4 text-center bg-slate-50 border-t border-slate-100 shrink-0">
+                <button
+                  onClick={handleExitReschedule}
+                  className="text-[10.5px] text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                >
+                  Keep current appointment
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* RESCHEDULE – review comparison */}
+        {bookingSubFlow === 'reschedule-review' && proposedSlotObj && (
+          <div className="flex flex-col flex-1 bg-slate-50 animate-fade-in">
+            {/* Header */}
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
+              <button
+                onClick={() => setBookingSubFlow('reschedule-select')}
+                className="w-16 flex items-center gap-0.5 p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer text-[10.5px]"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> Back
+              </button>
+              <span className="flex-1 text-center font-bold text-sm text-slate-800">Review change</span>
+              <button
+                onClick={handleExitReschedule}
+                className="w-16 flex items-center justify-end p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 px-4 py-5 space-y-4 overflow-y-auto">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Review the change before confirming. Your current appointment will remain active until you press Confirm Reschedule.
+              </p>
+
+              {/* Current appointment */}
+              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div className="bg-slate-50 px-3 py-2 border-b border-slate-100">
+                  <p className="text-[9.5px] font-bold text-slate-500 uppercase tracking-wide">Current appointment</p>
+                </div>
+                <div className="px-3 py-3 space-y-0.5">
+                  {appointment && (
+                    <>
+                      <p className="text-[11px] font-bold text-slate-800">{appointment.date}</p>
+                      <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
+                      <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex justify-center text-slate-300">
+                <ChevronDown className="w-5 h-5" />
+              </div>
+
+              {/* Proposed appointment */}
+              <div className="bg-white rounded-xl border border-emerald-200 overflow-hidden ring-1 ring-emerald-100">
+                <div className="bg-emerald-50 px-3 py-2 border-b border-emerald-100">
+                  <p className="text-[9.5px] font-bold text-emerald-700 uppercase tracking-wide">New appointment</p>
+                </div>
+                <div className="px-3 py-3 space-y-0.5">
+                  <p className="text-[11px] font-bold text-slate-800">{proposedSlotObj.date}</p>
+                  <p className="text-[10.5px] text-slate-600">{proposedSlotObj.time}</p>
+                  <p className="text-[10px] text-slate-500">{proposedSlotObj.clinic}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-4 pb-6 space-y-2.5 bg-white border-t border-slate-100 pt-4 shrink-0">
+              <button
+                onClick={handleConfirmReschedule}
+                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
+              >
+                Confirm Reschedule
+              </button>
+              <button
+                onClick={() => setBookingSubFlow('reschedule-select')}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+              >
+                Choose a Different Slot
+              </button>
+              <button
+                onClick={handleExitReschedule}
+                className="w-full py-2 text-slate-400 hover:text-slate-600 text-[10.5px] font-medium transition cursor-pointer text-center"
+              >
+                Keep current appointment
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* RESCHEDULE – success */}
+        {bookingSubFlow === 'reschedule-success' && (
+          <div className="flex flex-col flex-1 bg-white items-center justify-center p-6 text-center gap-5 animate-fade-in">
+            <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
+              <CheckCircle className="w-7 h-7 text-[#00a859]" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-extrabold text-base text-slate-900">Appointment rescheduled.</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Your appointment has been updated.</p>
+            </div>
+            {appointment && (
+              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 w-full text-left space-y-0.5">
+                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">New appointment</p>
+                <p className="text-[11px] font-bold text-slate-800 mt-1">{appointment.date}</p>
+                <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
+                <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
+              </div>
+            )}
+            <button
+              onClick={() => setBookingSubFlow(null)}
+              className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
+            >
+              Done
+            </button>
+          </div>
+        )}
+
+        {/* CANCEL – success */}
+        {bookingSubFlow === 'cancel-success' && (
+          <div className="flex flex-col flex-1 bg-white items-center justify-center p-6 text-center gap-5 animate-fade-in">
+            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
+              <CheckCircle className="w-7 h-7 text-slate-400" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-extrabold text-base text-slate-900">Your appointment has been cancelled.</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                You can book a new slot whenever you are ready.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2.5 w-full">
+              <button
+                onClick={() => {
+                  setBookingSubFlow(null);
+                  setBookingStep('available');
+                  setSelectedSlotIdx(null);
+                  setSelectedSlotObj(null);
+                  setSelectedCalendarDay(22);
+                }}
+                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
+              >
+                <Calendar className="w-4 h-4" /> Book a New Appointment
+              </button>
+              <button
+                onClick={() => { setBookingSubFlow(null); onChangeScreen(ScreenId.Home); }}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
+              >
+                Return to Home
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Normal screens (only shown when no full-screen subflow is active) ── */}
+        {!bookingSubFlow || bookingSubFlow === 'cancel-initial' || bookingSubFlow === 'cancel-confirm' ? (
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeScreen}
+              initial={{ x: 12, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -12, opacity: 0 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="flex-col flex flex-1 min-h-0 h-full overflow-hidden relative"
+            >
 
         {/* ----------------- SCREEN 1: HOME ----------------- */}
         {activeScreen === ScreenId.Home && (
-          <div className="flex-col flex flex-1 bg-slate-50">
+          <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50 relative">
             {/* 1. Official HealthHub Top Header Row */}
             <div className="bg-white px-4 py-3 flex justify-between items-center border-b border-slate-100 shrink-0">
               {/* Notification Bell */}
-              <div className="relative transition">
+              <button 
+                onClick={() => setShowNotificationPopup(true)} 
+                className="relative transition p-1 hover:bg-slate-100 rounded-full cursor-pointer border-none"
+                id="hh-home-bell-btn"
+              >
                 <Bell className="w-5 h-5 text-slate-700" />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white" />
-              </div>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full border border-white" />
+              </button>
 
               {/* HealthHub Center Logo */}
               <div className="flex items-center gap-1">
@@ -995,6 +1615,65 @@ export default function PhoneSimulator({
                 <Settings className="w-5 h-5 text-slate-700" />
               </div>
             </div>
+
+            {/* Notifications Pop-up Dialog */}
+            {showNotificationPopup && (
+              <div className="absolute inset-x-4 top-14 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 animate-fade-in p-4 text-left space-y-3.5 max-w-[340px] mx-auto">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <Bell className="w-4 h-4 text-[#00a859]" />
+                    <h4 className="font-bold text-xs text-slate-800">Notifications</h4>
+                  </div>
+                  <button 
+                    onClick={() => setShowNotificationPopup(false)} 
+                    className="text-slate-400 hover:text-slate-600 font-bold text-xs p-1 cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {/* Notification 1: Active referral */}
+                  <button 
+                    onClick={() => {
+                      onChangeScreen(ScreenId.ReferralIntro);
+                      setShowNotificationPopup(false);
+                    }}
+                    className="w-full text-left bg-slate-50 hover:bg-emerald-50/25 border border-slate-100 p-3 rounded-xl flex items-start gap-3 transition cursor-pointer"
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#00a859] mt-1.5 shrink-0" />
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-extrabold text-slate-800">FH Genetic Referral Active</p>
+                      <p className="text-[10px] text-slate-500 leading-normal">Your clinical referral is active. Read why your doctor recommended testing.</p>
+                      <span className="text-[9px] text-slate-400 block pt-0.5">2h ago</span>
+                    </div>
+                  </button>
+
+                  {/* Notification 2: Booking status */}
+                  <button 
+                    onClick={() => {
+                      onChangeScreen(ScreenId.Booking);
+                      setShowNotificationPopup(false);
+                    }}
+                    className="w-full text-left bg-slate-50 hover:bg-emerald-50/25 border border-slate-100 p-3 rounded-xl flex items-start gap-3 transition cursor-pointer"
+                  >
+                    <span className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${appointment.status === 'booked' ? 'bg-slate-300' : 'bg-rose-500'}`} />
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-extrabold text-slate-800">
+                        {appointment.status === 'booked' ? 'Counselling Appointment Booked' : 'Action Required: Book Counselling'}
+                      </p>
+                      <p className="text-[10px] text-slate-500 leading-normal">
+                        {appointment.status === 'booked' 
+                          ? `Pre-test genetic counselling confirmed for ${appointment.date} @ ${appointment.timeSlot}.`
+                          : 'Please secure your pre-test genetic counselling session slot.'}
+                      </p>
+                      <span className="text-[9px] text-slate-400 block pt-0.5">
+                        {appointment.status === 'booked' ? 'Just now' : '1d ago'}
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Scrollable Container */}
             <div className="flex-1 overflow-y-auto pb-6 space-y-4">
@@ -1059,25 +1738,17 @@ export default function PhoneSimulator({
                     <div className="flex flex-col gap-2">
                       <button
                         id="hh-home-primary-cta"
-                        onClick={() => onChangeScreen(ScreenId.Education)}
-                        className="w-full h-10 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent"
+                        onClick={() => onChangeScreen(ScreenId.Booking)}
+                        className="w-full h-11 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent"
                       >
-                        {t('learn_why')} <ChevronRight className="w-4 h-4" />
+                        {appointment.status === 'booked' ? 'Manage booking' : t('book_now_btn')} <ChevronRight className="w-4 h-4" />
                       </button>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => onChangeScreen(ScreenId.ReferralIntro)}
-                          className="py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer select-none"
-                        >
-                          {t('why_referred_btn')}
-                        </button>
-                        <button
-                          onClick={() => onChangeScreen(ScreenId.Booking)}
-                          className="py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer select-none"
-                        >
-                          {appointment.status === 'booked' ? t('manage_slot_btn') : t('book_now_btn')}
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => onChangeScreen(ScreenId.ReferralIntro)}
+                        className="w-full py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
+                      >
+                        {t('why_referred_btn')}
+                      </button>
                     </div>
 
                     {/* Patient Journey Progress Pathway */}
@@ -1258,7 +1929,7 @@ export default function PhoneSimulator({
                       <span className="bg-amber-500/20 text-amber-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">Active Hub</span>
                       <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">Diabetes Hub</h4>
                     </div>
-                    <p className="text-[9px] text-slate-600 leading-snug">Personalized guides for managing and preventing diabetes.</p>
+                    <p className="text-[9px] text-slate-600 leading-snug">Personalised guides for managing and preventing diabetes.</p>
                   </div>
 
                   {/* Card 2: Mental Well-being */}
@@ -1280,17 +1951,17 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 1b: WHY WAS I REFERRED? ----------------- */}
         {activeScreen === ScreenId.ReferralIntro && (
-          <div className="flex-col flex flex-1 pb-6">
+          <div className="flex-col flex flex-1 min-h-0 max-h-full overflow-hidden bg-slate-50 animate-fade-in">
             {/* Top Navigation */}
             <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
               <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full">
                 <ArrowLeft className="w-5 h-5 text-slate-600" />
               </button>
-              <h4 className="text-sm font-bold text-slate-800">{t('referred_intro_title')}</h4>
+              <span className="font-bold text-sm text-slate-800">{t('referred_intro_title')}</span>
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6 bg-slate-50">
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-5 space-y-6 bg-slate-50">
               {/* Page title + subtitle (three short sentences) */}
               <div>
                 <h3 className="text-base font-bold text-slate-800 leading-snug">{t('referred_intro_title')}</h3>
@@ -1479,14 +2150,14 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 2: EDUCATION HUB ----------------- */}
         {activeScreen === ScreenId.Education && (
-          <div className="flex-col flex flex-1 pb-6 bg-slate-50">
+          <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50">
             {/* Top Navigation */}
             <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0">
               <div className="flex items-center gap-2">
                 <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer">
                   <ArrowLeft className="w-5 h-5 text-slate-700" />
                 </button>
-                <span className="font-bold text-[11px] sm:text-xs text-slate-800 tracking-tight">Understanding Familial Hypercholestrolaemia (FH)</span>
+                <span className="font-bold text-sm text-slate-800">Education Hub</span>
               </div>
             </div>
 
@@ -1498,7 +2169,7 @@ export default function PhoneSimulator({
                 </div>
                 <h3 className="font-bold text-sm text-slate-800">No Active Genetic Referrals</h3>
                 <p className="text-xs text-slate-500 leading-relaxed max-w-[280px]">
-                  This personalized educational hub is only visible for patients with an active clinical referral for FH genetic testing.
+                  This personalised educational hub is only visible for patients with an active clinical referral for FH genetic testing.
                 </p>
                 <button 
                   onClick={() => onChangeScreen(ScreenId.Home)} 
@@ -1509,7 +2180,7 @@ export default function PhoneSimulator({
               </div>
             ) : (
               /* High-fidelity Education Hub content for referred patients */
-              <>
+              <div className="flex-1 overflow-y-auto flex flex-col pb-6">
                 {/* Profile Info Row */}
                 <div className="bg-emerald-50/60 border-b border-emerald-100 px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0">
                   <span className="text-slate-600">Patient: <strong className="text-slate-800">Lisa Ho (SXXXX321A)</strong></span>
@@ -1830,7 +2501,7 @@ export default function PhoneSimulator({
                                       } else if (sec.id === 'why-testing-matters') {
                                         displayTitle = 'Protecting Your Family';
                                         displaySubtitle = isExpanded 
-                                          ? 'Confirming FH unlocks personalized care and protects your loved ones through cascade screening.' 
+                                          ? 'Confirming FH unlocks personalised care and protects your loved ones through cascade screening.' 
                                           : 'How cascade screening keeps your loved ones safe.';
                                       } else if (sec.id === 'costs-subsidies') {
                                         displayTitle = 'Costs and Subsidies';
@@ -2158,7 +2829,7 @@ export default function PhoneSimulator({
                     </button>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
@@ -2166,45 +2837,71 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 3: BOOKING ----------------- */}
         {activeScreen === ScreenId.Booking && (
-          <div className="flex-col flex flex-1 pb-6 relative">
+          <div className="flex-col flex flex-1 h-full overflow-hidden relative">
             {showMonthPopup && (
-              <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-2xl w-full max-w-[260px] p-4 shadow-xl border border-slate-100 animate-fade-in text-left">
-                  <div className="flex justify-between items-center pb-2.5 border-b border-slate-100 mb-3">
-                    <h4 className="font-bold text-xs text-slate-800">{t('booking_select_month')}</h4>
+              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+                <div className="bg-white rounded-3xl w-full max-w-[325px] p-6 shadow-2xl border border-slate-100 animate-fade-in text-left">
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-[#00a859]" />
+                      <h4 className="font-extrabold text-[15px] text-slate-800 tracking-tight">Select Month</h4>
+                    </div>
                     <button
                       onClick={() => setShowMonthPopup(false)}
-                      className="text-slate-400 hover:text-slate-600 font-bold text-xs p-1 cursor-pointer"
+                      className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
                     >
-                      ✕
+                      <X className="w-4 h-4 text-slate-400" />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5 max-h-60 overflow-y-auto pr-1">
-                    {availableMonths.map((m) => {
-                      const isSelected = m === selectedCalendarMonth;
-                      return (
-                        <button
-                          key={m}
-                          onClick={() => {
-                            selectMonth(m);
-                            setShowMonthPopup(false);
-                          }}
-                          className={`py-2 px-2.5 rounded-lg text-[10px] font-bold text-center transition cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#00a859] text-white shadow-xs'
-                              : 'bg-slate-50 border border-slate-100 text-slate-700 hover:bg-slate-100 hover:border-slate-200'
-                          }`}
-                        >
-                          {m}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  
+                  {(() => {
+                    const grouped: { [year: string]: string[] } = {};
+                    availableMonths.forEach((m) => {
+                      const parts = m.split(' ');
+                      const year = parts[1] || '2026';
+                      if (!grouped[year]) grouped[year] = [];
+                      grouped[year].push(m);
+                    });
+
+                    return (
+                      <div className="space-y-5 max-h-[350px] overflow-y-auto pr-1">
+                        {Object.keys(grouped).sort().map((year) => (
+                          <div key={year} className="space-y-2.5 text-left">
+                            <div className="flex items-center pl-2 py-1 bg-slate-50/75 border-l-[3px] border-[#00a859] rounded-r-lg">
+                              <span className="text-[11.5px] font-extrabold text-slate-400 tracking-wider font-mono">{year}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                              {grouped[year].map((m) => {
+                                const isSelected = m === selectedCalendarMonth;
+                                const shortName = m.split(' ')[0].substring(0, 3);
+                                return (
+                                  <button
+                                    key={m}
+                                    onClick={() => {
+                                      selectMonth(m);
+                                      setShowMonthPopup(false);
+                                    }}
+                                    className={`h-9 px-1 rounded-xl text-[10.5px] font-bold text-center flex items-center justify-center transition-all cursor-pointer w-full border ${
+                                      isSelected
+                                        ? 'bg-[#00a859] border-[#00a859] text-white shadow-md shadow-emerald-700/10'
+                                        : 'bg-slate-50 border-slate-200/50 text-slate-700 hover:bg-emerald-50 hover:text-[#00a859] hover:border-emerald-200'
+                                    }`}
+                                  >
+                                    {shortName}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             )}
             {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 shrink-0">
               <button 
                 onClick={() => {
                   setBookingStep('available');
@@ -2214,12 +2911,12 @@ export default function PhoneSimulator({
               >
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
-              <span className="font-bold text-sm text-slate-800">{t('booking_secure_title')}</span>
+              <span className="font-bold text-sm text-slate-800">Book Appointment</span>
             </div>
 
             {/* If appointment is BOOKED or CONFIRMED, show Feature 2 Confirmation Screen */}
             {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
-              <div className="p-4 space-y-4 animate-fade-in text-left">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 animate-fade-in text-left">
                 {/* Booking Confirmation Card (Feature 2) */}
                 <div className="bg-white border border-emerald-200 rounded-2xl p-4 shadow-xs text-center space-y-3.5 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-500" />
@@ -2233,6 +2930,16 @@ export default function PhoneSimulator({
                       {t('booking_subsidized_slot')}
                     </p>
                   </div>
+
+                  {/* Interactive Notification Bell to configure reminders (User Request 3) */}
+                  <button
+                    onClick={() => onChangeScreen(ScreenId.ReminderSettings)}
+                    className="w-full mt-1.5 p-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-[10px] text-amber-800 font-extrabold transition flex items-center justify-start gap-2 cursor-pointer shadow-3xs group relative overflow-hidden whitespace-nowrap"
+                  >
+                    <Bell className="w-3.5 h-3.5 text-amber-650 shrink-0" />
+                    <span className="truncate">Set up your reminder alerts & frequency</span>
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-amber-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  </button>
 
                   {/* Relational details matching selected July dates */}
                   {(() => {
@@ -2359,18 +3066,13 @@ export default function PhoneSimulator({
                 {/* Manage and reschedule options */}
                 <div className="space-y-2 pt-1 text-left">
                   <button
-                    onClick={() => {
-                      handleCancelBooking();
-                      triggerToast(t('booking_reschedule_alert'));
-                    }}
+                    onClick={handleEnterReschedule}
                     className="w-full py-2.5 bg-white hover:bg-slate-50 text-[#00a859] border border-emerald-600/40 rounded-xl text-xs font-bold transition cursor-pointer"
                   >
                     {t('booking_reschedule_slot')}
                   </button>
                   <button
-                    onClick={() => {
-                      setShowCancelConfirmModal(true);
-                    }}
+                    onClick={handleEnterCancelFlow}
                     className="w-full py-2.5 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-xl text-xs font-semibold border border-slate-200 transition cursor-pointer"
                   >
                     {t('booking_cancel_slot')}
@@ -2379,7 +3081,7 @@ export default function PhoneSimulator({
               </div>
             ) : (
               /* Active Booking Steps */
-              <div className="p-4 space-y-4 text-left">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left">
                 {/* Step 1: Available list */}
                 {bookingStep === 'available' && (() => {
                   // Pre-compute distances to find nearest clinic and sort by shortest to longest distance
@@ -2408,15 +3110,15 @@ export default function PhoneSimulator({
                       </div>
 
                       {/* Your Location & Geolocation Control (User request 1) */}
-                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left">
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-3xs text-left">
                         <div className="flex justify-between items-center">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('profile_residential')}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Location:</span>
                           <button 
                             onClick={() => setShowLocationModal(!showLocationModal)}
                             className="text-[11px] text-[#00a859] font-extrabold hover:underline flex items-center gap-1 cursor-pointer"
                           >
                             <MapPin className="w-3.5 h-3.5" />
-                            {showLocationModal ? 'Close Selector' : 'Change Estate / GPS'}
+                            {showLocationModal ? 'Close Selector' : 'Change Location'}
                           </button>
                         </div>
                         
@@ -2424,61 +3126,118 @@ export default function PhoneSimulator({
                           <div className="p-2 bg-emerald-50 rounded-lg shrink-0">
                             <MapPin className="w-4 h-4 text-[#00a859]" />
                           </div>
-                          <div>
-                            <h4 className="font-bold text-xs text-slate-800">{patientLocName}</h4>
-                            <p className="text-[9px] text-slate-500">
-                              Coordinates: {patientCoords.lat.toFixed(4)}°N, {patientCoords.lng.toFixed(4)}°E
-                            </p>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <h4 className="font-bold text-xs text-slate-800">{patientLocName}</h4>
+                              {patientLocName.includes('Blk 451 Ang Mo Kio Ave 10') && (
+                                <span className="bg-emerald-50 text-[#00a859] text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
+                                  Default address
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
 
                         {showLocationModal && (
-                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2.5 animate-fade-in text-xs">
-                            <p className="text-[10px] text-slate-500 leading-normal">
-                              We use your location to calculate real-time distances to Singapore clinics:
-                            </p>
-                            
-                            <button
-                              onClick={detectLiveLocation}
-                              disabled={isDetectingLoc}
-                              className="w-full py-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                            >
-                              {isDetectingLoc ? 'Detecting GPS...' : '📍 Find Nearest via Live GPS'}
-                            </button>
+                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-3 animate-fade-in text-xs">
+                            <div className="space-y-1.5">
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 font-mono">Search Location:</span>
+                              <div className="relative flex items-center">
+                                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
+                                <input
+                                  type="text"
+                                  value={locationSearchQuery}
+                                  onChange={(e) => setLocationSearchQuery(e.target.value)}
+                                  placeholder="Type to search e.g. Ang Mo Kio, Bedok..."
+                                  className="w-full pl-8 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#00a859] focus:border-[#00a859]"
+                                />
+                                {locationSearchQuery && (
+                                  <button
+                                    onClick={() => setLocationSearchQuery('')}
+                                    className="absolute right-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Live location / home shortcuts */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={detectLiveLocation}
+                                disabled={isDetectingLoc}
+                                className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                              >
+                                📍 {isDetectingLoc ? 'Detecting...' : 'Live Location'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setPatientCoords({ lat: 1.3625, lng: 103.8542 });
+                                  setPatientLocName('Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451');
+                                  setLocationSearchQuery('');
+                                  triggerToast('Defaulted to profile residential address');
+                                }}
+                                className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                              >
+                                🏠 Default address
+                              </button>
+                            </div>
+
+                            {/* Search Results / Suggestions */}
+                            <div className="space-y-1">
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                                {locationSearchQuery ? 'Search Results:' : 'Suggestions:'}
+                              </span>
+                              <div className="max-h-32 overflow-y-auto space-y-1 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white p-1">
+                                {(locationSearchQuery 
+                                  ? SEARCHABLE_LOCATIONS.filter(loc => loc.name.toLowerCase().includes(locationSearchQuery.toLowerCase()))
+                                  : SEARCHABLE_LOCATIONS
+                                ).map((loc, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => {
+                                      setPatientCoords({ lat: loc.lat, lng: loc.lng });
+                                      setPatientLocName(loc.name);
+                                      setLocationSearchQuery('');
+                                      setShowLocationModal(false);
+                                      triggerToast(`Location changed to ${loc.name.split(',')[0]}`);
+                                    }}
+                                    className="w-full text-left p-2 hover:bg-emerald-50/50 rounded transition text-[11px] font-medium text-slate-700 flex items-center justify-between gap-1 cursor-pointer"
+                                  >
+                                    <span className="truncate flex-1">{loc.name}</span>
+                                    {loc.name.includes('Blk 451 Ang Mo Kio Ave 10') && (
+                                      <span className="bg-emerald-50 text-[#00a859] text-[8px] font-extrabold px-1 py-0.5 rounded border border-emerald-100 shrink-0">
+                                        Default
+                                      </span>
+                                    )}
+                                  </button>
+                                ))}
+                                {locationSearchQuery && SEARCHABLE_LOCATIONS.filter(loc => loc.name.toLowerCase().includes(locationSearchQuery.toLowerCase())).length === 0 && (
+                                  <div className="p-2 text-center text-[10px] text-slate-500">
+                                    No matches. Click below to use:
+                                    <button
+                                      onClick={() => {
+                                        setPatientCoords({ lat: 1.3521, lng: 103.8198 });
+                                        setPatientLocName(locationSearchQuery);
+                                        setLocationSearchQuery('');
+                                        setShowLocationModal(false);
+                                        triggerToast(`Custom location set!`);
+                                      }}
+                                      className="mt-1 w-full p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-bold block truncate"
+                                    >
+                                      "{locationSearchQuery}"
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
 
                             {gpsError && (
                               <p className="text-[9px] text-red-600 font-semibold leading-tight bg-red-50 border border-red-100 p-2 rounded">
                                 ⚠️ {gpsError}
                               </p>
                             )}
-
-                            <div className="grid grid-cols-2 gap-1.5 pt-1">
-                              {[
-                                { name: 'Orchard (Central)', lat: 1.3036, lng: 103.8318 },
-                                { name: 'Jurong East (West)', lat: 1.3329, lng: 103.7436 },
-                                { name: 'Bedok (East)', lat: 1.3240, lng: 103.9302 },
-                                { name: 'Ang Mo Kio (North)', lat: 1.3691, lng: 103.8454 },
-                                { name: 'Woodlands (North-West)', lat: 1.4382, lng: 103.7890 },
-                                { name: 'Punggol (North-East)', lat: 1.4052, lng: 103.9023 }
-                              ].map((loc) => (
-                                <button
-                                  key={loc.name}
-                                  onClick={() => {
-                                    setPatientCoords({ lat: loc.lat, lng: loc.lng });
-                                    setPatientLocName(loc.name);
-                                    setGpsError(null);
-                                    setShowLocationModal(false);
-                                  }}
-                                  className={`py-1.5 px-2 rounded-lg text-[10px] font-semibold border text-center transition cursor-pointer ${
-                                    patientLocName === loc.name 
-                                      ? 'bg-emerald-50 border-emerald-600 text-[#00a859]' 
-                                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                                  }`}
-                                >
-                                  {loc.name}
-                                </button>
-                              ))}
-                            </div>
                           </div>
                         )}
                       </div>
@@ -2594,7 +3353,7 @@ export default function PhoneSimulator({
                               onClick={() => setShowMonthPopup(true)}
                               className="flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 tracking-wide cursor-pointer transition"
                             >
-                              <span>{selectedCalendarMonth}</span>
+                              <span>{formatMonthShorthand(selectedCalendarMonth)}</span>
                               <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
                             </button>
                             
@@ -2636,6 +3395,7 @@ export default function PhoneSimulator({
                               const dayNum = i + 1;
                               const hasSlots = !!CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isDateBeforeToday(selectedCalendarMonth, dayNum);
                               const isSelected = selectedCalendarDay === dayNum;
+                              const isCurrentDay = selectedCalendarMonth === 'July 2026' && dayNum === 12;
 
                               return (
                                 <button
@@ -2645,6 +3405,8 @@ export default function PhoneSimulator({
                                   className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer ${
                                     isSelected
                                       ? 'bg-[#00a859] text-white shadow-xs'
+                                      : isCurrentDay
+                                      ? 'bg-slate-400/20 border border-slate-300/80 text-slate-800 hover:bg-slate-400/30'
                                       : hasSlots
                                       ? 'bg-emerald-50 text-[#00a859] border border-emerald-200/55 hover:bg-emerald-100/60'
                                       : 'text-slate-300 pointer-events-none'
@@ -2660,10 +3422,14 @@ export default function PhoneSimulator({
                           </div>
                         </div>
 
-                        <div className="flex gap-4 items-center justify-center text-[9px] text-slate-400 pt-1.5 border-t border-slate-100">
+                        <div className="flex gap-3 items-center justify-center text-[9px] text-slate-400 pt-1.5 border-t border-slate-100 flex-wrap">
                           <div className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center"><span className="w-1 h-1 bg-[#00a859] rounded-full" /></span>
                             <span>{t('available_slots')}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-slate-400/20 border border-slate-300/80" />
+                            <span>Today</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 rounded-full bg-[#00a859]" />
@@ -2810,22 +3576,21 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 4: REMINDERS ----------------- */}
         {activeScreen === ScreenId.ReminderSettings && (
-          <div className="flex-col flex flex-1 pb-6">
+          <div className="flex-col flex flex-1 h-full overflow-hidden">
             {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left">
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left shrink-0">
               <button 
                 onClick={() => onChangeScreen(ScreenId.Home)} 
                 className="p-1 hover:bg-slate-100 rounded-full"
               >
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
-              <span className="font-bold text-sm text-slate-800">{t('settings_title')}</span>
+              <span className="font-bold text-sm text-slate-800">Settings</span>
             </div>
 
-            <div className="p-4 space-y-4 text-left">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
               <div>
-                <h3 className="font-extrabold text-base text-slate-800">{t('settings_title')}</h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">{t('settings_desc')}</p>
+                <p className="text-xs text-slate-500 leading-relaxed">{t('settings_desc')}</p>
               </div>
 
               {/* Language Preferences Section (User Request 5 & 6) */}
@@ -2909,14 +3674,13 @@ export default function PhoneSimulator({
                     <div className="relative">
                       <select
                         id="reminder-frequency-select"
-                        value={reminderPrefs.frequency === 'custom' ? '1_week' : reminderPrefs.frequency}
+                        value={reminderPrefs.frequency === 'custom' || reminderPrefs.frequency === '1_day' ? '1_week' : reminderPrefs.frequency}
                         onChange={(e) => onUpdateReminderPrefs(reminderPrefs.enabled, reminderPrefs.channel, e.target.value as any)}
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-3 pr-10 text-xs text-slate-800 font-medium cursor-pointer appearance-none focus:outline-none focus:border-[#00a859] focus:ring-1 focus:ring-[#00a859] transition"
                       >
-                        <option value="monthly">{t('settings_freq_monthly')}</option>
-                        <option value="2_weeks">{t('settings_freq_2_weeks')}</option>
-                        <option value="1_week">{t('settings_freq_1_week')}</option>
-                        <option value="1_day">{t('settings_freq_1_day')}</option>
+                        <option value="2_weeks">{t('freq_comprehensive')}</option>
+                        <option value="1_week">{t('freq_standard')}</option>
+                        <option value="monthly">{t('freq_minimal')}</option>
                       </select>
                       <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                         <ChevronDown className="w-4 h-4 text-slate-500" />
@@ -2925,6 +3689,15 @@ export default function PhoneSimulator({
                     <p className="text-[10px] text-slate-500 leading-normal">
                       {t('frequency_desc')}
                     </p>
+                    <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3.5 space-y-1 text-left">
+                      <div className="text-[9.5px] font-bold text-emerald-800 tracking-wider font-mono uppercase">{t('active_schedule')}</div>
+                      <p className="text-xs font-bold text-slate-800 font-sans">
+                        {reminderPrefs.frequency === '2_weeks' && t('active_freq_comprehensive')}
+                        {reminderPrefs.frequency === '1_week' && t('active_freq_standard')}
+                        {reminderPrefs.frequency === 'monthly' && t('active_freq_minimal')}
+                        {reminderPrefs.frequency !== '2_weeks' && reminderPrefs.frequency !== '1_week' && reminderPrefs.frequency !== 'monthly' && t('active_freq_standard')}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Dynamic previews based on selected channels */}
@@ -2987,9 +3760,9 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 5: PROGRESS TIMELINE ----------------- */}
         {activeScreen === ScreenId.ProgressTimeline && (
-          <div className="flex-col flex flex-1 pb-6">
+          <div className="flex-col flex flex-1 h-full overflow-hidden">
             {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left">
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left shrink-0">
               <button 
                 onClick={() => onChangeScreen(ScreenId.Home)} 
                 className="p-1 hover:bg-slate-100 rounded-full"
@@ -2999,7 +3772,7 @@ export default function PhoneSimulator({
               <span className="font-bold text-sm text-slate-800">{t('journey_appointment_progress')}</span>
             </div>
 
-            <div className="p-4 space-y-4 text-left">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
               {/* Countdown Header */}
               <div className="bg-gradient-to-r from-emerald-800 to-emerald-900 text-white p-4 rounded-2xl shadow-sm text-left">
                 <p className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 font-bold">{t('journey_appointment_status')}</p>
@@ -3085,7 +3858,7 @@ export default function PhoneSimulator({
                       appointment.status === 'confirmed' 
                         ? 'bg-emerald-500' 
                         : appointment.status === 'booked' 
-                          ? 'bg-emerald-600' 
+                          ? 'bg-amber-500' 
                           : 'bg-slate-300'
                     }`}>
                       {appointment.status === 'confirmed' ? '✓' : '4'}
@@ -3097,9 +3870,10 @@ export default function PhoneSimulator({
                           {t('booking_nric_verified')}
                         </p>
                       ) : appointment.status === 'booked' ? (
-                        <p className="text-[10px] text-emerald-700 font-semibold leading-normal mt-0.5">
-                          {t('booking_unverified_alert')}
-                        </p>
+                        <div className="text-[10px] text-amber-800 font-medium leading-normal mt-0.5 bg-amber-50 px-2.5 py-1.5 rounded border border-amber-100">
+                          <p className="font-bold">Scheduled & Upcoming</p>
+                          <p className="mt-0.5">Your session is scheduled for <strong>{appointment.date}</strong> at <strong>{appointment.timeSlot}</strong> at {appointment.clinic}.</p>
+                        </div>
                       ) : (
                         <p className="text-[10px] text-slate-500 leading-normal mt-0.5">{t('booking_session_desc')}</p>
                       )}
@@ -3218,7 +3992,7 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 7: PROFILE ----------------- */}
         {activeScreen === ScreenId.Profile && (
-          <div className="flex-col flex flex-1 pb-6 bg-slate-50">
+          <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50 animate-fade-in">
             {/* Top Navigation Header */}
             <div className="bg-white px-4 py-3.5 border-b border-slate-200 flex justify-between items-center sticky top-0 z-10 shrink-0">
               <div className="flex items-center gap-2">
@@ -3229,7 +4003,7 @@ export default function PhoneSimulator({
                 >
                   <ArrowLeft className="w-5 h-5 text-slate-700" />
                 </button>
-                <span className="font-bold text-sm text-slate-800">{t('profile_my_health_profile')}</span>
+                <span className="font-bold text-sm text-slate-800">My Profile</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] bg-emerald-50 text-[#00a859] font-extrabold uppercase px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
@@ -3247,7 +4021,7 @@ export default function PhoneSimulator({
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 text-left">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 text-left pb-12">
               
               {/* Profile Avatar & Primary Status Card */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs flex items-center gap-4 relative overflow-hidden">
@@ -3256,179 +4030,235 @@ export default function PhoneSimulator({
                   LH
                 </div>
                 <div className="space-y-1 z-10">
-                  <h3 className="font-display font-extrabold text-sm text-slate-900">{t('profile_full_name_val')}</h3>
+                  <h3 className="font-display font-extrabold text-sm text-slate-900">Lisa Ho Siew Lan</h3>
                   <div className="flex flex-wrap gap-1">
                     <span className="text-[9px] bg-emerald-50 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded border border-emerald-100">SXXXX321A</span>
-                    <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded border border-slate-200">{t('profile_female_age')}</span>
+                    <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded border border-slate-200">Female, 36 yrs</span>
                   </div>
                   <p className="text-[9px] text-slate-400 font-semibold uppercase font-mono tracking-wider">{t('profile_moh_identity_cleared')}</p>
                 </div>
               </div>
 
-              {/* Section 1: Personal Particulars */}
+              {/* Personal Information */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_personal_particulars')}
+                  <User className="w-3.5 h-3.5 text-[#00a859]" /> Personal Information
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_full_name')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_full_name_val')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Full name</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">Lisa Ho Siew Lan</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_nric_fin')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right font-mono">SXXXX321A</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Date of birth</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">14 August 1989</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_dob')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_dob_val')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Gender</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">Female</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_nationality')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_nationality_val')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">NRIC / Health ID</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right font-mono">SXXXX321A / HH-98315</span>
                   </div>
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
+                    <span className="col-span-5 text-slate-500 font-medium">Preferred language</span>
+                    <span className="col-span-7 text-right flex items-center justify-end gap-1 font-semibold text-slate-800">
+                      <Globe className="w-3.5 h-3.5 text-emerald-600" />
+                      English
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
+                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-[#00a859]" /> Contact Information
+                </h4>
+                <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_mobile_number')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Mobile number</span>
                     <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">+65 9123 4567</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_email_address')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Email address</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right truncate">lisa.ho@gmail.com</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-4 text-slate-500 font-medium">{t('profile_residential')}</span>
+                    <span className="col-span-4 text-slate-500 font-medium">Residential address</span>
                     <span className="col-span-8 text-slate-600 text-[11px] leading-tight text-right">
-                      {t('profile_residential_val')}
+                      Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Section 2: Clinical Profile */}
+              {/* Emergency Contact */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <HeartPulse className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_clinical_metrics')}
+                  <ShieldAlert className="w-3.5 h-3.5 text-[#00a859]" /> Emergency Contact
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_blood_group')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_blood_group_val')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Contact name</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">Ho Chin Teck</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_height_weight')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_height_weight_val')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Relationship</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">Spouse</span>
                   </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_known_allergies')}</span>
-                    <span className="col-span-7 text-slate-600 font-bold text-right text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 inline-block ml-auto text-[10px]">{t('profile_none_declared')}</span>
-                  </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_cholesterol_level')}</span>
-                    <span className="col-span-7 text-rose-600 font-bold text-right font-mono">{t('profile_cholesterol_level_val')}</span>
-                  </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-1">
-                    <span className="col-span-4 text-slate-500 font-medium">{t('profile_active_referral')}</span>
-                    <span className="col-span-8 text-slate-750 text-[10.5px] leading-tight text-right flex flex-col items-end">
-                      <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100 rounded text-[9.5px]">{t('profile_active_referral_val')}</span>
-                      <span className="text-[9px] text-slate-400 font-medium mt-0.5">{t('profile_referred_by')}</span>
-                    </span>
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
+                    <span className="col-span-5 text-slate-500 font-medium">Phone number</span>
+                    <span className="col-span-7 text-slate-800 font-bold text-right font-mono">+65 9876 5432</span>
                   </div>
                 </div>
               </div>
 
-              {/* Section 3: Financial Subsidy details */}
+              {/* Healthcare Preferences */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <CreditCard className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_subsidies_financing')}
+                  <MapPin className="w-3.5 h-3.5 text-[#00a859]" /> Healthcare Preferences
+                </h4>
+                <div className="space-y-3 text-xs">
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                    <span className="col-span-5 text-slate-500 font-medium">Preferred clinic</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">Ang Mo Kio Polyclinic</span>
+                  </div>
+                  
+                  {/* Interactive link to settings */}
+                  <button
+                    onClick={() => onChangeScreen(ScreenId.ReminderSettings)}
+                    className="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] rounded-xl text-xs font-bold transition flex items-center justify-between border border-emerald-100 cursor-pointer text-left"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Bell className="w-4 h-4 text-[#00a859]" />
+                      View Reminder & Notification Settings
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-[#00a859]" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Medical Information */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3.5">
+                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
+                  <HeartPulse className="w-3.5 h-3.5 text-[#00a859]" /> Medical Information
                 </h4>
                 <div className="space-y-2.5 text-xs">
-                  <div className="bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100 flex items-center gap-3">
-                    <div className="w-10 h-6 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black border border-emerald-400 shrink-0 shadow-3xs select-none">CHAS</div>
-                    <div className="flex-1">
-                      <p className="font-bold text-emerald-900 text-[11px]">{t('profile_chas_blue_member')}</p>
-                      <p className="text-[9px] text-emerald-700 font-medium leading-none mt-0.5">{t('profile_chas_subsidy_level')}</p>
-                    </div>
-                  </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_chas_card_expiry')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_card_expiry_val')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Active referrals</span>
+                    <span className="col-span-7 text-right">
+                      <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100 rounded text-[10px]">FH Genetic Testing (MOH Subsidised)</span>
+                    </span>
                   </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_medisave_account')}</span>
-                    <span className="col-span-7 text-slate-800 font-bold text-right font-mono font-sans">S$4,250.00</span>
+                  
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                    <span className="col-span-4 text-slate-500 font-medium">Upcoming appts</span>
+                    <span className="col-span-8 text-right font-medium text-slate-800 leading-normal">
+                      {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
+                        <div className="flex flex-col items-end">
+                          <span className="font-bold text-emerald-700">{appointment.clinic}</span>
+                          <span className="text-[10px] text-slate-500 mt-0.5 font-mono">{appointment.date} @ {appointment.timeSlot}</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="text-slate-400">No scheduled appointments</span>
+                          <button 
+                            onClick={() => onChangeScreen(ScreenId.Booking)}
+                            className="text-[#00a859] font-bold text-[10px] hover:underline"
+                          >
+                            Book counselling session now
+                          </button>
+                        </div>
+                      )}
+                    </span>
                   </div>
-                  <p className="text-[9px] text-slate-400 italic leading-snug">
-                    {t('profile_medisave_note')}
-                  </p>
+
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                    <span className="col-span-5 text-slate-500 font-medium">Allergies (mock)</span>
+                    <span className="col-span-7 text-right font-semibold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded text-[10px] inline-block ml-auto">Penicillin (Mild rash)</span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                    <span className="col-span-5 text-slate-500 font-medium">Current meds (mock)</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">Atorvastatin 20mg (once daily)</span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                    <span className="col-span-5 text-slate-500 font-medium">Existing conditions (mock)</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">Hypercholesterolaemia</span>
+                  </div>
+
+                  {/* Family History Card */}
+                  <div className="pt-1.5">
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider font-mono">Family History Summary</span>
+                    <div className="mt-2 bg-slate-50 rounded-xl p-3 border border-slate-150 space-y-2 text-[10.5px] text-slate-600">
+                      <div className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
+                        <div>
+                          <p className="font-bold text-slate-800">Father (Diagnosed Age 48)</p>
+                          <p className="text-[10px] text-slate-500">Coronary Heart Disease (Angioplasty & Stent)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
+                        <div>
+                          <p className="font-bold text-slate-800">Paternal Grandfather (Deceased Age 52)</p>
+                          <p className="text-[10px] text-slate-500">Fatal Myocardial Infarction (Acute Heart Attack)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                        <div>
+                          <p className="font-bold text-slate-800">Paternal Aunt</p>
+                          <p className="text-[10px] text-slate-500">Severely high cholesterol (treated with Statins)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                        <div>
+                          <p className="font-bold text-slate-800">Mother & Siblings</p>
+                          <p className="text-[10px] text-slate-500">No early history of heart disease declared</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Section 4: Family Genetic Risk History */}
+              {/* Account Section */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_family_cardiac_history')}
-                </h4>
-                <p className="text-[10.5px] text-slate-500 leading-normal">
-                  {t('profile_family_history_desc')}
-                </p>
-                <div className="space-y-2 pl-1 text-[11px]">
-                  <div className="flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
-                    <div>
-                      <p className="font-bold text-slate-800">{t('profile_father_history')}</p>
-                      <p className="text-[10.5px] text-slate-500">{t('profile_father_history_desc')}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
-                    <div>
-                      <p className="font-bold text-slate-800">{t('profile_grandfather_history')}</p>
-                      <p className="text-[10.5px] text-slate-500">{t('profile_grandfather_history_desc')}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                    <div>
-                      <p className="font-bold text-slate-800">{t('profile_aunt_history')}</p>
-                      <p className="text-[10.5px] text-slate-500">{t('profile_aunt_history_desc')}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                    <div>
-                      <p className="font-bold text-slate-800">{t('profile_mother_history')}</p>
-                      <p className="text-[10.5px] text-slate-500">{t('profile_mother_history_desc')}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 5: Care Team & Emergency Contact */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
-                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_care_coordination')}
+                  <Settings className="w-3.5 h-3.5 text-[#00a859]" /> Account
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_primary_clinic')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_primary_clinic_val')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Linked HealthHub account</span>
+                    <span className="col-span-7 text-emerald-700 font-extrabold text-right flex items-center justify-end gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#00a859]" /> Verified via Singpass
+                    </span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_referred_clinic')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_referred_clinic_val')}</span>
+                    <span className="col-span-5 text-slate-500 font-medium">Privacy settings</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">National Genomic Registry Secure</span>
                   </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_emergency_contact')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_emergency_contact_val')}</span>
-                  </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_relationship_no')}</span>
-                    <span className="col-span-7 text-slate-800 font-bold text-right font-mono">{t('profile_relationship_no_val')}</span>
+                  <div className="pt-2">
+                    <button
+                      onClick={() => {
+                        triggerToast("Successfully logged out from HealthHub simulation");
+                        onChangeScreen(ScreenId.Home);
+                      }}
+                      className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Log out from HealthHub
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Section 6: Data Privacy Legal Statement */}
+              {/* Data Privacy Legal Statement */}
               <div className="bg-slate-100 border border-slate-200 rounded-xl p-3.5 flex gap-2.5 items-start text-[10.5px] leading-relaxed text-slate-500">
                 <Shield className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                 <p>
@@ -3578,6 +4408,10 @@ export default function PhoneSimulator({
             </button>
           </div>
         )}
+
+            </motion.div>
+          </AnimatePresence>
+        ) : null}
 
       </div>
 

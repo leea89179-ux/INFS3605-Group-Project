@@ -51,48 +51,72 @@ export default function Chatbot() {
     setInput('');
     setIsTyping(true);
 
-    // Simulate GovTech Smart Bot response
-    setTimeout(() => {
-      let botResponse = '';
-      const query = text.toLowerCase();
-
-      if (query.includes('insurance') || query.includes('shield') || query.includes('policy')) {
-        botResponse = "In Singapore, you are highly protected. Under the LIA Moratorium, insurers cannot ask you to undergo or disclose genetic test results for standard life or health insurance coverage within standard limits. Existing medical insurance (like MediShield Life and Integrated Shield Plans) already active cannot be altered or cancelled. Your proactive genetic testing is a positive step to stay healthy!";
-      } else if (query.includes('cost') || query.includes('subsidy') || query.includes('pay') || query.includes('price') || query.includes('chas') || query.includes('medisave')) {
-        botResponse = "Genetic testing for FH is heavily subsidized by the Ministry of Health (MOH). For eligible Singapore Citizens, subsidies cover 50% to 75% of the test. Any remaining out-of-pocket costs (typically S$50 - S$120) can be paid using MediSave under chronic disease management guidelines. CHAS Blue, Orange, and Pioneer/Merdeka Generation cardholders receive the highest subsidies.";
-      } else if (query.includes('family') || query.includes('children') || query.includes('parents') || query.includes('cascade')) {
-        botResponse = "FH is inherited and there is a 50% chance that immediate family members (parents, siblings, and children) share the same gene variant. If your genetic test is positive, your medical team will help guide 'cascade screening' to test your family members early. This allows them to start highly effective preventative treatments and protect their hearts early.";
-      } else if (query.includes('prepare') || query.includes('prep') || query.includes('checklist') || query.includes('fast')) {
-        botResponse = "Good news: you do NOT need to fast before the FH genetic blood test. To prepare, please: 1) Gather a list of family members with high cholesterol or early heart attacks, 2) Prepare a list of your current medications, and 3) Bring along your physical ID or Singpass. You will have a supportive 30-minute Genetic Counselling session before any blood is drawn.";
-      } else if (query.includes('what') && (query.includes('fh') || query.includes('cholesterol'))) {
-        botResponse = "Familial Hypercholesterolaemia (FH) is an inherited condition that causes extremely high LDL (bad) cholesterol from birth. Unlike regular high cholesterol, it is not caused by poor lifestyle or diet. If left untreated, the buildup of cholesterol can cause early blockages in blood vessels. The genetic test confirms the diagnosis so doctors can customize highly effective preventative statin treatments.";
-      } else if (query.includes('statin') || query.includes('medication') || query.includes('pill') || query.includes('treatment')) {
-        botResponse = "FH is highly manageable. While lifestyle helps, most patients require highly researched medications like statins to safely reduce LDL levels by up to 50%. Your doctor will tailor the medication specifically based on your genetic results. Never stop or adjust your current medications without medical consultation.";
-      } else if (query.includes('booking') || query.includes('reschedule') || query.includes('appointment')) {
-        botResponse = "You can manage your bookings directly in this app! Click 'Book Appointment' on the main banner or navigate to Screen 3 in the simulator. You will find real-time slots, clinic locations (like First Health Group Serangoon), and simple 2-tap rescheduling options.";
-      } else {
-        // Fallback search in FAQs or generic supportive GovTech reply
-        const matchedFaq = faqs.find(faq => 
-          query.split(' ').some(word => word.length > 4 && faq.question.toLowerCase().includes(word))
-        );
+    // Call server-side API to query Gemini with a fallback to simulation
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Server returned an error');
+        return res.json();
+      })
+      .then((data) => {
+        const botMsg: Message = {
+          id: `bot-${Date.now()}`,
+          sender: 'bot',
+          text: data.text || 'Sorry, I could not process that response.',
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, botMsg]);
+        setIsTyping(false);
+      })
+      .catch((err) => {
+        console.warn('[Chatbot] Backend /api/chat error, falling back to local simulation rules:', err);
         
-        if (matchedFaq) {
-          botResponse = `${matchedFaq.answer} To learn more, feel free to visit the 'Education Hub' section on our app!`;
-        } else {
-          botResponse = "I understand you have questions about the FH genetic testing referral. Your referral is a preventative check to keep you healthy. It is heavily subsidized by the government, protected from insurance discrimination, and includes full counseling. Would you like to check out the 'Education Hub' or schedule your session today?";
-        }
-      }
+        // Simulate GovTech Smart Bot response (Local Fallback)
+        setTimeout(() => {
+          let botResponse = '';
+          const query = text.toLowerCase();
 
-      const botMsg: Message = {
-        id: `bot-${Date.now()}`,
-        sender: 'bot',
-        text: botResponse,
-        timestamp: new Date(),
-      };
+          if (query.includes('insurance') || query.includes('shield') || query.includes('policy')) {
+            botResponse = "In Singapore, you are highly protected. Under the LIA Moratorium, insurers cannot ask you to undergo or disclose genetic test results for standard life or health insurance coverage within standard limits. Existing medical insurance (like MediShield Life and Integrated Shield Plans) already active cannot be altered or cancelled. Your proactive genetic testing is a positive step to stay healthy!";
+          } else if (query.includes('cost') || query.includes('subsidy') || query.includes('pay') || query.includes('price') || query.includes('chas') || query.includes('medisave')) {
+            botResponse = "Genetic testing for FH is heavily subsidized by the Ministry of Health (MOH). For eligible Singapore Citizens, subsidies cover 50% to 75% of the test. Any remaining out-of-pocket costs (typically S$50 - S$120) can be paid using MediSave under chronic disease management guidelines. CHAS Blue, Orange, and Pioneer/Merdeka Generation cardholders receive the highest subsidies.";
+          } else if (query.includes('family') || query.includes('children') || query.includes('parents') || query.includes('cascade')) {
+            botResponse = "FH is inherited and there is a 50% chance that immediate family members (parents, siblings, and children) share the same gene variant. If your genetic test is positive, your medical team will help guide 'cascade screening' to test your family members early. This allows them to start highly effective preventative treatments and protect their hearts early.";
+          } else if (query.includes('prepare') || query.includes('prep') || query.includes('checklist') || query.includes('fast')) {
+            botResponse = "Good news: you do NOT need to fast before the FH genetic blood test. To prepare, please: 1) Gather a list of family members with high cholesterol or early heart attacks, 2) Prepare a list of your current medications, and 3) Bring along your physical ID or Singpass. You will have a supportive 30-minute Genetic Counselling session before any blood is drawn.";
+          } else if (query.includes('what') && (query.includes('fh') || query.includes('cholesterol'))) {
+            botResponse = "Familial Hypercholesterolaemia (FH) is an inherited condition that causes extremely high LDL (bad) cholesterol from birth. Unlike regular high cholesterol, it is not caused by poor lifestyle or diet. If left untreated, the buildup of cholesterol can cause early blockages in blood vessels. The genetic test confirms the diagnosis so doctors can customize highly effective preventative statin treatments.";
+          } else if (query.includes('statin') || query.includes('medication') || query.includes('pill') || query.includes('treatment')) {
+            botResponse = "FH is highly manageable. While lifestyle helps, most patients require highly researched medications like statins to safely reduce LDL levels by up to 50%. Your doctor will tailor the medication specifically based on your genetic results. Never stop or adjust your current medications without medical consultation.";
+          } else if (query.includes('booking') || query.includes('reschedule') || query.includes('appointment')) {
+            botResponse = "You can manage your bookings directly in this app! Click 'Book Appointment' on the main banner or navigate to Screen 3 in the simulator. You will find real-time slots, clinic locations (like First Health Group Serangoon), and simple 2-tap rescheduling options.";
+          } else {
+            // Fallback search in FAQs or generic supportive GovTech reply
+            const matchedFaq = faqs.find(faq => 
+              query.split(' ').some(word => word.length > 4 && faq.question.toLowerCase().includes(word))
+            );
+            
+            if (matchedFaq) {
+              botResponse = `${matchedFaq.answer} To learn more, feel free to visit the 'Education Hub' section on our app!`;
+            } else {
+              botResponse = "I understand you have questions about the FH genetic testing referral. Your referral is a preventative check to keep you healthy. It is heavily subsidised by the government, protected from insurance discrimination, and includes full counselling. Would you like to check out the 'Education Hub' or schedule your session today?";
+            }
+          }
 
-      setMessages((prev) => [...prev, botMsg]);
-      setIsTyping(false);
-    }, 900);
+          const botMsg: Message = {
+            id: `bot-${Date.now()}`,
+            sender: 'bot',
+            text: botResponse,
+            timestamp: new Date(),
+          };
+
+          setMessages((prev) => [...prev, botMsg]);
+          setIsTyping(false);
+        }, 900);
+      });
   };
 
   const handleReset = () => {
