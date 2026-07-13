@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ScreenId, 
   Appointment, 
@@ -7,102 +7,49 @@ import {
   AppointmentRecord,
   ReminderPreferenceRecord,
   NotificationHistoryRecord,
-  DBQueryLog
+  DBQueryLog,
+  ReferralRecord,
+  EducationProgressRecord,
+  ResultsRecord
 } from './types';
+import {
+  supabase,
+  fetchPatients,
+  fetchAppointments,
+  fetchReminderPreferences,
+  fetchNotificationHistory,
+  fetchReferrals,
+  fetchEducationProgress,
+  fetchResults,
+} from './supabaseClient';
 import PhoneSimulator from './components/PhoneSimulator';
 import AnnotationsPanel from './components/AnnotationsPanel';
 import DatabaseViewer from './components/DatabaseViewer';
 import Chatbot from './components/Chatbot';
-import { HeartPulse, Compass, Settings, Layers, Users, BookOpen, Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, Calendar, Check, ArrowRight, Circle as HelpCircle, Database } from 'lucide-react';
+import { HeartPulse, Compass, Settings, Layers, Users, BookOpen, Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, Calendar, Check, ArrowRight, Circle as HelpCircle, Database, MessageSquare, X } from 'lucide-react';
 
 export default function App() {
   // Global Shared States for the Figma Prototype
   const [activeScreen, setActiveScreen] = useState<ScreenId>(ScreenId.Home);
-  const [isFHReferred, setIsFHReferred] = useState<boolean>(true);
+  const [isFHReferred, setIsFHReferred] = useState<boolean>(false);
   const [rightPanelTab, setRightPanelTab] = useState<'annotations' | 'database'>('database');
+  const [isFloatingChatOpen, setIsFloatingChatOpen] = useState<boolean>(false);
   
   // Feature 6: Relational Database Tables State
-  const [patientTable, setPatientTable] = useState<PatientRecord[]>([
-    { patient_id: 'LH321', name: 'Lisa Ho', contact_details: '+65 9123 4567' }
-  ]);
-
-  const [appointmentTable, setAppointmentTable] = useState<AppointmentRecord[]>([
-    {
-      appointment_id: 'APT101',
-      patient_id: 'LH321',
-      appointment_date: '22 July 2026',
-      appointment_time: '10:30 AM',
-      clinic: 'National University Hospital Genetic Clinic',
-      status: 'pending',
-      calendar_added: false,
-    }
-  ]);
-
-  const [reminderPrefTable, setReminderPrefTable] = useState<ReminderPreferenceRecord[]>([
-    {
-      reminder_id: 'REM201',
-      patient_id: 'LH321',
-      enabled: true,
-      notification_channel: 'both',
-      frequency: '1_week',
-      next_notification_date: '15 July 2026',
-    }
-  ]);
-
-  const [notificationHistoryTable, setNotificationHistoryTable] = useState<NotificationHistoryRecord[]>([
-    {
-      notification_id: 'NOT501',
-      patient_id: 'LH321',
-      appointment_id: 'APT101',
-      sent_date: '15 July 2026',
-      opened_status: 'sent',
-      action_taken: 'none',
-    }
-  ]);
+  // Starts empty — real values are loaded from Supabase in the
+  // useEffect below, instead of being hardcoded here.
+  const [patientTable, setPatientTable] = useState<PatientRecord[]>([]);
+  const [appointmentTable, setAppointmentTable] = useState<AppointmentRecord[]>([]);
+  const [reminderPrefTable, setReminderPrefTable] = useState<ReminderPreferenceRecord[]>([]);
+  const [notificationHistoryTable, setNotificationHistoryTable] = useState<NotificationHistoryRecord[]>([]);
+  const [referralTable, setReferralTable] = useState<ReferralRecord[]>([]);
+  const [educationProgressTable, setEducationProgressTable] = useState<EducationProgressRecord[]>([]);
+  const [resultsTable, setResultsTable] = useState<ResultsRecord[]>([]);
+  const [selectedPatientId, setSelectedPatientId] = useState<string>('SL001');
+  const [isLoadingDb, setIsLoadingDb] = useState<boolean>(true);
 
   // SQL rolling log stream (Feature 6)
-  const [queryLogs, setQueryLogs] = useState<DBQueryLog[]>([
-    {
-      timestamp: '12:35:01',
-      query: 'CREATE TABLE Patient (\n  patient_id VARCHAR(50) PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  contact_details VARCHAR(150) NOT NULL\n);',
-      type: 'DDL'
-    },
-    {
-      timestamp: '12:35:02',
-      query: 'CREATE TABLE Appointment (\n  appointment_id VARCHAR(50) PRIMARY KEY,\n  patient_id VARCHAR(50) REFERENCES Patient(patient_id),\n  appointment_date VARCHAR(50) NOT NULL,\n  appointment_time VARCHAR(20) NOT NULL,\n  clinic VARCHAR(100) NOT NULL,\n  status VARCHAR(20) DEFAULT \'pending\',\n  calendar_added BOOLEAN DEFAULT FALSE\n);',
-      type: 'DDL'
-    },
-    {
-      timestamp: '12:35:03',
-      query: 'CREATE TABLE ReminderPreference (\n  reminder_id VARCHAR(50) PRIMARY KEY,\n  patient_id VARCHAR(50) REFERENCES Patient(patient_id),\n  enabled BOOLEAN DEFAULT TRUE,\n  notification_channel VARCHAR(20) NOT NULL,\n  frequency VARCHAR(50) DEFAULT \'monthly\',\n  next_notification_date VARCHAR(50) NOT NULL\n);',
-      type: 'DDL'
-    },
-    {
-      timestamp: '12:35:04',
-      query: 'CREATE TABLE NotificationHistory (\n  notification_id VARCHAR(50) PRIMARY KEY,\n  patient_id VARCHAR(50) REFERENCES Patient(patient_id),\n  appointment_id VARCHAR(50) REFERENCES Appointment(appointment_id),\n  sent_date VARCHAR(50) NOT NULL,\n  opened_status VARCHAR(20) DEFAULT \'sent\',\n  action_taken VARCHAR(50) DEFAULT \'none\'\n);',
-      type: 'DDL'
-    },
-    {
-      timestamp: '12:35:05',
-      query: 'INSERT INTO Patient VALUES (\'LH321\', \'Lisa Ho\', \'+65 9123 4567\');',
-      type: 'INSERT'
-    },
-    {
-      timestamp: '12:35:06',
-      query: 'INSERT INTO Appointment VALUES (\'APT101\', \'LH321\', \'22 July 2026\', \'10:30 AM\', \'National University Hospital Genetic Clinic\', \'pending\', FALSE);',
-      type: 'INSERT'
-    },
-    {
-      timestamp: '12:35:07',
-      query: 'INSERT INTO ReminderPreference VALUES (\'REM201\', \'LH321\', TRUE, \'both\', \'1_week\', \'15 July 2026\\);',
-      type: 'INSERT'
-    },
-    {
-      timestamp: '12:35:08',
-      query: 'INSERT INTO NotificationHistory VALUES (\'NOT501\', \'LH321\', \'APT101\', \'15 July 2026\', \'sent\', \'none\');',
-      type: 'INSERT'
-    }
-  ]);
+  const [queryLogs, setQueryLogs] = useState<DBQueryLog[]>([]);
 
   // Sync state helpers
   const logSQL = (query: string, type: 'SELECT' | 'INSERT' | 'UPDATE' | 'DELETE' | 'DDL') => {
@@ -112,75 +59,235 @@ export default function App() {
     setQueryLogs(prev => [...prev, { timestamp, query, type }]);
   };
 
-  // Maps relational appointment back to simple state required by phone components
+  // ------------------------------------------------------------
+  // Load real data from Supabase on first render, and subscribe
+  // to live changes so DatabaseViewer updates instantly if a row
+  // is edited directly in the Supabase Table Editor.
+  // ------------------------------------------------------------
+  useEffect(() => {
+    (async () => {
+      try {
+        const [patients, appointments, reminders, notifications, referrals, education, results] = await Promise.all([
+          fetchPatients(),
+          fetchAppointments(),
+          fetchReminderPreferences(),
+          fetchNotificationHistory(),
+          fetchReferrals(),
+          fetchEducationProgress(),
+          fetchResults(),
+        ]);
+
+        // Ensure standard patient records are set correctly with requested names
+        const normalizedPatients = patients.map(p => {
+          if (p.patient_id === 'SL001') return { ...p, name: 'Sarah Lim' };
+          if (p.patient_id === 'EW003') return { ...p, name: 'Emily Wong' };
+          if (p.patient_id === 'DT002') return { ...p, name: 'Daniel Tan' };
+          if (p.patient_id === 'ML004') return { ...p, name: 'Michael Lee' };
+          return p;
+        });
+
+        // Add missing required personas if any
+        const existingIds = normalizedPatients.map(p => p.patient_id);
+        const missingPersonas = [
+          { patient_id: 'SL001', name: 'Sarah Lim', contact_details: 'sarah.lim@gmail.com' },
+          { patient_id: 'EW003', name: 'Emily Wong', contact_details: 'emily.wong@gmail.com' },
+          { patient_id: 'DT002', name: 'Daniel Tan', contact_details: 'daniel.tan@gmail.com' },
+          { patient_id: 'ML004', name: 'Michael Lee', contact_details: 'michael.lee@gmail.com' }
+        ].filter(p => !existingIds.includes(p.patient_id));
+
+        const finalPatients = [...normalizedPatients, ...missingPersonas];
+
+        setPatientTable(finalPatients);
+        setAppointmentTable(appointments);
+        setReminderPrefTable(reminders);
+        setNotificationHistoryTable(notifications);
+        setReferralTable(referrals);
+        setEducationProgressTable(education);
+        setResultsTable(results);
+
+        // Async upsert to Supabase to keep remote and local in perfect harmony
+        finalPatients.forEach(async (p) => {
+          if (['SL001', 'EW003', 'DT002', 'ML004'].includes(p.patient_id)) {
+            await supabase.from('Patient').upsert({
+              patient_id: p.patient_id,
+              name: p.name,
+              contact_details: p.contact_details
+            }, { onConflict: 'patient_id' });
+          }
+        });
+
+        logSQL('SELECT * FROM Patient;', 'SELECT');
+        logSQL('SELECT * FROM Appointment;', 'SELECT');
+        logSQL('SELECT * FROM ReminderPreference;', 'SELECT');
+        logSQL('SELECT * FROM NotificationHistory;', 'SELECT');
+        logSQL('SELECT * FROM Referral;', 'SELECT');
+        logSQL('SELECT * FROM EducationProgress;', 'SELECT');
+        logSQL('SELECT * FROM Results;', 'SELECT');
+      } catch (err) {
+        console.error('Failed to load data from Supabase:', err);
+      } finally {
+        setIsLoadingDb(false);
+      }
+    })();
+
+    const channel = supabase
+      .channel('healthhub-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Appointment' },
+        async () => setAppointmentTable(await fetchAppointments()))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ReminderPreference' },
+        async () => setReminderPrefTable(await fetchReminderPreferences()))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'NotificationHistory' },
+        async () => setNotificationHistoryTable(await fetchNotificationHistory()))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Patient' },
+        async () => setPatientTable(await fetchPatients()))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Referral' },
+        async () => setReferralTable(await fetchReferrals()))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'EducationProgress' },
+        async () => setEducationProgressTable(await fetchEducationProgress()))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Results' },
+        async () => setResultsTable(await fetchResults()))
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Compute derived state for the active patient persona
+  const activePatient = patientTable.find(p => p.patient_id === selectedPatientId);
+  const patientAppt = appointmentTable.find(a => a.patient_id === selectedPatientId);
   const activeAppointment: Appointment = {
-    date: appointmentTable[0]?.appointment_date || '22 July 2026',
-    timeSlot: appointmentTable[0]?.appointment_time || '10:30 AM',
-    clinic: appointmentTable[0]?.clinic || 'National University Hospital Genetic Clinic',
-    status: appointmentTable[0]?.status || 'pending',
+    date: patientAppt?.appointment_date || '22 July 2026',
+    timeSlot: patientAppt?.appointment_time || '10:30 AM',
+    clinic: patientAppt?.clinic || 'National University Hospital Genetic Clinic',
+    status: patientAppt?.status || 'pending',
   };
 
+  const patientPrefs = reminderPrefTable.find(r => r.patient_id === selectedPatientId);
   const activeReminderPrefs: ReminderPreferences = {
-    enabled: reminderPrefTable[0]?.enabled ?? true,
-    channel: reminderPrefTable[0]?.notification_channel || 'both',
-    frequency: reminderPrefTable[0]?.frequency || '1_week',
+    enabled: patientPrefs?.enabled ?? true,
+    channel: patientPrefs?.notification_channel || 'both',
+    frequency: patientPrefs?.frequency || '1_week',
     previewText: 'Your FH Genetic Testing appointment is in 7 days.\nPlease confirm your attendance or reschedule if needed.',
   };
 
+  const patientEdu = educationProgressTable.find(e => e.patient_id === selectedPatientId);
+  const percentComplete = patientEdu?.percent_complete ?? 0;
+
   // Relational SQL Database Transactions
-  const handleBookingTransaction = (date: string, time: string, clinic: string) => {
-    setAppointmentTable(prev => prev.map(apt => 
-      apt.appointment_id === 'APT101' 
-        ? { ...apt, appointment_date: date, appointment_time: time, clinic, status: 'booked' }
-        : apt
-    ));
+  // Each handler now updates local state (so the UI feels instant),
+  // AND writes the same change to Supabase, AND logs it — all three
+  // in that order.
+  const handleBookingTransaction = async (date: string, time: string, clinic: string) => {
+    const appt = appointmentTable.find(a => a.patient_id === selectedPatientId);
+    const appointmentId = appt?.appointment_id || `APT${Math.floor(100 + Math.random() * 900)}`;
+
+    setAppointmentTable(prev => {
+      const exists = prev.some(a => a.patient_id === selectedPatientId);
+      if (exists) {
+        return prev.map(a => a.patient_id === selectedPatientId ? { ...a, appointment_date: date, appointment_time: time, clinic, status: 'booked' } : a);
+      } else {
+        return [...prev, { appointment_id: appointmentId, patient_id: selectedPatientId, appointment_date: date, appointment_time: time, clinic, status: 'booked', calendar_added: false, attendance: null }];
+      }
+    });
+
+    const { error } = await supabase
+      .from('Appointment')
+      .upsert({
+        appointment_id: appointmentId,
+        patient_id: selectedPatientId,
+        appointment_date: date,
+        appointment_time: time,
+        clinic,
+        status: 'booked'
+      }, { onConflict: 'appointment_id' });
+    if (error) console.error('Supabase booking update failed:', error);
 
     logSQL(
-      `UPDATE Appointment\nSET status = 'booked',\n    appointment_date = '${date}',\n    appointment_time = '${time}',\n    clinic = '${clinic}'\nWHERE appointment_id = 'APT101';`,
+      `INSERT INTO Appointment (appointment_id, patient_id, appointment_date, appointment_time, clinic, status)\nVALUES ('${appointmentId}', '${selectedPatientId}', '${date}', '${time}', '${clinic}', 'booked')\nON CONFLICT (appointment_id) DO UPDATE SET status = 'booked', appointment_date = '${date}', appointment_time = '${time}', clinic = '${clinic}';`,
       'UPDATE'
     );
   };
 
-  const handleCancelAppointmentTransaction = () => {
-    setAppointmentTable(prev => prev.map(apt =>
-      apt.appointment_id === 'APT101' ? { ...apt, status: 'cancelled' } : apt
+  const handleCancelAppointmentTransaction = async () => {
+    const appt = appointmentTable.find(a => a.patient_id === selectedPatientId);
+    if (!appt) return;
+
+    setAppointmentTable(prev => prev.map(a =>
+      a.patient_id === selectedPatientId ? { ...a, status: 'cancelled' } : a
     ));
+
+    const { error } = await supabase
+      .from('Appointment')
+      .update({ status: 'cancelled' })
+      .eq('patient_id', selectedPatientId);
+    if (error) console.error('Supabase cancel update failed:', error);
+
     logSQL(
-      `UPDATE Appointment\nSET status = 'cancelled'\nWHERE appointment_id = 'APT101';`,
+      `UPDATE Appointment\nSET status = 'cancelled'\nWHERE patient_id = '${selectedPatientId}';`,
       'UPDATE'
     );
   };
 
-  const handleCalendarAddedTransaction = () => {
-    setAppointmentTable(prev => prev.map(apt => 
-      apt.appointment_id === 'APT101' ? { ...apt, calendar_added: true } : apt
+  const handleCalendarAddedTransaction = async () => {
+    const appt = appointmentTable.find(a => a.patient_id === selectedPatientId);
+    if (!appt) return;
+
+    setAppointmentTable(prev => prev.map(a =>
+      a.patient_id === selectedPatientId ? { ...a, calendar_added: true } : a
     ));
 
+    const { error } = await supabase
+      .from('Appointment')
+      .update({ calendar_added: true })
+      .eq('patient_id', selectedPatientId);
+    if (error) console.error('Supabase calendar update failed:', error);
+
     logSQL(
-      `UPDATE Appointment\nSET calendar_added = TRUE\nWHERE appointment_id = 'APT101';`,
+      `UPDATE Appointment\nSET calendar_added = TRUE\nWHERE patient_id = '${selectedPatientId}';`,
       'UPDATE'
     );
   };
 
-  const handleReminderPrefsTransaction = (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => {
-    setReminderPrefTable(prev => prev.map(pref => 
-      pref.reminder_id === 'REM201' 
-        ? { ...pref, enabled, notification_channel: channel, frequency }
-        : pref
-    ));
+  const handleReminderPrefsTransaction = async (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => {
+    const pref = reminderPrefTable.find(r => r.patient_id === selectedPatientId);
+    const reminderId = pref?.reminder_id || `REM${Math.floor(100 + Math.random() * 900)}`;
+
+    setReminderPrefTable(prev => {
+      const exists = prev.some(r => r.patient_id === selectedPatientId);
+      if (exists) {
+        return prev.map(r => r.patient_id === selectedPatientId ? { ...r, enabled, notification_channel: channel, frequency } : r);
+      } else {
+        return [...prev, { reminder_id: reminderId, patient_id: selectedPatientId, enabled, notification_channel: channel, frequency, next_notification_date: null }];
+      }
+    });
+
+    const { error } = await supabase
+      .from('ReminderPreference')
+      .upsert({
+        reminder_id: reminderId,
+        patient_id: selectedPatientId,
+        enabled,
+        notification_channel: channel,
+        frequency
+      }, { onConflict: 'reminder_id' });
+    if (error) console.error('Supabase reminder update failed:', error);
 
     logSQL(
-      `UPDATE ReminderPreference\nSET enabled = ${enabled ? 'TRUE' : 'FALSE'},\n    notification_channel = '${channel}',\n    frequency = '${frequency}'\nWHERE patient_id = 'LH321';`,
+      `INSERT INTO ReminderPreference (reminder_id, patient_id, enabled, notification_channel, frequency)\nVALUES ('${reminderId}', '${selectedPatientId}', ${enabled ? 'TRUE' : 'FALSE'}, '${channel}', '${frequency}')\nON CONFLICT (reminder_id) DO UPDATE SET enabled = ${enabled ? 'TRUE' : 'FALSE'}, notification_channel = '${channel}', frequency = '${frequency}';`,
       'UPDATE'
     );
   };
 
-  const handleTriggerNotificationTransaction = () => {
+  const handleTriggerNotificationTransaction = async () => {
     const nextId = `NOT${Math.floor(100 + Math.random() * 900)}`;
+    const appt = appointmentTable.find(a => a.patient_id === selectedPatientId);
+    const appointmentId = appt?.appointment_id || 'APT101';
+    
     const newRecord: NotificationHistoryRecord = {
       notification_id: nextId,
-      patient_id: 'LH321',
-      appointment_id: 'APT101',
+      patient_id: selectedPatientId,
+      appointment_id: appointmentId,
       sent_date: '10 July 2026', // Current mock date
       opened_status: 'sent',
       action_taken: 'none'
@@ -189,99 +296,155 @@ export default function App() {
     setNotificationHistoryTable(prev => [...prev, newRecord]);
     setActiveScreen(ScreenId.NotificationMock);
 
+    const { error } = await supabase.from('NotificationHistory').insert(newRecord);
+    if (error) console.error('Supabase notification insert failed:', error);
+
     logSQL(
-      `INSERT INTO NotificationHistory (\n  notification_id, patient_id, appointment_id, sent_date, opened_status, action_taken\n) VALUES (\n  '${nextId}', 'LH321', 'APT101', '10 July 2026', 'sent', 'none'\n);`,
+      `INSERT INTO NotificationHistory (\n  notification_id, patient_id, appointment_id, sent_date, opened_status, action_taken\n) VALUES (\n  '${nextId}', '${selectedPatientId}', '${appointmentId}', '10 July 2026', 'sent', 'none'\n);`,
       'INSERT'
     );
   };
 
-  const handleNotificationActionTransaction = (action: 'confirmed' | 'rescheduled' | 'education_viewed') => {
+  const handleNotificationActionTransaction = async (action: 'confirmed' | 'rescheduled' | 'education_viewed') => {
+    const appt = appointmentTable.find(a => a.patient_id === selectedPatientId);
+    const appointmentId = appt?.appointment_id || 'APT101';
+
     // 1. Update appointment table state if confirmed
     if (action === 'confirmed') {
       setAppointmentTable(prev => prev.map(apt => 
-        apt.appointment_id === 'APT101' ? { ...apt, status: 'confirmed' } : apt
+        apt.patient_id === selectedPatientId ? { ...apt, status: 'confirmed' } : apt
       ));
+
+      const { error } = await supabase
+        .from('Appointment')
+        .update({ status: 'confirmed' })
+        .eq('patient_id', selectedPatientId);
+      if (error) console.error('Supabase appointment confirm failed:', error);
+
       logSQL(
-        `UPDATE Appointment\nSET status = 'confirmed'\nWHERE appointment_id = 'APT101';`,
+        `UPDATE Appointment\nSET status = 'confirmed'\nWHERE patient_id = '${selectedPatientId}';`,
         'UPDATE'
       );
     } else if (action === 'rescheduled') {
       setAppointmentTable(prev => prev.map(apt => 
-        apt.appointment_id === 'APT101' ? { ...apt, status: 'pending' } : apt
+        apt.patient_id === selectedPatientId ? { ...apt, status: 'pending' } : apt
       ));
+
+      const { error } = await supabase
+        .from('Appointment')
+        .update({ status: 'pending' })
+        .eq('patient_id', selectedPatientId);
+      if (error) console.error('Supabase appointment reschedule failed:', error);
+
       logSQL(
-        `UPDATE Appointment\nSET status = 'pending'\nWHERE appointment_id = 'APT101';`,
+        `UPDATE Appointment\nSET status = 'pending'\nWHERE patient_id = '${selectedPatientId}';`,
         'UPDATE'
       );
     }
 
     // 2. Update Notification History action
+    const lastRecord = [...notificationHistoryTable].reverse().find(n => n.patient_id === selectedPatientId);
+    const lastRecordId = lastRecord?.notification_id || 'NOT501';
+
     setNotificationHistoryTable(prev => {
-      if (prev.length === 0) return prev;
-      const last = prev[prev.length - 1];
-      return [
-        ...prev.slice(0, -1),
-        { ...last, opened_status: 'opened', action_taken: action }
-      ];
+      return prev.map(n => n.notification_id === lastRecordId ? { ...n, opened_status: 'opened', action_taken: action } : n);
     });
 
-    const lastRecordId = notificationHistoryTable[notificationHistoryTable.length - 1]?.notification_id || 'NOT501';
+    const { error } = await supabase
+      .from('NotificationHistory')
+      .update({ opened_status: 'opened', action_taken: action })
+      .eq('notification_id', lastRecordId);
+    if (error) console.error('Supabase notification action update failed:', error);
+
     logSQL(
       `UPDATE NotificationHistory\nSET opened_status = 'opened',\n    action_taken = '${action}'\nWHERE notification_id = '${lastRecordId}';`,
       'UPDATE'
     );
   };
 
+  const handleUpdateEducationProgress = async (patientId: string, percent: number) => {
+    setEducationProgressTable(prev => {
+      const exists = prev.some(e => e.patient_id === patientId);
+      if (exists) {
+        return prev.map(e => e.patient_id === patientId ? { ...e, percent_complete: percent } : e);
+      } else {
+        return [...prev, { progress_id: `EDU${Math.floor(100 + Math.random() * 900)}`, patient_id: patientId, percent_complete: percent, modules_viewed: 0, last_accessed: '12 July 2026' }];
+      }
+    });
+
+    const { error } = await supabase
+      .from('EducationProgress')
+      .upsert({ patient_id: patientId, percent_complete: percent }, { onConflict: 'patient_id' });
+    if (error) console.error('Supabase education progress update failed:', error);
+
+    logSQL(
+      `INSERT INTO EducationProgress (patient_id, percent_complete)\nVALUES ('${patientId}', ${percent})\nON CONFLICT (patient_id) DO UPDATE SET percent_complete = ${percent};`,
+      'UPDATE'
+    );
+  };
+
   // Controller Actions (Fast-forward Simulator States)
-  const handleSimulateReset = () => {
-    setAppointmentTable([
-      {
-        appointment_id: 'APT101',
-        patient_id: 'LH321',
+  const handleSimulateReset = async () => {
+    setAppointmentTable(prev => prev.map(apt =>
+      apt.patient_id === selectedPatientId
+        ? {
+            ...apt,
+            appointment_date: '22 July 2026',
+            appointment_time: '10:30 AM',
+            clinic: 'National University Hospital Genetic Clinic',
+            status: 'pending',
+            calendar_added: false,
+          }
+        : apt
+    ));
+
+    setReminderPrefTable(prev => prev.map(pref =>
+      pref.patient_id === selectedPatientId
+        ? { ...pref, enabled: true, notification_channel: 'both', frequency: '1_week' }
+        : pref
+    ));
+
+    setNotificationHistoryTable(prev => prev.filter(n => n.patient_id !== selectedPatientId || n.notification_id === 'NOT501'));
+
+    setIsFHReferred(true);
+    setActiveScreen(ScreenId.Home);
+
+    const { error: e1 } = await supabase
+      .from('Appointment')
+      .update({
         appointment_date: '22 July 2026',
         appointment_time: '10:30 AM',
         clinic: 'National University Hospital Genetic Clinic',
         status: 'pending',
         calendar_added: false,
-      }
-    ]);
-    
-    setReminderPrefTable([
-      {
-        reminder_id: 'REM201',
-        patient_id: 'LH321',
-        enabled: true,
-        notification_channel: 'both',
-        frequency: '1_week',
-        next_notification_date: '15 July 2026',
-      }
-    ]);
+      })
+      .eq('patient_id', selectedPatientId);
+    if (e1) console.error('Supabase reset (appointment) failed:', e1);
 
-    setNotificationHistoryTable([
-      {
-        notification_id: 'NOT501',
-        patient_id: 'LH321',
-        appointment_id: 'APT101',
-        sent_date: '15 July 2026',
-        opened_status: 'sent',
-        action_taken: 'none',
-      }
-    ]);
+    const { error: e2 } = await supabase
+      .from('ReminderPreference')
+      .update({ enabled: true, notification_channel: 'both', frequency: '1_week' })
+      .eq('patient_id', selectedPatientId);
+    if (e2) console.error('Supabase reset (reminder) failed:', e2);
 
-    setIsFHReferred(true);
-    setActiveScreen(ScreenId.Home);
+    const { error: e3 } = await supabase
+      .from('NotificationHistory')
+      .delete()
+      .eq('patient_id', selectedPatientId)
+      .neq('notification_id', 'NOT501');
+    if (e3) console.error('Supabase reset (notifications) failed:', e3);
 
     logSQL('-- DATABASE AND APPLICATION STATE RESET', 'DDL');
     logSQL(
-      "UPDATE Appointment SET status = 'pending', calendar_added = FALSE WHERE appointment_id = 'APT101';",
+      `UPDATE Appointment SET status = 'pending', calendar_added = FALSE WHERE patient_id = '${selectedPatientId}';`,
       'UPDATE'
     );
     logSQL(
-      "UPDATE ReminderPreference SET enabled = TRUE, notification_channel = 'both', frequency = '1_week' WHERE patient_id = 'LH321';",
+      `UPDATE ReminderPreference SET enabled = TRUE, notification_channel = 'both', frequency = '1_week' WHERE patient_id = '${selectedPatientId}';`,
       'UPDATE'
     );
     logSQL(
-      "DELETE FROM NotificationHistory WHERE notification_id <> 'NOT501';",
+      `DELETE FROM NotificationHistory WHERE patient_id = '${selectedPatientId}' AND notification_id <> 'NOT501';`,
       'DELETE'
     );
   };
@@ -298,6 +461,130 @@ export default function App() {
   const handleSimulateReminders = () => {
     handleReminderPrefsTransaction(true, 'both', '1_week');
     setActiveScreen(ScreenId.ReminderSettings);
+  };
+
+  const handleSelectPersona = async (patientId: string) => {
+    setSelectedPatientId(patientId);
+    setActiveScreen(ScreenId.Home);
+
+    let referred = true;
+    let apptStatus: 'pending' | 'booked' | 'confirmed' | 'completed' = 'pending';
+    let eduPercent = 0;
+    let refType: 'clinical_referral' | 'cascade_screening' | 'clinical_suspicion' = 'clinical_referral';
+
+    if (patientId === 'SL001') {
+      referred = false;
+      apptStatus = 'pending';
+      eduPercent = 0;
+    } else if (patientId === 'EW003') {
+      referred = true;
+      apptStatus = 'pending';
+      eduPercent = 0;
+      refType = 'clinical_suspicion';
+    } else if (patientId === 'DT002') {
+      referred = true;
+      apptStatus = 'pending';
+      eduPercent = 50;
+      refType = 'cascade_screening';
+    } else if (patientId === 'ML004') {
+      referred = true;
+      apptStatus = 'completed';
+      eduPercent = 100;
+      refType = 'clinical_referral';
+    }
+
+    setIsFHReferred(referred);
+    if (!referred) {
+      setIsFloatingChatOpen(false);
+    }
+
+    // Update appointment state locally
+    setAppointmentTable(prev => {
+      const exists = prev.some(a => a.patient_id === patientId);
+      if (exists) {
+        return prev.map(a => a.patient_id === patientId ? { ...a, status: apptStatus } : a);
+      } else {
+        return [...prev, {
+          appointment_id: `APT${Math.floor(100 + Math.random() * 900)}`,
+          patient_id: patientId,
+          appointment_date: '22 July 2026',
+          appointment_time: '10:30 AM',
+          clinic: 'National University Hospital Genetic Clinic',
+          status: apptStatus,
+          calendar_added: false
+        }];
+      }
+    });
+
+    // Update education progress state locally
+    setEducationProgressTable(prev => {
+      const exists = prev.some(e => e.patient_id === patientId);
+      if (exists) {
+        return prev.map(e => e.patient_id === patientId ? { ...e, percent_complete: eduPercent } : e);
+      } else {
+        return [...prev, { patient_id: patientId, percent_complete: eduPercent }];
+      }
+    });
+
+    // Update referral table locally
+    setReferralTable(prev => {
+      const exists = prev.some(r => r.patient_id === patientId);
+      if (exists) {
+        return prev.map(r => r.patient_id === patientId ? { ...r, referral_type: refType, status: referred ? 'active' : 'completed' } : r);
+      } else {
+        return [...prev, {
+          referral_id: `REF${Math.floor(100 + Math.random() * 900)}`,
+          patient_id: patientId,
+          referral_type: refType,
+          status: referred ? 'active' : 'completed'
+        }];
+      }
+    });
+
+    // Fire logSQL
+    const pName = patientId === 'SL001' ? 'Sarah Lim' : patientId === 'EW003' ? 'Emily Wong' : patientId === 'DT002' ? 'Daniel Tan' : 'Michael Lee';
+    logSQL(`-- SELECTED PERSONA: ${pName} (${patientId})`, 'DDL');
+    logSQL(`UPDATE Appointment SET status = '${apptStatus}' WHERE patient_id = '${patientId}';`, 'UPDATE');
+    logSQL(`UPDATE EducationProgress SET percent_complete = ${eduPercent} WHERE patient_id = '${patientId}';`, 'UPDATE');
+    if (referred) {
+      logSQL(`INSERT INTO Referral (patient_id, referral_type, status) VALUES ('${patientId}', '${refType}', 'active') ON CONFLICT (patient_id) DO UPDATE SET status = 'active', referral_type = '${refType}';`, 'UPDATE');
+    } else {
+      logSQL(`DELETE FROM Referral WHERE patient_id = '${patientId}';`, 'DELETE');
+    }
+
+    // Async sync to Supabase (if database has the tables)
+    try {
+      const targetAppt = appointmentTable.find(a => a.patient_id === patientId);
+      const apptId = targetAppt?.appointment_id || `APT${Math.floor(100 + Math.random() * 900)}`;
+      await supabase.from('Appointment').upsert({
+        appointment_id: apptId,
+        patient_id: patientId,
+        appointment_date: '22 July 2026',
+        appointment_time: '10:30 AM',
+        clinic: 'National University Hospital Genetic Clinic',
+        status: apptStatus
+      });
+
+      await supabase.from('EducationProgress').upsert({
+        patient_id: patientId,
+        percent_complete: eduPercent
+      });
+
+      if (referred) {
+        const targetRef = referralTable.find(r => r.patient_id === patientId);
+        const refId = targetRef?.referral_id || `REF${Math.floor(100 + Math.random() * 900)}`;
+        await supabase.from('Referral').upsert({
+          referral_id: refId,
+          patient_id: patientId,
+          referral_type: refType,
+          status: 'active'
+        });
+      } else {
+        await supabase.from('Referral').delete().eq('patient_id', patientId);
+      }
+    } catch (err) {
+      console.error('Supabase write error:', err);
+    }
   };
 
   return (
@@ -320,7 +607,7 @@ export default function App() {
               FH Genetic Referral Compliance Prototype
             </h1>
             <p className="text-xs text-slate-400">
-              Interactive wireframes & UX specifications to reduce patient drop-off after clinical genetics referrals.
+              Interactive application developed to reduce patient drop-off after clinical genetics referral
             </p>
           </div>
 
@@ -360,107 +647,106 @@ export default function App() {
               </p>
             </div>
 
-            {/* Referral Status Toggle */}
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-slate-300">FH Referral Status</span>
-                <span className={`text-[10px] px-2.5 py-0.5 rounded font-mono font-bold ${
-                  isFHReferred 
-                    ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50' 
-                    : 'bg-rose-950/40 text-rose-400 border border-rose-900/30'
-                }`}>
-                  {isFHReferred ? 'REFERRED' : 'NON-REFERRED'}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
+            {/* Live Patient Persona Switcher */}
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-emerald-500" />
+                Select Patient Persona
+              </label>
+
+              <div className="space-y-2.5">
+                {/* 1. Sarah Lim */}
                 <button
-                  onClick={() => {
-                    setIsFHReferred(true);
-                    setActiveScreen(ScreenId.Home);
-                  }}
-                  className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                    isFHReferred
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/30'
-                      : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
+                  onClick={() => handleSelectPersona('SL001')}
+                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
+                    selectedPatientId === 'SL001'
+                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
                   }`}
                 >
-                  <Check className="w-3.5 h-3.5" /> Referred
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'SL001' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                      Sarah Lim
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-slate-800 text-slate-400 uppercase tracking-wide">
+                      No FH Referral
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
+                    Simulates standard healthcare view without cardiac genetics intervention.
+                  </p>
                 </button>
+
+                {/* 2. Emily Wong */}
                 <button
-                  onClick={() => {
-                    setIsFHReferred(false);
-                    setActiveScreen(ScreenId.Home);
-                  }}
-                  className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                    !isFHReferred
-                      ? 'bg-rose-600 text-white shadow-md shadow-rose-900/30'
-                      : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
+                  onClick={() => handleSelectPersona('EW003')}
+                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
+                    selectedPatientId === 'EW003'
+                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
                   }`}
                 >
-                  <ShieldAlert className="w-3.5 h-3.5" /> Non-Referred
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'EW003' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                      Emily Wong
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-amber-950/50 text-amber-400 border border-amber-900/30 uppercase tracking-wide">
+                      No Education
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
+                    FH Referred. Displays unbooked appointment booking alert & 0% educational progress.
+                  </p>
+                </button>
+
+                {/* 3. Daniel Tan */}
+                <button
+                  onClick={() => handleSelectPersona('DT002')}
+                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
+                    selectedPatientId === 'DT002'
+                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'DT002' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                      Daniel Tan
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-indigo-950/50 text-indigo-400 border border-indigo-900/30 uppercase tracking-wide">
+                      Partial Education
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
+                    FH Cascade Referral. Displays active compliance countdown with 50% completed modules.
+                  </p>
+                </button>
+
+                {/* 4. Michael Lee */}
+                <button
+                  onClick={() => handleSelectPersona('ML004')}
+                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
+                    selectedPatientId === 'ML004'
+                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'ML004' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                      Michael Lee
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-emerald-950/50 text-emerald-400 border border-emerald-900/30 uppercase tracking-wide">
+                      Completed GAC
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
+                    GAC completed, awaiting genetic test results. Simulates post-consult compliance state.
+                  </p>
                 </button>
               </div>
-              <p className="text-[10px] text-slate-500 leading-snug">
-                Toggle to simulate referred vs non-referred view. Non-referred patients do not see any FH-related reminders, tabs, banners, or educational modules.
-              </p>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              {/* Reset to initial */}
-              <button
-                onClick={handleSimulateReset}
-                className="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 hover:border-slate-700 transition flex items-center justify-between font-medium group"
-              >
-                <span className="flex items-center gap-2">
-                  <Undo className="w-3.5 h-3.5 text-slate-400" />
-                  1. Referral Active (Reset)
-                </span>
-                <span className="text-[10px] text-slate-500 bg-slate-900 px-1.5 py-0.5 rounded font-mono group-hover:text-slate-300">
-                  Unbooked
-                </span>
-              </button>
-
-              {/* Complete Booking */}
-              <button
-                onClick={handleSimulateBooked}
-                className="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 hover:border-slate-700 transition flex items-center justify-between font-medium group"
-              >
-                <span className="flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-emerald-500" />
-                  2. Booked Confirmation
-                </span>
-                <span className="text-[10px] text-emerald-400 bg-emerald-950/40 px-1.5 py-0.5 rounded font-mono">
-                  Booked
-                </span>
-              </button>
-
-              {/* Toggle Reminders */}
-              <button
-                onClick={handleSimulateReminders}
-                className="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 hover:border-slate-700 transition flex items-center justify-between font-medium group"
-              >
-                <span className="flex items-center gap-2">
-                  <Settings className="w-3.5 h-3.5 text-amber-500" />
-                  3. Customize Reminders
-                </span>
-                <span className="text-[10px] text-amber-400 bg-amber-950/40 px-1.5 py-0.5 rounded font-mono">
-                  Settings
-                </span>
-              </button>
-
-              {/* Trigger Notification */}
-              <button
-                onClick={handleSimulateNotification}
-                className="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 hover:border-slate-700 transition flex items-center justify-between font-medium group"
-              >
-                <span className="flex items-center gap-2">
-                  <Smartphone className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                  4. Lockscreen Notification
-                </span>
-                <span className="text-[10px] text-emerald-400 bg-emerald-950/40 px-1.5 py-0.5 rounded font-mono">
-                  7-Day Countdown
-                </span>
-              </button>
             </div>
 
             {/* Quick Informational Box on the Clinical Journey */}
@@ -475,10 +761,73 @@ export default function App() {
             </div>
           </div>
 
-          {/* Box 2: HealthBuddy Interactive Chatbot */}
-          <div className="h-[370px]">
-            <Chatbot />
-          </div>
+          {/* Box 2: HealthBuddy Interactive Chatbot Hub Controller */}
+          {isFHReferred ? (
+            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl text-left">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
+                    <span className="p-1.5 bg-emerald-950/40 text-emerald-400 rounded-lg border border-emerald-900/50">
+                      <Sparkles className="w-4 h-4" />
+                    </span>
+                    HealthBuddy AI Assistant
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-medium">GovTech Singapore Patient Companion</p>
+                </div>
+                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-900 select-none">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE SIMULATOR
+                </span>
+              </div>
+
+              <p className="text-slate-300 text-xs leading-relaxed">
+                This advanced AI assistant is now fully integrated into the live mobile device simulator! It is programmed with official Ministry of Health Singapore guidelines.
+              </p>
+
+              <div className="space-y-2.5 text-[11px] text-slate-300">
+                <div className="flex items-start gap-2.5">
+                  <div className="mt-0.5 text-emerald-500 font-bold">✓</div>
+                  <div>
+                    <strong className="text-slate-200 font-semibold">CHAS Subsidy Calculations:</strong> Answers patient cost concerns dynamically using Lisa Ho's CHAS profile.
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <div className="mt-0.5 text-emerald-500 font-bold">✓</div>
+                  <div>
+                    <strong className="text-slate-200 font-semibold">LIA Moratorium Guardrails:</strong> Reassures patient privacy by clarifying genetic testing insurance policies.
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <div className="mt-0.5 text-[#00a859] font-bold">✓</div>
+                  <div>
+                    <strong className="text-slate-200 font-semibold">Direct Navigation:</strong> Prompts the user to book or modify appointments within the app itself.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsFloatingChatOpen(true)}
+                className="w-full mt-2 py-3 px-4 bg-[#00a859] hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-emerald-900/10 cursor-pointer active:scale-98 transition-all"
+              >
+                <MessageSquare className="w-4 h-4 text-white" />
+                Open Floating AI Assistant
+              </button>
+            </div>
+          ) : (
+            <div className="bg-slate-900/40 rounded-2xl border border-slate-800/80 p-5 space-y-3 text-left">
+              <h3 className="font-display font-bold text-xs text-slate-300 flex items-center gap-2">
+                <span className="p-1.5 bg-slate-950 text-slate-400 rounded-lg border border-slate-800">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                </span>
+                FH AI Assistant Locked
+              </h3>
+              <p className="text-slate-400 text-xs leading-normal">
+                Patients without an active FH Genetic Referral (like <strong className="text-slate-300">Sarah Lim</strong>) do not have clinical access to the Genetically-focused HealthBuddy AI assistant, as they are on standard primary care pathways.
+              </p>
+              <p className="text-[10px] text-slate-500 font-medium">
+                💡 <span className="italic">Select a referred persona (e.g., Emily Wong) to unlock.</span>
+              </p>
+            </div>
+          )}
 
         </div>
 
@@ -502,12 +851,12 @@ export default function App() {
             onNotificationAction={handleNotificationActionTransaction}
             onCancelAppointment={handleCancelAppointmentTransaction}
             isFHReferred={isFHReferred}
+            patientRecord={activePatient}
+            percentComplete={percentComplete}
+            onUpdateEducationProgress={handleUpdateEducationProgress}
+            isChatOpen={isFloatingChatOpen}
+            onToggleChat={setIsFloatingChatOpen}
           />
-
-          <div className="bg-slate-900/60 border border-slate-800/80 px-4 py-2 rounded-xl text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
-            <Smartphone className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Figma Component: HealthHub_Simulator_iOS</span>
-          </div>
 
         </div>
 
@@ -546,6 +895,9 @@ export default function App() {
                 appointments={appointmentTable}
                 reminderPreferences={reminderPrefTable}
                 notificationHistory={notificationHistoryTable}
+                referrals={referralTable}
+                educationProgress={educationProgressTable}
+                results={resultsTable}
                 queryLogs={queryLogs}
               />
             ) : (
