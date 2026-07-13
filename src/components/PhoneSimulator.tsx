@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ScreenId, Appointment, ReminderPreferences } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search } from 'lucide-react';
+import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs } from '../data/translations';
 
@@ -17,7 +17,30 @@ interface PhoneSimulatorProps {
   onNotificationAction: (action: 'confirmed' | 'rescheduled' | 'education_viewed') => void;
   onCancelAppointment: () => void;
   isFHReferred: boolean;
+  patientRecord?: PatientRecord;
+  percentComplete?: number;
+  onUpdateEducationProgress?: (patientId: string, percent: number) => void;
+  isChatOpen?: boolean;
+  onToggleChat?: (isOpen: boolean) => void;
 }
+
+export const PERSONA_DETAILS: Record<string, { fullName: string; nric: string; dob: string; gender: string; email: string; age: number; address: string }> = {
+  SL001: { fullName: 'Sarah Lim Mei Ting', nric: 'SXXXX123B', dob: '12 January 1995', gender: 'Female', email: 'sarah.lim@gmail.com', age: 31, address: 'Blk 123 Toa Payoh Lor 4, #05-67, Singapore 310123' },
+  DT002: { fullName: 'Daniel Tan Wei Jie', nric: 'SXXXX456C', dob: '23 May 1988', gender: 'Male', email: 'daniel.tan@gmail.com', age: 38, address: 'Blk 543 Bedok North St 3, #11-92, Singapore 460543' },
+  EW003: { fullName: 'Emily Wong Sook Yee', nric: 'SXXXX789D', dob: '04 October 1991', gender: 'Female', email: 'emily.wong@gmail.com', age: 35, address: 'Blk 890 Jurong West St 91, #02-14, Singapore 640890' },
+  ML004: { fullName: 'Michael Lee Kian Seng', nric: 'SXXXX012E', dob: '15 December 1980', gender: 'Male', email: 'michael.lee@gmail.com', age: 46, address: 'Blk 234 Yishun Ring Rd, #09-33, Singapore 760234' },
+  PN005: { fullName: 'Priya Nair', nric: 'SXXXX345F', dob: '27 June 1987', gender: 'Female', email: 'priya.nair@gmail.com', age: 39, address: 'Blk 765 Clementi West St 2, #04-18, Singapore 120765' },
+  LH321: { fullName: 'Lisa Ho Siew Lan', nric: 'SXXXX321A', dob: '14 August 1989', gender: 'Female', email: 'lisa.ho@gmail.com', age: 37, address: 'Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451' },
+};
+
+export const PERSONA_COORDS: Record<string, { lat: number; lng: number }> = {
+  SL001: { lat: 1.3353, lng: 103.8497 },
+  DT002: { lat: 1.3324, lng: 103.9290 },
+  EW003: { lat: 1.3401, lng: 103.6888 },
+  ML004: { lat: 1.4304, lng: 103.8402 },
+  PN005: { lat: 1.3035, lng: 103.7663 },
+  LH321: { lat: 1.3625, lng: 103.8542 },
+};
 
 export const formatMonthShorthand = (monthStr: string): string => {
   const parts = monthStr.split(' ');
@@ -617,6 +640,38 @@ const isDateBeforeToday = (monthStr: string, dayNum: number) => {
   return targetDate.getTime() < today.getTime();
 };
 
+const isToday = (monthStr: string, dayNum: number) => {
+  const parts = monthStr.split(' ');
+  const monthName = parts[0];
+  const year = parts[1] ? parseInt(parts[1], 10) : 2026;
+  
+  const monthIndex = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ].indexOf(monthName);
+  
+  if (monthIndex === -1) return false;
+  
+  const today = new Date();
+  return today.getDate() === dayNum && today.getMonth() === monthIndex && today.getFullYear() === year;
+};
+
+const getTodayMonthStr = () => {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const d = new Date();
+  return `${months[d.getMonth()]} ${d.getFullYear()}`;
+};
+
+const getFirstAvailableDay = (month: string, clinicId: string) => {
+  const slots = CLINIC_SLOTS_DB[clinicId]?.[month] || {};
+  const daysWithSlots = Object.keys(slots).map(Number).sort((a, b) => a - b);
+  const validDay = daysWithSlots.find(day => !isDateBeforeToday(month, day));
+  return validDay || daysWithSlots[0] || 21;
+};
+
 export const downloadICSFile = (slot: { date: string; time: string; clinic: string; address: string }) => {
   const datePart = getFormattedDatePart(slot.date);
 
@@ -713,24 +768,88 @@ export default function PhoneSimulator({
   onNotificationAction,
   onCancelAppointment,
   isFHReferred,
+  patientRecord,
+  percentComplete,
+  onUpdateEducationProgress,
+  isChatOpen,
+  onToggleChat,
 }: PhoneSimulatorProps) {
+  // Controlled or uncontrolled chat state
+  const [localIsChatOpen, setLocalIsChatOpen] = useState(false);
+  const chatOpen = isChatOpen !== undefined ? isChatOpen : localIsChatOpen;
+  const setChatOpen = onToggleChat !== undefined ? onToggleChat : setLocalIsChatOpen;
+
   // Local state for interactive elements
   const [language, setLanguage] = useState<Language>('en');
+
+  const currentPatientId = patientRecord?.patient_id || 'LH321';
+  // PERSONA_DETAILS is now only a fallback (e.g. while the database
+  // hasn't finished loading, or a field hasn't been populated for a
+  // given patient). Whenever the real patientRecord has a value, that
+  // takes priority — this is what makes the Profile screen reflect
+  // the actual database instead of one shared hardcoded set of values.
+  const patientDetails = PERSONA_DETAILS[currentPatientId] || PERSONA_DETAILS['LH321'];
+  const patientName = patientRecord?.name || 'Lisa Ho';
+  const patientFullName = patientRecord?.name || patientDetails.fullName;
+  const patientNric = patientRecord?.nric_fin || patientDetails.nric;
+  const patientFirstName = patientName.split(' ')[0].toUpperCase();
+  const patientAge = patientRecord?.age ?? patientDetails.age;
+  const patientGender = patientRecord?.gender || patientDetails.gender;
+  const patientEmail = patientRecord?.email || patientDetails.email;
+  const patientAddress = patientRecord?.residential_address || patientDetails.address;
+
+  const formatDob = (iso?: string | null): string => {
+    if (!iso) return patientDetails.dob;
+    const d = new Date(iso + 'T00:00:00');
+    if (isNaN(d.getTime())) return patientDetails.dob;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+  const patientDob = formatDob(patientRecord?.date_of_birth);
+
+  const patientEmergencyName = patientRecord?.emergency_contact_name || 'Not on file';
+  const patientEmergencyRelationship = patientRecord?.emergency_contact_relationship || 'Not on file';
+  const patientEmergencyPhone = patientRecord?.emergency_contact_phone || 'Not on file';
+  const patientPrimaryClinic = patientRecord?.primary_clinic || 'Not yet assigned';
+  const patientLdlCholesterol = patientRecord?.ldl_cholesterol_mmol;
+
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+  const patientInitials = getInitials(patientName);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
   const t = (key: string): string => {
     return UI_TRANSLATIONS[language]?.[key] || UI_TRANSLATIONS['en']?.[key] || key;
   };
 
+  const countToPercent = (count: number): number => {
+    if (count === 3) return 100;
+    if (count === 2) return 80;
+    if (count === 1) return 30;
+    return 0;
+  };
+
+  const percentToCount = (percent: number): number => {
+    if (percent === 100) return 3;
+    if (percent >= 80) return 2;
+    if (percent >= 30) return 1;
+    return 0;
+  };
+
   useEffect(() => {
     const localized = getLocalizedChecklist(language);
-    setChecklist((prev) =>
+    const itemsToCheck = percentToCount(percentComplete || 0);
+    setChecklist(
       localized.map((item, idx) => ({
         ...item,
-        checked: prev[idx]?.checked ?? false,
+        checked: idx < itemsToCheck,
       }))
     );
-  }, [language]);
+  }, [percentComplete, language]);
 
   const [eduExpanded, setEduExpanded] = useState<Record<string, boolean>>({});
   const [activeFaqCategory, setActiveFaqCategory] = useState<string>('all');
@@ -785,8 +904,10 @@ export default function PhoneSimulator({
 
   // Geolocation and clinic selection state (User request 1)
   const [selectedClinicId, setSelectedClinicId] = useState<string>('nuh');
-  const [patientCoords, setPatientCoords] = useState<{ lat: number; lng: number }>({ lat: 1.3625, lng: 103.8542 }); // default Ang Mo Kio Ave 10 (Home)
-  const [patientLocName, setPatientLocName] = useState<string>('Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451');
+  const [patientCoords, setPatientCoords] = useState<{ lat: number; lng: number }>(() => {
+    return PERSONA_COORDS[currentPatientId] || { lat: 1.3625, lng: 103.8542 };
+  });
+  const [patientLocName, setPatientLocName] = useState<string>(() => patientAddress);
   const [locationSearchQuery, setLocationSearchQuery] = useState<string>('');
   const [isDetectingLoc, setIsDetectingLoc] = useState<boolean>(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
@@ -794,10 +915,32 @@ export default function PhoneSimulator({
   const [showClinicDropdown, setShowClinicDropdown] = useState<boolean>(false);
 
   // Calendar Booking States (User request 2)
-  const [selectedCalendarMonth, setSelectedCalendarMonth] = useState<string>('July 2026');
-  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(21); // Day of the month
+  const [selectedCalendarMonth, setSelectedCalendarMonth] = useState<string>(() => {
+    const todayMonth = getTodayMonthStr();
+    const available = [
+      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
+      'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027', 'June 2027',
+      'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
+    ];
+    return available.includes(todayMonth) ? todayMonth : 'July 2026';
+  });
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(() => {
+    const todayMonth = getTodayMonthStr();
+    const initialMonth = [
+      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
+    ].includes(todayMonth) ? todayMonth : 'July 2026';
+    return getFirstAvailableDay(initialMonth, 'nuh');
+  });
   const [selectedSlotObj, setSelectedSlotObj] = useState<ClinicSlot | null>(null);
   const [showMonthPopup, setShowMonthPopup] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (patientAddress) {
+      setPatientLocName(patientAddress);
+      const coords = PERSONA_COORDS[currentPatientId] || { lat: 1.3625, lng: 103.8542 };
+      setPatientCoords(coords);
+    }
+  }, [currentPatientId, patientAddress]);
 
   const selectMonth = (month: string) => {
     setSelectedCalendarMonth(month);
@@ -826,10 +969,163 @@ export default function PhoneSimulator({
   // Reschedule-specific clinic selection state
   const [rescheduleClinicId, setRescheduleClinicId] = useState<string>('nuh');
   const [showRescheduleClinicDropdown, setShowRescheduleClinicDropdown] = useState<boolean>(false);
-  const [rescheduleCalendarMonth, setRescheduleCalendarMonth] = useState<string>('July 2026');
-  const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number>(21);
+  const [rescheduleCalendarMonth, setRescheduleCalendarMonth] = useState<string>(() => {
+    const todayMonth = getTodayMonthStr();
+    const available = [
+      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
+      'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027', 'June 2027',
+      'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
+    ];
+    return available.includes(todayMonth) ? todayMonth : 'July 2026';
+  });
+  const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number>(() => {
+    const todayMonth = getTodayMonthStr();
+    const initialMonth = [
+      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
+    ].includes(todayMonth) ? todayMonth : 'July 2026';
+    return getFirstAvailableDay(initialMonth, 'nuh');
+  });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showNotificationPopup, setShowNotificationPopup] = useState<boolean>(false);
+
+  // Chatbot State inside PhoneSimulator
+  interface ChatMessage {
+    id: string;
+    sender: 'user' | 'bot';
+    text: string;
+    timestamp: Date;
+  }
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: 'init-1',
+      sender: 'bot',
+      text: "Hello! I am **HealthBuddy**, your GovTech Singapore FH Assistant. I can help answer questions about **Familial Hypercholesterolaemia (FH)**, test costs, insurance moratoriums, and booking. What's on your mind today?",
+      timestamp: new Date(),
+    },
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatIsTyping, setChatIsTyping] = useState(false);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    if (chatOpen) {
+      scrollToBottom();
+    }
+  }, [chatMessages, chatIsTyping, chatOpen]);
+
+  // Formats "**bold text**" safely as HTML/React bolding inside the simulator
+  const renderChatFormattedText = (text: string, isBot: boolean) => {
+    if (!text) return null;
+    const parts = text.split('**');
+    return parts.map((part, index) => {
+      if (index % 2 === 1) {
+        return (
+          <strong 
+            key={index} 
+            className={`font-extrabold ${isBot ? 'text-[#00a859] font-black' : 'text-white'}`}
+          >
+            {part}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
+  const handleChatSend = (text: string) => {
+    if (!text.trim()) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      text,
+      timestamp: new Date(),
+    };
+
+    setChatMessages((prev) => [...prev, userMsg]);
+    setChatInput('');
+    setChatIsTyping(true);
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Server returned an error');
+        return res.json();
+      })
+      .then((data) => {
+        const botMsg: ChatMessage = {
+          id: `bot-${Date.now()}`,
+          sender: 'bot',
+          text: data.text || 'Sorry, I could not process that response.',
+          timestamp: new Date(),
+        };
+        setChatMessages((prev) => [...prev, botMsg]);
+        setChatIsTyping(false);
+      })
+      .catch((err) => {
+        console.warn('[PhoneSimulator Chat] Backend /api/chat error, falling back to local simulation:', err);
+        
+        setTimeout(() => {
+          let botResponse = '';
+          const query = text.toLowerCase();
+
+          if (query.includes('insurance') || query.includes('shield') || query.includes('policy')) {
+            botResponse = "Under the Singapore **LIA Moratorium**, life and health insurers **cannot** ask you to disclose genetic test results for standard coverage limits. Existing plans like **MediShield Life** or Integrated Shield are completely unaffected.";
+          } else if (query.includes('cost') || query.includes('subsidy') || query.includes('pay') || query.includes('price') || query.includes('chas') || query.includes('medisave')) {
+            botResponse = "FH testing is subsidized **50% to 75%** by MOH for eligible Singaporeans. Out-of-pocket costs typically range from **S$50 to S$120** and can be **fully paid using MediSave** under chronic care guidelines.";
+          } else if (query.includes('family') || query.includes('children') || query.includes('parents') || query.includes('cascade')) {
+            botResponse = "FH is inherited, meaning first-degree family members have a **50% chance** of sharing the gene. If your test is positive, your team will help coordinate **cascade screening** to protect your family's hearts early.";
+          } else if (query.includes('prepare') || query.includes('prep') || query.includes('checklist') || query.includes('fast')) {
+            botResponse = "No fasting is needed! Just prepare a **family medical history** (especially early heart attacks), your **current medications**, and your **Singpass**. A 30-minute counselling session will guide you first.";
+          } else if (query.includes('what') && (query.includes('fh') || query.includes('cholesterol'))) {
+            botResponse = "FH is a genetic condition causing **extremely high LDL cholesterol from birth**, unaffected by diet alone. Early genetic detection allows doctors to customize **highly effective preventative treatment** like statins.";
+          } else if (query.includes('statin') || query.includes('medication') || query.includes('pill') || query.includes('treatment')) {
+            botResponse = "FH is highly manageable using daily **statins**, which safely lower LDL by up to **50%**. Never adjust your prescribed dosage without consulting your clinical team.";
+          } else if (query.includes('booking') || query.includes('reschedule') || query.includes('appointment')) {
+            botResponse = "You can schedule or reschedule your genetic counselling session instantly! Navigate to the **Book** tab inside the simulated phone in the middle of the screen.";
+          } else {
+            const matchedFaq = faqs.find(faq => 
+              query.split(' ').some(word => word.length > 4 && faq.question.toLowerCase().includes(word))
+            );
+            
+            if (matchedFaq) {
+              botResponse = `**Answer:** ${matchedFaq.answer} More details can be found on our **Learn** tab!`;
+            } else {
+              botResponse = "I am here to help with FH testing. Your referral is a **subsidized, protected preventative screen**. Would you like to check out the **Learn** tab or **schedule** your session today?";
+            }
+          }
+
+          const botMsg: ChatMessage = {
+            id: `bot-${Date.now()}`,
+            sender: 'bot',
+            text: botResponse,
+            timestamp: new Date(),
+          };
+
+          setChatMessages((prev) => [...prev, botMsg]);
+          setChatIsTyping(false);
+        }, 800);
+      });
+  };
+
+  const handleChatReset = () => {
+    setChatMessages([
+      {
+        id: 'init-1',
+        sender: 'bot',
+        text: "Hello! I am **HealthBuddy**, your GovTech Singapore FH Assistant. I can help answer questions about **Familial Hypercholesterolaemia (FH)**, test costs, insurance moratoriums, and booking. What's on your mind today?",
+        timestamp: new Date(),
+      },
+    ]);
+  };
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -909,9 +1205,15 @@ export default function PhoneSimulator({
   };
 
   const toggleChecklist = (id: string) => {
-    setChecklist((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item))
-    );
+    setChecklist((prev) => {
+      const next = prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item));
+      const checkedCount = next.filter(item => item.checked).length;
+      const newPercent = countToPercent(checkedCount);
+      if (patientRecord?.patient_id && onUpdateEducationProgress) {
+        onUpdateEducationProgress(patientRecord.patient_id, newPercent);
+      }
+      return next;
+    });
   };
 
   const handleBookSubmit = (slotIdx: number) => {
@@ -1344,7 +1646,7 @@ export default function PhoneSimulator({
                       const dayNum = i + 1;
                       const hasSlots = !!CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
                       const isSelected = rescheduleCalendarDay === dayNum;
-                      const isRescheduleCurrentDay = rescheduleCalendarMonth === 'July 2026' && dayNum === 12;
+                      const isRescheduleCurrentDay = isToday(rescheduleCalendarMonth, dayNum);
                       return (
                         <button
                           key={`day-${dayNum}`}
@@ -1582,380 +1884,6 @@ export default function PhoneSimulator({
               className="flex-col flex flex-1 min-h-0 h-full overflow-hidden relative"
             >
 
-        {/* ── Full-screen appointment sub-flows (inside chrome so status bar stays visible) ── */}
-
-        {/* RESCHEDULE – select new slot */}
-        {bookingSubFlow === 'reschedule-select' && (() => {
-          const rclinicsWithDistances = CLINICS.map(c => ({
-            ...c,
-            distance: calculateDistance(patientCoords.lat, patientCoords.lng, c.lat, c.lng),
-          })).sort((a, b) => a.distance - b.distance);
-          const rminDistance = Math.min(...rclinicsWithDistances.map(c => c.distance));
-          return (
-            <div className="flex flex-col flex-1 bg-slate-50 animate-fade-in">
-              {/* Header – matches "Secure Appointment Booking" layout */}
-              <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
-                <div className="w-8" />
-                <span className="flex-1 text-center font-bold text-sm text-slate-800">Select a new slot</span>
-                <button
-                  onClick={handleExitReschedule}
-                  className="w-8 flex items-center justify-center p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
-                  aria-label="Close"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Scrollable body */}
-              <div className="flex-1 overflow-y-auto flex flex-col">
-                {/* Current appointment banner */}
-                {appointment && (
-                  <div className="mx-4 mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-start gap-2">
-                    <span className="mt-0.5 text-[#00a859]"><Calendar className="w-4 h-4" /></span>
-                    <div>
-                      <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">Current appointment</p>
-                      <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{appointment.date}</p>
-                      <p className="text-[10.5px] text-emerald-700">{appointment.timeSlot} · {appointment.clinic}</p>
-                    </div>
-                  </div>
-                )}
-
-                <p className="mx-4 mt-3 text-[10.5px] text-slate-500">
-                  Choose a replacement clinic, date and time. Your current appointment stays confirmed until you complete the reschedule.
-                </p>
-
-                <div className="px-4 pb-4 mt-3 space-y-4">
-                  {/* Clinic selector */}
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Select clinic</label>
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowRescheduleClinicDropdown(!showRescheduleClinicDropdown)}
-                        className="w-full bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center shadow-3xs cursor-pointer text-left transition hover:border-emerald-600/40"
-                      >
-                        <div className="flex gap-2.5 min-w-0 items-center">
-                          <div className="p-1.5 bg-emerald-50 rounded-lg shrink-0">
-                            <MapPin className="w-4 h-4 text-[#00a859]" />
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="font-bold text-xs text-slate-800 truncate">
-                              {CLINICS.find(c => c.id === rescheduleClinicId)?.name}
-                            </h4>
-                            <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
-                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} km away
-                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance === rminDistance && (
-                                <span className="ml-1 text-emerald-700 font-semibold">· Nearest</span>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
-                      </button>
-
-                      {showRescheduleClinicDropdown && (
-                        <div className="absolute top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 shadow-md z-40 overflow-hidden divide-y divide-slate-100 animate-fade-in max-h-48 overflow-y-auto">
-                          {rclinicsWithDistances.map((clinic) => {
-                            const isSelected = rescheduleClinicId === clinic.id;
-                            const isNearest = clinic.distance === rminDistance;
-                            return (
-                              <button
-                                key={clinic.id}
-                                onClick={() => {
-                                  setRescheduleClinicId(clinic.id);
-                                  setShowRescheduleClinicDropdown(false);
-                                  const availableDays = Object.keys(CLINIC_SLOTS_DB[clinic.id]?.[rescheduleCalendarMonth] || {}).map(Number).filter(d => !isDateBeforeToday(rescheduleCalendarMonth, d));
-                                  setRescheduleCalendarDay(availableDays[0] ?? 1);
-                                }}
-                                className={`w-full text-left p-3 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${isSelected ? 'bg-emerald-50/20' : 'bg-white'}`}
-                              >
-                                <div className="space-y-0.5 min-w-0 flex-1">
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <h5 className={`font-bold text-xs ${isSelected ? 'text-[#00a859]' : 'text-slate-800'}`}>{clinic.name}</h5>
-                                    {isNearest && <span className="text-[8px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">Nearest</span>}
-                                  </div>
-                                  <p className="text-[9px] font-mono text-slate-400">
-                                    <span className="text-emerald-700 font-bold">{clinic.distance.toFixed(1)} km</span>
-                                  </p>
-                                </div>
-                                {isSelected && <Check className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Month selector row */}
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={() => {
-                        const idx = availableMonths.indexOf(rescheduleCalendarMonth);
-                        if (idx > 0) {
-                          const m = availableMonths[idx - 1];
-                          setRescheduleCalendarMonth(m);
-                          const days = Object.keys(CLINIC_SLOTS_DB[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
-                          setRescheduleCalendarDay(days[0] ?? 1);
-                        }
-                      }}
-                      disabled={availableMonths.indexOf(rescheduleCalendarMonth) === 0}
-                      className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 disabled:opacity-30 cursor-pointer"
-                    >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-xs font-bold text-slate-700">{rescheduleCalendarMonth}</span>
-                    <button
-                      onClick={() => {
-                        const idx = availableMonths.indexOf(rescheduleCalendarMonth);
-                        if (idx < availableMonths.length - 1) {
-                          const m = availableMonths[idx + 1];
-                          setRescheduleCalendarMonth(m);
-                          const days = Object.keys(CLINIC_SLOTS_DB[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
-                          setRescheduleCalendarDay(days[0] ?? 1);
-                        }
-                      }}
-                      disabled={availableMonths.indexOf(rescheduleCalendarMonth) === availableMonths.length - 1}
-                      className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 disabled:opacity-30 cursor-pointer"
-                    >
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Day grid */}
-                  <div className="grid grid-cols-7 gap-1 text-center">
-                    {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
-                      <span key={d} className="text-[9px] font-bold text-slate-400">{d}</span>
-                    ))}
-                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).emptyCells }).map((_, i) => (
-                      <span key={`pad-${i}`} />
-                    ))}
-                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
-                      const dayNum = i + 1;
-                      const hasSlots = !!CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
-                      const isSelected = rescheduleCalendarDay === dayNum;
-                      return (
-                        <button
-                          key={`day-${dayNum}`}
-                          disabled={!hasSlots}
-                          onClick={() => setRescheduleCalendarDay(dayNum)}
-                          className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer mx-auto ${
-                            isSelected ? 'bg-[#00a859] text-white shadow-xs' : hasSlots ? 'bg-emerald-50 text-[#00a859] border border-emerald-200/55 hover:bg-emerald-100/60' : 'text-slate-300 pointer-events-none'
-                          }`}
-                        >
-                          <span>{dayNum}</span>
-                          {hasSlots && !isSelected && <span className="absolute bottom-1 w-1 h-1 bg-[#00a859] rounded-full" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Time slots */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Available slots</label>
-                    {CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[rescheduleCalendarDay] ? (
-                      CLINIC_SLOTS_DB[rescheduleClinicId][rescheduleCalendarMonth][rescheduleCalendarDay]
-                        .filter(slot => !(
-                          appointment &&
-                          slot.date === appointment.date &&
-                          slot.time === appointment.timeSlot &&
-                          slot.clinic === appointment.clinic
-                        ))
-                        .map((slot, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => handleProposedSlotSelected(slot)}
-                            className="w-full bg-white hover:bg-emerald-50/15 border border-slate-200 hover:border-[#00a859]/40 p-3.5 rounded-xl text-left transition flex justify-between items-center cursor-pointer shadow-3xs hover:shadow-2xs"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-slate-50 rounded-lg shrink-0">
-                                <Clock className="w-4 h-4 text-[#00a859]" />
-                              </div>
-                              <div className="space-y-0.5">
-                                <p className="text-xs font-extrabold text-slate-800">{slot.time}</p>
-                                <div className="flex items-center gap-1 text-[10px] text-slate-500">
-                                  <span className="font-semibold text-slate-600">{slot.provider}</span>
-                                  <span className="text-slate-300">·</span>
-                                  <span>{slot.duration}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] font-bold text-[#00a859] font-mono bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">{slot.cost}</span>
-                              <ChevronRight className="w-4 h-4 text-slate-400" />
-                            </div>
-                          </button>
-                        ))
-                    ) : (
-                      <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
-                        No available slots on this day.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>{/* end scrollable body */}
-
-              {/* Pinned footer */}
-              <div className="px-4 py-4 text-center bg-slate-50 border-t border-slate-100 shrink-0">
-                <button
-                  onClick={handleExitReschedule}
-                  className="text-[10.5px] text-slate-400 hover:text-slate-600 transition cursor-pointer"
-                >
-                  Keep current appointment
-                </button>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* RESCHEDULE – review comparison */}
-        {bookingSubFlow === 'reschedule-review' && proposedSlotObj && (
-          <div className="flex flex-col flex-1 bg-slate-50 animate-fade-in">
-            {/* Header */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
-              <button
-                onClick={() => setBookingSubFlow('reschedule-select')}
-                className="w-16 flex items-center gap-0.5 p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer text-[10.5px]"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" /> Back
-              </button>
-              <span className="flex-1 text-center font-bold text-sm text-slate-800">Review change</span>
-              <button
-                onClick={handleExitReschedule}
-                className="w-16 flex items-center justify-end p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex-1 px-4 py-5 space-y-4 overflow-y-auto">
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Review the change before confirming. Your current appointment will remain active until you press Confirm Reschedule.
-              </p>
-
-              {/* Current appointment */}
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <div className="bg-slate-50 px-3 py-2 border-b border-slate-100">
-                  <p className="text-[9.5px] font-bold text-slate-500 uppercase tracking-wide">Current appointment</p>
-                </div>
-                <div className="px-3 py-3 space-y-0.5">
-                  {appointment && (
-                    <>
-                      <p className="text-[11px] font-bold text-slate-800">{appointment.date}</p>
-                      <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
-                      <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Arrow */}
-              <div className="flex justify-center text-slate-300">
-                <ChevronDown className="w-5 h-5" />
-              </div>
-
-              {/* Proposed appointment */}
-              <div className="bg-white rounded-xl border border-emerald-200 overflow-hidden ring-1 ring-emerald-100">
-                <div className="bg-emerald-50 px-3 py-2 border-b border-emerald-100">
-                  <p className="text-[9.5px] font-bold text-emerald-700 uppercase tracking-wide">New appointment</p>
-                </div>
-                <div className="px-3 py-3 space-y-0.5">
-                  <p className="text-[11px] font-bold text-slate-800">{proposedSlotObj.date}</p>
-                  <p className="text-[10.5px] text-slate-600">{proposedSlotObj.time}</p>
-                  <p className="text-[10px] text-slate-500">{proposedSlotObj.clinic}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-4 pb-6 space-y-2.5 bg-white border-t border-slate-100 pt-4 shrink-0">
-              <button
-                onClick={handleConfirmReschedule}
-                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
-              >
-                Confirm Reschedule
-              </button>
-              <button
-                onClick={() => setBookingSubFlow('reschedule-select')}
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
-              >
-                Choose a Different Slot
-              </button>
-              <button
-                onClick={handleExitReschedule}
-                className="w-full py-2 text-slate-400 hover:text-slate-600 text-[10.5px] font-medium transition cursor-pointer text-center"
-              >
-                Keep current appointment
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* RESCHEDULE – success */}
-        {bookingSubFlow === 'reschedule-success' && (
-          <div className="flex flex-col flex-1 bg-white items-center justify-center p-6 text-center gap-5 animate-fade-in">
-            <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
-              <CheckCircle className="w-7 h-7 text-[#00a859]" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-extrabold text-base text-slate-900">Appointment rescheduled.</h3>
-              <p className="text-[11px] text-slate-500 leading-relaxed">Your appointment has been updated.</p>
-            </div>
-            {appointment && (
-              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 w-full text-left space-y-0.5">
-                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">New appointment</p>
-                <p className="text-[11px] font-bold text-slate-800 mt-1">{appointment.date}</p>
-                <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
-                <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
-              </div>
-            )}
-            <button
-              onClick={() => setBookingSubFlow(null)}
-              className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
-            >
-              Done
-            </button>
-          </div>
-        )}
-
-        {/* CANCEL – success */}
-        {bookingSubFlow === 'cancel-success' && (
-          <div className="flex flex-col flex-1 bg-white items-center justify-center p-6 text-center gap-5 animate-fade-in">
-            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
-              <CheckCircle className="w-7 h-7 text-slate-400" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-extrabold text-base text-slate-900">Your appointment has been cancelled.</h3>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                You can book a new slot whenever you are ready.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2.5 w-full">
-              <button
-                onClick={() => {
-                  setBookingSubFlow(null);
-                  setBookingStep('available');
-                  setSelectedSlotIdx(null);
-                  setSelectedSlotObj(null);
-                  setSelectedCalendarDay(22);
-                }}
-                className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
-              >
-                <Calendar className="w-4 h-4" /> Book a New Appointment
-              </button>
-              <button
-                onClick={() => { setBookingSubFlow(null); onChangeScreen(ScreenId.Home); }}
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
-              >
-                Return to Home
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Normal screens (only shown when no full-screen subflow is active) ── */}
-        {!bookingSubFlow || bookingSubFlow === 'cancel-initial' || bookingSubFlow === 'cancel-confirm' ? (
-          <>
-
         {/* ----------------- SCREEN 1: HOME ----------------- */}
         {activeScreen === ScreenId.Home && (
           <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50 relative">
@@ -2056,11 +1984,11 @@ export default function PhoneSimulator({
               <div className="bg-white px-4 py-3 border-b border-slate-100 flex justify-between items-center">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#00a859] font-extrabold flex items-center justify-center text-xs border border-emerald-100 shadow-inner">
-                    LH
+                    {patientInitials}
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs text-slate-800">Lisa Ho</h4>
-                    <p className="text-[9px] text-slate-400 font-medium">SXXXX321A • {t('active_user')}</p>
+                    <h4 className="font-bold text-xs text-slate-800">{patientName}</h4>
+                    <p className="text-[9px] text-slate-400 font-medium">{patientNric} • {t('active_user')}</p>
                   </div>
                 </div>
                 <span className="bg-emerald-50 text-[#00a859] text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-100/70 font-sans">
@@ -2194,6 +2122,31 @@ export default function PhoneSimulator({
                 </div>
               )}
 
+              {/* Ask HealthBuddy AI Assistant Promo Banner */}
+              {isFHReferred && (
+                <div className="px-4">
+                  <button
+                    onClick={() => setChatOpen(true)}
+                    className="w-full text-left bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-800/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-md hover:border-emerald-700 transition cursor-pointer"
+                  >
+                    <div className="space-y-1 flex-1">
+                      <span className="bg-emerald-500/20 text-emerald-400 text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-500/30 font-sans inline-flex items-center gap-1 select-none">
+                        <Sparkles className="w-2.5 h-2.5" /> GovTech AI Companion
+                      </span>
+                      <h4 className="font-bold text-xs text-white tracking-tight leading-tight">
+                        Have FH Genetic testing concerns?
+                      </h4>
+                      <p className="text-[10px] text-slate-300 leading-normal">
+                        Get instant, secure answers on CHAS subsidies, insurance protections, and clinic preparation.
+                      </p>
+                    </div>
+                    <div className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                      <MessageSquare className="w-4.5 h-4.5 text-emerald-400" />
+                    </div>
+                  </button>
+                </div>
+              )}
+
               {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-4">
@@ -2221,13 +2174,26 @@ export default function PhoneSimulator({
                     <span className="text-[9.5px] font-bold text-slate-700 leading-tight">CHAS</span>
                   </div>
 
-                  {/* Card 3: Lab Reports */}
-                  <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
-                    <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1 shrink-0">
-                      <ClipboardList className="w-4 h-4 text-emerald-600" />
+                  {/* Card 3: Ask HealthBuddy AI / Help Desk */}
+                  {isFHReferred ? (
+                    <button
+                      onClick={() => setChatOpen(true)}
+                      className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 hover:shadow-xs transition aspect-square cursor-pointer"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1 shrink-0 relative">
+                        <MessageSquare className="w-4 h-4 text-[#00a859]" />
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#00a859] border-2 border-white rounded-full" />
+                      </div>
+                      <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Ask AI</span>
+                    </button>
+                  ) : (
+                    <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center mb-1 shrink-0">
+                        <HelpCircle className="w-4 h-4 text-slate-500" />
+                      </div>
+                      <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Help Desk</span>
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Lab reports</span>
-                  </div>
+                  )}
 
                   {/* Card 4: Medical reports / certs */}
                   <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
@@ -2557,13 +2523,13 @@ export default function PhoneSimulator({
               <div className="flex-1 overflow-y-auto flex flex-col pb-6">
                 {/* Profile Info Row */}
                 <div className="bg-emerald-50/60 border-b border-emerald-100 px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0">
-                  <span className="text-slate-600">Patient: <strong className="text-slate-800">Lisa Ho (SXXXX321A)</strong></span>
+                  <span className="text-slate-600">Patient: <strong className="text-slate-800">{patientName} ({patientNric})</strong></span>
                   <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold border border-emerald-200/50">MOH Referred</span>
                 </div>
 
                 {/* Hero Section - Edge-to-edge Deep Teal Banner */}
                 <div className="bg-[#00a859] text-white px-5 py-5 space-y-1.5 shrink-0">
-                  <span className="text-[9.5px] font-bold tracking-widest text-emerald-100 font-mono uppercase">HI LISA,</span>
+                  <span className="text-[9.5px] font-bold tracking-widest text-emerald-100 font-mono uppercase">HI {patientFirstName},</span>
                   <h3 className="font-display font-extrabold text-sm text-white tracking-tight leading-snug">
                     Your FH Learning Guide
                   </h3>
@@ -3503,7 +3469,7 @@ export default function PhoneSimulator({
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <h4 className="font-bold text-xs text-slate-800">{patientLocName}</h4>
-                              {patientLocName.includes('Blk 451 Ang Mo Kio Ave 10') && (
+                              {patientLocName === patientAddress && (
                                 <span className="bg-emerald-50 text-[#00a859] text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
                                   Default address
                                 </span>
@@ -3547,8 +3513,9 @@ export default function PhoneSimulator({
                               </button>
                               <button
                                 onClick={() => {
-                                  setPatientCoords({ lat: 1.3625, lng: 103.8542 });
-                                  setPatientLocName('Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451');
+                                  const coords = PERSONA_COORDS[currentPatientId] || { lat: 1.3625, lng: 103.8542 };
+                                  setPatientCoords(coords);
+                                  setPatientLocName(patientAddress);
                                   setLocationSearchQuery('');
                                   triggerToast('Defaulted to profile residential address');
                                 }}
@@ -3580,7 +3547,7 @@ export default function PhoneSimulator({
                                     className="w-full text-left p-2 hover:bg-emerald-50/50 rounded transition text-[11px] font-medium text-slate-700 flex items-center justify-between gap-1 cursor-pointer"
                                   >
                                     <span className="truncate flex-1">{loc.name}</span>
-                                    {loc.name.includes('Blk 451 Ang Mo Kio Ave 10') && (
+                                    {loc.name === patientAddress && (
                                       <span className="bg-emerald-50 text-[#00a859] text-[8px] font-extrabold px-1 py-0.5 rounded border border-emerald-100 shrink-0">
                                         Default
                                       </span>
@@ -3769,7 +3736,7 @@ export default function PhoneSimulator({
                               const dayNum = i + 1;
                               const hasSlots = !!CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isDateBeforeToday(selectedCalendarMonth, dayNum);
                               const isSelected = selectedCalendarDay === dayNum;
-                              const isCurrentDay = selectedCalendarMonth === 'July 2026' && dayNum === 12;
+                              const isCurrentDay = isToday(selectedCalendarMonth, dayNum);
 
                               return (
                                 <button
@@ -4401,13 +4368,13 @@ export default function PhoneSimulator({
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs flex items-center gap-4 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50/20 rounded-full translate-x-12 -translate-y-12 pointer-events-none" />
                 <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-[#00a859] text-white font-extrabold flex items-center justify-center text-lg shadow-sm border border-emerald-400 shrink-0 select-none">
-                  LH
+                  {patientInitials}
                 </div>
                 <div className="space-y-1 z-10">
-                  <h3 className="font-display font-extrabold text-sm text-slate-900">Lisa Ho Siew Lan</h3>
+                  <h3 className="font-display font-extrabold text-sm text-slate-900">{patientFullName}</h3>
                   <div className="flex flex-wrap gap-1">
-                    <span className="text-[9px] bg-emerald-50 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded border border-emerald-100">SXXXX321A</span>
-                    <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded border border-slate-200">Female, 36 yrs</span>
+                    <span className="text-[9px] bg-emerald-50 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded border border-emerald-100">{patientNric}</span>
+                    <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded border border-slate-200">{patientGender}, {patientAge} yrs</span>
                   </div>
                   <p className="text-[9px] text-slate-400 font-semibold uppercase font-mono tracking-wider">{t('profile_moh_identity_cleared')}</p>
                 </div>
@@ -4421,19 +4388,19 @@ export default function PhoneSimulator({
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Full name</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">Lisa Ho Siew Lan</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientFullName}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Date of birth</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">14 August 1989</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientDob}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Gender</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">Female</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientGender}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">NRIC / Health ID</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right font-mono">SXXXX321A / HH-98315</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right font-mono">{patientNric} / HH-98315</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
                     <span className="col-span-5 text-slate-500 font-medium">Preferred language</span>
@@ -4453,16 +4420,16 @@ export default function PhoneSimulator({
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Mobile number</span>
-                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">+65 9123 4567</span>
+                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">{patientRecord?.contact_details || '+65 9123 4567'}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Email address</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right truncate">lisa.ho@gmail.com</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right truncate">{patientEmail}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
                     <span className="col-span-4 text-slate-500 font-medium">Residential address</span>
                     <span className="col-span-8 text-slate-600 text-[11px] leading-tight text-right">
-                      Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451
+                      {patientAddress}
                     </span>
                   </div>
                 </div>
@@ -4476,15 +4443,15 @@ export default function PhoneSimulator({
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Contact name</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">Ho Chin Teck</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientEmergencyName}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Relationship</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">Spouse</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientEmergencyRelationship}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
                     <span className="col-span-5 text-slate-500 font-medium">Phone number</span>
-                    <span className="col-span-7 text-slate-800 font-bold text-right font-mono">+65 9876 5432</span>
+                    <span className="col-span-7 text-slate-800 font-bold text-right font-mono">{patientEmergencyPhone}</span>
                   </div>
                 </div>
               </div>
@@ -4497,7 +4464,7 @@ export default function PhoneSimulator({
                 <div className="space-y-3 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Preferred clinic</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">Ang Mo Kio Polyclinic</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientPrimaryClinic}</span>
                   </div>
                   
                   {/* Interactive link to settings */}
@@ -4520,6 +4487,14 @@ export default function PhoneSimulator({
                   <HeartPulse className="w-3.5 h-3.5 text-[#00a859]" /> Medical Information
                 </h4>
                 <div className="space-y-2.5 text-xs">
+                  {patientLdlCholesterol != null && (
+                    <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                      <span className="col-span-5 text-slate-500 font-medium">LDL cholesterol</span>
+                      <span className={`col-span-7 text-right font-bold ${patientLdlCholesterol >= 4.9 ? 'text-rose-600' : 'text-emerald-700'}`}>
+                        {patientLdlCholesterol.toFixed(1)} mmol/L
+                      </span>
+                    </div>
+                  )}
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">Active referrals</span>
                     <span className="col-span-7 text-right">
@@ -4527,7 +4502,7 @@ export default function PhoneSimulator({
                     </span>
                   </div>
                   
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
                     <span className="col-span-4 text-slate-500 font-medium">Upcoming appts</span>
                     <span className="col-span-8 text-right font-medium text-slate-800 leading-normal">
                       {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
@@ -4547,56 +4522,6 @@ export default function PhoneSimulator({
                         </div>
                       )}
                     </span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Allergies (mock)</span>
-                    <span className="col-span-7 text-right font-semibold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded text-[10px] inline-block ml-auto">Penicillin (Mild rash)</span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Current meds (mock)</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">Atorvastatin 20mg (once daily)</span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Existing conditions (mock)</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">Hypercholesterolaemia</span>
-                  </div>
-
-                  {/* Family History Card */}
-                  <div className="pt-1.5">
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider font-mono">Family History Summary</span>
-                    <div className="mt-2 bg-slate-50 rounded-xl p-3 border border-slate-150 space-y-2 text-[10.5px] text-slate-600">
-                      <div className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
-                        <div>
-                          <p className="font-bold text-slate-800">Father (Diagnosed Age 48)</p>
-                          <p className="text-[10px] text-slate-500">Coronary Heart Disease (Angioplasty & Stent)</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
-                        <div>
-                          <p className="font-bold text-slate-800">Paternal Grandfather (Deceased Age 52)</p>
-                          <p className="text-[10px] text-slate-500">Fatal Myocardial Infarction (Acute Heart Attack)</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                        <div>
-                          <p className="font-bold text-slate-800">Paternal Aunt</p>
-                          <p className="text-[10px] text-slate-500">Severely high cholesterol (treated with Statins)</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                        <div>
-                          <p className="font-bold text-slate-800">Mother & Siblings</p>
-                          <p className="text-[10px] text-slate-500">No early history of heart disease declared</p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -4640,6 +4565,134 @@ export default function PhoneSimulator({
                 </p>
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* ----------------- SCREEN 8: CHATBOT OVERLAY ----------------- */}
+        {chatOpen && (
+          <div className="absolute inset-0 z-45 flex-col flex h-full overflow-hidden bg-slate-50 animate-fade-in text-left">
+            {/* Top Navigation */}
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between shrink-0 sticky top-0 z-10 shadow-3xs">
+              <div className="flex items-center gap-2">
+                <button onClick={() => setChatOpen(false)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer transition">
+                  <ArrowLeft className="w-5 h-5 text-slate-700" />
+                </button>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-sm text-slate-800">HealthBuddy AI</span>
+                    <span className="bg-emerald-500/10 text-[9px] text-[#00a859] font-mono px-1 rounded border border-emerald-500/20 font-bold flex items-center gap-0.5 select-none">
+                      <Sparkles className="w-2.5 h-2.5" /> AI
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-[#00a859] rounded-full animate-pulse" />
+                    <span className="text-[9px] text-slate-400 font-medium">GovTech Support • Online</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleChatReset}
+                title="Reset conversation"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Message Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-100/40 flex flex-col min-h-0">
+              {chatMessages.map((m) => (
+                <div
+                  key={m.id}
+                  className={`flex gap-2 max-w-[85%] ${m.sender === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
+                >
+                  {m.sender === 'bot' ? (
+                    <div className="w-6 h-6 rounded-full bg-[#00a859] flex items-center justify-center shrink-0 text-[9px] text-white font-extrabold select-none shadow-3xs">
+                      SG
+                    </div>
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-slate-300 flex items-center justify-center shrink-0 text-slate-600 shadow-3xs">
+                      <User className="w-3.5 h-3.5" />
+                    </div>
+                  )}
+                  <div
+                    className={`p-3 rounded-2xl text-xs leading-relaxed ${
+                      m.sender === 'user'
+                        ? 'bg-[#00a859] text-white rounded-tr-none shadow-sm text-left'
+                        : 'bg-white text-slate-800 rounded-tl-none border border-slate-200/80 shadow-3xs text-left'
+                    }`}
+                  >
+                    <p className="whitespace-pre-line">{renderChatFormattedText(m.text, m.sender === 'bot')}</p>
+                    <div
+                      className={`text-[8px] mt-1 font-mono text-right leading-none ${
+                        m.sender === 'user' ? 'text-emerald-200' : 'text-slate-400'
+                      }`}
+                    >
+                      {m.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {chatIsTyping && (
+                <div className="flex gap-2 max-w-[80%] self-start">
+                  <div className="w-6 h-6 rounded-full bg-[#00a859] flex items-center justify-center text-[9px] text-white font-bold shadow-3xs">
+                    SG
+                  </div>
+                  <div className="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none shadow-3xs">
+                    <div className="flex gap-1 items-center py-1">
+                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Quick Replies */}
+            <div className="p-2 border-t border-slate-100 bg-white flex gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 select-none">
+              {[
+                { text: 'Will this affect my insurance?', tag: 'insurance' },
+                { text: 'How much does FH testing cost?', tag: 'cost' },
+                { text: 'Does it affect my family members?', tag: 'family' },
+                { text: 'What should I prepare?', tag: 'prep' },
+              ].map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleChatSend(q.text)}
+                  className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-200 transition shrink-0 active:scale-95 cursor-pointer"
+                >
+                  {q.text}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Tray */}
+            <div className="p-3 border-t border-slate-200 bg-white flex gap-2 shrink-0">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleChatSend(chatInput)}
+                placeholder="Ask about subsidies, insurance, prep..."
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#00a859] focus:bg-white transition"
+              />
+              <button
+                onClick={() => handleChatSend(chatInput)}
+                disabled={!chatInput.trim()}
+                className="p-2 bg-[#00a859] hover:bg-emerald-700 disabled:opacity-40 disabled:hover:bg-[#00a859] text-white rounded-xl transition flex items-center justify-center shrink-0 cursor-pointer"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Advisory Info */}
+            <div className="px-3 py-2.5 bg-slate-50 text-[9px] text-slate-500 border-t border-slate-200 flex items-center gap-1.5 leading-snug shrink-0">
+              <AlertCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+              <span className="text-left font-medium">Providing official MOH Singapore and GovTech policy answers.</span>
             </div>
           </div>
         )}
@@ -4787,10 +4840,20 @@ export default function PhoneSimulator({
           </AnimatePresence>
         ) : null}
 
+        {/* Floating AI Assistant Chat Button inside Phone Simulator */}
+        {!chatOpen && isFHReferred && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="absolute bottom-4 right-4 z-40 w-12 h-12 bg-[#00a859] hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 group"
+            title="Ask HealthBuddy AI"
+          >
+            <MessageSquare className="w-5.5 h-5.5 text-white" />
+          </button>
+        )}
+
       </div>
 
-      {/* Simulated Device Home Indicator Button */}
-      <div className="bg-white border-t border-slate-200 py-3 px-4 flex justify-around items-center z-40 select-none shrink-0">
+      <div className="bg-white border-t border-slate-200 py-3 px-3 flex justify-around items-center z-40 select-none shrink-0">
         {[
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
           ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : []),

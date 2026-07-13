@@ -140,6 +140,22 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       ],
       accessibilityForSeniors: 'Uses clean table grids with generous spacing, high color-contrast ratio tags, and simple, supportive descriptions instead of dense medical jargon.',
       dropOffImpact: 'Reinforces the personal and familial importance of genetic testing. Seeing their elevated cholesterol level alongside their father\'s premature heart disease directly motivates patients to attend their appointment.'
+    },
+    [ScreenId.Chatbot]: {
+      title: 'Screen 8: HealthBuddy AI Patient Assistant',
+      problemSolved: 'Information vacuum and clinic exit friction. Patients leave with countless unaddressed concerns about genetic test costs, family cascade testing, and insurance discrimination, causing them to delay or cancel their appointments.',
+      uxGuidelines: [
+        'Real-Time AI Clarification: Integrates the GovTech Gemini AI to answer complex, personalized queries (e.g., LIA Moratorium protections, CHAS subsidies) instantly.',
+        'Actionable Shortcuts: Prompts horizontal Quick Reply chips representing frequent drop-off triggers (e.g. "Will this affect my insurance?", "How much does FH testing cost?").',
+        'Direct Booking Redirection: Seamlessly routes patients back to the booking or rescheduling flow when they express intent to manage their appointment.',
+        'MOH Policy-Aligned Prompts: Configured with precise medical and legal guardrails to ensure responses are safe, reassuring, and aligned with Singapore public health guidelines.'
+      ],
+      govTechPrinciples: [
+        { label: 'Empowerment through AI', desc: 'Utilizes secure server-side LLMs to parse patient inquiries into clear, comforting, and accurate health policy guidance.' },
+        { label: 'Conversational Support', desc: 'Maintains a highly professional, supportive, and friendly tone to turn patient fear into proactive clinical compliance.' }
+      ],
+      accessibilityForSeniors: 'Features a large scrollable message viewport with distinct bubble styling for user vs. AI. Includes clear pre-written Quick Reply buttons that seniors can tap without needing to type.',
+      dropOffImpact: 'Counters clinic exit friction by resolving questions in real time. Providing immediate, accurate reassurance on insurance and subsidies removes the primary psychological hurdles to appointment attendance.'
     }
   };
 

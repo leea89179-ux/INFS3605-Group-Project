@@ -4,6 +4,9 @@ import {
   AppointmentRecord, 
   ReminderPreferenceRecord, 
   NotificationHistoryRecord, 
+  ReferralRecord,
+  EducationProgressRecord,
+  ResultsRecord,
   DBQueryLog 
 } from '../types';
 import { 
@@ -15,6 +18,9 @@ interface DatabaseViewerProps {
   appointments: AppointmentRecord[];
   reminderPreferences: ReminderPreferenceRecord[];
   notificationHistory: NotificationHistoryRecord[];
+  referrals: ReferralRecord[];
+  educationProgress: EducationProgressRecord[];
+  results: ResultsRecord[];
   queryLogs: DBQueryLog[];
 }
 
@@ -23,16 +29,21 @@ export default function DatabaseViewer({
   appointments,
   reminderPreferences,
   notificationHistory,
+  referrals,
+  educationProgress,
+  results,
   queryLogs
 }: DatabaseViewerProps) {
   const [activeTab, setActiveTab] = useState<'tables' | 'schema' | 'logs'>('tables');
-  const [selectedTable, setSelectedTable] = useState<'patient' | 'appointment' | 'reminder' | 'history'>('patient');
+  const [selectedTable, setSelectedTable] = useState<'patient' | 'appointment' | 'reminder' | 'history' | 'referral' | 'education' | 'results'>('patient');
 
   // Schema DDL Definitions
   const schemaDDL = {
     patient: `CREATE TABLE Patient (
   patient_id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
+  age INT,
+  occupation VARCHAR(100),
   contact_details VARCHAR(150) NOT NULL
 );`,
     appointment: `CREATE TABLE Appointment (
@@ -41,16 +52,17 @@ export default function DatabaseViewer({
   appointment_date VARCHAR(50) NOT NULL,
   appointment_time VARCHAR(20) NOT NULL,
   clinic VARCHAR(100) NOT NULL,
-  status VARCHAR(20) DEFAULT 'pending', -- 'pending' | 'booked' | 'confirmed' | 'completed'
+  status VARCHAR(20) DEFAULT 'pending', -- 'pending' | 'booked' | 'confirmed' | 'completed' | 'cancelled' | 'missed'
+  attendance VARCHAR(20),               -- 'attended' | 'missed'
   calendar_added BOOLEAN DEFAULT FALSE
 );`,
     reminder: `CREATE TABLE ReminderPreference (
   reminder_id VARCHAR(50) PRIMARY KEY,
   patient_id VARCHAR(50) REFERENCES Patient(patient_id),
   enabled BOOLEAN DEFAULT TRUE,
-  notification_channel VARCHAR(20) NOT NULL, -- 'push' | 'sms' | 'both'
-  frequency VARCHAR(50) DEFAULT 'monthly',    -- 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom'
-  next_notification_date VARCHAR(50) NOT NULL
+  notification_channel VARCHAR(20),     -- 'push' | 'sms' | 'both'
+  frequency VARCHAR(50),                -- 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom'
+  next_notification_date VARCHAR(50)
 );`,
     history: `CREATE TABLE NotificationHistory (
   notification_id VARCHAR(50) PRIMARY KEY,
@@ -59,6 +71,20 @@ export default function DatabaseViewer({
   sent_date VARCHAR(50) NOT NULL,
   opened_status VARCHAR(20) DEFAULT 'sent',  -- 'sent' | 'opened'
   action_taken VARCHAR(50) DEFAULT 'none'    -- 'none' | 'confirmed' | 'rescheduled' | 'education_viewed'
+);`,
+    referral: `CREATE TABLE Referral (
+  referral_id VARCHAR(50) PRIMARY KEY,
+  patient_id VARCHAR(50) REFERENCES Patient(patient_id),
+  referral_type VARCHAR(50) NOT NULL, -- 'cascade_screening' | 'clinical_suspicion' | 'clinical_referral'
+  status VARCHAR(20) DEFAULT 'referral_received' -- 'referral_received' | 'active' | 'completed'
+);`,
+    education: `CREATE TABLE EducationProgress (
+  patient_id VARCHAR(50) PRIMARY KEY REFERENCES Patient(patient_id),
+  percent_complete INT DEFAULT 0
+);`,
+    results: `CREATE TABLE Results (
+  patient_id VARCHAR(50) PRIMARY KEY REFERENCES Patient(patient_id),
+  status VARCHAR(20) DEFAULT 'pending' -- 'pending' | 'available'
 );`
   };
 
@@ -146,10 +172,10 @@ export default function DatabaseViewer({
         {activeTab === 'tables' && (
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Table Selector Sub-tabs */}
-            <div className="flex gap-2 mb-3 bg-slate-950/60 p-1.5 rounded-xl border border-slate-800/80 shrink-0">
+            <div className="flex flex-wrap gap-1.5 mb-3 bg-slate-950/60 p-1.5 rounded-xl border border-slate-800/80 shrink-0">
               <button
                 onClick={() => setSelectedTable('patient')}
-                className={`flex-1 py-1 px-2 text-center rounded-lg text-[11px] font-mono transition-all ${
+                className={`flex-1 min-w-[70px] py-1 px-1.5 text-center rounded-lg text-[10px] font-mono transition-all ${
                   selectedTable === 'patient'
                     ? 'bg-slate-800 text-emerald-400 font-bold border border-emerald-500/10'
                     : 'text-slate-400 hover:text-slate-200'
@@ -159,17 +185,17 @@ export default function DatabaseViewer({
               </button>
               <button
                 onClick={() => setSelectedTable('appointment')}
-                className={`flex-1 py-1 px-2 text-center rounded-lg text-[11px] font-mono transition-all ${
+                className={`flex-1 min-w-[70px] py-1 px-1.5 text-center rounded-lg text-[10px] font-mono transition-all ${
                   selectedTable === 'appointment'
                     ? 'bg-slate-800 text-emerald-400 font-bold border border-emerald-500/10'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                Appointment ({appointments.length})
+                Appt ({appointments.length})
               </button>
               <button
                 onClick={() => setSelectedTable('reminder')}
-                className={`flex-1 py-1 px-2 text-center rounded-lg text-[11px] font-mono transition-all ${
+                className={`flex-1 min-w-[80px] py-1 px-1.5 text-center rounded-lg text-[10px] font-mono transition-all ${
                   selectedTable === 'reminder'
                     ? 'bg-slate-800 text-emerald-400 font-bold border border-emerald-500/10'
                     : 'text-slate-400 hover:text-slate-200'
@@ -179,13 +205,43 @@ export default function DatabaseViewer({
               </button>
               <button
                 onClick={() => setSelectedTable('history')}
-                className={`flex-1 py-1 px-2 text-center rounded-lg text-[11px] font-mono transition-all ${
+                className={`flex-1 min-w-[70px] py-1 px-1.5 text-center rounded-lg text-[10px] font-mono transition-all ${
                   selectedTable === 'history'
                     ? 'bg-slate-800 text-emerald-400 font-bold border border-emerald-500/10'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 History ({notificationHistory.length})
+              </button>
+              <button
+                onClick={() => setSelectedTable('referral')}
+                className={`flex-1 min-w-[85px] py-1 px-1.5 text-center rounded-lg text-[10px] font-mono transition-all ${
+                  selectedTable === 'referral'
+                    ? 'bg-slate-800 text-emerald-400 font-bold border border-emerald-500/10'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Referral ({referrals.length})
+              </button>
+              <button
+                onClick={() => setSelectedTable('education')}
+                className={`flex-1 min-w-[70px] py-1 px-1.5 text-center rounded-lg text-[10px] font-mono transition-all ${
+                  selectedTable === 'education'
+                    ? 'bg-slate-800 text-emerald-400 font-bold border border-emerald-500/10'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Edu ({educationProgress.length})
+              </button>
+              <button
+                onClick={() => setSelectedTable('results')}
+                className={`flex-1 min-w-[70px] py-1 px-1.5 text-center rounded-lg text-[10px] font-mono transition-all ${
+                  selectedTable === 'results'
+                    ? 'bg-slate-800 text-emerald-400 font-bold border border-emerald-500/10'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Result ({results.length})
               </button>
             </div>
 
@@ -328,6 +384,109 @@ export default function DatabaseViewer({
                   </tbody>
                 </table>
               )}
+
+              {selectedTable === 'referral' && (
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-900 border-b border-slate-800 text-slate-400 uppercase font-mono text-[9px] tracking-wider">
+                      <th className="p-3">referral_id (PK)</th>
+                      <th className="p-3">patient_id (FK)</th>
+                      <th className="p-3">referral_type</th>
+                      <th className="p-3">status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {referrals.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="p-4 text-center text-slate-500 italic">No referrals in the database.</td>
+                      </tr>
+                    ) : (
+                      referrals.map((r) => (
+                        <tr key={r.referral_id} className="border-b border-slate-900 hover:bg-slate-900/40 font-mono text-[11px] transition-colors">
+                          <td className="p-3 text-emerald-400 font-semibold">{r.referral_id}</td>
+                          <td className="p-3 text-slate-400">{r.patient_id}</td>
+                          <td className="p-3 text-slate-200">{r.referral_type}</td>
+                          <td className="p-3">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                              r.status === 'completed' 
+                                ? 'bg-emerald-950 text-emerald-400' 
+                                : r.status === 'active' 
+                                ? 'bg-blue-950 text-blue-400'
+                                : 'bg-slate-800 text-slate-400'
+                            }`}>
+                              {r.status.toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {selectedTable === 'education' && (
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-900 border-b border-slate-800 text-slate-400 uppercase font-mono text-[9px] tracking-wider">
+                      <th className="p-3">patient_id (PK/FK)</th>
+                      <th className="p-3">percent_complete</th>
+                      <th className="p-3">progress</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {educationProgress.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="p-4 text-center text-slate-500 italic">No education progress recorded.</td>
+                      </tr>
+                    ) : (
+                      educationProgress.map((e) => (
+                        <tr key={e.patient_id} className="border-b border-slate-900 hover:bg-slate-900/40 font-mono text-[11px] transition-colors">
+                          <td className="p-3 text-emerald-400 font-semibold">{e.patient_id}</td>
+                          <td className="p-3 text-slate-200 font-bold">{e.percent_complete}%</td>
+                          <td className="p-3 w-48">
+                            <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                              <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${e.percent_complete}%` }} />
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {selectedTable === 'results' && (
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-900 border-b border-slate-800 text-slate-400 uppercase font-mono text-[9px] tracking-wider">
+                      <th className="p-3">patient_id (PK/FK)</th>
+                      <th className="p-3">status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.length === 0 ? (
+                      <tr>
+                        <td colSpan={2} className="p-4 text-center text-slate-500 italic">No results generated yet.</td>
+                      </tr>
+                    ) : (
+                      results.map((r) => (
+                        <tr key={r.patient_id} className="border-b border-slate-900 hover:bg-slate-900/40 font-mono text-[11px] transition-colors">
+                          <td className="p-3 text-emerald-400 font-semibold">{r.patient_id}</td>
+                          <td className="p-3">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                              r.status === 'available' 
+                                ? 'bg-emerald-950 text-emerald-400' 
+                                : 'bg-amber-950 text-amber-400'
+                            }`}>
+                              {r.status.toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-3 mt-3 flex items-start gap-2 text-xs">
@@ -356,19 +515,31 @@ export default function DatabaseViewer({
                 <div className="bg-slate-900 border border-emerald-800/40 p-2 rounded-lg flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-emerald-400" />
                   <span className="font-bold text-emerald-300">Appointment</span>
-                  <span className="text-[9px] text-slate-500">(appt_id, pat_id FK)</span>
+                  <span className="text-[9px] text-slate-500">(appt_id)</span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-slate-700" />
                 <div className="bg-slate-900 border border-emerald-800/40 p-2 rounded-lg flex items-center gap-1.5">
                   <Bell className="w-3.5 h-3.5 text-emerald-400" />
                   <span className="font-bold text-emerald-300">RemPreferences</span>
-                  <span className="text-[9px] text-slate-500">(rem_id, pat_id FK)</span>
+                  <span className="text-[9px] text-slate-500">(rem_id)</span>
                 </div>
               </div>
-              <div className="mt-2 text-center">
-                <div className="inline-block bg-slate-900 border border-emerald-800/40 p-2 rounded-lg text-[11px] font-mono">
+              <div className="mt-2 flex flex-wrap justify-center gap-2 text-[11px] font-mono">
+                <div className="bg-slate-900 border border-emerald-800/40 p-2 rounded-lg">
                   <span className="font-bold text-emerald-300">NotificationHistory</span>
-                  <span className="text-[9px] text-slate-500"> (notif_id, pat_id FK, appt_id FK)</span>
+                  <span className="text-[9px] text-slate-500"> (notif_id, FK)</span>
+                </div>
+                <div className="bg-slate-900 border border-emerald-800/40 p-2 rounded-lg">
+                  <span className="font-bold text-emerald-300">Referral</span>
+                  <span className="text-[9px] text-slate-500"> (referral_id, FK)</span>
+                </div>
+                <div className="bg-slate-900 border border-emerald-800/40 p-2 rounded-lg">
+                  <span className="font-bold text-emerald-300">EducationProgress</span>
+                  <span className="text-[9px] text-slate-500"> (pat_id, FK)</span>
+                </div>
+                <div className="bg-slate-900 border border-emerald-800/40 p-2 rounded-lg">
+                  <span className="font-bold text-emerald-300">Results</span>
+                  <span className="text-[9px] text-slate-500"> (pat_id, FK)</span>
                 </div>
               </div>
             </div>
@@ -402,6 +573,27 @@ export default function DatabaseViewer({
                 <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 4: Audit Notification History</p>
                 <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
                   {schemaDDL.history}
+                </pre>
+              </div>
+
+              <div>
+                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 5: Genetic Referral Status</p>
+                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
+                  {schemaDDL.referral}
+                </pre>
+              </div>
+
+              <div>
+                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 6: Interactive Education Progress</p>
+                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
+                  {schemaDDL.education}
+                </pre>
+              </div>
+
+              <div>
+                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 7: Diagnostic Genetic Results</p>
+                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
+                  {schemaDDL.results}
                 </pre>
               </div>
             </div>
