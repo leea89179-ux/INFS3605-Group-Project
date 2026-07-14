@@ -153,16 +153,6 @@ export default function DatabaseViewer({
         >
           <FileText className="w-3.5 h-3.5" /> Schema (DDL)
         </button>
-        <button
-          onClick={() => setActiveTab('logs')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
-            activeTab === 'logs'
-              ? 'bg-emerald-600 text-white shadow-md font-semibold'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-          }`}
-        >
-          <Terminal className="w-3.5 h-3.5 animate-pulse" /> SQL Log Console
-        </button>
       </div>
 
       {/* Inner Screen Content */}
@@ -596,57 +586,6 @@ export default function DatabaseViewer({
                   {schemaDDL.results}
                 </pre>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: LIVE SQL CONSOLE */}
-        {activeTab === 'logs' && (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="bg-slate-950 p-2 border-b border-slate-800/80 flex justify-between items-center text-[10px] font-mono text-slate-400 shrink-0">
-              <span>ROLLING SQL WORKSPACE FEED</span>
-              <span className="text-emerald-500 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE STREAM
-              </span>
-            </div>
-
-            {/* Rolling Logs Console */}
-            <div className="flex-1 overflow-y-auto bg-slate-950 p-4 font-mono text-[10px] md:text-[11px] space-y-3.5 scrollbar-none flex flex-col-reverse">
-              {/* Show most recent log first (CSS flex-col-reverse helps keep bottom scrolled but lets us render in order) */}
-              {[...queryLogs].reverse().map((log, idx) => {
-                const getQueryColor = (type: string) => {
-                  switch (type) {
-                    case 'SELECT': return 'text-sky-400';
-                    case 'INSERT': return 'text-emerald-400';
-                    case 'UPDATE': return 'text-amber-400';
-                    case 'DELETE': return 'text-rose-400';
-                    case 'DDL': return 'text-purple-400';
-                    default: return 'text-slate-300';
-                  }
-                };
-                
-                return (
-                  <div key={idx} className="border-b border-slate-900 pb-2.5 last:border-0 hover:bg-slate-900/10 px-1 py-0.5 rounded transition">
-                    <div className="flex items-center justify-between text-[9px] text-slate-500 mb-1">
-                      <span className="bg-slate-900 px-1.5 py-0.2 rounded border border-slate-800 text-slate-400 font-bold">
-                        {log.timestamp}
-                      </span>
-                      <span className={`font-bold px-1.5 py-0.2 rounded ${
-                        log.type === 'SELECT' ? 'bg-sky-950 text-sky-400' :
-                        log.type === 'INSERT' ? 'bg-emerald-950 text-emerald-400' :
-                        log.type === 'UPDATE' ? 'bg-amber-950 text-amber-400' :
-                        log.type === 'DELETE' ? 'bg-rose-950 text-rose-400' :
-                        'bg-purple-950 text-purple-400'
-                      }`}>
-                        {log.type}
-                      </span>
-                    </div>
-                    <pre className={`whitespace-pre-wrap leading-normal font-mono font-medium break-all ${getQueryColor(log.type)}`}>
-                      {log.query}
-                    </pre>
-                  </div>
-                );
-              })}
             </div>
           </div>
         )}

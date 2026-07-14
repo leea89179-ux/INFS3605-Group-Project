@@ -613,17 +613,9 @@ export default function App() {
 
           {/* Quick Metrics */}
           <div className="flex flex-wrap gap-2">
-            <div className="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
-              <p className="text-[9px] uppercase tracking-wider text-slate-500 font-mono">Subsidies</p>
-              <p className="text-xs font-bold text-emerald-400">Up to 75% MOH</p>
-            </div>
-            <div className="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
-              <p className="text-[9px] uppercase tracking-wider text-slate-500 font-mono">Elderly UX</p>
-              <p className="text-xs font-bold text-emerald-400">44px Targets</p>
-            </div>
-            <div className="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-center">
-              <p className="text-[9px] uppercase tracking-wider text-slate-500 font-mono">LIA Protection</p>
-              <p className="text-xs font-bold text-emerald-400">No Premium Impact</p>
+            <div className="bg-slate-950 px-4 py-2 rounded-xl border border-rose-950/50 bg-rose-950/10 text-center">
+              <p className="text-[9px] uppercase tracking-wider text-rose-400 font-mono">Patient drop off</p>
+              <p className="text-sm font-bold text-rose-400">40%</p>
             </div>
           </div>
         </div>
@@ -883,7 +875,7 @@ export default function App() {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Layers className="w-4 h-4" /> Figma UX Spec
+              <Layers className="w-4 h-4" /> UX Specifications
             </button>
           </div>
 
