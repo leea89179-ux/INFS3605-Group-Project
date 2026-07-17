@@ -4,10 +4,10 @@ export interface EduSection {
   id: string;
   title: string;
   shortSummary: string;
-  content: string;
-  iconName?: string;
   readingTime: string;
+  content: string;
   keyTakeaway: string;
+  iconName?: string;
   tags?: string[];
   subsections?: { title: string; text: string }[];
   steps?: { num: number; title: string; description: string }[];
@@ -20,7 +20,7 @@ export interface HelpfulResource {
   keywords: string[];
   readingTime: string;
   iconName: string;
-  type: 'PDF Brochure' | 'Clinical Guide' | 'Official Code' | 'Video Story';
+  type: 'PDF Brochure' | 'Clinical Guide' | 'Official Code' | 'Video Story' | string;
   downloadSize: string;
   pages: { title: string; paragraphs: string[] }[];
   externalUrl?: string;

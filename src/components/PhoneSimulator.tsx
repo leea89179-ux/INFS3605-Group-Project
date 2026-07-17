@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
-import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs } from '../data/translations';
+import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
@@ -42,26 +42,16 @@ export const PERSONA_COORDS: Record<string, { lat: number; lng: number }> = {
   LH321: { lat: 1.3625, lng: 103.8542 },
 };
 
-export const formatMonthShorthand = (monthStr: string): string => {
+export const formatMonthShorthand = (monthStr: string, lang: Language = 'en'): string => {
   const parts = monthStr.split(' ');
   if (parts.length < 2) return monthStr;
   const monthName = parts[0];
   const year = parts[1];
-  const shortMap: Record<string, string> = {
-    'January': 'Jan',
-    'February': 'Feb',
-    'March': 'Mar',
-    'April': 'Apr',
-    'May': 'May',
-    'June': 'Jun',
-    'July': 'Jul',
-    'August': 'Aug',
-    'September': 'Sept',
-    'October': 'Oct',
-    'November': 'Nov',
-    'December': 'Dec',
-  };
-  return `${shortMap[monthName] || monthName} ${year}`;
+  const localized = getLocalizedMonthOnly(monthStr, lang);
+  if (lang === 'zh') {
+    return `${year}年 ${localized}`;
+  }
+  return `${localized} ${year}`;
 };
 
 export const clinicalSlots = [
@@ -146,6 +136,77 @@ export const CLINICS: ClinicOption[] = [
   }
 ];
 
+export const GENERAL_CLINICS: ClinicOption[] = [
+  {
+    id: 'nuh',
+    name: 'Toa Payoh Polyclinic',
+    address: '2003 Toa Payoh Lor 8, Singapore 319260',
+    lat: 1.3392,
+    lng: 103.8565,
+    provider: 'Dr. Audrey Ng',
+    role: 'Family Physician'
+  },
+  {
+    id: 'sgh',
+    name: 'Ang Mo Kio Polyclinic',
+    address: '21 Ang Mo Kio Central 2, Singapore 569666',
+    lat: 1.3785,
+    lng: 103.8454,
+    provider: 'Dr. Kevin Tan',
+    role: 'Senior Resident Physician'
+  },
+  {
+    id: 'ttsh',
+    name: 'Kallang Polyclinic',
+    address: '190 Serangoon Road, Singapore 218064',
+    lat: 1.3125,
+    lng: 103.8580,
+    provider: 'Dr. Priya Ramasamy',
+    role: 'Family Physician'
+  },
+  {
+    id: 'kkh',
+    name: 'Gleneagles General Outpatient Clinic',
+    address: '6A Napier Rd, Singapore 258500',
+    lat: 1.3065,
+    lng: 103.8015,
+    provider: 'Dr. Christopher de Souza',
+    role: 'General Practitioner'
+  }
+];
+
+export function getClinicSlotsDb(isFHReferred: boolean): Record<string, Record<string, Record<number, ClinicSlot[]>>> {
+  if (isFHReferred) {
+    return CLINIC_SLOTS_DB;
+  }
+  
+  const mappedDb: Record<string, Record<string, Record<number, ClinicSlot[]>>> = {};
+  for (const clinicId of Object.keys(CLINIC_SLOTS_DB)) {
+    const generalClinic = GENERAL_CLINICS.find(c => c.id === clinicId);
+    if (!generalClinic) continue;
+    
+    mappedDb[clinicId] = {};
+    const months = CLINIC_SLOTS_DB[clinicId];
+    for (const month of Object.keys(months)) {
+      mappedDb[clinicId][month] = {};
+      const days = months[month];
+      for (const day of Object.keys(days).map(Number)) {
+        const slots = days[day];
+        mappedDb[clinicId][month][day] = slots.map(slot => ({
+          ...slot,
+          clinic: generalClinic.name,
+          address: generalClinic.address,
+          provider: generalClinic.provider,
+          role: generalClinic.role,
+          duration: '15 mins',
+          cost: 'S$4.00'
+        }));
+      }
+    }
+  }
+  return mappedDb;
+}
+
 export const SEARCHABLE_LOCATIONS = [
   { name: 'Blk 451 Ang Mo Kio Ave 10, #08-122, Singapore 560451', lat: 1.3625, lng: 103.8542 },
   { name: 'Orchard Road (Central)', lat: 1.3036, lng: 103.8318 },
@@ -172,6 +233,15 @@ export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2
 };
 
 export const getClinicAddress = (clinicName: string) => {
+  if (clinicName.includes("Toa Payoh Polyclinic")) {
+    return "2003 Toa Payoh Lor 8, Singapore 319260";
+  } else if (clinicName.includes("Ang Mo Kio Polyclinic")) {
+    return "21 Ang Mo Kio Central 2, Singapore 569666";
+  } else if (clinicName.includes("Kallang Polyclinic")) {
+    return "190 Serangoon Road, Singapore 218064";
+  } else if (clinicName.includes("Gleneagles")) {
+    return "6A Napier Rd, Singapore 258500";
+  }
   if (clinicName.includes("National University") || clinicName.includes("NUH")) {
     return "5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074";
   } else if (clinicName.includes("Singapore General") || clinicName.includes("SGH")) {
@@ -181,10 +251,19 @@ export const getClinicAddress = (clinicName: string) => {
   } else if (clinicName.includes("KK Women") || clinicName.includes("KKH")) {
     return "100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899";
   }
-  return "Singapore Specialty Genetics Centre";
+  return "Singapore General Outpatient Clinic";
 };
 
 export const getClinicSpecialist = (clinicName: string) => {
+  if (clinicName.includes("Toa Payoh Polyclinic")) {
+    return "Dr. Audrey Ng (Family Physician)";
+  } else if (clinicName.includes("Ang Mo Kio Polyclinic")) {
+    return "Dr. Kevin Tan (Senior Resident Physician)";
+  } else if (clinicName.includes("Kallang Polyclinic")) {
+    return "Dr. Priya Ramasamy (Family Physician)";
+  } else if (clinicName.includes("Gleneagles")) {
+    return "Dr. Christopher de Souza (General Practitioner)";
+  }
   if (clinicName.includes("Singapore General") || clinicName.includes("SGH")) {
     return "Dr. Marcus Goh (Principal Genetics Specialist)";
   } else if (clinicName.includes("Tan Tock Seng") || clinicName.includes("TTSH")) {
@@ -537,8 +616,10 @@ export const availableMonths = [
 ];
 
 export const getAppointmentSlotDetails = (clinicName: string, date: string, timeSlot: string) => {
-  const clinicKey = Object.keys(CLINIC_SLOTS_DB).find(key => {
-    const months = CLINIC_SLOTS_DB[key];
+  const isGeneral = GENERAL_CLINICS.some(c => c.name === clinicName);
+  const slotsDb = getClinicSlotsDb(!isGeneral);
+  const clinicKey = Object.keys(slotsDb).find(key => {
+    const months = slotsDb[key];
     if (!months) return false;
     const monthKeys = Object.keys(months);
     if (monthKeys.length === 0) return false;
@@ -554,7 +635,7 @@ export const getAppointmentSlotDetails = (clinicName: string, date: string, time
     return firstSlot && (firstSlot.clinic === clinicName || clinicName.toLowerCase().includes(key.toLowerCase()));
   });
   if (clinicKey) {
-    const months = CLINIC_SLOTS_DB[clinicKey];
+    const months = slotsDb[clinicKey];
     if (months) {
       for (const mKey of Object.keys(months)) {
         const days = months[mKey];
@@ -576,8 +657,8 @@ export const getAppointmentSlotDetails = (clinicName: string, date: string, time
   return {
     provider: getClinicSpecialist(clinicName).split(' (')[0],
     role: getClinicSpecialist(clinicName).includes('(') ? getClinicSpecialist(clinicName).split('(')[1].replace(')', '') : 'Specialist',
-    cost: 'S$18.50',
-    duration: '45 mins',
+    cost: isGeneral ? 'S$4.00' : 'S$18.50',
+    duration: isGeneral ? '15 mins' : '45 mins',
     clinic: clinicName,
     address: getClinicAddress(clinicName)
   };
@@ -665,8 +746,9 @@ const getTodayMonthStr = () => {
   return `${months[d.getMonth()]} ${d.getFullYear()}`;
 };
 
-const getFirstAvailableDay = (month: string, clinicId: string) => {
-  const slots = CLINIC_SLOTS_DB[clinicId]?.[month] || {};
+const getFirstAvailableDay = (month: string, clinicId: string, customSlotsDb?: any) => {
+  const db = customSlotsDb || CLINIC_SLOTS_DB;
+  const slots = db[clinicId]?.[month] || {};
   const daysWithSlots = Object.keys(slots).map(Number).sort((a, b) => a - b);
   const validDay = daysWithSlots.find(day => !isDateBeforeToday(month, day));
   return validDay || daysWithSlots[0] || 21;
@@ -797,6 +879,13 @@ export default function PhoneSimulator({
     return 'en';
   });
 
+  const t = (key: string): string => {
+    return UI_TRANSLATIONS[language]?.[key] || UI_TRANSLATIONS['en']?.[key] || key;
+  };
+
+  const activeClinicSlotsDb = getClinicSlotsDb(isFHReferred);
+  const activeClinics = isFHReferred ? CLINICS : GENERAL_CLINICS;
+
   const currentPatientId = patientRecord?.patient_id || 'LH321';
   // PERSONA_DETAILS is now only a fallback (e.g. while the database
   // hasn't finished loading, or a field hasn't been populated for a
@@ -814,17 +903,19 @@ export default function PhoneSimulator({
   const patientAddress = patientRecord?.residential_address || patientDetails.address;
 
   const formatDob = (iso?: string | null): string => {
-    if (!iso) return patientDetails.dob;
+    if (!iso) return getLocalizedDate(patientDetails.dob, language);
     const d = new Date(iso + 'T00:00:00');
-    if (isNaN(d.getTime())) return patientDetails.dob;
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    if (isNaN(d.getTime())) return getLocalizedDate(patientDetails.dob, language);
+    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+    const localeMap: Record<Language, string> = { en: 'en-GB', ms: 'ms-MY', zh: 'zh-SG', ta: 'ta-SG' };
+    return d.toLocaleDateString(localeMap[language], options);
   };
   const patientDob = formatDob(patientRecord?.date_of_birth);
 
-  const patientEmergencyName = patientRecord?.emergency_contact_name || 'Not on file';
-  const patientEmergencyRelationship = patientRecord?.emergency_contact_relationship || 'Not on file';
-  const patientEmergencyPhone = patientRecord?.emergency_contact_phone || 'Not on file';
-  const patientPrimaryClinic = patientRecord?.primary_clinic || 'Not yet assigned';
+  const patientEmergencyName = patientRecord?.emergency_contact_name || t('not_on_file');
+  const patientEmergencyRelationship = patientRecord?.emergency_contact_relationship || t('not_on_file');
+  const patientEmergencyPhone = patientRecord?.emergency_contact_phone || t('not_on_file');
+  const patientPrimaryClinic = patientRecord?.primary_clinic || t('not_yet_assigned');
   const patientLdlCholesterol = patientRecord?.ldl_cholesterol_mmol;
 
   const getInitials = (name: string) => {
@@ -836,10 +927,6 @@ export default function PhoneSimulator({
   };
   const patientInitials = getInitials(patientName);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
-
-  const t = (key: string): string => {
-    return UI_TRANSLATIONS[language]?.[key] || UI_TRANSLATIONS['en']?.[key] || key;
-  };
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
@@ -961,7 +1048,7 @@ export default function PhoneSimulator({
     const initialMonth = [
       'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
     ].includes(todayMonth) ? todayMonth : 'July 2026';
-    return getFirstAvailableDay(initialMonth, 'nuh');
+    return getFirstAvailableDay(initialMonth, 'nuh', activeClinicSlotsDb);
   });
   const [selectedSlotObj, setSelectedSlotObj] = useState<ClinicSlot | null>(null);
   const [showMonthPopup, setShowMonthPopup] = useState<boolean>(false);
@@ -976,7 +1063,7 @@ export default function PhoneSimulator({
 
   const selectMonth = (month: string) => {
     setSelectedCalendarMonth(month);
-    const availableDays = Object.keys(CLINIC_SLOTS_DB[selectedClinicId]?.[month] || {})
+    const availableDays = Object.keys(activeClinicSlotsDb[selectedClinicId]?.[month] || {})
       .map(Number)
       .filter(day => !isDateBeforeToday(month, day));
     if (availableDays.length > 0) {
@@ -1015,7 +1102,7 @@ export default function PhoneSimulator({
     const initialMonth = [
       'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
     ].includes(todayMonth) ? todayMonth : 'July 2026';
-    return getFirstAvailableDay(initialMonth, 'nuh');
+    return getFirstAvailableDay(initialMonth, 'nuh', activeClinicSlotsDb);
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showNotificationPopup, setShowNotificationPopup] = useState<boolean>(false);
@@ -1029,15 +1116,22 @@ export default function PhoneSimulator({
   }
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  // Keep chatbot greeting in sync with language
+  // Keep chatbot greeting in sync with language and referral type
   useEffect(() => {
+    const greetingText = isFHReferred 
+      ? t('chatbot_greeting')
+      : (language === 'ms' ? "Hai! Saya **HealthBuddy**, Pembantu GovTech Singapura anda. Saya boleh membantu menjawab soalan tentang janji temu klinikal anda, subsidi, persediaan, dan tempahan. Apakah yang ingin anda tanyakan hari ini?" :
+         language === 'zh' ? "您好！我是 **HealthBuddy**，您的新加坡 GovTech 智能助理。我可以回答有关您的普通门诊预约、补贴津贴、就诊准备和预约相关的问题。请问您今天有什么需要了解的？" :
+         language === 'ta' ? "வணக்கம்! நான் **HealthBuddy**, உங்கள் GovTech சிங்கப்பூர் உதவியாளர். உங்கள் மருத்துவ சந்திப்பு, மானியங்கள், தயாரிப்பு மற்றும் முன்பதிவு பற்றிய கேள்விகளுக்கு நான் உதவலாம். இன்று என்ன அறிய விரும்புகிறீர்கள்?" :
+         "Hello! I am **HealthBuddy**, your GovTech Singapore Assistant. I can help answer questions about your clinical appointment, subsidies, preparation, and booking. What's on your mind today?");
+
     setChatMessages([{
       id: 'init-1',
       sender: 'bot',
-      text: t('chatbot_greeting'),
+      text: greetingText,
       timestamp: new Date(),
     }]);
-  }, [language]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [language, isFHReferred]); // eslint-disable-line react-hooks/exhaustive-deps
   const [chatInput, setChatInput] = useState('');
   const [chatIsTyping, setChatIsTyping] = useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -1088,7 +1182,7 @@ export default function PhoneSimulator({
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, language, topic }),
+      body: JSON.stringify({ message: text, language, topic, isFHReferred }),
     })
       .then((res) => {
         if (!res.ok) throw new Error('Server returned an error');
@@ -1125,24 +1219,49 @@ export default function PhoneSimulator({
             else if (matchKeywords(prepKeywords)) resolvedTopic = 'prep';
           }
 
-          let botResponse: string;
-          if (resolvedTopic === 'insurance') {
-            botResponse = t('chatbot_fallback_insurance');
-          } else if (resolvedTopic === 'cost') {
-            botResponse = t('chatbot_fallback_cost');
-          } else if (resolvedTopic === 'family') {
-            botResponse = t('chatbot_fallback_family');
-          } else if (resolvedTopic === 'prep') {
-            botResponse = t('chatbot_fallback_prep');
+           let botResponse: string;
+          if (isFHReferred) {
+            if (resolvedTopic === 'insurance') {
+              botResponse = t('chatbot_fallback_insurance');
+            } else if (resolvedTopic === 'cost') {
+              botResponse = t('chatbot_fallback_cost');
+            } else if (resolvedTopic === 'family') {
+              botResponse = t('chatbot_fallback_family');
+            } else if (resolvedTopic === 'prep') {
+              botResponse = t('chatbot_fallback_prep');
+            } else {
+              // Try matching against localized FAQs
+              const localFaqs = getLocalizedFaqs(language);
+              const matchedFaq = localFaqs.find(faq =>
+                query.split(/\s+/).some(word => word.length > 3 && faq.question.toLowerCase().includes(word))
+              );
+              botResponse = matchedFaq
+                ? `**${matchedFaq.question}**\n\n${matchedFaq.answer}`
+                : t('chatbot_fallback_default');
+            }
           } else {
-            // Try matching against localized FAQs
-            const localFaqs = getLocalizedFaqs(language);
-            const matchedFaq = localFaqs.find(faq =>
-              query.split(/\s+/).some(word => word.length > 3 && faq.question.toLowerCase().includes(word))
-            );
-            botResponse = matchedFaq
-              ? `**${matchedFaq.question}**\n\n${matchedFaq.answer}`
-              : t('chatbot_fallback_default');
+            // General clinical fallback answers for Sarah (non-referred)
+            if (resolvedTopic === 'cost' || query.includes('subsidy') || query.includes('pay') || query.includes('chas') || query.includes('medisave') || query.includes('kos') || query.includes('bayar') || query.includes('费用') || query.includes('补贴') || query.includes('கட்டணம்') || query.includes('செலுத்த')) {
+              botResponse = language === 'ms' ? "Janji temu klinikal sangat disubsidi oleh MOH untuk Warganegara Singapura. Anda boleh menggunakan kad **CHAS** anda untuk subsidi tambahan, dan rawatan yang layak boleh dibayar melalui **MediSave**." :
+                            language === 'zh' ? "新加坡公民的门诊预约可获得 MOH 的高度补贴。您可以使用您的 **CHAS** 卡获得额外津贴，符合条件的治疗费用也可以通过 **MediSave** 支付。" :
+                            language === 'ta' ? "சிங்கப்பூர் குடிமக்களுக்கு மருத்துவ சந்திப்புகள் MOH ஆல் பெரிதும் மானியம் பெறுகின்றன. கூடுதல் மானியங்களுக்கு உங்கள் **CHAS** அட்டையைப் பயன்படுத்தலாம், மேலும் தகுதியான சிகிச்சைகளுக்கு **MediSave** மூலம் செலுத்தலாம்." :
+                            "Clinical appointments are highly subsidized by MOH for Singapore Citizens. You can use your **CHAS** card for additional subsidies, and eligible treatments are payable via **MediSave**.";
+            } else if (resolvedTopic === 'prep' || query.includes('checklist') || query.includes('sedia') || query.includes('准备') || query.includes('தயார்')) {
+              botResponse = language === 'ms' ? "Sila bawa **NRIC/Singpass** anda dan sebarang **ubat-ubatan semasa** yang anda ambil. Tidak perlu berpuasa melainkan diarahkan khas oleh doktor anda." :
+                            language === 'zh' ? "请携带您的 **身份证/Singpass** 以及您正在服用的任何**当前药物**。除非医生特别指示，否则无需空腹。" :
+                            language === 'ta' ? "தயவுசெய்து உங்கள் **NRIC/Singpass** மற்றும் நீங்கள் எடுத்துக்கொள்ளும் ஏதேனும் **தற்போதைய மருந்துகளை** கொண்டு வாருங்கள். உங்கள் மருத்துவர் குறிப்பாக அறிவுறுத்தாதவரை உண்ணாவிரதம் தேவையிலை." :
+                            "Please bring your **NRIC/Singpass** and any **current medications** you are taking. No fasting is required unless specifically instructed by your doctor.";
+            } else if (resolvedTopic === 'reschedule' || query.includes('booking') || query.includes('appointment') || query.includes('tempah') || query.includes('预约') || query.includes('முன்பதிவு')) {
+              botResponse = language === 'ms' ? "Anda boleh mengurus, menempah, atau menukar janji temu anda dengan serta-merta di tab **Book** (Tempah) aplikasi ini. Hanya pilih tarikh dan masa baharu yang sesuai dengan jadual anda." :
+                            language === 'zh' ? "您可以在此应用程序的**预约**标签页中立即管理、预订或重新安排您的门诊时间。只需选择适合您行程的新日期和时间即可。" :
+                            language === 'ta' ? "இந்த பயன்பாட்டின் **முன்பதிவு** தாவலில் உங்கள் சந்திப்பை உடனடியாக நிர்வகிக்கலாம், முன்பதிவு செய்யலாம் அல்லது மாற்றலாம். உங்கள் அட்டவணைக்கு ஏற்ற புதிய தேதி மற்றும் நேரத்தைத் தேர்வு செய்யவும்." :
+                            "You can manage, book, or reschedule your appointment instantly in the **Book** tab of this app. Just choose a new date and time that fits your schedule.";
+            } else {
+              botResponse = language === 'ms' ? "Saya sedia membantu anda dengan janji temu klinikal anda. Anda boleh menyemak tab **Book** (Tempah) atau beritahu saya jika anda mempunyai soalan lain!" :
+                            language === 'zh' ? "我在此协助您了解您的门诊预约。您可以查看**预约**标签页，或者如果还有其他问题，请告诉我！" :
+                            language === 'ta' ? "உங்கள் மருத்துவ சந்திப்புக்கு உதவ நான் இங்கே இருக்கிறேன். நீங்கள் **முன்பதிவு** தாவலை சரிபார்க்கலாம் அல்லது உங்களுக்கு வேறு கேள்விகள் இருந்தால் எனக்கு தெரிவிக்கலாம்!" :
+                            "I am here to help you with your clinical appointment. You can check the **Book** tab or let me know if you have other questions!";
+            }
           }
 
           const botMsg: ChatMessage = {
@@ -1273,7 +1392,7 @@ export default function PhoneSimulator({
 
   const handleEnterReschedule = () => {
     setProposedSlotObj(null);
-    const currentClinicId = CLINICS.find(c => c.name === appointment?.clinic)?.id || 'nuh';
+    const currentClinicId = activeClinics.find(c => c.name === appointment?.clinic)?.id || 'nuh';
     setRescheduleClinicId(currentClinicId);
 
     // Derive month and day from appointment.date (format: "22 July 2026")
@@ -1283,7 +1402,7 @@ export default function PhoneSimulator({
     const derivedMonth = isNaN(apptDay) ? 'July 2026' : apptMonth;
 
     setRescheduleCalendarMonth(derivedMonth);
-    const availableDays = Object.keys(CLINIC_SLOTS_DB[currentClinicId]?.[derivedMonth] || {})
+    const availableDays = Object.keys(activeClinicSlotsDb[currentClinicId]?.[derivedMonth] || {})
       .map(Number)
       .filter(d => !isDateBeforeToday(derivedMonth, d));
     const apptDayAvailable = !isNaN(apptDay) && availableDays.includes(apptDay);
@@ -1403,7 +1522,7 @@ export default function PhoneSimulator({
             {/* Appointment details */}
             {appointment && (
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1">
-                <p className="text-[10.5px] font-bold text-slate-700">{appointment.date}</p>
+                <p className="text-[10.5px] font-bold text-slate-700">{getLocalizedDate(appointment.date, language)}</p>
                 <p className="text-[10.5px] text-slate-600">{appointment.timeSlot} · {appointment.clinic}</p>
               </div>
             )}
@@ -1469,7 +1588,7 @@ export default function PhoneSimulator({
 
             {appointment && (
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1">
-                <p className="text-[10.5px] font-bold text-slate-700">{appointment.date}</p>
+                <p className="text-[10.5px] font-bold text-slate-700">{getLocalizedDate(appointment.date, language)}</p>
                 <p className="text-[10.5px] text-slate-600">{appointment.timeSlot} · {appointment.clinic}</p>
               </div>
             )}
@@ -1541,7 +1660,7 @@ export default function PhoneSimulator({
 
         {/* RESCHEDULE – select new slot */}
         {bookingSubFlow === 'reschedule-select' && (() => {
-          const rclinicsWithDistances = CLINICS.map(c => ({
+          const rclinicsWithDistances = activeClinics.map(c => ({
             ...c,
             distance: calculateDistance(patientCoords.lat, patientCoords.lng, c.lat, c.lng),
           })).sort((a, b) => a.distance - b.distance);
@@ -1569,7 +1688,7 @@ export default function PhoneSimulator({
                     <span className="mt-0.5 text-[#00a859]"><Calendar className="w-4 h-4" /></span>
                     <div>
                       <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">{t('reschedule_current_appt')}</p>
-                      <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{appointment.date}</p>
+                      <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{getLocalizedDate(appointment.date, language)}</p>
                       <p className="text-[10.5px] text-emerald-700">{appointment.timeSlot} · {appointment.clinic}</p>
                     </div>
                   </div>
@@ -1594,7 +1713,7 @@ export default function PhoneSimulator({
                           </div>
                           <div className="min-w-0">
                             <h4 className="font-bold text-xs text-slate-800 truncate">
-                              {CLINICS.find(c => c.id === rescheduleClinicId)?.name}
+                              {activeClinics.find(c => c.id === rescheduleClinicId)?.name}
                             </h4>
                             <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
                               {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} {t('booking_km_away')}
@@ -1618,7 +1737,7 @@ export default function PhoneSimulator({
                                 onClick={() => {
                                   setRescheduleClinicId(clinic.id);
                                   setShowRescheduleClinicDropdown(false);
-                                  const availableDays = Object.keys(CLINIC_SLOTS_DB[clinic.id]?.[rescheduleCalendarMonth] || {}).map(Number).filter(d => !isDateBeforeToday(rescheduleCalendarMonth, d));
+                                  const availableDays = Object.keys(activeClinicSlotsDb[clinic.id]?.[rescheduleCalendarMonth] || {}).map(Number).filter(d => !isDateBeforeToday(rescheduleCalendarMonth, d));
                                   setRescheduleCalendarDay(availableDays[0] ?? 1);
                                 }}
                                 className={`w-full text-left p-3 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${isSelected ? 'bg-emerald-50/20' : 'bg-white'}`}
@@ -1649,7 +1768,7 @@ export default function PhoneSimulator({
                         if (idx > 0) {
                           const m = availableMonths[idx - 1];
                           setRescheduleCalendarMonth(m);
-                          const days = Object.keys(CLINIC_SLOTS_DB[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
+                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
                           setRescheduleCalendarDay(days[0] ?? 1);
                         }
                       }}
@@ -1658,14 +1777,14 @@ export default function PhoneSimulator({
                     >
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                    <span className="text-xs font-bold text-slate-700">{formatMonthShorthand(rescheduleCalendarMonth)}</span>
+                    <span className="text-xs font-bold text-slate-700">{formatMonthShorthand(rescheduleCalendarMonth, language)}</span>
                     <button
                       onClick={() => {
                         const idx = availableMonths.indexOf(rescheduleCalendarMonth);
                         if (idx < availableMonths.length - 1) {
                           const m = availableMonths[idx + 1];
                           setRescheduleCalendarMonth(m);
-                          const days = Object.keys(CLINIC_SLOTS_DB[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
+                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
                           setRescheduleCalendarDay(days[0] ?? 1);
                         }
                       }}
@@ -1686,7 +1805,7 @@ export default function PhoneSimulator({
                     ))}
                     {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
                       const dayNum = i + 1;
-                      const hasSlots = !!CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
+                      const hasSlots = !!activeClinicSlotsDb[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
                       const isSelected = rescheduleCalendarDay === dayNum;
                       const isRescheduleCurrentDay = isToday(rescheduleCalendarMonth, dayNum);
                       return (
@@ -1714,8 +1833,8 @@ export default function PhoneSimulator({
                   {/* Time slots */}
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t('available_slots')}</label>
-                    {CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[rescheduleCalendarDay] ? (
-                      CLINIC_SLOTS_DB[rescheduleClinicId][rescheduleCalendarMonth][rescheduleCalendarDay]
+                    {activeClinicSlotsDb[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[rescheduleCalendarDay] ? (
+                      activeClinicSlotsDb[rescheduleClinicId][rescheduleCalendarMonth][rescheduleCalendarDay]
                         .filter(slot => !(
                           appointment &&
                           slot.date === appointment.date &&
@@ -1803,7 +1922,7 @@ export default function PhoneSimulator({
                 <div className="px-3 py-3 space-y-0.5">
                   {appointment && (
                     <>
-                      <p className="text-[11px] font-bold text-slate-800">{appointment.date}</p>
+                      <p className="text-[11px] font-bold text-slate-800">{getLocalizedDate(appointment.date, language)}</p>
                       <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
                       <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
                     </>
@@ -1822,7 +1941,7 @@ export default function PhoneSimulator({
                   <p className="text-[9.5px] font-bold text-emerald-700 uppercase tracking-wide">{t('reschedule_new_appt')}</p>
                 </div>
                 <div className="px-3 py-3 space-y-0.5">
-                  <p className="text-[11px] font-bold text-slate-800">{proposedSlotObj.date}</p>
+                  <p className="text-[11px] font-bold text-slate-800">{getLocalizedDate(proposedSlotObj.date, language)}</p>
                   <p className="text-[10.5px] text-slate-600">{proposedSlotObj.time}</p>
                   <p className="text-[10px] text-slate-500">{proposedSlotObj.clinic}</p>
                 </div>
@@ -1865,7 +1984,7 @@ export default function PhoneSimulator({
             {appointment && (
               <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 w-full text-left space-y-0.5">
                 <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">{t('reschedule_new_appt')}</p>
-                <p className="text-[11px] font-bold text-slate-800 mt-1">{appointment.date}</p>
+                <p className="text-[11px] font-bold text-slate-800 mt-1">{getLocalizedDate(appointment.date, language)}</p>
                 <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
                 <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
               </div>
@@ -2052,7 +2171,7 @@ export default function PhoneSimulator({
                       </p>
                       <p className="text-[10px] text-slate-500 leading-normal">
                         {appointment.status === 'booked' 
-                          ? t('notif_booking_confirmed_msg').replace('{date}', appointment.date).replace('{time}', appointment.timeSlot)
+                          ? t('notif_booking_confirmed_msg').replace('{date}', getLocalizedDate(appointment.date, language)).replace('{time}', appointment.timeSlot)
                           : t('notif_booking_pending_msg')}
                       </p>
                       <span className="text-[9px] text-slate-400 block pt-0.5">
@@ -2132,76 +2251,80 @@ export default function PhoneSimulator({
                       >
                         {appointment.status === 'booked' ? 'Manage booking' : t('book_now_btn')} <ChevronRight className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => onChangeScreen(ScreenId.ReferralIntro)}
-                        className="w-full py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
-                      >
-                        {t('why_referred_btn')}
-                      </button>
+                      {isFHReferred && (
+                        <button
+                          onClick={() => onChangeScreen(ScreenId.ReferralIntro)}
+                          className="w-full py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
+                        >
+                          {t('why_referred_btn')}
+                        </button>
+                      )}
                     </div>
 
                     {/* Patient Journey Progress Pathway */}
-                    <div 
-                      onClick={() => onChangeScreen(ScreenId.ProgressTimeline)}
-                      className="space-y-3 pt-3.5 px-2 pb-1.5 border-t border-emerald-100/50 cursor-pointer hover:bg-emerald-50/50 rounded-xl transition-all duration-200 group"
-                    >
-                      <div className="flex justify-between items-center">
-                        <p className="text-[10px] font-bold text-emerald-800/80 uppercase tracking-widest font-sans group-hover:text-[#00a859] transition-colors">{t('your_journey')}</p>
-                        <ChevronRight className="w-3.5 h-3.5 text-emerald-600/70 group-hover:text-[#00a859] transition-all transform group-hover:translate-x-0.5" />
-                      </div>
-                      <div className="relative flex items-start justify-between px-3 pt-1" style={{ minHeight: '52px' }}>
-                        {/* Connecting Line Background */}
-                        <div className="absolute top-[9px] left-[12%] right-[12%] h-[3px] bg-slate-100 rounded-full" />
-                        {/* Colored Active Line */}
-                        <div 
-                          className="absolute top-[9px] left-[12%] h-[3px] bg-gradient-to-r from-emerald-400 to-[#00a859] rounded-full transition-all duration-500" 
-                          style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
-                        />
+                    {isFHReferred && (
+                      <div 
+                        onClick={() => onChangeScreen(ScreenId.ProgressTimeline)}
+                        className="space-y-3 pt-3.5 px-2 pb-1.5 border-t border-emerald-100/50 cursor-pointer hover:bg-emerald-50/50 rounded-xl transition-all duration-200 group"
+                      >
+                        <div className="flex justify-between items-center">
+                          <p className="text-[10px] font-bold text-emerald-800/80 uppercase tracking-widest font-sans group-hover:text-[#00a859] transition-colors">{t('your_journey')}</p>
+                          <ChevronRight className="w-3.5 h-3.5 text-emerald-600/70 group-hover:text-[#00a859] transition-all transform group-hover:translate-x-0.5" />
+                        </div>
+                        <div className="relative flex items-start justify-between px-3 pt-1" style={{ minHeight: '52px' }}>
+                          {/* Connecting Line Background */}
+                          <div className="absolute top-[9px] left-[12%] right-[12%] h-[3px] bg-slate-100 rounded-full" />
+                          {/* Colored Active Line */}
+                          <div 
+                            className="absolute top-[9px] left-[12%] h-[3px] bg-gradient-to-r from-emerald-400 to-[#00a859] rounded-full transition-all duration-500" 
+                            style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
+                          />
 
-                        {/* Step 1: Referral */}
-                        <div className="flex flex-col items-center relative z-10 w-[64px]">
-                          <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
-                            ✓
+                          {/* Step 1: Referral */}
+                          <div className="flex flex-col items-center relative z-10 w-[64px]">
+                            <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
+                              ✓
+                            </div>
+                            <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
+                              {t('step_referral')}
+                            </span>
                           </div>
-                          <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
-                            {t('step_referral')}
-                          </span>
-                        </div>
 
-                        {/* Step 2: Book Counselling */}
-                        <div className="flex flex-col items-center relative z-10 w-[96px]">
-                          {appointment.status === 'booked' ? (
-                            <>
-                              <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
-                                ✓
-                              </div>
-                              <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
-                                {t('step_counselling')}
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <div className="w-5 h-5 rounded-full border-2 border-[#00a859] bg-white flex items-center justify-center shadow-xs">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#00a859]" />
-                              </div>
-                              <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
-                                {t('step_counselling')}
-                              </span>
-                            </>
-                          )}
-                        </div>
-
-                        {/* Step 3: Genetic Testing */}
-                        <div className="flex flex-col items-center relative z-10 w-[80px]">
-                          <div className="w-5 h-5 rounded-full border border-slate-300 bg-white flex items-center justify-center shadow-3xs">
-                            <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                          {/* Step 2: Book Counselling */}
+                          <div className="flex flex-col items-center relative z-10 w-[96px]">
+                            {appointment.status === 'booked' ? (
+                              <>
+                                <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
+                                  ✓
+                                </div>
+                                <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
+                                  {t('step_counselling')}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-5 h-5 rounded-full border-2 border-[#00a859] bg-white flex items-center justify-center shadow-xs">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#00a859]" />
+                                </div>
+                                <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
+                                  {t('step_counselling')}
+                                </span>
+                              </>
+                            )}
                           </div>
-                          <span className="text-[9px] font-semibold text-slate-400 mt-1.5 text-center leading-tight">
-                            {t('step_testing')}
-                          </span>
+
+                          {/* Step 3: Genetic Testing */}
+                          <div className="flex flex-col items-center relative z-10 w-[80px]">
+                            <div className="w-5 h-5 rounded-full border border-slate-300 bg-white flex items-center justify-center shadow-3xs">
+                              <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                            </div>
+                            <span className="text-[9px] font-semibold text-slate-400 mt-1.5 text-center leading-tight">
+                              {t('step_testing')}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
 
 
@@ -2210,29 +2333,37 @@ export default function PhoneSimulator({
               )}
 
               {/* Ask HealthBuddy AI Assistant Promo Banner */}
-              {isFHReferred && (
-                <div className="px-4">
-                  <button
-                    onClick={() => setChatOpen(true)}
-                    className="w-full text-left bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-800/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-md hover:border-emerald-700 transition cursor-pointer"
-                  >
-                    <div className="space-y-1 flex-1">
-                      <span className="bg-emerald-500/20 text-emerald-400 text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-500/30 font-sans inline-flex items-center gap-1 select-none">
-                        <Sparkles className="w-2.5 h-2.5" /> GovTech AI Companion
-                      </span>
-                      <h4 className="font-bold text-xs text-white tracking-tight leading-tight">
-                        {t('chatbot_banner_title')}
-                      </h4>
-                      <p className="text-[10px] text-slate-300 leading-normal">
-                        {t('chatbot_banner_body')}
-                      </p>
-                    </div>
-                    <div className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
-                      <MessageSquare className="w-4.5 h-4.5 text-emerald-400" />
-                    </div>
-                  </button>
-                </div>
-              )}
+              <div className="px-4">
+                <button
+                  onClick={() => setChatOpen(true)}
+                  className="w-full text-left bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-800/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-md hover:border-emerald-700 transition cursor-pointer"
+                >
+                  <div className="space-y-1 flex-1">
+                    <span className="bg-emerald-500/20 text-emerald-400 text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-500/30 font-sans inline-flex items-center gap-1 select-none">
+                      <Sparkles className="w-2.5 h-2.5" /> GovTech AI Companion
+                    </span>
+                    <h4 className="font-bold text-xs text-white tracking-tight leading-tight">
+                      {isFHReferred ? t('chatbot_banner_title') : (
+                        language === 'ms' ? 'Tanya Pembantu AI HealthBuddy' :
+                        language === 'zh' ? '咨询 HealthBuddy AI 智能助理' :
+                        language === 'ta' ? 'HealthBuddy AI உதவியாளரிடம் கேளுங்கள்' :
+                        'Ask HealthBuddy AI Assistant'
+                      )}
+                    </h4>
+                    <p className="text-[10px] text-slate-300 leading-normal">
+                      {isFHReferred ? t('chatbot_banner_body') : (
+                        language === 'ms' ? 'Ketahui lebih lanjut tentang subsidi, persediaan, dan penjagaan kesihatan am anda.' :
+                        language === 'zh' ? '了解您的普通门诊补贴津贴、就诊准备和基本健康建议。' :
+                        language === 'ta' ? 'மானியங்கள், தயாரிப்பு மற்றும் உங்கள் பொதுவான மருத்துவக் கேள்விகள் பற்றி மேலும் அறியவும்.' :
+                        'Learn about subsidies, clinic preparation, and general health advice instantly.'
+                      )}
+                    </p>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                    <MessageSquare className="w-4.5 h-4.5 text-emerald-400" />
+                  </div>
+                </button>
+              </div>
 
               {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
               <div className="space-y-2">
@@ -2262,25 +2393,16 @@ export default function PhoneSimulator({
                   </div>
 
                   {/* Card 3: Ask HealthBuddy AI / Help Desk */}
-                  {isFHReferred ? (
-                    <button
-                      onClick={() => setChatOpen(true)}
-                      className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 hover:shadow-xs transition aspect-square cursor-pointer"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1 shrink-0 relative">
-                        <MessageSquare className="w-4 h-4 text-[#00a859]" />
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#00a859] border-2 border-white rounded-full" />
-                      </div>
-                      <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_ask_ai')}</span>
-                    </button>
-                  ) : (
-                    <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
-                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center mb-1 shrink-0">
-                        <HelpCircle className="w-4 h-4 text-slate-500" />
-                      </div>
-                      <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_help_desk')}</span>
+                  <button
+                    onClick={() => setChatOpen(true)}
+                    className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 hover:shadow-xs transition aspect-square cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1 shrink-0 relative">
+                      <MessageSquare className="w-4 h-4 text-[#00a859]" />
+                      <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-amber-500 fill-amber-500 animate-pulse" />
                     </div>
-                  )}
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_ask_ai')}</span>
+                  </button>
 
                   {/* Card 4: Medical reports / certs */}
                   <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
@@ -2319,20 +2441,50 @@ export default function PhoneSimulator({
                   <div className="bg-amber-100/90 border border-amber-200 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
                     <div className="absolute right-2 bottom-2 text-5xl opacity-40 select-none">🩺</div>
                     <div>
-                      <span className="bg-amber-500/20 text-amber-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">Active Hub</span>
-                      <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">Diabetes Hub</h4>
+                      <span className="bg-amber-500/20 text-amber-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">
+                        {language === 'ms' ? 'Hab Aktif' :
+                         language === 'zh' ? '活跃中心' :
+                         language === 'ta' ? 'செயலில் உள்ள மையம்' :
+                         'Active Hub'}
+                      </span>
+                      <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">
+                        {language === 'ms' ? 'Hab Diabetes' :
+                         language === 'zh' ? '糖尿病管理中心' :
+                         language === 'ta' ? 'நீரிழிவு மையம்' :
+                         'Diabetes Hub'}
+                      </h4>
                     </div>
-                    <p className="text-[9px] text-slate-600 leading-snug">Personalised guides for managing and preventing diabetes.</p>
+                    <p className="text-[9px] text-slate-600 leading-snug">
+                      {language === 'ms' ? 'Panduan peribadi untuk mengurus dan mencegah diabetes.' :
+                       language === 'zh' ? '个性化糖尿病管理和预防指南。' :
+                       language === 'ta' ? 'நீரிழிவு நோயை நிர்வகிப்பதற்கும் தடுப்பதற்கும் தனிப்பயனாக்கப்பட்ட வழிகாட்டிகள்.' :
+                       'Personalised guides for managing and preventing diabetes.'}
+                    </p>
                   </div>
 
                   {/* Card 2: Mental Well-being */}
                   <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
                     <div className="absolute right-2 bottom-2 text-5xl opacity-40 select-none">🧠</div>
                     <div>
-                      <span className="bg-emerald-500/20 text-emerald-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">Resource</span>
-                      <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">Mental Well-being</h4>
+                      <span className="bg-emerald-500/20 text-emerald-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">
+                        {language === 'ms' ? 'Sumber' :
+                         language === 'zh' ? '资源区' :
+                         language === 'ta' ? 'வளங்கள்' :
+                         'Resource'}
+                      </span>
+                      <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">
+                        {language === 'ms' ? 'Kesejahteraan Mental' :
+                         language === 'zh' ? '心理健康与福祉' :
+                         language === 'ta' ? 'மன நலம்' :
+                         'Mental Well-being'}
+                      </h4>
                     </div>
-                    <p className="text-[9px] text-slate-600 leading-snug">Mindfulness guides and support networks for emotional safety.</p>
+                    <p className="text-[9px] text-slate-600 leading-snug">
+                      {language === 'ms' ? 'Panduan kesedaran dan rangkaian sokongan untuk keselamatan emosi.' :
+                       language === 'zh' ? '关于情感支持、正念练习和支持网络的指南。' :
+                       language === 'ta' ? 'உணர்ச்சிப் பாதுகாப்பிற்கான தியான வழிகாட்டிகள் மற்றும் ஆதரவு நெட்வொர்க்குகள்.' :
+                       'Mindfulness guides and support networks for emotional safety.'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -2576,13 +2728,18 @@ export default function PhoneSimulator({
               <div className="flex-1 overflow-y-auto flex flex-col pb-6">
                 {/* Profile Info Row */}
                 <div className="bg-emerald-50/60 border-b border-emerald-100 px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0">
-                  <span className="text-slate-600">Patient: <strong className="text-slate-800">{patientName} ({patientNric})</strong></span>
-                  <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold border border-emerald-200/50">MOH Referred</span>
+                  <span className="text-slate-600">{t('patient_label')}: <strong className="text-slate-800">{patientName} ({patientNric})</strong></span>
+                  <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold border border-emerald-200/50">
+                    {language === 'ms' ? 'Dirujuk MOH' :
+                     language === 'zh' ? 'MOH 已转诊' :
+                     language === 'ta' ? 'MOH பரிந்துரைக்கப்பட்டது' :
+                     'MOH Referred'}
+                  </span>
                 </div>
 
                 {/* Hero Section - Edge-to-edge Deep Teal Banner */}
                 <div className="bg-[#00a859] text-white px-5 py-5 space-y-1.5 shrink-0">
-                  <span className="text-[9.5px] font-bold tracking-widest text-emerald-100 font-mono uppercase">HI {patientFirstName},</span>
+                  <span className="text-[9.5px] font-bold tracking-widest text-emerald-100 font-mono uppercase">{t('edu_hi_greeting').replace('{name}', patientFirstName)}</span>
                   <h3 className="font-display font-extrabold text-sm text-white tracking-tight leading-snug">
                     {t('edu_learning_guide_title')}
                   </h3>
@@ -2600,7 +2757,9 @@ export default function PhoneSimulator({
                         setEduSubTab('guides');
                         setViewingChecklist(false);
                       }}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10.5px] font-extrabold transition-all cursor-pointer ${
+                      className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
+                        language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
+                      } ${
                         eduSubTab === 'guides'
                           ? 'bg-[#00a859] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-800 bg-transparent hover:bg-slate-200/30'
@@ -2615,7 +2774,9 @@ export default function PhoneSimulator({
                         setEduSubTab('checklist');
                         setViewingChecklist(true);
                       }}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10.5px] font-extrabold transition-all cursor-pointer ${
+                      className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
+                        language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
+                      } ${
                         eduSubTab === 'checklist'
                           ? 'bg-[#00a859] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-800 bg-transparent hover:bg-slate-200/30'
@@ -2630,7 +2791,9 @@ export default function PhoneSimulator({
                         setEduSubTab('faq');
                         setViewingChecklist(false);
                       }}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10.5px] font-extrabold transition-all cursor-pointer ${
+                      className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
+                        language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
+                      } ${
                         eduSubTab === 'faq'
                           ? 'bg-[#00a859] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-800 bg-transparent hover:bg-slate-200/30'
@@ -2800,7 +2963,7 @@ export default function PhoneSimulator({
                       <div className="space-y-3.5">
                         <div className="flex justify-between items-center">
                           <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('edu_learning_hub')}</h4>
-                          <span className="text-[10px] text-slate-500 font-medium">3 Modules • 6 Topics</span>
+                          <span className="text-[10px] text-slate-500 font-medium">{t('edu_modules_summary')}</span>
                         </div>
 
                         {[
@@ -2977,7 +3140,7 @@ export default function PhoneSimulator({
                                             )}
 
                                             <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
-                                              <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">Key Takeaway</p>
+                                              <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway')}</p>
                                               <p className="text-emerald-800 text-[10px] mt-0.5 leading-normal">{sec.keyTakeaway}</p>
                                             </div>
                                           </div>
@@ -3005,19 +3168,24 @@ export default function PhoneSimulator({
                         return (
                           <div className="bg-emerald-50/40 border border-emerald-100/60 rounded-xl p-3.5 space-y-2">
                             <div className="flex justify-between text-[11px] text-slate-700 font-bold">
-                              <span>Preparation Progress</span>
-                              <span className="text-emerald-700">{completedCount} of {totalCount} completed ({percent}%)</span>
+                              <span>{t('edu_checklist_progress_title')}</span>
+                              <span className="text-emerald-700">
+                                {t('edu_checklist_progress_detail')
+                                  .replace('{completed}', String(completedCount))
+                                  .replace('{total}', String(totalCount))
+                                  .replace('{percent}', String(percent))}
+                              </span>
                             </div>
                             <div className="w-full h-2 bg-slate-200/75 rounded-full overflow-hidden">
                               <div className="bg-[#00a859] h-full transition-all duration-300" style={{ width: `${percent}%` }} />
                             </div>
                             {percent === 100 ? (
                               <p className="text-[10px] text-emerald-800 font-medium flex items-center gap-1">
-                                <span className="text-emerald-600 font-bold">✓</span> Excellent! You are fully prepared for your consultation.
+                                <span className="text-emerald-600 font-bold">✓</span> {t('edu_checklist_progress_success')}
                               </p>
                             ) : (
                               <p className="text-[10px] text-slate-500 leading-normal">
-                                Complete these steps before your appointment to make the most of your session with the genetic counsellor.
+                                {t('edu_checklist_progress_desc')}
                               </p>
                             )}
                           </div>
@@ -3029,11 +3197,11 @@ export default function PhoneSimulator({
                         <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                           <div className="flex items-center gap-1.5">
                             <CheckSquare className="w-4 h-4 text-[#00a859]" />
-                            <h4 className="font-bold text-xs text-slate-800 font-sans">Pre-Counselling Checklist</h4>
+                            <h4 className="font-bold text-xs text-slate-800 font-sans">{t('edu_checklist_card_title')}</h4>
                           </div>
                         </div>
                         <p className="text-[10px] text-slate-500 leading-relaxed font-sans">
-                          Completing these simple tasks reduces appointment anxiety and ensures highly customized care:
+                          {t('edu_checklist_card_desc')}
                         </p>
                         <div className="space-y-2.5">
                           {checklist.map((item) => (
@@ -3125,15 +3293,15 @@ export default function PhoneSimulator({
                         </div>
 
                         <div className="space-y-2.5">
-                          {helpfulResources.map((res) => {
-                            // Dynamic color configurations for appealing & diverse icon cards
+                          {getLocalizedHelpfulResources(helpfulResources, language).map((res) => {
+                            // Dynamic color configurations for appealing & diverse icon cards based on immutable ID
                             let bgClass = "bg-slate-50 group-hover:bg-emerald-50 border-slate-100 group-hover:border-emerald-200";
                             let iconColor = "text-[#00a859]";
                             let typeTagClass = "bg-emerald-50 text-[#00a859] border-emerald-100/55";
                             let viewLinkColor = "text-[#00a859] group-hover:text-emerald-700";
                             let hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
 
-                            if (res.type === 'Video Story') {
+                            if (res.id === 'res-7' || res.id === 'res-6') { // Video Stories
                               bgClass = "bg-rose-50 group-hover:bg-rose-100/80 border-rose-100 group-hover:border-rose-150";
                               iconColor = "text-rose-600";
                               typeTagClass = "bg-rose-50 text-rose-700 border-rose-100";
@@ -3151,13 +3319,13 @@ export default function PhoneSimulator({
                               typeTagClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
                               viewLinkColor = "text-emerald-600 group-hover:text-emerald-700";
                               hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
-                            } else if (res.type === 'Clinical Guide') {
+                            } else if (res.id === 'res-2') { // Clinical Guide
                               bgClass = "bg-amber-50 group-hover:bg-amber-100/80 border-amber-100 group-hover:border-amber-150";
                               iconColor = "text-amber-600";
                               typeTagClass = "bg-amber-50 text-amber-700 border-amber-100";
                               viewLinkColor = "text-amber-600 group-hover:text-amber-700";
                               hoverBorderClass = "hover:border-amber-200 hover:bg-amber-50/10";
-                            } else if (res.type === 'PDF Brochure') {
+                            } else if (res.id === 'res-1' || res.id === 'res-4' || res.id === 'res-8') { // PDF Brochures
                               bgClass = "bg-sky-50 group-hover:bg-sky-100/80 border-sky-100 group-hover:border-sky-150";
                               iconColor = "text-sky-600";
                               typeTagClass = "bg-sky-50 text-sky-700 border-sky-100";
@@ -3166,11 +3334,12 @@ export default function PhoneSimulator({
                             }
 
                             return (
-                              <a
+                              <button
                                 key={res.id}
-                                href={res.externalUrl || '#'}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                onClick={() => {
+                                  setSelectedResource(res);
+                                  setResourcePage(0);
+                                }}
                                 className={`block w-full text-left bg-white border border-slate-200 rounded-xl p-3.5 space-y-2.5 shadow-3xs transition group cursor-pointer ${hoverBorderClass}`}
                               >
                                 <div className="flex items-start gap-2.5">
@@ -3200,7 +3369,7 @@ export default function PhoneSimulator({
                                     <ExternalLink className="w-2.5 h-2.5 transition" />
                                   </div>
                                 </div>
-                              </a>
+                              </button>
                             );
                           })}
                         </div>
@@ -3237,7 +3406,7 @@ export default function PhoneSimulator({
                   <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-[#00a859]" />
-                      <h4 className="font-extrabold text-[15px] text-slate-800 tracking-tight">Select Month</h4>
+                      <h4 className="font-extrabold text-[15px] text-slate-800 tracking-tight">{t('booking_select_month')}</h4>
                     </div>
                     <button
                       onClick={() => setShowMonthPopup(false)}
@@ -3266,7 +3435,7 @@ export default function PhoneSimulator({
                             <div className="grid grid-cols-3 gap-2">
                               {grouped[year].map((m) => {
                                 const isSelected = m === selectedCalendarMonth;
-                                const shortName = m.split(' ')[0].substring(0, 3);
+                                const shortName = getLocalizedMonthOnly(m, language);
                                 return (
                                   <button
                                     key={m}
@@ -3330,7 +3499,7 @@ export default function PhoneSimulator({
                     className="w-full mt-1.5 p-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-[10px] text-amber-800 font-extrabold transition flex items-center justify-start gap-2 cursor-pointer shadow-3xs group relative overflow-hidden whitespace-nowrap"
                   >
                     <Bell className="w-3.5 h-3.5 text-amber-650 shrink-0" />
-                    <span className="truncate">Set up your reminder alerts & frequency</span>
+                    <span className="truncate">{t('booking_setup_reminders')}</span>
                     <ChevronRight className="w-3.5 h-3.5 ml-auto text-amber-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
                   </button>
 
@@ -3357,7 +3526,7 @@ export default function PhoneSimulator({
                         </div>
                         <div className="grid grid-cols-12 gap-x-2 items-center">
                           <span className="col-span-5 text-slate-500 font-medium">{t('booking_scheduled_date')}</span>
-                          <strong className="col-span-7 text-slate-800 text-right font-semibold font-mono">{appointment.date}</strong>
+                          <strong className="col-span-7 text-slate-800 text-right font-semibold font-mono">{getLocalizedDate(appointment.date, language)}</strong>
                         </div>
                         <div className="grid grid-cols-12 gap-x-2 items-center">
                           <span className="col-span-5 text-slate-500 font-medium">{t('booking_confirmed_time')}</span>
@@ -3478,7 +3647,7 @@ export default function PhoneSimulator({
                 {/* Step 1: Available list */}
                 {bookingStep === 'available' && (() => {
                   // Pre-compute distances to find nearest clinic and sort by shortest to longest distance
-                  const clinicsWithDistances = CLINICS.map(clinic => {
+                  const clinicsWithDistances = activeClinics.map(clinic => {
                     const dist = calculateDistance(
                       patientCoords.lat,
                       patientCoords.lng,
@@ -3650,10 +3819,10 @@ export default function PhoneSimulator({
                               </div>
                               <div className="min-w-0">
                                 <h4 className="font-bold text-xs text-slate-800 truncate">
-                                  {CLINICS.find(c => c.id === selectedClinicId)?.name}
+                                  {activeClinics.find(c => c.id === selectedClinicId)?.name}
                                 </h4>
                                 <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
-                                  {CLINICS.find(c => c.id === selectedClinicId)?.address}
+                                  {activeClinics.find(c => c.id === selectedClinicId)?.address}
                                 </p>
                                 <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                                   <span className="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
@@ -3683,7 +3852,7 @@ export default function PhoneSimulator({
                                       setShowClinicDropdown(false);
                                       
                                       // Auto-select first available day for the clinic
-                                      const availableDays = Object.keys(CLINIC_SLOTS_DB[clinic.id]?.[selectedCalendarMonth] || {})
+                                      const availableDays = Object.keys(activeClinicSlotsDb[clinic.id]?.[selectedCalendarMonth] || {})
                                         .map(Number)
                                         .filter(day => !isDateBeforeToday(selectedCalendarMonth, day));
                                       if (availableDays.length > 0) {
@@ -3709,7 +3878,7 @@ export default function PhoneSimulator({
                                         {clinic.address}
                                       </p>
                                       <p className="text-[9px] font-mono font-bold text-slate-400">
-                                        Distance: <span className="text-emerald-700">{clinic.distance.toFixed(1)} km</span>
+                                        {t('booking_distance')} <span className="text-emerald-700">{clinic.distance.toFixed(1)} km</span>
                                       </p>
                                     </div>
                                     {isSelected && <Check className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />}
@@ -3725,7 +3894,12 @@ export default function PhoneSimulator({
                       <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left animate-fade-in">
                         <div className="flex flex-col gap-2.5 border-b border-slate-150 pb-3">
                           <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 font-mono">
-                            {t('booking_select_counselling_slot')}
+                            {isFHReferred ? t('booking_select_counselling_slot') : (
+                              language === 'ms' ? 'Pilih slot janji temu' :
+                              language === 'zh' ? '选择预约时段' :
+                              language === 'ta' ? 'சந்திப்பு நேரத்தைத் தேர்ந்தெடுக்கவும்' :
+                              'Select appointment slot'
+                            )}
                           </h4>
                           
                           {/* Easy Month-Flipping Header */}
@@ -3747,7 +3921,7 @@ export default function PhoneSimulator({
                               onClick={() => setShowMonthPopup(true)}
                               className="flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 tracking-wide cursor-pointer transition"
                             >
-                              <span>{formatMonthShorthand(selectedCalendarMonth)}</span>
+                              <span>{formatMonthShorthand(selectedCalendarMonth, language)}</span>
                               <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
                             </button>
                             
@@ -3787,7 +3961,7 @@ export default function PhoneSimulator({
                             {/* Days 1 to totalDays */}
                             {Array.from({ length: getMonthConfig(selectedCalendarMonth).totalDays }).map((_, i) => {
                               const dayNum = i + 1;
-                              const hasSlots = !!CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isDateBeforeToday(selectedCalendarMonth, dayNum);
+                              const hasSlots = !!activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isDateBeforeToday(selectedCalendarMonth, dayNum);
                               const isSelected = selectedCalendarDay === dayNum;
                               const isCurrentDay = isToday(selectedCalendarMonth, dayNum);
 
@@ -3838,8 +4012,8 @@ export default function PhoneSimulator({
                           <span>{t('available_slots')}</span>
                         </label>
                         <div className="space-y-2">
-                          {CLINIC_SLOTS_DB[selectedClinicId]?.[selectedCalendarMonth]?.[selectedCalendarDay] ? (
-                            CLINIC_SLOTS_DB[selectedClinicId][selectedCalendarMonth][selectedCalendarDay].map((slot, idx) => (
+                          {activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[selectedCalendarDay] ? (
+                            activeClinicSlotsDb[selectedClinicId][selectedCalendarMonth][selectedCalendarDay].map((slot, idx) => (
                               <button
                                 key={idx}
                                 onClick={() => {
@@ -3896,7 +4070,14 @@ export default function PhoneSimulator({
                     <div className="space-y-4 animate-fade-in text-left">
                       <div>
                         <h3 className="font-extrabold text-sm text-slate-800">{t('booking_review_details')}</h3>
-                        <p className="text-[11px] text-slate-500 mt-0.5">{t('booking_choose_subsidized_slot')}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          {isFHReferred ? t('booking_choose_subsidized_slot') : (
+                            language === 'ms' ? 'Pilih slot janji temu klinik am anda.' :
+                            language === 'zh' ? '选择您的普通门诊预约时段。' :
+                            language === 'ta' ? 'உங்கள் பொது மருத்துவமனை சந்திப்பு நேரத்தைத் தேர்ந்தெடுக்கவும்.' :
+                            'Choose your general clinic appointment slot.'
+                          )}
+                        </p>
                       </div>
 
                       <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left">
@@ -3924,7 +4105,7 @@ export default function PhoneSimulator({
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-500 font-medium">{t('booking_date_label')}</span>
-                            <span className="text-slate-800 font-semibold font-mono">{slot.date}</span>
+                            <span className="text-slate-800 font-semibold font-mono">{getLocalizedDate(slot.date, language)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-500 font-medium">{t('booking_time_label')}</span>
@@ -3932,7 +4113,7 @@ export default function PhoneSimulator({
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-500 font-medium">{t('booking_duration_label')}</span>
-                            <span className="text-slate-800 font-semibold">{slot.duration}</span>
+                            <span className="text-slate-800 font-semibold">{slot.duration.replace('mins', t('booking_mins'))}</span>
                           </div>
                           <div className="flex justify-between border-t border-slate-100 pt-2.5 mt-2.5">
                             <span className="text-slate-500 font-bold">{t('booking_out_of_pocket_label')}</span>
@@ -3984,13 +4165,27 @@ export default function PhoneSimulator({
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
               <div>
-                <p className="text-xs text-slate-500 leading-relaxed">{t('settings_desc')}</p>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {isFHReferred ? t('settings_desc') : (
+                    language === 'ms' ? 'Konfigurasikan bagaimana dan bila anda menerima rujukan pesakit luar am dan makluman janji temu.' :
+                    language === 'zh' ? '配置您接收普通门诊转诊和预约提醒的方式和时间。' :
+                    language === 'ta' ? 'பொது வெளிநோயாளி பரிந்துரைகள் மற்றும் சந்திப்பு விழிப்பூட்டல்களை எப்போது பெறுவது என்பதை அமைக்கவும்.' :
+                    'Configure how and when you receive outpatient referral and appointment alerts.'
+                  )}
+                </p>
               </div>
 
               {/* Master Toggle */}
               <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex justify-between items-center">
                 <div>
-                  <h4 className="font-bold text-xs text-slate-800">{t('active_reminders')}</h4>
+                  <h4 className="font-bold text-xs text-slate-800">
+                    {isFHReferred ? t('active_reminders') : (
+                      language === 'ms' ? 'Peringatan Aktif' :
+                      language === 'zh' ? '启用提醒' :
+                      language === 'ta' ? 'செயலில் உள்ள நினைவூட்டல்கள்' :
+                      'Active Reminders'
+                    )}
+                  </h4>
                   <p className="text-[10px] text-slate-500 mt-0.5">{t('active_reminders_desc')}</p>
                 </div>
                 <button
@@ -4026,7 +4221,14 @@ export default function PhoneSimulator({
                     <p className="text-[10px] text-slate-500 leading-normal">
                       {reminderPrefs.channel === 'sms' && t('settings_help_sms')}
                       {reminderPrefs.channel === 'push' && t('settings_help_push')}
-                      {reminderPrefs.channel === 'both' && t('settings_help_both')}
+                      {reminderPrefs.channel === 'both' && (
+                        isFHReferred ? t('settings_help_both') : (
+                          language === 'ms' ? 'Sistem kami menghantar makluman kepada kedua-dua saluran SMS dan Push Aplikasi.' :
+                          language === 'zh' ? '系统将同时发送短信和应用推送提醒。' :
+                          language === 'ta' ? 'எஸ்.எம்.எஸ் மற்றும் புஷ் அறிவிப்புகள் இரண்டிலும் நினைவூட்டல்கள் அனுப்பப்படும்.' :
+                          'Our system sends alerts to both SMS and App Push channels.'
+                        )
+                      )}
                     </p>
                   </div>
 
@@ -4073,12 +4275,31 @@ export default function PhoneSimulator({
                         <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 border-b border-slate-100 pb-2">
                           <Smartphone className="w-3.5 h-3.5 text-slate-400" />
                           <span>MOH-HealthHub</span>
-                          <span className="ml-auto text-[9px] font-mono">Today, 09:41 AM</span>
+                          <span className="ml-auto text-[9px] font-mono">{t('sms_today')}, 09:41 AM</span>
                         </div>
                         <div className="bg-slate-100 p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-slate-200/50">
-                          {t('settings_sms_prefix')
-                            .replace('{date}', appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026')
-                            .replace('{time}', appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM')}
+                          {(() => {
+                            const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
+                            const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
+                            const bookedClinicName = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.clinic : activeClinics[0].name;
+                            const nameStr = patientFirstName.charAt(0) + patientFirstName.slice(1).toLowerCase();
+
+                            if (isFHReferred) {
+                              return t('settings_sms_prefix')
+                                .replace('{date}', dateStr)
+                                .replace('{time}', timeStr);
+                            }
+
+                            if (language === 'ms') {
+                              return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi sehingga 75% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
+                            } else if (language === 'zh') {
+                              return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 75% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
+                            } else if (language === 'ta') {
+                              return `MOH HealthHub: ${dateStr} அன்று ${timeStr} மணிக்கு ${bookedClinicName}-இல் உங்கள் பொது வெளிநோயாளி ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 75% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/gen-ref`;
+                            } else {
+                              return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Subsidies up to 75% are cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
+                            }
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -4095,11 +4316,33 @@ export default function PhoneSimulator({
                           <span>{t('settings_lockscreen_header')}</span>
                         </div>
                         <div className="space-y-1">
-                          <h4 className="text-xs font-bold text-slate-100">{t('lock_counselling_reminder')}</h4>
+                          <h4 className="text-xs font-bold text-slate-100">
+                            {isFHReferred ? t('lock_counselling_reminder') : (
+                              language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
+                              language === 'zh' ? '普通门诊就诊提醒' :
+                              language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
+                              'Outpatient Appointment Reminder'
+                            )}
+                          </h4>
                           <p className="text-[10.5px] text-slate-300 leading-snug">
-                            {t('lockscreen_push_msg')
-                              .replace('{date}', appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026')
-                              .replace('{time}', appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM')}
+                            {(() => {
+                              const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
+                              const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
+                              if (isFHReferred) {
+                                return t('lockscreen_push_msg')
+                                  .replace('{date}', dateStr)
+                                  .replace('{time}', timeStr);
+                              }
+                              if (language === 'ms') {
+                                return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
+                              } else if (language === 'zh') {
+                                return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
+                              } else if (language === 'ta') {
+                                return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
+                              } else {
+                                return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
+                              }
+                            })()}
                           </p>
                         </div>
                       </div>
@@ -4173,7 +4416,7 @@ export default function PhoneSimulator({
                 <p className="text-[11px] text-emerald-100 mt-1 max-w-[280px] leading-relaxed">
                   {appointment.status === 'confirmed' || appointment.status === 'booked'
                     ? t('journey_slot_booked_desc')
-                        .replace('{date}', appointment.date)
+                        .replace('{date}', getLocalizedDate(appointment.date, language))
                         .replace('{time}', appointment.timeSlot)
                     : t('unbooked_journey_desc')
                   }
@@ -4222,7 +4465,7 @@ export default function PhoneSimulator({
                       {(appointment.status === 'booked' || appointment.status === 'confirmed') ? (
                         <p className="text-[10px] text-slate-500 leading-normal mt-0.5">
                           {t('journey_slot_booked_desc')
-                            .replace('{date}', appointment.date)
+                            .replace('{date}', getLocalizedDate(appointment.date, language))
                             .replace('{time}', appointment.timeSlot)}
                         </p>
                       ) : (
@@ -4257,9 +4500,18 @@ export default function PhoneSimulator({
                           {t('booking_nric_verified')}
                         </p>
                       ) : appointment.status === 'booked' ? (
-                        <div className="text-[10px] text-amber-800 font-medium leading-normal mt-0.5 bg-amber-50 px-2.5 py-1.5 rounded border border-amber-100">
-                          <p className="font-bold">Scheduled & Upcoming</p>
-                          <p className="mt-0.5">Your session is scheduled for <strong>{appointment.date}</strong> at <strong>{appointment.timeSlot}</strong> at {appointment.clinic}.</p>
+                        <div className="text-[10px] text-amber-805 font-medium leading-normal mt-0.5 bg-amber-50 px-2.5 py-1.5 rounded border border-amber-100">
+                          <p className="font-bold">{t('booking_scheduled_upcoming')}</p>
+                          <p className="mt-0.5">
+                            {t('booking_success_details')
+                              .split(/(\{date\}|\{time\}|\{clinic\})/g)
+                              .map((part, index) => {
+                                if (part === '{date}') return <strong key={index}>{getLocalizedDate(appointment.date, language)}</strong>;
+                                if (part === '{time}') return <strong key={index}>{appointment.timeSlot}</strong>;
+                                if (part === '{clinic}') return <strong key={index}>{appointment.clinic}</strong>;
+                                return part;
+                              })}
+                          </p>
                         </div>
                       ) : (
                         <p className="text-[10px] text-slate-500 leading-normal mt-0.5">{t('booking_session_desc')}</p>
@@ -4331,11 +4583,33 @@ export default function PhoneSimulator({
 
                 {/* Body message */}
                 <div className="space-y-1">
-                  <h4 className="font-bold text-xs text-slate-100">{t('lock_counselling_reminder')}</h4>
+                  <h4 className="font-bold text-xs text-slate-100">
+                    {isFHReferred ? t('lock_counselling_reminder') : (
+                      language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
+                      language === 'zh' ? '普通门诊就诊提醒' :
+                      language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
+                      'Outpatient Appointment Reminder'
+                    )}
+                  </h4>
                   <p className="text-[11px] text-slate-300 leading-snug font-sans">
-                    {t('lock_counselling_tap_confirm_msg')
-                      .replace('{date}', appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026')
-                      .replace('{time}', appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM')}
+                    {(() => {
+                      const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
+                      const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
+                      if (isFHReferred) {
+                        return t('lock_counselling_tap_confirm_msg')
+                          .replace('{date}', dateStr)
+                          .replace('{time}', timeStr);
+                      }
+                      if (language === 'ms') {
+                        return `Sahkan Konsultasi Pesakit Luar Am anda pada ${dateStr} @ ${timeStr}.`;
+                      } else if (language === 'zh') {
+                        return `请确认您将于 ${dateStr} @ ${timeStr} 参加普通门诊咨询。`;
+                      } else if (language === 'ta') {
+                        return `${dateStr} @ ${timeStr} மணிக்கு உங்கள் பொது வெளிநோயாளி ஆலோசனையை உறுதிப்படுத்தவும்.`;
+                      } else {
+                        return `Confirm your General Outpatient Consultation on ${dateStr} @ ${timeStr}.`;
+                      }
+                    })()}
                   </p>
                 </div>
 
@@ -4497,7 +4771,7 @@ export default function PhoneSimulator({
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_phone')}</span>
-                    <span className="col-span-7 text-slate-800 font-bold text-right font-mono">{patientEmergencyPhone}</span>
+                    <span className={`col-span-7 text-right ${patientEmergencyPhone === t('not_on_file') ? 'font-semibold text-slate-800' : 'font-bold font-mono text-slate-800'}`}>{patientEmergencyPhone}</span>
                   </div>
                 </div>
               </div>
@@ -4541,12 +4815,14 @@ export default function PhoneSimulator({
                       </span>
                     </div>
                   )}
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_active_referrals')}</span>
-                    <span className="col-span-7 text-right">
-                      <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100 rounded text-[10px]">{t('profile_fh_testing_badge')}</span>
-                    </span>
-                  </div>
+                  {isFHReferred && (
+                    <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                      <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_active_referrals')}</span>
+                      <span className="col-span-7 text-right">
+                        <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100 rounded text-[10px]">{t('profile_fh_testing_badge')}</span>
+                      </span>
+                    </div>
+                  )}
                   
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
                     <span className="col-span-4 text-slate-500 font-medium">{t('profile_label_upcoming_appts')}</span>
@@ -4554,7 +4830,7 @@ export default function PhoneSimulator({
                       {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
                         <div className="flex flex-col items-end">
                           <span className="font-bold text-emerald-700">{appointment.clinic}</span>
-                          <span className="text-[10px] text-slate-500 mt-0.5 font-mono">{appointment.date} @ {appointment.timeSlot}</span>
+                          <span className="text-[10px] text-slate-500 mt-0.5 font-mono">{getLocalizedDate(appointment.date, language)} @ {appointment.timeSlot}</span>
                         </div>
                       ) : (
                         <div className="flex flex-col items-end gap-1">
@@ -4563,7 +4839,12 @@ export default function PhoneSimulator({
                             onClick={() => onChangeScreen(ScreenId.Booking)}
                             className="text-[#00a859] font-bold text-[10px] hover:underline"
                           >
-                            {t('profile_book_session_now')}
+                            {isFHReferred ? t('profile_book_session_now') : (
+                              language === 'ms' ? 'Tempah janji temu sekarang' :
+                              language === 'zh' ? '立即预约普通门诊' :
+                              language === 'ta' ? 'இப்போதே முன்பதிவு செய்யுங்கள்' :
+                              'Book general appointment now'
+                            )}
                           </button>
                         </div>
                       )}
@@ -4586,7 +4867,14 @@ export default function PhoneSimulator({
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_privacy')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_privacy_registry')}</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">
+                      {isFHReferred ? t('profile_privacy_registry') : (
+                        language === 'ms' ? 'Privasi Klinikal Standard Selamat' :
+                        language === 'zh' ? '标准临床隐私安全' :
+                        language === 'ta' ? 'நிலையான மருத்துவ தனியுரிமை பாதுகாப்பானது' :
+                        'Standard Clinical Privacy Secure'
+                      )}
+                    </span>
                   </div>
                   <div className="pt-2">
                     <button
@@ -4700,18 +4988,50 @@ export default function PhoneSimulator({
 
             {/* Quick Replies */}
             <div className="p-2 border-t border-slate-100 bg-white flex gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 select-none">
-              {([
-                { key: 'chatbot_quick_insurance', tag: 'insurance' },
-                { key: 'chatbot_quick_cost', tag: 'cost' },
-                { key: 'chatbot_quick_family', tag: 'family' },
-                { key: 'chatbot_quick_prep', tag: 'prep' },
-              ] as const).map((q, idx) => (
+              {(isFHReferred
+                ? [
+                    { text: t('chatbot_quick_insurance'), tag: 'insurance' },
+                    { text: t('chatbot_quick_cost'), tag: 'cost' },
+                    { text: t('chatbot_quick_family'), tag: 'family' },
+                    { text: t('chatbot_quick_prep'), tag: 'prep' },
+                  ]
+                : [
+                    { 
+                      text: language === 'ms' ? 'Berapakah kos janji temu?' :
+                            language === 'zh' ? '门诊预约需要多少费用？' :
+                            language === 'ta' ? 'சந்திப்பிற்கு எவ்வளவு கட்டணம்?' :
+                            'How much does the appointment cost?', 
+                      tag: 'cost' 
+                    },
+                    { 
+                      text: language === 'ms' ? 'Apakah yang perlu saya sediakan?' :
+                            language === 'zh' ? '我需要做什么准备？' :
+                            language === 'ta' ? 'நான் என்ன தயார் செய்ய வேண்டும்?' :
+                            'What should I prepare?', 
+                      tag: 'prep' 
+                    },
+                    { 
+                      text: language === 'ms' ? 'Adakah terdapat subsidi CHAS?' :
+                            language === 'zh' ? '有 CHAS 津贴吗？' :
+                            language === 'ta' ? 'CHAS மானியங்கள் உள்ளனவா?' :
+                            'Are there CHAS subsidies?', 
+                      tag: 'subsidies' 
+                    },
+                    { 
+                      text: language === 'ms' ? 'Bagaimana saya menukar slot saya?' :
+                            language === 'zh' ? '如何更改我的预约时间？' :
+                            language === 'ta' ? 'எனது நேரத்தை எவ்வாறு மாற்றுவது?' :
+                            'How do I reschedule my slot?', 
+                      tag: 'reschedule' 
+                    },
+                  ]
+              ).map((q, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleChatSend(t(q.key), q.tag)}
+                  onClick={() => handleChatSend(q.text, q.tag)}
                   className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-200 transition shrink-0 active:scale-95 cursor-pointer"
                 >
-                  {t(q.key)}
+                  {q.text}
                 </button>
               ))}
             </div>
@@ -4772,7 +5092,7 @@ export default function PhoneSimulator({
 
               {/* Document Sub-Header / Tool Controls */}
               <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 flex justify-between items-center text-[10px] text-slate-600 font-mono">
-                <span className="font-bold text-[9px]">PAGE {resourcePage + 1} OF {selectedResource.pages.length}</span>
+                <span className="font-bold text-[9px]">{t('edu_doc_page_of').replace('{current}', String(resourcePage + 1)).replace('{total}', String(selectedResource.pages.length))}</span>
                 <div className="flex items-center gap-1.5">
                   {selectedResource.externalUrl && (
                     <a 
@@ -4781,7 +5101,7 @@ export default function PhoneSimulator({
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-[#00a859] hover:text-emerald-800 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs"
                     >
-                      <ExternalLink className="w-3 h-3 text-[#00a859]" /> WEBSITE
+                      <ExternalLink className="w-3 h-3 text-[#00a859]" /> {t('edu_website_btn')}
                     </a>
                   )}
                   <button 
@@ -4798,7 +5118,7 @@ export default function PhoneSimulator({
                     }}
                     className="flex items-center gap-1 hover:text-emerald-700 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs"
                   >
-                    <Printer className="w-3 h-3 text-slate-500" /> PRINT
+                    <Printer className="w-3 h-3 text-slate-500" /> {t('edu_print_btn')}
                   </button>
                 </div>
               </div>
@@ -4830,7 +5150,7 @@ export default function PhoneSimulator({
                   {/* Page Footer */}
                   <div className="border-t border-slate-100 pt-2.5 mt-5 flex justify-between items-center text-[8px] text-slate-400 font-medium font-sans">
                     <span>MOH Clinical Excellence Alliance</span>
-                    <span>Page {resourcePage + 1}</span>
+                    <span>{t('edu_page_label')} {resourcePage + 1}</span>
                   </div>
                 </div>
               </div>
@@ -4844,7 +5164,7 @@ export default function PhoneSimulator({
                     resourcePage === 0 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-100' : 'bg-white text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  <ChevronLeft className="w-4 h-4" /> Prev
+                  <ChevronLeft className="w-4 h-4" /> {t('edu_prev_btn')}
                 </button>
                 
                 <span className="text-[10px] text-slate-500 font-mono font-bold">
@@ -4856,14 +5176,14 @@ export default function PhoneSimulator({
                     onClick={() => setResourcePage(prev => prev + 1)}
                     className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-emerald-700 cursor-pointer shadow-3xs"
                   >
-                    Next Page <ChevronRight className="w-4 h-4 text-white" />
+                    {t('edu_next_btn')} <ChevronRight className="w-4 h-4 text-white" />
                   </button>
                 ) : (
                   <button
                     onClick={() => setSelectedResource(null)}
                     className="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold hover:bg-slate-900 cursor-pointer shadow-3xs"
                   >
-                    Finish Reading
+                    {t('edu_finish_btn')}
                   </button>
                 )}
               </div>
@@ -4904,7 +5224,7 @@ export default function PhoneSimulator({
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
           ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : []),
           { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
-          { icon: <ClipboardList className="w-5 h-5" />, label: 'Journey', screen: ScreenId.ProgressTimeline },
+          ...(isFHReferred ? [{ icon: <ClipboardList className="w-5 h-5" />, label: 'Journey', screen: ScreenId.ProgressTimeline }] : []),
           { icon: <User className="w-5 h-5" />, label: 'Profile', screen: ScreenId.Profile }
         ].map((tab) => (
           <button

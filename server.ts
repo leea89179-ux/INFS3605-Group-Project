@@ -15,10 +15,12 @@ async function startServer() {
   // API Route for Chatbot proxying to Gemini
   app.post("/api/chat", async (req, res) => {
     try {
-      const { message, language } = req.body;
+      const { message, language, isFHReferred } = req.body;
       if (!message) {
         return res.status(400).json({ error: "Message is required" });
       }
+
+      const isReferred = isFHReferred !== false; // default to true if not specified
 
       const languageInstructions: Record<string, string> = {
         ms: "Respond in Bahasa Malaysia (Malay). Keep medical terms like 'Familial Hypercholesterolaemia (FH)', 'LDL', 'statin', 'LDLR', 'MediSave', 'CHAS', 'Singpass' in their original form. All other text should be in natural, clear Bahasa Malaysia.",
@@ -43,11 +45,15 @@ async function startServer() {
         }
       });
 
+      const systemInstruction = isReferred
+        ? `You are HealthBuddy, an official GovTech Singapore FH Assistant. Answer patient questions about Familial Hypercholesterolaemia (FH), test costs, MOH subsidies (50-75% for eligible citizens), and the LIA insurance moratorium. CRITICAL: Keep your answers extremely concise, direct, and reassurance-focused (maximum 2-3 short, friendly sentences). Do NOT use long paragraphs. Always use standard double-asterisks around key terms **like this** for bolding so they can be parsed correctly. If they ask about scheduling, booking, or modifying appointments, mention that they can do it directly in the 'Book' tab of this app. IMPORTANT — Language instruction: ${langInstruction} Never translate medication names (statins, Atorvastatin, Rosuvastatin, Ezetimibe), laboratory values (LDL, HDL, mmol/L), or universally recognized clinical abbreviations (LDLR, APOB, PCSK9) unless an official localized equivalent exists.`
+        : `You are HealthBuddy, an official GovTech Singapore Patient Assistant. Answer patient questions about standard polyclinic or clinical appointments, general booking, consultation fees, CHAS subsidies, and general healthcare preparation. CRITICAL: Keep your answers extremely concise, direct, and reassurance-focused (maximum 2-3 short, friendly sentences). Do NOT use long paragraphs, and do NOT mention FH or genetic testing (since this patient has a standard primary care clinic referral). Always use standard double-asterisks around key terms **like this** for bolding so they can be parsed correctly. If they ask about scheduling, booking, or modifying appointments, mention that they can do it directly in the 'Book' tab of this app. IMPORTANT — Language instruction: ${langInstruction}`;
+
       const response = await ai.models.generateContent({
         model: "gemini-3.5-flash",
         contents: message,
         config: {
-          systemInstruction: `You are HealthBuddy, an official GovTech Singapore FH Assistant. Answer patient questions about Familial Hypercholesterolaemia (FH), test costs, MOH subsidies (50-75% for eligible citizens), and the LIA insurance moratorium. CRITICAL: Keep your answers extremely concise, direct, and reassurance-focused (maximum 2-3 short, friendly sentences). Do NOT use long paragraphs. Always use standard double-asterisks around key terms **like this** for bolding so they can be parsed correctly. If they ask about scheduling, booking, or modifying appointments, mention that they can do it directly in the 'Book' tab of this app. IMPORTANT — Language instruction: ${langInstruction} Never translate medication names (statins, Atorvastatin, Rosuvastatin, Ezetimibe), laboratory values (LDL, HDL, mmol/L), or universally recognized clinical abbreviations (LDLR, APOB, PCSK9) unless an official localized equivalent exists.`,
+          systemInstruction: systemInstruction,
         }
       });
 
