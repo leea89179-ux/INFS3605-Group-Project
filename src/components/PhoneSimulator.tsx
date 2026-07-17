@@ -4442,7 +4442,7 @@ export default function PhoneSimulator({
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_gender')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientGender}</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientGender === 'Male' ? t('gender_male') : t('gender_female')}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_nric')}</span>
