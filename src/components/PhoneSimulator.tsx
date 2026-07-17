@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs } from '../data/translations';
 
@@ -2660,32 +2660,32 @@ export default function PhoneSimulator({
                         <div className="h-44 flex flex-col items-center justify-center relative p-4 text-center">
                           {isPlayingVideo ? (
                             <div className="absolute inset-0 bg-emerald-950/85 flex flex-col justify-between p-4 text-white">
-                              <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 self-start">Patient Experience Story (Chloe, 21)</span>
+                              <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 self-start">{t('edu_video_story_label')}</span>
                               
                               {/* CSS cartoon animations based on active simulated frame */}
                               <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
                                 {videoFrame === 0 && (
                                   <div className="animate-fade-in space-y-1">
                                     <span className="text-2xl">💡</span>
-                                    <p className="text-[11px] font-semibold">"I eat healthy and stay active. I thought high cholesterol was only for elderly people or those who lead an unhealthy lifestyle."</p>
+                                    <p className="text-[11px] font-semibold">{t('edu_video_frame_0')}</p>
                                   </div>
                                 )}
                                 {videoFrame === 1 && (
                                   <div className="animate-fade-in space-y-1">
                                     <span className="text-2xl">🤝</span>
-                                    <p className="text-[11px] font-semibold">"The genetic counsellor didn't push me at all. They just laid out the facts and let me make my own decision."</p>
+                                    <p className="text-[11px] font-semibold">{t('edu_video_frame_1')}</p>
                                   </div>
                                 )}
                                 {videoFrame === 2 && (
                                   <div className="animate-fade-in space-y-1">
                                     <span className="text-2xl">🛡️</span>
-                                    <p className="text-[11px] font-semibold">"I found out existing health insurance is fully protected, and MOH subsidies cover up to 75% of the cost."</p>
+                                    <p className="text-[11px] font-semibold">{t('edu_video_frame_2')}</p>
                                   </div>
                                 )}
                                 {videoFrame === 3 && (
                                   <div className="animate-fade-in space-y-1">
                                     <span className="text-2xl">❤️</span>
-                                    <p className="text-[11px] font-semibold">"I decided to do the test because getting clear facts helped me take control of my health and clarity on how to keep myself healthy."</p>
+                                    <p className="text-[11px] font-semibold">{t('edu_video_frame_3')}</p>
                                   </div>
                                 )}
                               </div>
@@ -2731,11 +2731,11 @@ export default function PhoneSimulator({
                       {/* Accessible Transcript Container */}
                       {showTranscript && (
                         <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-[10px] text-slate-600 leading-relaxed space-y-1.5 shadow-3xs animate-fade-in">
-                          <p className="font-bold text-emerald-800 uppercase tracking-wider text-[8px] font-mono border-b border-slate-100 pb-1">Video Transcript & Captions</p>
-                          <p><strong>[Chloe, 21]:</strong> "Hey everyone, I'm Chloe. When a screening flagged my LDL cholesterol as extremely high, I was totally confused. I live a healthy lifestyle, exercise regularly, and eat well, so I assumed high cholesterol was something only older people get, or maybe people who lead unhealty lifestyles. My doctor explained that FH is inherited from birth—it has nothing to do with lifestyle or age."</p>
-                          <p><strong>[Skepticism & Counselling]:</strong> "I was really skeptical about genetic counselling at first but, the counsellor didn't try to push me. She just explained how the genetics work, answered my questions about privacy, and left the decision completely up to me."</p>
-                          <p><strong>[The Facts]:</strong> "We talked about the practical side too. She clarified that under Singapore's guidelines, existing health insurance can't be touched, and MOH covers up to 75% of the costs. There were no hidden catches."</p>
-                          <p><strong>[My Decision]:</strong> "In the end, I decided to go ahead and take the blood test. Getting the facts didn't change who I am, but it did give me clarity on how to keep myself healthy. It's about knowing your body, not living in fear."</p>
+                          <p className="font-bold text-emerald-800 uppercase tracking-wider text-[8px] font-mono border-b border-slate-100 pb-1">{t('edu_video_transcript_title')}</p>
+                          <p>{t('edu_video_transcript_1')}</p>
+                          <p>{t('edu_video_transcript_2')}</p>
+                          <p>{t('edu_video_transcript_3')}</p>
+                          <p>{t('edu_video_transcript_4')}</p>
                         </div>
                       )}
 
@@ -3063,17 +3063,17 @@ export default function PhoneSimulator({
                       {/* FAQ Accordion Section */}
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">FREQUENTLY ASKED QUESTIONS</h4>
+                          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('faq_title').toUpperCase()}</h4>
                         </div>
 
                         {/* Category Filter Tabs */}
                         <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                           {[
-                            { id: 'all', label: 'ALL' },
-                            { id: 'cost', label: 'COST' },
-                            { id: 'insurance', label: 'INSURANCE' },
-                            { id: 'testing', label: 'TESTING' },
-                            { id: 'medication', label: 'MEDICATION' },
+                            { id: 'all', label: t('faq_category_all') },
+                            { id: 'cost', label: t('faq_category_cost') },
+                            { id: 'insurance', label: t('faq_category_insurance') },
+                            { id: 'testing', label: t('faq_category_testing') },
+                            { id: 'medication', label: t('faq_category_medication') },
                           ].map((cat) => (
                             <button
                               key={cat.id}
@@ -3304,7 +3304,7 @@ export default function PhoneSimulator({
               >
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
-              <span className="font-bold text-sm text-slate-800">Book Appointment</span>
+              <span className="font-bold text-sm text-slate-800">{t('booking_header_title')}</span>
             </div>
 
             {/* If appointment is BOOKED or CONFIRMED, show Feature 2 Confirmation Screen */}
