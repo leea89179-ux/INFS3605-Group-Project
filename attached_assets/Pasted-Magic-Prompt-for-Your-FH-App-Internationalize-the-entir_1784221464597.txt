@@ -1,0 +1,93 @@
+Magic Prompt for Your FH App
+Internationalize the entire FH (Familial Hypercholesterolaemia) health education app to support four languages:
+* 🇬🇧 English (en)
+* 🇲🇾 Bahasa Malaysia (ms)
+* 🇨🇳 Simplified Chinese (zh-CN)
+* 🇮🇳 Tamil (ta)
+Use next-intl for internationalization with separate translation files:
+* en.json
+* ms.json
+* zh-CN.json
+* ta.json
+Extract every hardcoded string into translation keys, including:
+* Navigation
+* Buttons
+* Forms
+* Error messages
+* Success messages
+* Notifications
+* Onboarding
+* Authentication
+* Settings
+* Profile
+* Educational modules
+* FH Guide / Learn FH content
+* AI chatbot interface
+* Risk explanations
+* Family screening information
+* Medication reminders
+* FAQ
+* Footer
+Preserve the existing UI and design system. Do not redesign the application—only replace hardcoded text with localized content while maintaining all existing layouts, spacing, components, colors, animations, and interactions.
+Add a language selector inside both:
+* the app header
+* the Settings page
+Display language names in their native script:
+* English
+* Bahasa Malaysia
+* 简体中文
+* தமிழ்
+Automatically detect the user's preferred browser language on first visit, while allowing users to manually switch languages at any time.
+Save the selected language using persistent local storage (or cookies if SSR is used) so the preference remains after refreshing or reopening the application.
+Implement locale-based routing:
+* /en/...
+* /ms/...
+* /zh-CN/...
+* /ta/...
+Redirect first-time users to the detected locale while preserving deep links and current navigation when changing languages.
+Ensure the interface adapts naturally for each language:
+* accommodate longer Malay and Tamil phrases
+* support compact Chinese text
+* prevent text clipping
+* allow buttons to resize automatically
+* wrap text where appropriate
+* maintain responsive layouts on mobile and desktop
+Configure font fallbacks that fully support:
+* Latin characters
+* Simplified Chinese
+* Tamil Unicode
+Apply locale-aware formatting throughout the app:
+* dates
+* numbers
+* percentages
+* cholesterol values
+* measurement units
+* any future currency values if introduced
+Store all educational content in translation files instead of components so future content updates require editing only the locale JSON files.
+Add placeholder translations for all four languages while preserving medical terminology consistently across every language.
+Ensure the AI chatbot interface automatically responds using the currently selected application language and that all chatbot UI elements (input placeholder, loading text, suggested prompts, error states, conversation actions) are localized.
+Add proper SEO localization:
+* locale-prefixed URLs
+* hreflang
+* canonical URLs
+* <html lang="">
+* localized metadata and page titles
+Structure the localization system so adding future languages only requires adding another translation file.
+Finally, verify every screen—including onboarding, dashboard, educational content, FH Guide, AI assistant, reminders, profile, settings, and FAQs—in all four languages to ensure there are:
+* no missing translation keys
+* no layout regressions
+* no overflow or clipping
+* consistent typography
+* correct locale formatting
+* smooth language switching
+* preserved functionality
+
+I would also add this (very important for your app)
+Since your app is medical,
+Medical Content Requirements
+* Do not simplify or alter the clinical meaning of Familial Hypercholesterolaemia (FH).
+* Maintain medically accurate terminology across all languages.
+* When no established local medical translation exists, preserve the English medical term alongside the translated explanation.
+* Ensure all educational content remains understandable for patients with varying health literacy while keeping medical accuracy.
+* Do not translate medication names, laboratory values, or universally recognized clinical abbreviations unless an official localized equivalent exists.
+This helps prevent the AI from introducing inaccurate or misleading translations, which is especially important in a healthcare application.

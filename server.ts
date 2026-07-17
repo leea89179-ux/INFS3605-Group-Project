@@ -15,10 +15,18 @@ async function startServer() {
   // API Route for Chatbot proxying to Gemini
   app.post("/api/chat", async (req, res) => {
     try {
-      const { message } = req.body;
+      const { message, language } = req.body;
       if (!message) {
         return res.status(400).json({ error: "Message is required" });
       }
+
+      const languageInstructions: Record<string, string> = {
+        ms: "Respond in Bahasa Malaysia (Malay). Keep medical terms like 'Familial Hypercholesterolaemia (FH)', 'LDL', 'statin', 'LDLR', 'MediSave', 'CHAS', 'Singpass' in their original form. All other text should be in natural, clear Bahasa Malaysia.",
+        zh: "Respond in Simplified Chinese (简体中文). Keep medical abbreviations like FH, LDL, PCSK9, LDLR, MediSave, CHAS, Singpass in their original form. All explanations should be in clear, patient-friendly Simplified Chinese.",
+        ta: "Respond in Tamil (தமிழ்). Keep medical terms like 'Familial Hypercholesterolaemia (FH)', 'LDL', 'statin', 'MediSave', 'CHAS', 'Singpass' in their original form. Explain all other content in clear, accessible Tamil.",
+        en: "Respond in English.",
+      };
+      const langInstruction = languageInstructions[language as string] || languageInstructions.en;
 
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
@@ -39,7 +47,7 @@ async function startServer() {
         model: "gemini-3.5-flash",
         contents: message,
         config: {
-          systemInstruction: "You are HealthBuddy, an official GovTech Singapore FH Assistant. Answer patient questions about Familial Hypercholesterolaemia (FH), test costs, MOH subsidies (50-75% for eligible citizens), and the LIA insurance moratorium. CRITICAL: Keep your answers extremely concise, direct, and reassurance-focused (maximum 2-3 short, friendly sentences). Do NOT use long paragraphs. Always use standard double-asterisks around key terms **like this** for bolding so they can be parsed correctly. If they ask about scheduling, booking, or modifying appointments, mention that they can do it directly in the 'Book' tab of this app.",
+          systemInstruction: `You are HealthBuddy, an official GovTech Singapore FH Assistant. Answer patient questions about Familial Hypercholesterolaemia (FH), test costs, MOH subsidies (50-75% for eligible citizens), and the LIA insurance moratorium. CRITICAL: Keep your answers extremely concise, direct, and reassurance-focused (maximum 2-3 short, friendly sentences). Do NOT use long paragraphs. Always use standard double-asterisks around key terms **like this** for bolding so they can be parsed correctly. If they ask about scheduling, booking, or modifying appointments, mention that they can do it directly in the 'Book' tab of this app. IMPORTANT — Language instruction: ${langInstruction} Never translate medication names (statins, Atorvastatin, Rosuvastatin, Ezetimibe), laboratory values (LDL, HDL, mmol/L), or universally recognized clinical abbreviations (LDLR, APOB, PCSK9) unless an official localized equivalent exists.`,
         }
       });
 
@@ -54,7 +62,7 @@ async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, allowedHosts: true },
       appType: "spa",
     });
     app.use(vite.middlewares);

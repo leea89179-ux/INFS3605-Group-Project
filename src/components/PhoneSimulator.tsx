@@ -780,7 +780,22 @@ export default function PhoneSimulator({
   const setChatOpen = onToggleChat !== undefined ? onToggleChat : setLocalIsChatOpen;
 
   // Local state for interactive elements
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>(() => {
+    // 1. Check URL path for locale prefix
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const urlLocale = pathParts[0];
+    const urlToLang: Record<string, Language> = { en: 'en', ms: 'ms', 'zh-CN': 'zh', ta: 'ta' };
+    if (urlToLang[urlLocale]) return urlToLang[urlLocale];
+    // 2. Check localStorage
+    const stored = localStorage.getItem('fh-app-language') as Language | null;
+    if (stored && (['en', 'ms', 'zh', 'ta'] as Language[]).includes(stored)) return stored;
+    // 3. Browser language detection
+    const bl = (navigator.language || '').toLowerCase();
+    if (bl.startsWith('ms') || bl.startsWith('id')) return 'ms';
+    if (bl.startsWith('zh')) return 'zh';
+    if (bl.startsWith('ta')) return 'ta';
+    return 'en';
+  });
 
   const currentPatientId = patientRecord?.patient_id || 'LH321';
   // PERSONA_DETAILS is now only a fallback (e.g. while the database
@@ -824,6 +839,23 @@ export default function PhoneSimulator({
 
   const t = (key: string): string => {
     return UI_TRANSLATIONS[language]?.[key] || UI_TRANSLATIONS['en']?.[key] || key;
+  };
+
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+    localStorage.setItem('fh-app-language', lang);
+    setLangMenuOpen(false);
+    const langToUrl: Record<Language, string> = { en: 'en', ms: 'ms', zh: 'zh-CN', ta: 'ta' };
+    const htmlLang: Record<Language, string> = { en: 'en', ms: 'ms', zh: 'zh-Hans', ta: 'ta' };
+    window.history.replaceState({}, '', `/${langToUrl[lang]}/`);
+    const htmlEl = document.getElementById('html-root');
+    if (htmlEl) htmlEl.setAttribute('lang', htmlLang[lang]);
+    document.title = {
+      en: 'HealthHub FH Assistant – GovTech Singapore',
+      ms: 'Pembantu FH HealthHub – GovTech Singapura',
+      zh: 'HealthHub FH 助理 – 新加坡 GovTech',
+      ta: 'HealthHub FH உதவியாளர் – GovTech சிங்கப்பூர்',
+    }[lang] || 'HealthHub FH Assistant – GovTech Singapore';
   };
 
   const countToPercent = (count: number): number => {
@@ -996,14 +1028,16 @@ export default function PhoneSimulator({
     timestamp: Date;
   }
 
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  // Keep chatbot greeting in sync with language
+  useEffect(() => {
+    setChatMessages([{
       id: 'init-1',
       sender: 'bot',
-      text: "Hello! I am **HealthBuddy**, your GovTech Singapore FH Assistant. I can help answer questions about **Familial Hypercholesterolaemia (FH)**, test costs, insurance moratoriums, and booking. What's on your mind today?",
+      text: t('chatbot_greeting'),
       timestamp: new Date(),
-    },
-  ]);
+    }]);
+  }, [language]); // eslint-disable-line react-hooks/exhaustive-deps
   const [chatInput, setChatInput] = useState('');
   const [chatIsTyping, setChatIsTyping] = useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -1037,7 +1071,7 @@ export default function PhoneSimulator({
     });
   };
 
-  const handleChatSend = (text: string) => {
+  const handleChatSend = (text: string, topic?: string) => {
     if (!text.trim()) return;
 
     const userMsg: ChatMessage = {
@@ -1054,7 +1088,7 @@ export default function PhoneSimulator({
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text }),
+      body: JSON.stringify({ message: text, language, topic }),
     })
       .then((res) => {
         if (!res.ok) throw new Error('Server returned an error');
@@ -1072,35 +1106,43 @@ export default function PhoneSimulator({
       })
       .catch((err) => {
         console.warn('[PhoneSimulator Chat] Backend /api/chat error, falling back to local simulation:', err);
-        
-        setTimeout(() => {
-          let botResponse = '';
-          const query = text.toLowerCase();
 
-          if (query.includes('insurance') || query.includes('shield') || query.includes('policy')) {
-            botResponse = "Under the Singapore **LIA Moratorium**, life and health insurers **cannot** ask you to disclose genetic test results for standard coverage limits. Existing plans like **MediShield Life** or Integrated Shield are completely unaffected.";
-          } else if (query.includes('cost') || query.includes('subsidy') || query.includes('pay') || query.includes('price') || query.includes('chas') || query.includes('medisave')) {
-            botResponse = "FH testing is subsidized **50% to 75%** by MOH for eligible Singaporeans. Out-of-pocket costs typically range from **S$50 to S$120** and can be **fully paid using MediSave** under chronic care guidelines.";
-          } else if (query.includes('family') || query.includes('children') || query.includes('parents') || query.includes('cascade')) {
-            botResponse = "FH is inherited, meaning first-degree family members have a **50% chance** of sharing the gene. If your test is positive, your team will help coordinate **cascade screening** to protect your family's hearts early.";
-          } else if (query.includes('prepare') || query.includes('prep') || query.includes('checklist') || query.includes('fast')) {
-            botResponse = "No fasting is needed! Just prepare a **family medical history** (especially early heart attacks), your **current medications**, and your **Singpass**. A 30-minute counselling session will guide you first.";
-          } else if (query.includes('what') && (query.includes('fh') || query.includes('cholesterol'))) {
-            botResponse = "FH is a genetic condition causing **extremely high LDL cholesterol from birth**, unaffected by diet alone. Early genetic detection allows doctors to customize **highly effective preventative treatment** like statins.";
-          } else if (query.includes('statin') || query.includes('medication') || query.includes('pill') || query.includes('treatment')) {
-            botResponse = "FH is highly manageable using daily **statins**, which safely lower LDL by up to **50%**. Never adjust your prescribed dosage without consulting your clinical team.";
-          } else if (query.includes('booking') || query.includes('reschedule') || query.includes('appointment')) {
-            botResponse = "You can schedule or reschedule your genetic counselling session instantly! Navigate to the **Book** tab inside the simulated phone in the middle of the screen.";
+        setTimeout(() => {
+          // Multilingual keyword lists for free-typed queries
+          const insuranceKeywords = ['insurance', 'shield', 'policy', 'moratorium', 'insurans', 'polisi', '保险', '保障', 'காப்பீடு', 'பாலிசி'];
+          const costKeywords = ['cost', 'subsidy', 'pay', 'price', 'chas', 'medisave', 'kos', 'subsidi', 'bayar', '费用', '补贴', '支付', 'மானியம்', 'கட்டணம்', 'செலுத்த'];
+          const familyKeywords = ['family', 'children', 'parents', 'cascade', 'keluarga', 'kanak', 'ibu', 'bapa', '家庭', '家人', '孩子', '父母', 'குடும்பம்', 'குழந்தை', 'பெற்றோர்'];
+          const prepKeywords = ['prepare', 'prep', 'checklist', 'fast', 'sedia', 'berpuasa', 'senarai', '准备', '禁食', '清单', 'தயார்', 'உண்ணாவிரதம்', 'பட்டியல்'];
+
+          const query = text.toLowerCase();
+          const matchKeywords = (list: string[]) => list.some(k => query.includes(k));
+
+          let resolvedTopic = topic;
+          if (!resolvedTopic) {
+            if (matchKeywords(insuranceKeywords)) resolvedTopic = 'insurance';
+            else if (matchKeywords(costKeywords)) resolvedTopic = 'cost';
+            else if (matchKeywords(familyKeywords)) resolvedTopic = 'family';
+            else if (matchKeywords(prepKeywords)) resolvedTopic = 'prep';
+          }
+
+          let botResponse: string;
+          if (resolvedTopic === 'insurance') {
+            botResponse = t('chatbot_fallback_insurance');
+          } else if (resolvedTopic === 'cost') {
+            botResponse = t('chatbot_fallback_cost');
+          } else if (resolvedTopic === 'family') {
+            botResponse = t('chatbot_fallback_family');
+          } else if (resolvedTopic === 'prep') {
+            botResponse = t('chatbot_fallback_prep');
           } else {
-            const matchedFaq = faqs.find(faq => 
-              query.split(' ').some(word => word.length > 4 && faq.question.toLowerCase().includes(word))
+            // Try matching against localized FAQs
+            const localFaqs = getLocalizedFaqs(language);
+            const matchedFaq = localFaqs.find(faq =>
+              query.split(/\s+/).some(word => word.length > 3 && faq.question.toLowerCase().includes(word))
             );
-            
-            if (matchedFaq) {
-              botResponse = `**Answer:** ${matchedFaq.answer} More details can be found on our **Learn** tab!`;
-            } else {
-              botResponse = "I am here to help with FH testing. Your referral is a **subsidized, protected preventative screen**. Would you like to check out the **Learn** tab or **schedule** your session today?";
-            }
+            botResponse = matchedFaq
+              ? `**${matchedFaq.question}**\n\n${matchedFaq.answer}`
+              : t('chatbot_fallback_default');
           }
 
           const botMsg: ChatMessage = {
@@ -1121,7 +1163,7 @@ export default function PhoneSimulator({
       {
         id: 'init-1',
         sender: 'bot',
-        text: "Hello! I am **HealthBuddy**, your GovTech Singapore FH Assistant. I can help answer questions about **Familial Hypercholesterolaemia (FH)**, test costs, insurance moratoriums, and booking. What's on your mind today?",
+        text: t('chatbot_greeting'),
         timestamp: new Date(),
       },
     ]);
@@ -1367,16 +1409,16 @@ export default function PhoneSimulator({
             )}
 
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              If you need a different time, you can reschedule without losing your place in the programme.
+              {t('cancel_if_need_diff_time')}
             </p>
 
             {/* Custom interactive FAQ link block */}
             <div className="bg-[#f8fafc] border border-slate-200/40 rounded-2xl p-3.5 text-left shadow-3xs">
               <p className="text-[10.5px] text-slate-500 leading-normal font-medium">
-                Have worries about costs, safety, or procedures?
+                {t('cancel_worries_text')}
               </p>
               <p className="text-[10.5px] text-slate-500 leading-normal font-medium mt-0.5">
-                Address your concerns in our{' '}
+                {t('cancel_address_concerns')}{' '}
                 <button
                   onClick={() => {
                     handleExitCancelFlow();
@@ -1386,7 +1428,7 @@ export default function PhoneSimulator({
                   }}
                   className="font-bold text-[#00a859] hover:underline inline-flex items-center gap-0.5 cursor-pointer"
                 >
-                  FAQ section
+                  {t('cancel_faq_link')}
                   <HelpCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
                 </button>
               </p>
@@ -1397,13 +1439,13 @@ export default function PhoneSimulator({
                 onClick={() => { handleExitCancelFlow(); handleEnterReschedule(); }}
                 className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
               >
-                <Calendar className="w-4 h-4" /> Reschedule Instead
+                <Calendar className="w-4 h-4" /> {t('cancel_reschedule_btn')}
               </button>
               <button
                 onClick={handleContinueCancelling}
                 className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
               >
-                Continue Cancelling
+                {t('cancel_continue_btn')}
               </button>
             </div>
           </div>
@@ -1415,7 +1457,7 @@ export default function PhoneSimulator({
         <div className="absolute inset-0 bg-slate-950/60 flex items-end justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-3xl w-full p-5 space-y-4 shadow-2xl text-left border border-slate-100 animate-slide-up">
             <div className="flex items-start justify-between">
-              <h4 className="font-extrabold text-sm text-slate-900">Confirm cancellation</h4>
+              <h4 className="font-extrabold text-sm text-slate-900">{t('cancel_confirm_title')}</h4>
               <button
                 onClick={handleExitCancelFlow}
                 className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
@@ -1433,16 +1475,16 @@ export default function PhoneSimulator({
             )}
 
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Cancelling will release this booked slot. You are welcome to book again at any time, though availability may vary.
+              {t('cancel_confirm_desc')}
             </p>
 
             {/* Custom interactive FAQ link block */}
             <div className="bg-[#f8fafc] border border-slate-200/40 rounded-2xl p-3.5 text-left shadow-3xs">
               <p className="text-[10.5px] text-slate-500 leading-normal font-medium">
-                Have worries about costs, safety, or procedures?
+                {t('cancel_worries_text')}
               </p>
               <p className="text-[10.5px] text-slate-500 leading-normal font-medium mt-0.5">
-                Address your concerns in our{' '}
+                {t('cancel_address_concerns')}{' '}
                 <button
                   onClick={() => {
                     handleExitCancelFlow();
@@ -1452,7 +1494,7 @@ export default function PhoneSimulator({
                   }}
                   className="font-bold text-[#00a859] hover:underline inline-flex items-center gap-0.5 cursor-pointer"
                 >
-                  FAQ section
+                  {t('cancel_faq_link')}
                   <HelpCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
                 </button>
               </p>
@@ -1463,13 +1505,13 @@ export default function PhoneSimulator({
                 onClick={handleConfirmCancellation}
                 className="w-full py-3 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
               >
-                Yes, Cancel This Appointment
+                {t('cancel_yes_btn')}
               </button>
               <button
                 onClick={handleExitCancelFlow}
                 className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
               >
-                Keep My Appointment
+                {t('cancel_keep_btn')}
               </button>
             </div>
           </div>
@@ -1509,7 +1551,7 @@ export default function PhoneSimulator({
               {/* Header – matches "Secure Appointment Booking" layout */}
               <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
                 <div className="w-8" />
-                <span className="flex-1 text-center font-bold text-sm text-slate-800">Select a new slot</span>
+                <span className="flex-1 text-center font-bold text-sm text-slate-800">{t('reschedule_select_title')}</span>
                 <button
                   onClick={handleExitReschedule}
                   className="w-8 flex items-center justify-center p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
@@ -1526,7 +1568,7 @@ export default function PhoneSimulator({
                   <div className="mx-4 mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-start gap-2">
                     <span className="mt-0.5 text-[#00a859]"><Calendar className="w-4 h-4" /></span>
                     <div>
-                      <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">Current appointment</p>
+                      <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">{t('reschedule_current_appt')}</p>
                       <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{appointment.date}</p>
                       <p className="text-[10.5px] text-emerald-700">{appointment.timeSlot} · {appointment.clinic}</p>
                     </div>
@@ -1534,13 +1576,13 @@ export default function PhoneSimulator({
                 )}
 
                 <p className="mx-4 mt-3 text-[10.5px] text-slate-500">
-                  Choose a replacement clinic, date and time. Your current appointment stays confirmed until you complete the reschedule.
+                  {t('reschedule_choose_desc')}
                 </p>
 
                 <div className="px-4 pb-4 mt-3 space-y-4">
                   {/* Clinic selector */}
                   <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Select clinic</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('reschedule_select_clinic')}</label>
                     <div className="relative">
                       <button
                         onClick={() => setShowRescheduleClinicDropdown(!showRescheduleClinicDropdown)}
@@ -1555,9 +1597,9 @@ export default function PhoneSimulator({
                               {CLINICS.find(c => c.id === rescheduleClinicId)?.name}
                             </h4>
                             <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
-                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} km away
+                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} {t('booking_km_away')}
                               {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance === rminDistance && (
-                                <span className="ml-1 text-emerald-700 font-semibold">· Nearest</span>
+                                <span className="ml-1 text-emerald-700 font-semibold">· {t('reschedule_nearest')}</span>
                               )}
                             </p>
                           </div>
@@ -1584,7 +1626,7 @@ export default function PhoneSimulator({
                                 <div className="space-y-0.5 min-w-0 flex-1">
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <h5 className={`font-bold text-xs ${isSelected ? 'text-[#00a859]' : 'text-slate-800'}`}>{clinic.name}</h5>
-                                    {isNearest && <span className="text-[8px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">Nearest</span>}
+                                    {isNearest && <span className="text-[8px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">{t('reschedule_nearest')}</span>}
                                   </div>
                                   <p className="text-[9px] font-mono text-slate-400">
                                     <span className="text-emerald-700 font-bold">{clinic.distance.toFixed(1)} km</span>
@@ -1671,7 +1713,7 @@ export default function PhoneSimulator({
 
                   {/* Time slots */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Available slots</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t('available_slots')}</label>
                     {CLINIC_SLOTS_DB[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[rescheduleCalendarDay] ? (
                       CLINIC_SLOTS_DB[rescheduleClinicId][rescheduleCalendarMonth][rescheduleCalendarDay]
                         .filter(slot => !(
@@ -1695,7 +1737,7 @@ export default function PhoneSimulator({
                                 <div className="flex items-center gap-1 text-[10px] text-slate-500">
                                   <span className="font-semibold text-slate-600">{slot.provider}</span>
                                   <span className="text-slate-300">·</span>
-                                  <span>{slot.duration}</span>
+                                  <span>{slot.duration.replace('mins', t('booking_mins'))}</span>
                                 </div>
                               </div>
                             </div>
@@ -1707,7 +1749,7 @@ export default function PhoneSimulator({
                         ))
                     ) : (
                       <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
-                        No available slots on this day.
+                        {t('reschedule_no_slots')}
                       </div>
                     )}
                   </div>
@@ -1720,7 +1762,7 @@ export default function PhoneSimulator({
                   onClick={handleExitReschedule}
                   className="text-[10.5px] text-slate-400 hover:text-slate-600 transition cursor-pointer"
                 >
-                  Keep current appointment
+                  {t('reschedule_keep_current')}
                 </button>
               </div>
             </div>
@@ -1738,7 +1780,7 @@ export default function PhoneSimulator({
               >
                 <ChevronLeft className="w-3.5 h-3.5" /> Back
               </button>
-              <span className="flex-1 text-center font-bold text-sm text-slate-800">Review change</span>
+              <span className="flex-1 text-center font-bold text-sm text-slate-800">{t('reschedule_review_title')}</span>
               <button
                 onClick={handleExitReschedule}
                 className="w-16 flex items-center justify-end p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
@@ -1750,13 +1792,13 @@ export default function PhoneSimulator({
 
             <div className="flex-1 px-4 py-5 space-y-4 overflow-y-auto">
               <p className="text-[11px] text-slate-500 leading-relaxed">
-                Review the change before confirming. Your current appointment will remain active until you press Confirm Reschedule.
+                {t('reschedule_review_desc')}
               </p>
 
               {/* Current appointment */}
               <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                 <div className="bg-slate-50 px-3 py-2 border-b border-slate-100">
-                  <p className="text-[9.5px] font-bold text-slate-500 uppercase tracking-wide">Current appointment</p>
+                  <p className="text-[9.5px] font-bold text-slate-500 uppercase tracking-wide">{t('reschedule_current_appt')}</p>
                 </div>
                 <div className="px-3 py-3 space-y-0.5">
                   {appointment && (
@@ -1777,7 +1819,7 @@ export default function PhoneSimulator({
               {/* Proposed appointment */}
               <div className="bg-white rounded-xl border border-emerald-200 overflow-hidden ring-1 ring-emerald-100">
                 <div className="bg-emerald-50 px-3 py-2 border-b border-emerald-100">
-                  <p className="text-[9.5px] font-bold text-emerald-700 uppercase tracking-wide">New appointment</p>
+                  <p className="text-[9.5px] font-bold text-emerald-700 uppercase tracking-wide">{t('reschedule_new_appt')}</p>
                 </div>
                 <div className="px-3 py-3 space-y-0.5">
                   <p className="text-[11px] font-bold text-slate-800">{proposedSlotObj.date}</p>
@@ -1792,19 +1834,19 @@ export default function PhoneSimulator({
                 onClick={handleConfirmReschedule}
                 className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
               >
-                Confirm Reschedule
+                {t('reschedule_confirm_btn')}
               </button>
               <button
                 onClick={() => setBookingSubFlow('reschedule-select')}
                 className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
               >
-                Choose a Different Slot
+                {t('reschedule_different_slot')}
               </button>
               <button
                 onClick={handleExitReschedule}
                 className="w-full py-2 text-slate-400 hover:text-slate-600 text-[10.5px] font-medium transition cursor-pointer text-center"
               >
-                Keep current appointment
+                {t('reschedule_keep_current')}
               </button>
             </div>
           </div>
@@ -1817,12 +1859,12 @@ export default function PhoneSimulator({
               <CheckCircle className="w-7 h-7 text-[#00a859]" />
             </div>
             <div className="space-y-2">
-              <h3 className="font-extrabold text-base text-slate-900">Appointment rescheduled.</h3>
-              <p className="text-[11px] text-slate-500 leading-relaxed">Your appointment has been updated.</p>
+              <h3 className="font-extrabold text-base text-slate-900">{t('reschedule_success_title')}</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">{t('reschedule_success_desc')}</p>
             </div>
             {appointment && (
               <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 w-full text-left space-y-0.5">
-                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">New appointment</p>
+                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">{t('reschedule_new_appt')}</p>
                 <p className="text-[11px] font-bold text-slate-800 mt-1">{appointment.date}</p>
                 <p className="text-[10.5px] text-slate-600">{appointment.timeSlot}</p>
                 <p className="text-[10px] text-slate-500">{appointment.clinic}</p>
@@ -1832,7 +1874,7 @@ export default function PhoneSimulator({
               onClick={() => setBookingSubFlow(null)}
               className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center"
             >
-              Done
+              {t('reschedule_done_btn')}
             </button>
           </div>
         )}
@@ -1844,9 +1886,9 @@ export default function PhoneSimulator({
               <CheckCircle className="w-7 h-7 text-slate-400" />
             </div>
             <div className="space-y-2">
-              <h3 className="font-extrabold text-base text-slate-900">Your appointment has been cancelled.</h3>
+              <h3 className="font-extrabold text-base text-slate-900">{t('cancel_success_title')}</h3>
               <p className="text-[11px] text-slate-500 leading-relaxed">
-                You can book a new slot whenever you are ready.
+                {t('cancel_success_desc')}
               </p>
             </div>
             <div className="flex flex-col gap-2.5 w-full">
@@ -1860,13 +1902,13 @@ export default function PhoneSimulator({
                 }}
                 className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
               >
-                <Calendar className="w-4 h-4" /> Book a New Appointment
+                <Calendar className="w-4 h-4" /> {t('cancel_book_new_btn')}
               </button>
               <button
                 onClick={() => { setBookingSubFlow(null); onChangeScreen(ScreenId.Home); }}
                 className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition cursor-pointer text-center border border-slate-200"
               >
-                Return to Home
+                {t('cancel_return_home')}
               </button>
             </div>
           </div>
@@ -1912,9 +1954,54 @@ export default function PhoneSimulator({
                 </svg>
               </div>
 
-              {/* Settings Cog */}
-              <div className="cursor-pointer hover:opacity-80 transition" onClick={() => onChangeScreen(ScreenId.ReminderSettings)}>
-                <Settings className="w-5 h-5 text-slate-700" />
+              {/* Right controls: Language + Settings */}
+              <div className="flex items-center gap-1 relative">
+                {/* Globe / Language Selector */}
+                <button
+                  onClick={() => setLangMenuOpen(prev => !prev)}
+                  className="p-1 hover:bg-slate-100 rounded-full transition cursor-pointer"
+                  title={t('select_app_language')}
+                >
+                  <Globe className="w-5 h-5 text-slate-700" />
+                </button>
+
+                {/* Language Dropdown */}
+                {langMenuOpen && (
+                  <>
+                    {/* Backdrop */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setLangMenuOpen(false)}
+                    />
+                    {/* Menu */}
+                    <div className="absolute top-8 right-8 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 min-w-[160px] animate-fade-in">
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400 px-2 pt-1 pb-2 font-mono border-b border-slate-100 mb-1">
+                        {t('lang_pref_title')}
+                      </p>
+                      {(Object.entries(LANG_LABELS) as [Language, string][]).map(([code, label]) => (
+                        <button
+                          key={code}
+                          onClick={() => handleLanguageChange(code)}
+                          className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+                            language === code
+                              ? 'bg-emerald-50 text-emerald-700 font-bold'
+                              : 'text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          {label}
+                          {language === code && (
+                            <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[9px] font-black">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Settings Cog */}
+                <div className="cursor-pointer hover:opacity-80 transition p-1 hover:bg-slate-100 rounded-full" onClick={() => onChangeScreen(ScreenId.ReminderSettings)}>
+                  <Settings className="w-5 h-5 text-slate-700" />
+                </div>
               </div>
             </div>
 
@@ -1924,13 +2011,13 @@ export default function PhoneSimulator({
                 <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
                   <div className="flex items-center gap-1.5">
                     <Bell className="w-4 h-4 text-[#00a859]" />
-                    <h4 className="font-bold text-xs text-slate-800">Notifications</h4>
+                    <h4 className="font-bold text-xs text-slate-800">{t('notif_header')}</h4>
                   </div>
                   <button 
                     onClick={() => setShowNotificationPopup(false)} 
                     className="text-slate-400 hover:text-slate-600 font-bold text-xs p-1 cursor-pointer"
                   >
-                    Close
+                    {t('notif_close')}
                   </button>
                 </div>
                 <div className="space-y-3">
@@ -1944,9 +2031,9 @@ export default function PhoneSimulator({
                   >
                     <span className="w-2.5 h-2.5 rounded-full bg-[#00a859] mt-1.5 shrink-0" />
                     <div className="space-y-0.5">
-                      <p className="text-xs font-extrabold text-slate-800">FH Genetic Referral Active</p>
-                      <p className="text-[10px] text-slate-500 leading-normal">Your clinical referral is active. Read why your doctor recommended testing.</p>
-                      <span className="text-[9px] text-slate-400 block pt-0.5">2h ago</span>
+                      <p className="text-xs font-extrabold text-slate-800">{t('notif_referral_title')}</p>
+                      <p className="text-[10px] text-slate-500 leading-normal">{t('notif_referral_desc')}</p>
+                      <span className="text-[9px] text-slate-400 block pt-0.5">{t('notif_referral_time')}</span>
                     </div>
                   </button>
 
@@ -1961,15 +2048,15 @@ export default function PhoneSimulator({
                     <span className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${appointment.status === 'booked' ? 'bg-slate-300' : 'bg-rose-500'}`} />
                     <div className="space-y-0.5">
                       <p className="text-xs font-extrabold text-slate-800">
-                        {appointment.status === 'booked' ? 'Counselling Appointment Booked' : 'Action Required: Book Counselling'}
+                        {appointment.status === 'booked' ? t('notif_booking_booked') : t('notif_booking_unbooked')}
                       </p>
                       <p className="text-[10px] text-slate-500 leading-normal">
                         {appointment.status === 'booked' 
-                          ? `Pre-test genetic counselling confirmed for ${appointment.date} @ ${appointment.timeSlot}.`
-                          : 'Please secure your pre-test genetic counselling session slot.'}
+                          ? t('notif_booking_confirmed_msg').replace('{date}', appointment.date).replace('{time}', appointment.timeSlot)
+                          : t('notif_booking_pending_msg')}
                       </p>
                       <span className="text-[9px] text-slate-400 block pt-0.5">
-                        {appointment.status === 'booked' ? 'Just now' : '1d ago'}
+                        {appointment.status === 'booked' ? t('notif_time_just_now') : t('notif_time_1d_ago')}
                       </span>
                     </div>
                   </button>
@@ -2134,10 +2221,10 @@ export default function PhoneSimulator({
                         <Sparkles className="w-2.5 h-2.5" /> GovTech AI Companion
                       </span>
                       <h4 className="font-bold text-xs text-white tracking-tight leading-tight">
-                        Have FH Genetic testing concerns?
+                        {t('chatbot_banner_title')}
                       </h4>
                       <p className="text-[10px] text-slate-300 leading-normal">
-                        Get instant, secure answers on CHAS subsidies, insurance protections, and clinic preparation.
+                        {t('chatbot_banner_body')}
                       </p>
                     </div>
                     <div className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
@@ -2150,8 +2237,8 @@ export default function PhoneSimulator({
               {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-4">
-                  <h3 className="font-display font-bold text-slate-900 text-xs tracking-tight">Quick Links</h3>
-                  <button className="text-[#00a859] text-[11px] font-bold hover:underline">Edit</button>
+                  <h3 className="font-display font-bold text-slate-900 text-xs tracking-tight">{t('quick_links')}</h3>
+                  <button className="text-[#00a859] text-[11px] font-bold hover:underline">{t('edit')}</button>
                 </div>
 
                 {/* CTAs in 3-column grid layout */}
@@ -2163,7 +2250,7 @@ export default function PhoneSimulator({
                     <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center mb-1 shrink-0">
                       <Calendar className="w-4 h-4 text-rose-500" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Appointments</span>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_appointments')}</span>
                   </button>
 
                   {/* Card 2: CHAS */}
@@ -2184,14 +2271,14 @@ export default function PhoneSimulator({
                         <MessageSquare className="w-4 h-4 text-[#00a859]" />
                         <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#00a859] border-2 border-white rounded-full" />
                       </div>
-                      <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Ask AI</span>
+                      <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_ask_ai')}</span>
                     </button>
                   ) : (
                     <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
                       <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center mb-1 shrink-0">
                         <HelpCircle className="w-4 h-4 text-slate-500" />
                       </div>
-                      <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Help Desk</span>
+                      <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_help_desk')}</span>
                     </div>
                   )}
 
@@ -2200,7 +2287,7 @@ export default function PhoneSimulator({
                     <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1 shrink-0">
                       <FileText className="w-4 h-4 text-emerald-600" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Medical reports</span>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_medical_reports')}</span>
                   </div>
 
                   {/* Card 5: Medication Refill */}
@@ -2208,7 +2295,7 @@ export default function PhoneSimulator({
                     <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center mb-1 shrink-0">
                       <Pill className="w-4 h-4 text-amber-600" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Medication refill</span>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_medication_refill')}</span>
                   </div>
 
                   {/* Card 6: Payment */}
@@ -2216,7 +2303,7 @@ export default function PhoneSimulator({
                     <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center mb-1 shrink-0">
                       <CreditCard className="w-4 h-4 text-sky-600" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">Payment</span>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_payment')}</span>
                   </div>
                 </div>
               </div>
@@ -2224,7 +2311,7 @@ export default function PhoneSimulator({
               {/* 6. Programmes Section (1:1 with reference screenshot) */}
               <div className="space-y-2">
                 <div className="px-4">
-                  <h3 className="font-display font-bold text-slate-900 text-xs tracking-tight">Programmes</h3>
+                  <h3 className="font-display font-bold text-slate-900 text-xs tracking-tight">{t('link_programmes')}</h3>
                 </div>
 
                 <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-none">
@@ -2463,7 +2550,7 @@ export default function PhoneSimulator({
                 <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer">
                   <ArrowLeft className="w-5 h-5 text-slate-700" />
                 </button>
-                <span className="font-bold text-sm text-slate-800">Education Hub</span>
+                <span className="font-bold text-sm text-slate-800">{t('edu_hub_title')}</span>
               </div>
             </div>
 
@@ -2497,10 +2584,10 @@ export default function PhoneSimulator({
                 <div className="bg-[#00a859] text-white px-5 py-5 space-y-1.5 shrink-0">
                   <span className="text-[9.5px] font-bold tracking-widest text-emerald-100 font-mono uppercase">HI {patientFirstName},</span>
                   <h3 className="font-display font-extrabold text-sm text-white tracking-tight leading-snug">
-                    Your FH Learning Guide
+                    {t('edu_learning_guide_title')}
                   </h3>
                   <p className="text-[11px] text-emerald-50/90 leading-relaxed font-sans">
-                    A personalised guide on why and how to prepare after you have been referred for FH genetic testing.
+                    {t('edu_learning_guide_subtitle')}
                   </p>
                 </div>
 
@@ -2520,7 +2607,7 @@ export default function PhoneSimulator({
                       }`}
                     >
                       <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                      <span>Guides</span>
+                      <span>{t('edu_tab_guides')}</span>
                     </button>
                     <button
                       id="edu-tab-checklist"
@@ -2535,7 +2622,7 @@ export default function PhoneSimulator({
                       }`}
                     >
                       <CheckSquare className="w-3.5 h-3.5 shrink-0" />
-                      <span>Checklist</span>
+                      <span>{t('edu_tab_checklist')}</span>
                     </button>
                     <button
                       id="edu-tab-faq"
@@ -2550,7 +2637,7 @@ export default function PhoneSimulator({
                       }`}
                     >
                       <HelpCircle className="w-3.5 h-3.5 shrink-0" />
-                      <span>FAQs & Links</span>
+                      <span>{t('edu_tab_faqs')}</span>
                     </button>
                   </div>
                 </div>
@@ -2563,7 +2650,7 @@ export default function PhoneSimulator({
                       <div className="bg-emerald-50/50 border border-emerald-100/80 rounded-xl p-3 flex items-start gap-2.5">
                         <Info className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />
                         <p className="text-[10px] text-emerald-800 leading-normal font-medium">
-                          Please note: Being referred for a genetic test does not mean you have FH. It is simply a proactive measure to assess your natural risk.
+                          {t('edu_note')}
                         </p>
                       </div>
 
@@ -2616,8 +2703,8 @@ export default function PhoneSimulator({
                               <div className="w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center shadow-lg cursor-pointer transform active:scale-95 transition" onClick={() => setIsPlayingVideo(true)}>
                                 <Play className="w-6 h-6 text-white ml-0.5 fill-current" />
                               </div>
-                              <h4 className="font-bold text-xs mt-3">▶ What happens during FH testing?</h4>
-                              <p className="text-[10px] text-slate-400 mt-1 max-w-[240px]">See what to expect before your appointment.</p>
+                              <h4 className="font-bold text-xs mt-3">{t('edu_video_title')}</h4>
+                              <p className="text-[10px] text-slate-400 mt-1 max-w-[240px]">{t('edu_video_subtitle')}</p>
                             </div>
                           )}
                         </div>
@@ -2628,7 +2715,7 @@ export default function PhoneSimulator({
                             onClick={() => setIsPlayingVideo(!isPlayingVideo)}
                             className="text-emerald-400 font-bold hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
                           >
-                            {isPlayingVideo ? <><Pause className="w-3.5 h-3.5" /> Pause Story</> : <><Play className="w-3.5 h-3.5" /> Play Story</>}
+                            {isPlayingVideo ? <><Pause className="w-3.5 h-3.5" /> {t('edu_pause_story')}</> : <><Play className="w-3.5 h-3.5" /> {t('edu_play_story')}</>}
                           </button>
                           
                           <button 
@@ -2636,7 +2723,7 @@ export default function PhoneSimulator({
                             className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-medium transition cursor-pointer"
                           >
                             <FileText className="w-3.5 h-3.5 text-emerald-400" />
-                            {showTranscript ? 'Hide Transcript' : 'View Transcript'}
+                            {showTranscript ? t('edu_hide_transcript') : t('edu_view_transcript')}
                           </button>
                         </div>
                       </div>
@@ -2656,7 +2743,7 @@ export default function PhoneSimulator({
                       <div className="space-y-2.5">
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs">💡</span>
-                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#00a859] font-mono">Did You Know?</h4>
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#00a859] font-mono">{t('edu_did_you_know')}</h4>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           {/* Stat 1 */}
@@ -2664,10 +2751,10 @@ export default function PhoneSimulator({
                             <div className="text-xl">🇸🇬</div>
                             <div>
                               <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">1 in 250</h5>
-                              <p className="font-bold text-[10px] text-slate-800 leading-snug">Singaporeans have FH</p>
+                              <p className="font-bold text-[10px] text-slate-800 leading-snug">{t('edu_stat1_label')}</p>
                             </div>
                             <p className="text-[9.5px] text-slate-500 leading-relaxed">
-                              More common than most realize — over 22,000 Singaporeans are affected.
+                              {t('edu_stat1_body')}
                             </p>
                           </div>
 
@@ -2676,10 +2763,10 @@ export default function PhoneSimulator({
                             <div className="text-xl">🔍</div>
                             <div>
                               <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">~90%</h5>
-                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">go undiagnosed</p>
+                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat2_label')}</p>
                             </div>
                             <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
-                              9 out of 10 people with FH currently do not know they have it.
+                              {t('edu_stat2_body')}
                             </p>
                           </div>
 
@@ -2688,10 +2775,10 @@ export default function PhoneSimulator({
                             <div className="text-xl">❤️</div>
                             <div>
                               <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">Up to 80%</h5>
-                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">lower heart risk</p>
+                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat3_label')}</p>
                             </div>
                             <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
-                              Early diagnosis and simple treatment make a very big difference.
+                              {t('edu_stat3_body')}
                             </p>
                           </div>
 
@@ -2700,10 +2787,10 @@ export default function PhoneSimulator({
                             <div className="text-xl">👥</div>
                             <div>
                               <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">1 in 2</h5>
-                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">family risk</p>
+                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat4_label')}</p>
                             </div>
                             <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
-                              Each parent, sibling, or child has a 50% chance of inheritance.
+                              {t('edu_stat4_body')}
                             </p>
                           </div>
                         </div>
@@ -2712,29 +2799,29 @@ export default function PhoneSimulator({
                       {/* Learning Hub Accordions - Grouped */}
                       <div className="space-y-3.5">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">LEARNING HUB</h4>
+                          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('edu_learning_hub')}</h4>
                           <span className="text-[10px] text-slate-500 font-medium">3 Modules • 6 Topics</span>
                         </div>
 
                         {[
                           {
                             id: 'basics',
-                            title: 'Understanding FH & Meds',
-                            description: 'Learn about the genetic condition, physical signs, and standard treatments.',
+                            title: t('edu_group_basics_title'),
+                            description: t('edu_group_basics_desc'),
                             icon: 'BookOpen',
                             sectionIds: ['what-is-fh', 'medication-fh'],
                           },
                           {
                             id: 'journey',
-                            title: 'Your Clinical Journey',
-                            description: 'A step-by-step guide to testing and protecting your family.',
+                            title: t('edu_group_journey_title'),
+                            description: t('edu_group_journey_desc'),
                             icon: 'ClipboardList',
                             sectionIds: ['testing-guide', 'why-testing-matters'],
                           },
                           {
                             id: 'costs',
-                            title: 'Subsidies & Protections',
-                            description: 'MOH subsidies, MediSave coverage, and your legal insurance rights.',
+                            title: t('edu_group_costs_title'),
+                            description: t('edu_group_costs_desc'),
                             icon: 'Shield',
                             sectionIds: ['costs-subsidies', 'insurance-rights'],
                           },
@@ -2759,7 +2846,7 @@ export default function PhoneSimulator({
                                         {group.title}
                                       </h4>
                                       <span className="text-[8.5px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-100/35 shrink-0">
-                                        {group.sectionIds.length} Topics
+                                        {group.sectionIds.length} {t('edu_topics')}
                                       </span>
                                     </div>
                                     <p className="text-[10.5px] text-slate-500 leading-relaxed">
@@ -3034,7 +3121,7 @@ export default function PhoneSimulator({
                       {/* Helpful Resources Section */}
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono font-sans">Helpful Resources</h4>
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono font-sans">{t('edu_helpful_resources')}</h4>
                         </div>
 
                         <div className="space-y-2.5">
@@ -3109,7 +3196,7 @@ export default function PhoneSimulator({
                                     ))}
                                   </div>
                                   <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor}`}>
-                                    <span>View Resource</span>
+                                    <span>{t('edu_view_resource')}</span>
                                     <ExternalLink className="w-2.5 h-2.5 transition" />
                                   </div>
                                 </div>
@@ -3123,15 +3210,15 @@ export default function PhoneSimulator({
 
                   {/* Secure Booking CTA prompt */}
                   <div className="bg-[#00a859] text-white p-5 rounded-2xl shadow-sm text-center space-y-2.5">
-                    <h4 className="font-bold text-xs">Ready to book your GAC counselling slot?</h4>
+                    <h4 className="font-bold text-xs">{t('edu_cta_title')}</h4>
                     <p className="text-[10px] text-emerald-100 max-w-[260px] mx-auto leading-normal">
-                      Take the active step today. Booking takes under 20 seconds within HealthHub.
+                      {t('edu_cta_subtitle')}
                     </p>
                     <button
                       onClick={() => onChangeScreen(ScreenId.Booking)}
                       className="w-full py-2.5 bg-white hover:bg-slate-100 text-[#00a859] rounded-xl text-xs font-bold shadow-sm transition cursor-pointer select-none border border-transparent"
                     >
-                      Go to Secure Booking
+                      {t('edu_cta_btn')}
                     </button>
                   </div>
                 </div>
@@ -3278,7 +3365,7 @@ export default function PhoneSimulator({
                         </div>
                         <div className="grid grid-cols-12 gap-x-2 items-center">
                           <span className="col-span-5 text-slate-500 font-medium">{t('booking_session_duration')}</span>
-                          <strong className="col-span-7 text-slate-800 text-right font-semibold">{details.duration}</strong>
+                          <strong className="col-span-7 text-slate-800 text-right font-semibold">{details.duration.replace('mins', t('booking_mins'))}</strong>
                         </div>
                         <div className="grid grid-cols-12 gap-x-2 items-start pt-2 border-t border-slate-200">
                           <span className="col-span-5 text-slate-500 font-bold">{t('booking_out_of_pocket')}</span>
@@ -3418,13 +3505,13 @@ export default function PhoneSimulator({
                       {/* Your Location & Geolocation Control (User request 1) */}
                       <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-3xs text-left">
                         <div className="flex justify-between items-center">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Location:</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('booking_location_label')}</span>
                           <button 
                             onClick={() => setShowLocationModal(!showLocationModal)}
                             className="text-[11px] text-[#00a859] font-extrabold hover:underline flex items-center gap-1 cursor-pointer"
                           >
                             <MapPin className="w-3.5 h-3.5" />
-                            {showLocationModal ? 'Close Selector' : 'Change Location'}
+                            {showLocationModal ? t('booking_close_selector_btn') : t('booking_change_location')}
                           </button>
                         </div>
                         
@@ -3437,7 +3524,7 @@ export default function PhoneSimulator({
                               <h4 className="font-bold text-xs text-slate-800">{patientLocName}</h4>
                               {patientLocName === patientAddress && (
                                 <span className="bg-emerald-50 text-[#00a859] text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
-                                  Default address
+                                  {t('booking_default_address')}
                                 </span>
                               )}
                             </div>
@@ -3447,7 +3534,7 @@ export default function PhoneSimulator({
                         {showLocationModal && (
                           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-3 animate-fade-in text-xs">
                             <div className="space-y-1.5">
-                              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 font-mono">Search Location:</span>
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 font-mono">{t('booking_search_location')}</span>
                               <div className="relative flex items-center">
                                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
                                 <input
@@ -3475,7 +3562,7 @@ export default function PhoneSimulator({
                                 disabled={isDetectingLoc}
                                 className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                               >
-                                📍 {isDetectingLoc ? 'Detecting...' : 'Live Location'}
+                                📍 {isDetectingLoc ? t('booking_detecting') : t('booking_live_location')}
                               </button>
                               <button
                                 onClick={() => {
@@ -3487,14 +3574,14 @@ export default function PhoneSimulator({
                                 }}
                                 className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
                               >
-                                🏠 Default address
+                                🏠 {t('booking_default_address')}
                               </button>
                             </div>
 
                             {/* Search Results / Suggestions */}
                             <div className="space-y-1">
                               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-                                {locationSearchQuery ? 'Search Results:' : 'Suggestions:'}
+                                {locationSearchQuery ? t('booking_search_results') : t('booking_suggestions')}
                               </span>
                               <div className="max-h-32 overflow-y-auto space-y-1 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white p-1">
                                 {(locationSearchQuery 
@@ -3515,14 +3602,14 @@ export default function PhoneSimulator({
                                     <span className="truncate flex-1">{loc.name}</span>
                                     {loc.name === patientAddress && (
                                       <span className="bg-emerald-50 text-[#00a859] text-[8px] font-extrabold px-1 py-0.5 rounded border border-emerald-100 shrink-0">
-                                        Default
+                                        {t('booking_default_address')}
                                       </span>
                                     )}
                                   </button>
                                 ))}
                                 {locationSearchQuery && SEARCHABLE_LOCATIONS.filter(loc => loc.name.toLowerCase().includes(locationSearchQuery.toLowerCase())).length === 0 && (
                                   <div className="p-2 text-center text-[10px] text-slate-500">
-                                    No matches. Click below to use:
+                                    {t('booking_no_matches')}
                                     <button
                                       onClick={() => {
                                         setPatientCoords({ lat: 1.3521, lng: 103.8198 });
@@ -3570,11 +3657,11 @@ export default function PhoneSimulator({
                                 </p>
                                 <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                                   <span className="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                    Distance: {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance.toFixed(1)} km
+                                    {t('booking_distance')} {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance.toFixed(1)} km
                                   </span>
                                   {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance === minDistance && (
                                     <span className="text-[9px] font-sans font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 flex items-center gap-0.5">
-                                      ⭐ Nearest Clinic
+                                      ⭐ {t('booking_nearest_clinic')}
                                     </span>
                                   )}
                                 </div>
@@ -3736,11 +3823,11 @@ export default function PhoneSimulator({
                           </div>
                           <div className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 rounded-full bg-slate-400/20 border border-slate-300/80" />
-                            <span>Today</span>
+                            <span>{t('booking_legend_today')}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 rounded-full bg-[#00a859]" />
-                            <span>Selected Day</span>
+                            <span>{t('booking_legend_selected')}</span>
                           </div>
                         </div>
                       </div>
@@ -3772,7 +3859,7 @@ export default function PhoneSimulator({
                                     <div className="flex items-center gap-1 text-[10px] text-slate-500">
                                       <span className="font-semibold text-slate-600">{slot.provider}</span>
                                       <span className="text-slate-300">•</span>
-                                      <span>{slot.duration}</span>
+                                      <span>{slot.duration.replace('mins', t('booking_mins'))}</span>
                                     </div>
                                   </div>
                                 </div>
@@ -3892,7 +3979,7 @@ export default function PhoneSimulator({
               >
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
-              <span className="font-bold text-sm text-slate-800">Settings</span>
+              <span className="font-bold text-sm text-slate-800">{t('settings_title')}</span>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
@@ -4028,6 +4115,31 @@ export default function PhoneSimulator({
                   </button>
                 </div>
               )}
+
+              {/* ── Language Preferences ── */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-emerald-600" />
+                  {t('lang_pref_title')}
+                </label>
+                <p className="text-[10px] text-slate-500 leading-relaxed">{t('lang_pref_desc')}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(Object.entries(LANG_LABELS) as [Language, string][]).map(([code, label]) => (
+                    <button
+                      key={code}
+                      onClick={() => handleLanguageChange(code)}
+                      className={`py-2 px-3 rounded-xl text-xs font-semibold transition border cursor-pointer ${
+                        language === code
+                          ? 'bg-emerald-600 text-white border-emerald-600'
+                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50 hover:border-emerald-200'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
             </div>
           </div>
         )}
@@ -4278,7 +4390,7 @@ export default function PhoneSimulator({
                 >
                   <ArrowLeft className="w-5 h-5 text-slate-700" />
                 </button>
-                <span className="font-bold text-sm text-slate-800">My Profile</span>
+                <span className="font-bold text-sm text-slate-800">{t('profile_my_profile')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] bg-emerald-50 text-[#00a859] font-extrabold uppercase px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
@@ -4308,7 +4420,7 @@ export default function PhoneSimulator({
                   <h3 className="font-display font-extrabold text-sm text-slate-900">{patientFullName}</h3>
                   <div className="flex flex-wrap gap-1">
                     <span className="text-[9px] bg-emerald-50 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded border border-emerald-100">{patientNric}</span>
-                    <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded border border-slate-200">{patientGender}, {patientAge} yrs</span>
+                    <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded border border-slate-200">{patientGender === 'Male' ? t('gender_male') : t('gender_female')}, {patientAge} {t('profile_yrs')}</span>
                   </div>
                   <p className="text-[9px] text-slate-400 font-semibold uppercase font-mono tracking-wider">{t('profile_moh_identity_cleared')}</p>
                 </div>
@@ -4317,30 +4429,30 @@ export default function PhoneSimulator({
               {/* Personal Information */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-[#00a859]" /> Personal Information
+                  <User className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_personal')}
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Full name</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_full_name')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right">{patientFullName}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Date of birth</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_dob')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right">{patientDob}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Gender</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_gender')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right">{patientGender}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">NRIC / Health ID</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_nric')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right font-mono">{patientNric} / HH-98315</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-5 text-slate-500 font-medium">Preferred language</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_preferred_lang')}</span>
                     <span className="col-span-7 text-right flex items-center justify-end gap-1 font-semibold text-slate-800">
                       <Globe className="w-3.5 h-3.5 text-emerald-600" />
-                      English
+                      {LANG_LABELS[language]}
                     </span>
                   </div>
                 </div>
@@ -4349,19 +4461,19 @@ export default function PhoneSimulator({
               {/* Contact Information */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-[#00a859]" /> Contact Information
+                  <Phone className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_contact')}
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Mobile number</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_mobile')}</span>
                     <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">{patientRecord?.contact_details || '+65 9123 4567'}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Email address</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_email')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right truncate">{patientEmail}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-4 text-slate-500 font-medium">Residential address</span>
+                    <span className="col-span-4 text-slate-500 font-medium">{t('profile_label_address')}</span>
                     <span className="col-span-8 text-slate-600 text-[11px] leading-tight text-right">
                       {patientAddress}
                     </span>
@@ -4372,19 +4484,19 @@ export default function PhoneSimulator({
               {/* Emergency Contact */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <ShieldAlert className="w-3.5 h-3.5 text-[#00a859]" /> Emergency Contact
+                  <ShieldAlert className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_emergency')}
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Contact name</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_contact_name')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right">{patientEmergencyName}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Relationship</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_relationship')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right">{patientEmergencyRelationship}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-5 text-slate-500 font-medium">Phone number</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_phone')}</span>
                     <span className="col-span-7 text-slate-800 font-bold text-right font-mono">{patientEmergencyPhone}</span>
                   </div>
                 </div>
@@ -4393,11 +4505,11 @@ export default function PhoneSimulator({
               {/* Healthcare Preferences */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#00a859]" /> Healthcare Preferences
+                  <MapPin className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_healthcare')}
                 </h4>
                 <div className="space-y-3 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Preferred clinic</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_preferred_clinic')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right">{patientPrimaryClinic}</span>
                   </div>
                   
@@ -4408,7 +4520,7 @@ export default function PhoneSimulator({
                   >
                     <span className="flex items-center gap-1.5">
                       <Bell className="w-4 h-4 text-[#00a859]" />
-                      View Reminder & Notification Settings
+                      {t('profile_view_reminder_settings')}
                     </span>
                     <ChevronRight className="w-4 h-4 text-[#00a859]" />
                   </button>
@@ -4418,26 +4530,26 @@ export default function PhoneSimulator({
               {/* Medical Information */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3.5">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <HeartPulse className="w-3.5 h-3.5 text-[#00a859]" /> Medical Information
+                  <HeartPulse className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_medical')}
                 </h4>
                 <div className="space-y-2.5 text-xs">
                   {patientLdlCholesterol != null && (
                     <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                      <span className="col-span-5 text-slate-500 font-medium">LDL cholesterol</span>
+                      <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_ldl')}</span>
                       <span className={`col-span-7 text-right font-bold ${patientLdlCholesterol >= 4.9 ? 'text-rose-600' : 'text-emerald-700'}`}>
                         {patientLdlCholesterol.toFixed(1)} mmol/L
                       </span>
                     </div>
                   )}
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Active referrals</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_active_referrals')}</span>
                     <span className="col-span-7 text-right">
-                      <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100 rounded text-[10px]">FH Genetic Testing (MOH Subsidised)</span>
+                      <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100 rounded text-[10px]">{t('profile_fh_testing_badge')}</span>
                     </span>
                   </div>
                   
                   <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-4 text-slate-500 font-medium">Upcoming appts</span>
+                    <span className="col-span-4 text-slate-500 font-medium">{t('profile_label_upcoming_appts')}</span>
                     <span className="col-span-8 text-right font-medium text-slate-800 leading-normal">
                       {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
                         <div className="flex flex-col items-end">
@@ -4446,12 +4558,12 @@ export default function PhoneSimulator({
                         </div>
                       ) : (
                         <div className="flex flex-col items-end gap-1">
-                          <span className="text-slate-400">No scheduled appointments</span>
+                          <span className="text-slate-400">{t('profile_no_appointments')}</span>
                           <button 
                             onClick={() => onChangeScreen(ScreenId.Booking)}
                             className="text-[#00a859] font-bold text-[10px] hover:underline"
                           >
-                            Book counselling session now
+                            {t('profile_book_session_now')}
                           </button>
                         </div>
                       )}
@@ -4463,18 +4575,18 @@ export default function PhoneSimulator({
               {/* Account Section */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <Settings className="w-3.5 h-3.5 text-[#00a859]" /> Account
+                  <Settings className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_account')}
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Linked HealthHub account</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_linked_account')}</span>
                     <span className="col-span-7 text-emerald-700 font-extrabold text-right flex items-center justify-end gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#00a859]" /> Verified via Singpass
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_verified_singpass')}
                     </span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">Privacy settings</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">National Genomic Registry Secure</span>
+                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_privacy')}</span>
+                    <span className="col-span-7 text-slate-800 font-semibold text-right">{t('profile_privacy_registry')}</span>
                   </div>
                   <div className="pt-2">
                     <button
@@ -4485,7 +4597,7 @@ export default function PhoneSimulator({
                       className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
-                      Log out from HealthHub
+                      {t('profile_logout')}
                     </button>
                   </div>
                 </div>
@@ -4514,14 +4626,14 @@ export default function PhoneSimulator({
                 </button>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-sm text-slate-800">HealthBuddy AI</span>
+                    <span className="font-bold text-sm text-slate-800">{t('chatbot_title')}</span>
                     <span className="bg-emerald-500/10 text-[9px] text-[#00a859] font-mono px-1 rounded border border-emerald-500/20 font-bold flex items-center gap-0.5 select-none">
                       <Sparkles className="w-2.5 h-2.5" /> AI
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-[#00a859] rounded-full animate-pulse" />
-                    <span className="text-[9px] text-slate-400 font-medium">GovTech Support • Online</span>
+                    <span className="text-[9px] text-slate-400 font-medium">{t('chatbot_online')}</span>
                   </div>
                 </div>
               </div>
@@ -4588,18 +4700,18 @@ export default function PhoneSimulator({
 
             {/* Quick Replies */}
             <div className="p-2 border-t border-slate-100 bg-white flex gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 select-none">
-              {[
-                { text: 'Will this affect my insurance?', tag: 'insurance' },
-                { text: 'How much does FH testing cost?', tag: 'cost' },
-                { text: 'Does it affect my family members?', tag: 'family' },
-                { text: 'What should I prepare?', tag: 'prep' },
-              ].map((q, idx) => (
+              {([
+                { key: 'chatbot_quick_insurance', tag: 'insurance' },
+                { key: 'chatbot_quick_cost', tag: 'cost' },
+                { key: 'chatbot_quick_family', tag: 'family' },
+                { key: 'chatbot_quick_prep', tag: 'prep' },
+              ] as const).map((q, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleChatSend(q.text)}
+                  onClick={() => handleChatSend(t(q.key), q.tag)}
                   className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-200 transition shrink-0 active:scale-95 cursor-pointer"
                 >
-                  {q.text}
+                  {t(q.key)}
                 </button>
               ))}
             </div>
@@ -4611,7 +4723,7 @@ export default function PhoneSimulator({
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleChatSend(chatInput)}
-                placeholder="Ask about subsidies, insurance, prep..."
+                placeholder={t('chatbot_placeholder')}
                 className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#00a859] focus:bg-white transition"
               />
               <button
@@ -4626,7 +4738,7 @@ export default function PhoneSimulator({
             {/* Advisory Info */}
             <div className="px-3 py-2.5 bg-slate-50 text-[9px] text-slate-500 border-t border-slate-200 flex items-center gap-1.5 leading-snug shrink-0">
               <AlertCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
-              <span className="text-left font-medium">Providing official MOH Singapore and GovTech policy answers.</span>
+              <span className="text-left font-medium">{t('chatbot_footer')}</span>
             </div>
           </div>
         )}
@@ -4779,7 +4891,7 @@ export default function PhoneSimulator({
           <button
             onClick={() => setChatOpen(true)}
             className="absolute bottom-4 right-4 z-40 w-12 h-12 bg-[#00a859] hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 group"
-            title="Ask HealthBuddy AI"
+            title={t('chatbot_title')}
           >
             <MessageSquare className="w-5.5 h-5.5 text-white" />
           </button>
