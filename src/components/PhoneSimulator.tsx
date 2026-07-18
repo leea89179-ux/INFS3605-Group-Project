@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 
@@ -12,7 +12,7 @@ interface PhoneSimulatorProps {
   onBookAppointment: (date: string, time: string, clinic: string) => void;
   onAddCalendarEvent: () => void;
   reminderPrefs: ReminderPreferences;
-  onUpdateReminderPrefs: (enabled: boolean, channel: string, frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => void;
+  onUpdateReminderPrefs: (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => void;
   onTriggerNotification: () => void;
   onNotificationAction: (action: 'confirmed' | 'rescheduled' | 'education_viewed') => void;
   onCancelAppointment: () => void;
@@ -1791,6 +1791,77 @@ export default function PhoneSimulator({
                         <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
                       </button>
 
+
+        {/* ── Full-screen appointment sub-flows (inside chrome so status bar stays visible) ── */}
+
+        {/* RESCHEDULE – select new slot */}
+        {bookingSubFlow === 'reschedule-select' && (() => {
+          const rclinicsWithDistances = activeClinics.map(c => ({
+            ...c,
+            distance: calculateDistance(patientCoords.lat, patientCoords.lng, c.lat, c.lng),
+          })).sort((a, b) => a.distance - b.distance);
+          const rminDistance = Math.min(...rclinicsWithDistances.map(c => c.distance));
+          return (
+            <div className="flex flex-col flex-1 h-full overflow-hidden bg-slate-50 animate-fade-in">
+              {/* Header – matches "Secure Appointment Booking" layout */}
+              <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
+                <div className="w-8" />
+                <span className="flex-1 text-center font-bold text-sm text-slate-800">{t('reschedule_select_title')}</span>
+                <button
+                  onClick={handleExitReschedule}
+                  className="w-8 flex items-center justify-center p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto flex flex-col">
+                {/* Current appointment banner */}
+                {appointment && (
+                  <div className="mx-4 mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-start gap-2">
+                    <span className="mt-0.5 text-[#00a859]"><Calendar className="w-4 h-4" /></span>
+                    <div>
+                      <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">{t('reschedule_current_appt')}</p>
+                      <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{getLocalizedDate(appointment.date, language)}</p>
+                      <p className="text-[10.5px] text-emerald-700">{appointment.timeSlot} · {appointment.clinic}</p>
+                    </div>
+                  </div>
+                )}
+
+                <p className="mx-4 mt-3 text-[10.5px] text-slate-500">
+                  {t('reschedule_choose_desc')}
+                </p>
+
+                <div className="px-4 pb-4 mt-3 space-y-4">
+                  {/* Clinic selector */}
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('reschedule_select_clinic')}</label>
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowRescheduleClinicDropdown(!showRescheduleClinicDropdown)}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center shadow-3xs cursor-pointer text-left transition hover:border-emerald-600/40"
+                      >
+                        <div className="flex gap-2.5 min-w-0 items-center">
+                          <div className="p-1.5 bg-emerald-50 rounded-lg shrink-0">
+                            <MapPin className="w-4 h-4 text-[#00a859]" />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-xs text-slate-800 truncate">
+                              {activeClinics.find(c => c.id === rescheduleClinicId)?.name}
+                            </h4>
+                            <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
+                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} {t('booking_km_away')}
+                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance === rminDistance && (
+                                <span className="ml-1 text-emerald-700 font-semibold">· {t('reschedule_nearest')}</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+                      </button>
+
                       {showRescheduleClinicDropdown && (
                         <div className="absolute top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 shadow-md z-40 overflow-hidden divide-y divide-slate-100 animate-fade-in max-h-48 overflow-y-auto">
                           {rclinicsWithDistances.map((clinic) => {
@@ -2345,6 +2416,45 @@ export default function PhoneSimulator({
                             style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
                           />
 
+
+                    {/* Primary & Secondary Call to Actions */}
+                    <div className="flex flex-col gap-2">
+                      <button
+                        id="hh-home-primary-cta"
+                        onClick={() => onChangeScreen(ScreenId.Booking)}
+                        className="w-full h-11 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent"
+                      >
+                        {appointment.status === 'booked' ? 'Manage booking' : t('book_now_btn')} <ChevronRight className="w-4 h-4" />
+                      </button>
+                      {isFHReferred && (
+                        <button
+                          onClick={() => onChangeScreen(ScreenId.ReferralIntro)}
+                          className="w-full py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
+                        >
+                          {t('why_referred_btn')}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Patient Journey Progress Pathway */}
+                    {isFHReferred && (
+                      <div 
+                        onClick={() => onChangeScreen(ScreenId.ProgressTimeline)}
+                        className="space-y-3 pt-3.5 px-2 pb-1.5 border-t border-emerald-100/50 cursor-pointer hover:bg-emerald-50/50 rounded-xl transition-all duration-200 group"
+                      >
+                        <div className="flex justify-between items-center">
+                          <p className="text-[10px] font-bold text-emerald-800/80 uppercase tracking-widest font-sans group-hover:text-[#00a859] transition-colors">{t('your_journey')}</p>
+                          <ChevronRight className="w-3.5 h-3.5 text-emerald-600/70 group-hover:text-[#00a859] transition-all transform group-hover:translate-x-0.5" />
+                        </div>
+                        <div className="relative flex items-start justify-between px-3 pt-1" style={{ minHeight: '52px' }}>
+                          {/* Connecting Line Background */}
+                          <div className="absolute top-[9px] left-[12%] right-[12%] h-[3px] bg-slate-100 rounded-full" />
+                          {/* Colored Active Line */}
+                          <div 
+                            className="absolute top-[9px] left-[12%] h-[3px] bg-gradient-to-r from-emerald-400 to-[#00a859] rounded-full transition-all duration-500" 
+                            style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
+                          />
+
                           {/* Step 1: Referral */}
                           <div className="flex flex-col items-center relative z-10 w-[64px]">
                             <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
@@ -2616,6 +2726,16 @@ export default function PhoneSimulator({
                       <HeartPulse className="w-5 h-5 text-[#00a859]" />
                     </div>
                     <p className="text-xs text-slate-600 leading-relaxed pt-2">
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed pt-2">
+                      {t('genetic_testing_confirms')}
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <HeartPulse className="w-5 h-5 text-[#00a859]" />
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed pt-2">
                       {t('referred_results_help_team')}
                     </p>
                   </div>
@@ -2700,6 +2820,12 @@ export default function PhoneSimulator({
                       {t('referred_next_step_learning')}
                     </p>
                   </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {t('referred_next_step_learning')}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -2763,6 +2889,7 @@ export default function PhoneSimulator({
           <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50">
             {/* Top Navigation */}
             <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0">
               <div className="flex items-center gap-2">
                 <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer">
                   <ArrowLeft className="w-5 h-5 text-slate-700" />
@@ -2833,6 +2960,7 @@ export default function PhoneSimulator({
                 textSize === 'lg' ? 'education-text-lg' :
                 'education-text-md'
               }`}>
+              <div className="flex-1 overflow-y-auto flex flex-col pb-6">
                 {/* Profile Info Row */}
                 <div className="bg-emerald-50/60 border-b border-emerald-100 px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0">
                   <span className="text-slate-600">{t('patient_label')}: <strong className="text-slate-800">{patientName} ({patientNric})</strong></span>
@@ -4304,6 +4432,73 @@ export default function PhoneSimulator({
                     <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${reminderPrefs.enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
                 </div>
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left">
+                        <div className="space-y-1 border-b border-slate-100 pb-3 text-left font-sans">
+                          <span className="text-[9px] font-mono text-slate-400 uppercase font-bold tracking-wider">{t('booking_assigned_specialist')}</span>
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-slate-150 text-[#00a859] font-extrabold flex items-center justify-center text-xs">
+                              {slot.provider.split(' ').pop()?.substring(0, 2).toUpperCase() || 'HL'}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-xs text-slate-800">{slot.provider}</h4>
+                              <p className="text-[10px] text-slate-500">{slot.role}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 text-xs text-left">
+                          <div className="flex justify-between items-start gap-4">
+                            <span className="text-slate-500 font-medium">{t('booking_care_clinic')}</span>
+                            <span className="text-slate-800 text-right font-semibold">{slot.clinic}</span>
+                          </div>
+                          <div className="flex justify-between items-start gap-4">
+                            <span className="text-slate-500 font-medium">{t('booking_address_label')}</span>
+                            <span className="text-slate-500 text-right text-[11px] leading-snug">{slot.address}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 font-medium">{t('booking_date_label')}</span>
+                            <span className="text-slate-800 font-semibold font-mono">{getLocalizedDate(slot.date, language)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 font-medium">{t('booking_time_label')}</span>
+                            <span className="text-slate-800 font-semibold font-mono">{slot.time}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 font-medium">{t('booking_duration_label')}</span>
+                            <span className="text-slate-800 font-semibold">{slot.duration.replace('mins', t('booking_mins'))}</span>
+                          </div>
+                          <div className="flex justify-between border-t border-slate-100 pt-2.5 mt-2.5">
+                            <span className="text-slate-500 font-bold">{t('booking_out_of_pocket_label')}</span>
+                            <span className="text-[#00a859] font-extrabold font-mono">{slot.cost}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 space-y-2">
+                        <button
+                          onClick={() => handleBookSubmit(selectedSlotIdx || 0)}
+                          className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-700/10 transition cursor-pointer"
+                        >
+                          {t('booking_confirm_slot_btn')}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setBookingStep('available');
+                            setSelectedSlotIdx(null);
+                            setSelectedSlotObj(null);
+                          }}
+                          className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition cursor-pointer border border-slate-200"
+                        >
+                          {t('reschedule_slot')}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+        )}
 
                 {reminderPrefs.enabled && (
                   <div className="space-y-4 animate-fade-in text-left">
@@ -4408,6 +4603,118 @@ export default function PhoneSimulator({
                           {reminderPrefs.frequency !== '2_weeks' && reminderPrefs.frequency !== '1_week' && reminderPrefs.frequency !== 'monthly' && t('active_freq_standard')}
                         </p>
                       </div>
+        {/* ----------------- SCREEN 4: REMINDERS ----------------- */}
+        {activeScreen === ScreenId.ReminderSettings && (
+          <div className="flex-col flex flex-1 h-full overflow-hidden">
+            {/* Top Navigation */}
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left shrink-0">
+              <button 
+                onClick={() => onChangeScreen(ScreenId.Home)} 
+                className="p-1 hover:bg-slate-100 rounded-full"
+              >
+                <ArrowLeft className="w-5 h-5 text-slate-700" />
+              </button>
+              <span className="font-bold text-sm text-slate-800">{t('settings_title')}</span>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
+              <div>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {isFHReferred ? t('settings_desc') : (
+                    language === 'ms' ? 'Konfigurasikan bagaimana dan bila anda menerima rujukan pesakit luar am dan makluman janji temu.' :
+                    language === 'zh' ? '配置您接收普通门诊转诊和预约提醒的方式和时间。' :
+                    language === 'ta' ? 'பொது வெளிநோயாளி பரிந்துரைகள் மற்றும் சந்திப்பு விழிப்பூட்டல்களை எப்போது பெறுவது என்பதை அமைக்கவும்.' :
+                    'Configure how and when you receive outpatient referral and appointment alerts.'
+                  )}
+                </p>
+              </div>
+
+              {/* Master Toggle */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex justify-between items-center">
+                <div>
+                  <h4 className="font-bold text-xs text-slate-800">
+                    {isFHReferred ? t('active_reminders') : (
+                      language === 'ms' ? 'Peringatan Aktif' :
+                      language === 'zh' ? '启用提醒' :
+                      language === 'ta' ? 'செயலில் உள்ள நினைவூட்டல்கள்' :
+                      'Active Reminders'
+                    )}
+                  </h4>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{t('active_reminders_desc')}</p>
+                </div>
+                <button
+                  onClick={() => onUpdateReminderPrefs(!reminderPrefs.enabled, reminderPrefs.channel, reminderPrefs.frequency)}
+                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${reminderPrefs.enabled ? 'bg-[#00a859]' : 'bg-slate-300'}`}
+                >
+                  <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${reminderPrefs.enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {reminderPrefs.enabled && (
+                <div className="space-y-4 animate-fade-in text-left">
+                  
+                  {/* Select Channel */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('notification_channel')}</label>
+                    <div className="relative">
+                      <select
+                        id="reminder-channel-select"
+                        value={reminderPrefs.channel}
+                        onChange={(e) => onUpdateReminderPrefs(reminderPrefs.enabled, e.target.value as any, reminderPrefs.frequency === 'custom' ? '1_week' : reminderPrefs.frequency)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-3 pr-10 text-xs text-slate-800 font-medium cursor-pointer appearance-none focus:outline-none focus:border-[#00a859] focus:ring-1 focus:ring-[#00a859] transition"
+                      >
+                        <option value="sms">{t('settings_option_sms_only')}</option>
+                        <option value="push">{t('settings_option_push_only')}</option>
+                        <option value="both">{t('settings_option_both')}</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                        <ChevronDown className="w-4 h-4 text-slate-500" />
+                      </div>
+                    </div>
+                    {/* Short explanatory help text below dropdown */}
+                    <p className="text-[10px] text-slate-500 leading-normal">
+                      {reminderPrefs.channel === 'sms' && t('settings_help_sms')}
+                      {reminderPrefs.channel === 'push' && t('settings_help_push')}
+                      {reminderPrefs.channel === 'both' && (
+                        isFHReferred ? t('settings_help_both') : (
+                          language === 'ms' ? 'Sistem kami menghantar makluman kepada kedua-dua saluran SMS dan Push Aplikasi.' :
+                          language === 'zh' ? '系统将同时发送短信和应用推送提醒。' :
+                          language === 'ta' ? 'எஸ்.எம்.எஸ் மற்றும் புஷ் அறிவிப்புகள் இரண்டிலும் நினைவூட்டல்கள் அனுப்பப்படும்.' :
+                          'Our system sends alerts to both SMS and App Push channels.'
+                        )
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Frequency settings */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('reminder_frequency')}</label>
+                    <div className="relative">
+                      <select
+                        id="reminder-frequency-select"
+                        value={reminderPrefs.frequency === 'custom' || reminderPrefs.frequency === '1_day' ? '1_week' : reminderPrefs.frequency}
+                        onChange={(e) => onUpdateReminderPrefs(reminderPrefs.enabled, reminderPrefs.channel, e.target.value as any)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-3 pr-10 text-xs text-slate-800 font-medium cursor-pointer appearance-none focus:outline-none focus:border-[#00a859] focus:ring-1 focus:ring-[#00a859] transition"
+                      >
+                        <option value="2_weeks">{t('freq_comprehensive')}</option>
+                        <option value="1_week">{t('freq_standard')}</option>
+                        <option value="monthly">{t('freq_minimal')}</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                        <ChevronDown className="w-4 h-4 text-slate-500" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-500 leading-normal">
+                      {t('frequency_desc')}
+                    </p>
+                    <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3.5 space-y-1 text-left">
+                      <div className="text-[9.5px] font-bold text-emerald-800 tracking-wider font-mono uppercase">{t('active_schedule')}</div>
+                      <p className="text-xs font-bold text-slate-800 font-sans">
+                        {reminderPrefs.frequency === '2_weeks' && t('active_freq_comprehensive')}
+                        {reminderPrefs.frequency === '1_week' && t('active_freq_standard')}
+                        {reminderPrefs.frequency === 'monthly' && t('active_freq_minimal')}
+                        {reminderPrefs.frequency !== '2_weeks' && reminderPrefs.frequency !== '1_week' && reminderPrefs.frequency !== 'monthly' && t('active_freq_standard')}
+                      </p>
                     </div>
 
                     {/* Dynamic previews based on selected channels */}
@@ -4625,6 +4932,123 @@ export default function PhoneSimulator({
                     </button>
                   </div>
                 )}
+
+              {/* ── Language Preferences ── */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-emerald-600" />
+                  {t('lang_pref_title')}
+                </label>
+                <p className="text-[10px] text-slate-500 leading-relaxed">{t('lang_pref_desc')}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(Object.entries(LANG_LABELS) as [Language, string][]).map(([code, label]) => (
+                    <button
+                      key={code}
+                      onClick={() => handleLanguageChange(code)}
+                      className={`py-2 px-3 rounded-xl text-xs font-semibold transition border cursor-pointer ${
+                        language === code
+                          ? 'bg-emerald-600 text-white border-emerald-600'
+                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50 hover:border-emerald-200'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                  {/* Dynamic previews based on selected channels */}
+                  {(reminderPrefs.channel === 'sms' || reminderPrefs.channel === 'both') && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
+                        <span>{t('settings_sms_preview_title')}</span>
+                        <span className="text-emerald-700">{t('settings_sms_verified_sender')}</span>
+                      </label>
+                      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 border-b border-slate-100 pb-2">
+                          <Smartphone className="w-3.5 h-3.5 text-slate-400" />
+                          <span>MOH-HealthHub</span>
+                          <span className="ml-auto text-[9px] font-mono">{t('sms_today')}, 09:41 AM</span>
+                        </div>
+                        <div className="bg-slate-100 p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-slate-200/50">
+                          {(() => {
+                            const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
+                            const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
+                            const bookedClinicName = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.clinic : activeClinics[0].name;
+                            const nameStr = patientFirstName.charAt(0) + patientFirstName.slice(1).toLowerCase();
+
+                            if (isFHReferred) {
+                              return t('settings_sms_prefix')
+                                .replace('{date}', dateStr)
+                                .replace('{time}', timeStr);
+                            }
+
+                            if (language === 'ms') {
+                              return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi sehingga 75% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
+                            } else if (language === 'zh') {
+                              return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 75% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
+                            } else if (language === 'ta') {
+                              return `MOH HealthHub: ${dateStr} அன்று ${timeStr} மணிக்கு ${bookedClinicName}-இல் உங்கள் பொது வெளிநோயாளி ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 75% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/gen-ref`;
+                            } else {
+                              return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Subsidies up to 75% are cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
+                            }
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {(reminderPrefs.channel === 'push' || reminderPrefs.channel === 'both') && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                        {t('settings_lockscreen_preview_title')}
+                      </label>
+                      <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
+                        <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
+                          <div className="w-4 h-4 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
+                          <span>{t('settings_lockscreen_header')}</span>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-bold text-slate-100">
+                            {isFHReferred ? t('lock_counselling_reminder') : (
+                              language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
+                              language === 'zh' ? '普通门诊就诊提醒' :
+                              language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
+                              'Outpatient Appointment Reminder'
+                            )}
+                          </h4>
+                          <p className="text-[10.5px] text-slate-300 leading-snug">
+                            {(() => {
+                              const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
+                              const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
+                              if (isFHReferred) {
+                                return t('lockscreen_push_msg')
+                                  .replace('{date}', dateStr)
+                                  .replace('{time}', timeStr);
+                              }
+                              if (language === 'ms') {
+                                return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
+                              } else if (language === 'zh') {
+                                return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
+                              } else if (language === 'ta') {
+                                return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
+                              } else {
+                                return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
+                              }
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mock notify trigger */}
+                  <button
+                    onClick={onTriggerNotification}
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Bell className="w-4 h-4" /> {t('lock_trigger_push_alert')}
+                  </button>
+                </div>
+              )}
 
               {/* ── Language Preferences ── */}
               <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
@@ -5398,6 +5822,7 @@ export default function PhoneSimulator({
                   textSize === 'lg' ? 'education-text-lg' :
                   'education-text-md'
                 }`}>
+                <div className="bg-white w-full max-w-[340px] min-h-[380px] rounded-lg shadow-md p-4.5 flex flex-col border border-slate-300 relative select-text">
                   {/* Subtle watermarks and page header */}
                   <div className="border-b border-slate-100 pb-2 mb-3 flex justify-between items-center text-[8px] text-slate-400 font-bold uppercase tracking-wider font-mono">
                     <span>FIRST HEALTH GROUP • EDUCATIONAL SERVICES</span>
