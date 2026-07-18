@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageSquare, Sparkles, User, RefreshCw, AlertCircle, X } from 'lucide-react';
 import { faqs } from '../data/education';
-import { Language, UI_TRANSLATIONS } from '../data/translations';
 
 interface Message {
   id: string;
@@ -10,43 +9,29 @@ interface Message {
   timestamp: Date;
 }
 
+const quickQuestions = [
+  { text: 'Will this affect my insurance?', tag: 'insurance' },
+  { text: 'How much does FH testing cost?', tag: 'cost' },
+  { text: 'Does it affect my family members?', tag: 'family' },
+  { text: 'What should I prepare?', tag: 'prep' },
+];
+
 interface ChatbotProps {
   onClose?: () => void;
-  language?: Language;
 }
 
-function t(lang: Language, key: string): string {
-  return UI_TRANSLATIONS[lang]?.[key] || UI_TRANSLATIONS['en']?.[key] || key;
-}
-
-function getQuickQuestions(lang: Language) {
-  return [
-    { text: t(lang, 'chatbot_quick_insurance'), tag: 'insurance' },
-    { text: t(lang, 'chatbot_quick_cost'), tag: 'cost' },
-    { text: t(lang, 'chatbot_quick_family'), tag: 'family' },
-    { text: t(lang, 'chatbot_quick_prep'), tag: 'prep' },
-  ];
-}
-
-function getGreeting(lang: Language): Message {
-  return {
-    id: 'init-1',
-    sender: 'bot',
-    text: t(lang, 'chatbot_greeting'),
-    timestamp: new Date(),
-  };
-}
-
-export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
-  const [messages, setMessages] = useState<Message[]>([getGreeting(language)]);
+export default function Chatbot({ onClose }: ChatbotProps) {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 'init-1',
+      sender: 'bot',
+      text: "Hello! I am **HealthBuddy**, your GovTech Singapore FH Assistant. I can help answer questions about **Familial Hypercholesterolaemia (FH)**, test costs, insurance moratoriums, and booking. What's on your mind today?",
+      timestamp: new Date(),
+    },
+  ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Reset greeting when language changes
-  useEffect(() => {
-    setMessages([getGreeting(language)]);
-  }, [language]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,8 +48,8 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
     return parts.map((part, index) => {
       if (index % 2 === 1) {
         return (
-          <strong
-            key={index}
+          <strong 
+            key={index} 
             className={`font-extrabold ${isBot ? 'text-[#00a859] font-black' : 'text-white'}`}
           >
             {part}
@@ -93,7 +78,7 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, language }),
+      body: JSON.stringify({ message: text }),
     })
       .then((res) => {
         if (!res.ok) throw new Error('Server returned an error');
@@ -111,32 +96,32 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
       })
       .catch((err) => {
         console.warn('[Chatbot] Backend /api/chat error, falling back to local simulation rules:', err);
-
+        
         // Simulate GovTech Smart Bot response (Local Fallback - Extremely concise & bold-formatted)
         setTimeout(() => {
           let botResponse = '';
           const query = text.toLowerCase();
 
-          if (query.includes('insurance') || query.includes('shield') || query.includes('policy') || query.includes('insurans') || query.includes('保险') || query.includes('காப்பீடு')) {
+          if (query.includes('insurance') || query.includes('shield') || query.includes('policy')) {
             botResponse = "Under the Singapore **LIA Moratorium**, life and health insurers **cannot** ask you to disclose genetic test results for standard coverage limits. Existing plans like **MediShield Life** or Integrated Shield are completely unaffected.";
-          } else if (query.includes('cost') || query.includes('subsidy') || query.includes('pay') || query.includes('price') || query.includes('chas') || query.includes('medisave') || query.includes('kos') || query.includes('费用') || query.includes('கட்டணம்')) {
+          } else if (query.includes('cost') || query.includes('subsidy') || query.includes('pay') || query.includes('price') || query.includes('chas') || query.includes('medisave')) {
             botResponse = "FH testing is subsidized **50% to 75%** by MOH for eligible Singaporeans. Out-of-pocket costs typically range from **S$50 to S$120** and can be **fully paid using MediSave** under chronic care guidelines.";
-          } else if (query.includes('family') || query.includes('children') || query.includes('parents') || query.includes('cascade') || query.includes('keluarga') || query.includes('家人') || query.includes('குடும்ப')) {
+          } else if (query.includes('family') || query.includes('children') || query.includes('parents') || query.includes('cascade')) {
             botResponse = "FH is inherited, meaning first-degree family members have a **50% chance** of sharing the gene. If your test is positive, your team will help coordinate **cascade screening** to protect your family's hearts early.";
-          } else if (query.includes('prepare') || query.includes('prep') || query.includes('checklist') || query.includes('fast') || query.includes('sediakan') || query.includes('准备') || query.includes('தயார்')) {
+          } else if (query.includes('prepare') || query.includes('prep') || query.includes('checklist') || query.includes('fast')) {
             botResponse = "No fasting is needed! Just prepare a **family medical history** (especially early heart attacks), your **current medications**, and your **Singpass**. A 30-minute counselling session will guide you first.";
           } else if (query.includes('what') && (query.includes('fh') || query.includes('cholesterol'))) {
             botResponse = "FH is a genetic condition causing **extremely high LDL cholesterol from birth**, unaffected by diet alone. Early genetic detection allows doctors to customize **highly effective preventative treatment** like statins.";
-          } else if (query.includes('statin') || query.includes('medication') || query.includes('pill') || query.includes('treatment') || query.includes('ubat') || query.includes('药物') || query.includes('மருந்து')) {
+          } else if (query.includes('statin') || query.includes('medication') || query.includes('pill') || query.includes('treatment')) {
             botResponse = "FH is highly manageable using daily **statins**, which safely lower LDL by up to **50%**. Never adjust your prescribed dosage without consulting your clinical team.";
-          } else if (query.includes('booking') || query.includes('reschedule') || query.includes('appointment') || query.includes('tempah') || query.includes('预约') || query.includes('முன்பதிவு')) {
+          } else if (query.includes('booking') || query.includes('reschedule') || query.includes('appointment')) {
             botResponse = "You can schedule or reschedule your genetic counselling session instantly! Navigate to the **Book** tab inside the simulated phone in the middle of the screen.";
           } else {
             // Fallback search in FAQs or generic supportive GovTech reply
-            const matchedFaq = faqs.find(faq =>
+            const matchedFaq = faqs.find(faq => 
               query.split(' ').some(word => word.length > 4 && faq.question.toLowerCase().includes(word))
             );
-
+            
             if (matchedFaq) {
               botResponse = `**Answer:** ${matchedFaq.answer} More details can be found on our **Learn** tab!`;
             } else {
@@ -158,10 +143,15 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
   };
 
   const handleReset = () => {
-    setMessages([getGreeting(language)]);
+    setMessages([
+      {
+        id: 'init-1',
+        sender: 'bot',
+        text: "Hello! I am **HealthBuddy**, your GovTech Singapore FH Assistant. I can help answer questions about **Familial Hypercholesterolaemia (FH)**, test costs, insurance moratoriums, and booking. What's on your mind today?",
+        timestamp: new Date(),
+      },
+    ]);
   };
-
-  const quickQuestions = getQuickQuestions(language);
 
   return (
     <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
@@ -173,7 +163,7 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-semibold text-slate-100">{t(language, 'chatbot_title')}</span>
+              <span className="text-sm font-semibold text-slate-100">HealthBuddy Assistant</span>
               <span className="bg-[#00a859]/15 text-[10px] text-emerald-400 font-mono px-1 rounded border border-emerald-500/20 flex items-center gap-0.5 font-bold">
                 <Sparkles className="w-2.5 h-2.5" />
                 AI
@@ -181,14 +171,14 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
             </div>
             <div className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[10px] text-slate-400">{t(language, 'chatbot_online')}</span>
+              <span className="text-[10px] text-slate-400">GovTech Support - Online</span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={handleReset}
-            title={t(language, 'chatbot_reset')}
+            title="Reset conversation"
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -196,7 +186,7 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
           {onClose && (
             <button
               onClick={onClose}
-              title={t(language, 'chatbot_close')}
+              title="Close chat"
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer"
             >
               <X className="w-4 h-4" />
@@ -277,7 +267,7 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend(input)}
-          placeholder={t(language, 'chatbot_placeholder')}
+          placeholder="Ask about subsidies, insurance protection, prep..."
           className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
         />
         <button
@@ -292,7 +282,7 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
       {/* Advisory Info */}
       <div className="px-3 py-2 bg-slate-950 text-[10px] text-slate-500 border-t border-slate-800 flex items-center gap-1.5 leading-snug shrink-0">
         <AlertCircle className="w-3 h-3 text-emerald-600 shrink-0" />
-        <span className="text-left font-medium">{t(language, 'chatbot_footer')}</span>
+        <span className="text-left font-medium">Providing official MOH Singapore and GovTech policy answers.</span>
       </div>
     </div>
   );
