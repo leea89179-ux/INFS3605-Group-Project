@@ -30,122 +30,122 @@ export const educationalSections: EduSection[] = [
   {
     id: 'what-is-fh',
     title: 'What is FH?',
-    shortSummary: 'What FH is and why early diagnosis matters.',
-    readingTime: '3 min read',
-    content: "Familial Hypercholesterolaemia (FH) is an inherited condition that prevents the body from clearing 'bad' LDL cholesterol from the blood. Unlike standard high cholesterol caused by diet or lifestyle, FH cholesterol levels are extremely high from birth, which can silently damage blood vessels and increase the risk of early heart disease.",
-    keyTakeaway: 'FH is entirely genetic and present from birth, meaning medical therapy is almost always required alongside healthy habits.',
+    shortSummary: 'Understand FH and why early diagnosis matters.',
+    readingTime: '1 min read',
+    content: "Familial Hypercholesterolaemia (FH) is a genetic condition present from birth that makes it hard for your body to clear 'bad' LDL cholesterol. This causes extremely high cholesterol levels from birth, which can silently build up in blood vessels and lead to early heart issues.",
+    keyTakeaway: 'FH is genetic, not caused by diet or lifestyle. Medicine is usually required alongside healthy habits.',
     iconName: 'BookOpen',
-    tags: ['cholesterol', 'genetics', 'heart health'],
+    tags: ['cholesterol', 'genetics'],
     subsections: [
       {
         title: 'HOW COMMON IS IT?',
-        text: 'FH affects approximately 1 in 250 Singaporeans. Most people with FH are unaware they have it until they receive a genetic test.'
+        text: 'FH affects about 1 in 250 Singaporeans. Most people do not know they have it until they receive a genetic test.'
       },
       {
         title: 'IS IT MY FAULT?',
-        text: 'No. FH is entirely genetic. It is inherited from parents and cannot be resolved through diet or exercise alone—though healthy habits are still crucial.'
+        text: 'No. FH is 100% inherited from parents and cannot be fully managed by diet or exercise alone.'
       }
     ]
   },
   {
     id: 'why-testing-matters',
     title: 'Protecting Your Family',
-    shortSummary: 'How cascade screening keeps your loved ones safe.',
-    readingTime: '3 min read',
-    content: "Genetic testing is the gold standard to confirm if you have FH. Finding the specific gene variation responsible for your high cholesterol allows doctors to customize your preventative care and protect those you love most.",
-    keyTakeaway: 'One test can protect both you and the people you love.',
+    shortSummary: 'How family screening keeps your loved ones safe.',
+    readingTime: '1 min read',
+    content: "Genetic testing is the gold standard to confirm if you have FH. Knowing your gene variation helps doctors customize your care and protect your family members who might have inherited the same gene.",
+    keyTakeaway: 'A single test can help protect your siblings, children, and parents.',
     iconName: 'Users',
-    tags: ['family', 'cascade screening', 'children'],
+    tags: ['family', 'cascade screening'],
     subsections: [
       {
-        title: 'PROTECTING YOUR FAMILY (CASCADE SCREENING)',
-        text: 'If you test positive, your parents, siblings, and children have a 50% chance of having the same gene. Testing allows them to get screened and start preventative care early, saving lives.'
+        title: 'PROTECTING YOUR FAMILY',
+        text: 'If you test positive, your close relatives have a 50% chance of having the same gene. Testing helps them start preventative care early.'
       },
       {
         title: 'PRECISION TREATMENT',
-        text: 'Confirming your FH genotype helps your doctor select the precise dosage and type of lipid-lowering medication (such as high-potency statins).'
+        text: 'Confirming your FH genotype lets your doctor select the precise dosage and type of medication.'
       }
     ]
   },
   {
     id: 'testing-guide',
     title: 'Your Testing Guide',
-    shortSummary: 'Step by step from counselling to your results.',
-    readingTime: '4 min read',
-    content: "Your referral journey is designed to be highly structured, supportive, and completely outpatient. No fasting is required for the standard blood draw.",
-    keyTakeaway: 'Every step is designed to fit seamlessly into your normal schedule.',
+    shortSummary: 'Step-by-step from counselling to results.',
+    readingTime: '1.5 min read',
+    content: "Your referral journey is structured, supportive, and outpatient. No fasting is required for the simple blood draw.",
+    keyTakeaway: 'Every step is designed to fit seamlessly into your schedule.',
     iconName: 'ClipboardList',
-    tags: ['blood test', 'counselling', 'what to expect'],
+    tags: ['blood test', 'counselling'],
     steps: [
-      { num: 1, title: 'Learn about FH', description: 'Read these simple, personalised guides in your HealthHub app.' },
-      { num: 2, title: 'Book counselling', description: 'Schedule your session easily directly on this app with your preferred slot.' },
-      { num: 3, title: 'Attend the session', description: 'A friendly 30-minute talk with a genetic counsellor to review family history.' },
-      { num: 4, title: 'Standard blood draw', description: 'A simple 10-minute draw at the clinic. No fasting or diet prep needed.' },
-      { num: 5, title: 'Get results in 4-6 weeks', description: 'Meet with your specialist to receive a clear, easy-to-understand explanation.' },
-      { num: 6, title: 'Custom preventative plan', description: 'If confirmed, start safe, subsidized therapies that bring your risk back to normal.' }
+      { num: 1, title: 'Learn about FH', description: 'Read these simple, personalized guides in your app.' },
+      { num: 2, title: 'Book counselling', description: 'Schedule your session easily directly on this app.' },
+      { num: 3, title: 'Attend the session', description: 'A friendly 30-minute talk with a genetic counsellor.' },
+      { num: 4, title: 'Simple blood draw', description: 'A 10-minute outpatient draw. No fasting needed.' },
+      { num: 5, title: 'Get results in 4-6 weeks', description: 'Meet with your specialist to receive a clear explanation.' },
+      { num: 6, title: 'Custom care plan', description: 'Start safe, subsidized therapies that bring your risk back to normal.' }
     ]
   },
   {
     id: 'costs-subsidies',
     title: 'Costs and Subsidies',
-    shortSummary: 'What you pay and how subsidies and MediSave help.',
-    readingTime: '2.5 min read',
-    content: "GovTech Singapore works with the Ministry of Health to ensure healthcare remains accessible. Genetic testing for FH is heavily subsidized.",
-    keyTakeaway: 'Out-of-pocket costs are highly claimable via MediSave under chronic disease management guidelines.',
+    shortSummary: 'MOH subsidies and MediSave support.',
+    readingTime: '1 min read',
+    content: "Singapore's Ministry of Health ensures genetic testing for FH is heavily subsidized and highly affordable.",
+    keyTakeaway: 'Most out-of-pocket costs can be fully paid using MediSave.',
     iconName: 'Coins',
-    tags: ['MediSave', 'CHAS', 'subsidies'],
+    tags: ['MediSave', 'subsidies'],
     subsections: [
       {
         title: 'MOH SUBSIDIES',
-        text: 'Eligible Singapore Citizens receive 50% to 75% subsidies for the genetic counselling and test, depending on their household means-testing tier.'
+        text: 'Eligible Singapore Citizens receive 50% to 75% subsidies for both genetic counselling and the test itself.'
       },
       {
         title: 'MEDISAVE USAGE',
-        text: 'The remaining out-of-pocket costs can be offset using your MediSave account under the chronic disease management guidelines, minimizing immediate cash payment.'
+        text: 'You can use your MediSave account under chronic disease guidelines, minimizing cash payment.'
       },
       {
-        title: 'CHAS CARD BENEFITS',
-        text: 'CHAS Blue, Orange, and Pioneer/Merdeka Generation cardholders receive enhanced subsidies, which are automatically applied at checkout.'
+        title: 'CHAS BENEFITS',
+        text: 'CHAS Blue, Orange, and Pioneer/Merdeka Generation cardholders receive enhanced subsidies automatically.'
       }
     ]
   },
   {
     id: 'insurance-rights',
     title: 'Insurance & Your Rights',
-    shortSummary: 'How the LIA Moratorium protects you.',
-    readingTime: '3 min read',
-    content: "Singapore's Ministry of Health and the Life Insurance Association (LIA) maintain a strict Consumer Code on Genetic Testing to safeguard your healthcare data and insurance access.",
-    keyTakeaway: 'National guidelines completely safeguard your right to take a proactive test without any policy impact.',
+    shortSummary: 'How national guidelines protect you.',
+    readingTime: '1 min read',
+    content: "Singapore's strict Consumer Code on Genetic Testing safeguards your healthcare data and insurance access.",
+    keyTakeaway: 'National guidelines safeguard your right to take a proactive test without policy impact.',
     iconName: 'Shield',
-    tags: ['insurance', 'privacy', 'LIA moratorium'],
+    tags: ['insurance', 'privacy'],
     subsections: [
       {
         title: 'NO IMPACT ON EXISTING PLANS',
-        text: 'Existing active policies (like MediShield Life or Integrated Shield Plans) can never be altered, canceled, or re-priced.'
+        text: 'Existing active policies (like MediShield Life or Integrated Shield Plans) can never be altered or canceled.'
       },
       {
         title: 'STRICT LIA MORATORIUM',
-        text: 'Insurers are prohibited from asking you to take a genetic test, or from asking for genetic results for standard life/health policies below high thresholds.'
+        text: 'Insurers cannot force you to take a genetic test, nor can they ask for results for standard policies below high thresholds.'
       }
     ]
   },
   {
     id: 'medication-fh',
     title: 'Medication & FH',
-    shortSummary: 'How statins work and what to expect.',
-    readingTime: '2 min read',
-    content: "Because FH is a genetic condition present from birth, lifestyle changes alone are usually not enough to lower cholesterol to safe levels. Daily medications play a critical role in reducing your risk.",
-    keyTakeaway: 'Starting treatment early can reduce your cardiovascular risk back to that of the general population.',
+    shortSummary: 'How treatments keep your heart safe.',
+    readingTime: '1 min read',
+    content: "Because FH is genetic, lifestyle changes alone are usually not enough to lower cholesterol. Highly safe daily medications play a key role in protecting your blood vessels.",
+    keyTakeaway: 'Starting treatment early can reduce your heart disease risk back to normal.',
     iconName: 'Pill',
-    tags: ['statins', 'medication', 'treatment'],
+    tags: ['statins', 'treatment'],
     subsections: [
       {
         title: 'ROLE OF STATINS',
-        text: 'Statins are extremely safe and well-studied medications that help your liver clear cholesterol from your blood.'
+        text: 'Statins are extremely safe, well-studied medicines that help your liver clear bad cholesterol from your blood.'
       },
       {
         title: 'EARLY TREATMENT SAVES LIVES',
-        text: 'Starting treatment early can reduce your cardiovascular risk back to that of the general population.'
+        text: 'Starting treatment early reduces your cardiovascular risk back to that of the general population.'
       }
     ]
   }

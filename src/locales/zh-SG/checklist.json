@@ -1,0 +1,15 @@
+{
+  "mandatory_nric": "携带身份证 (NRIC) 或使用 Singpass 进行身份验证",
+  "mandatory_meds": "准备一份您目前正在服用的药物和膳食补充剂清单",
+  "knowledge_new": "阅读“了解 FH”指南，学习遗传性高胆固醇与普通胆固醇的区别。",
+  "knowledge_little_research": "观看 Lisa Ho 的基因咨询示范视频，了解基因咨询期间会发生什么。",
+  "knowledge_advanced": "记下任何非常具体的基因技术或遗传问题，以便与您的基因咨询师讨论。",
+  "topic_costs": "验证您的 CHAS/PG/MG 状态，以确认您的基因检测政府补贴率。",
+  "topic_insurance": "在 HealthHub 中查看新加坡人寿保险协会 (LIA) 的暂缓协议说明书。",
+  "topic_family": "起草一份直系血亲（父母、兄弟姐妹、子女）清单，以便讨论家系筛查。",
+  "topic_treatment": "写下关于降脂药物长期安全性、副作用或费用的任何疑问。",
+  "concern_test": "准备关于 DNA 样本采集方式和结果反馈周期的疑问。",
+  "concern_family": "列出在 50 岁之前发生过早期心脏病发作或患有高胆固醇的家族成员。",
+  "concern_cost": "查看 MOH 资助方案和用于基因检测费用的 MediSave 限额。",
+  "concern_insurance": "找到您目前生效的人寿和健康保险保单文件，以确保权益不受影响。"
+}

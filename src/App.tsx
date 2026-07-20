@@ -252,7 +252,7 @@ export default function App() {
     );
   };
 
-  const handleReminderPrefsTransaction = async (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => {
+  const handleReminderPrefsTransaction = async (enabled: boolean, channel: string, frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => {
     const pref = reminderPrefTable.find(r => r.patient_id === selectedPatientId);
     const reminderId = pref?.reminder_id || `REM${Math.floor(100 + Math.random() * 900)}`;
 

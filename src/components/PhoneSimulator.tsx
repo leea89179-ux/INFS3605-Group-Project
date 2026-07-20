@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
+import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
@@ -12,7 +13,7 @@ interface PhoneSimulatorProps {
   onBookAppointment: (date: string, time: string, clinic: string) => void;
   onAddCalendarEvent: () => void;
   reminderPrefs: ReminderPreferences;
-  onUpdateReminderPrefs: (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => void;
+  onUpdateReminderPrefs: (enabled: boolean, channel: string, frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => void;
   onTriggerNotification: () => void;
   onNotificationAction: (action: 'confirmed' | 'rescheduled' | 'education_viewed') => void;
   onCancelAppointment: () => void;
@@ -999,21 +1000,82 @@ export default function PhoneSimulator({
     return 0;
   };
 
+  // Onboarding Personalisation Feature states
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('fh-onboarding-completed');
+      return stored === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [onboardingStep, setOnboardingStep] = useState<number>(1);
+  const [onboardingFamiliarity, setOnboardingFamiliarity] = useState<'new' | 'little' | 'research' | 'advanced' | null>(() => {
+    try {
+      return (localStorage.getItem('fh-onboarding-familiarity') as any) || null;
+    } catch {
+      return null;
+    }
+  });
+  const [onboardingTopics, setOnboardingTopics] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('fh-onboarding-topics');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [onboardingConcerns, setOnboardingConcerns] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('fh-onboarding-concerns');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [questionnaireStatus, setQuestionnaireStatus] = useState<'completed' | 'skipped' | null>(() => {
+    try {
+      return (localStorage.getItem('fh-questionnaire-status') as any) || null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Keep checklist synced with language, onboarding status, and database percentComplete
   useEffect(() => {
-    const localized = getLocalizedChecklist(language);
-    const itemsToCheck = percentToCount(percentComplete || 0);
-    setChecklist(
-      localized.map((item, idx) => ({
-        ...item,
-        checked: idx < itemsToCheck,
-      }))
+    const rawItems = getLocalizedChecklist(
+      language,
+      onboardingCompleted ? onboardingFamiliarity : null,
+      onboardingTopics,
+      onboardingConcerns
     );
-  }, [percentComplete, language]);
+
+    setChecklist((currentList) => {
+      const isFirstInit = !currentList || currentList.length === 0;
+      
+      if (isFirstInit && percentComplete !== undefined) {
+        const itemsToCheckCount = Math.round((percentComplete / 100) * rawItems.length);
+        return rawItems.map((item, idx) => ({
+          ...item,
+          checked: idx < itemsToCheckCount,
+        }));
+      }
+
+      return rawItems.map((item) => {
+        const existing = currentList.find((c) => c.id === item.id);
+        return {
+          ...item,
+          checked: existing ? existing.checked : false,
+        };
+      });
+    });
+  }, [language, onboardingCompleted, onboardingFamiliarity, onboardingTopics, onboardingConcerns, percentComplete]);
 
   const [eduExpanded, setEduExpanded] = useState<Record<string, boolean>>({});
+  const [forceFullExpand, setForceFullExpand] = useState<Record<string, boolean>>({});
   const [activeFaqCategory, setActiveFaqCategory] = useState<string>('all');
   const [faqExpanded, setFaqExpanded] = useState<Record<number, boolean>>({});
-  const [checklist, setChecklist] = useState(preCounsellingChecklist);
+  const [checklist, setChecklist] = useState<any[]>([]);
   const [viewingChecklist, setViewingChecklist] = useState<boolean>(false);
   const [eduSubTab, setEduSubTab] = useState<'guides' | 'checklist' | 'faq'>('guides');
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
@@ -1021,6 +1083,41 @@ export default function PhoneSimulator({
   const [showTranscript, setShowTranscript] = useState(false);
   const [faqActiveIdx, setFaqActiveIdx] = useState<number | null>(null);
   const [textSize, setTextSize] = useState<'sm' | 'md' | 'lg'>('md');
+  const [questionnaireTextSize, setQuestionnaireTextSize] = useState<'sm' | 'md' | 'lg'>('md');
+
+  const [showOtherTopics, setShowOtherTopics] = useState<boolean>(false);
+  const [expandedOtherTopicId, setExpandedOtherTopicId] = useState<string | null>(null);
+  const [showCascadeTooltip, setShowCascadeTooltip] = useState<boolean>(false);
+
+  const handleCompleteOnboarding = (completed: boolean = true, status?: 'completed' | 'skipped') => {
+    setOnboardingCompleted(completed);
+    setShowOtherTopics(false);
+    setExpandedOtherTopicId(null);
+    const resolvedStatus = status || (completed ? 'completed' : 'skipped');
+    setQuestionnaireStatus(resolvedStatus);
+    try {
+      localStorage.setItem('fh-onboarding-completed', completed ? 'true' : 'false');
+      localStorage.setItem('fh-questionnaire-status', resolvedStatus);
+      localStorage.setItem('fh-onboarding-familiarity', onboardingFamiliarity || '');
+      localStorage.setItem('fh-onboarding-topics', JSON.stringify(onboardingTopics));
+      localStorage.setItem('fh-onboarding-concerns', JSON.stringify(onboardingConcerns));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleRetakeOnboarding = () => {
+    setOnboardingStep(1);
+    setOnboardingCompleted(false);
+    setShowOtherTopics(false);
+    setExpandedOtherTopicId(null);
+    setQuestionnaireStatus(null);
+    try {
+      localStorage.removeItem('fh-questionnaire-status');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const scaleText = (defaultClass: string) => {
     if (textSize === 'md') return defaultClass;
@@ -1059,6 +1156,368 @@ export default function PhoneSimulator({
   const [selectedResource, setSelectedResource] = useState<HelpfulResource | null>(null);
   const [resourcePage, setResourcePage] = useState<number>(0);
   const [downloadToast, setDownloadToast] = useState<string | null>(null);
+
+  // 1. Personalized Onboarding - Helper to determine if a section is recommended
+  const isSectionRecommended = (secId: string) => {
+    if (!onboardingCompleted) return false;
+    if (secId === 'what-is-fh' && (onboardingFamiliarity === 'new' || onboardingTopics.includes('topic-basics') || onboardingConcerns.includes('concern-diagnosis') || onboardingConcerns.includes('concern-curious'))) return true;
+    if (secId === 'why-testing-matters' && (onboardingTopics.includes('topic-family') || onboardingConcerns.includes('concern-family'))) return true;
+    if (secId === 'testing-guide' && (onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next') || onboardingConcerns.includes('concern-test'))) return true;
+    if (secId === 'costs-subsidies' && (onboardingTopics.includes('topic-costs') || onboardingConcerns.includes('concern-cost'))) return true;
+    if (secId === 'insurance-rights' && (onboardingTopics.includes('topic-insurance') || onboardingConcerns.includes('concern-insurance'))) return true;
+    if (secId === 'medication-fh' && (onboardingTopics.includes('topic-treatment') || onboardingConcerns.includes('concern-meds'))) return true;
+    return false;
+  };
+
+  // 2. Learning Groups in their default order
+  const sortedGroups = [
+    {
+      id: 'basics',
+      title: t('edu_group_basics_title'),
+      description: t('edu_group_basics_desc'),
+      icon: 'BookOpen',
+      sectionIds: ['what-is-fh', 'medication-fh'],
+    },
+    {
+      id: 'journey',
+      title: t('edu_group_journey_title'),
+      description: t('edu_group_journey_desc'),
+      icon: 'ClipboardList',
+      sectionIds: ['testing-guide', 'why-testing-matters'],
+    },
+    {
+      id: 'costs',
+      title: t('edu_group_costs_title'),
+      description: t('edu_group_costs_desc'),
+      icon: 'Shield',
+      sectionIds: ['costs-subsidies', 'insurance-rights'],
+    },
+  ];
+
+  // List of all 11 guide topics
+  const allGuideTopics = useMemo(() => {
+    const orderedIds = [
+      'what-is-fh',
+      'heart-health',
+      'genetic-testing',
+      'cascade-screening',
+      'treatment-medication',
+      'healthy-lifestyle',
+      'testing-process',
+      'costs-subsidies',
+      'insurance'
+    ];
+
+    if (onboardingCompleted && questionnaireStatus === 'completed') {
+      const level = onboardingFamiliarity || 'new';
+      return orderedIds.map(id => {
+        return getPersonalisedGuideContent(id, level, onboardingConcerns, language);
+      });
+    }
+
+    const localizedSections = getLocalizedEducationalSections(language);
+    
+    const idTranslationMapping: Record<string, string> = {
+      'what-is-fh': 'what-is-fh',
+      'cascade-screening': 'why-testing-matters',
+      'genetic-testing': 'genetic-testing',
+      'heart-health': 'heart-health',
+      'treatment-medication': 'medication-fh',
+      'healthy-lifestyle': 'healthy-lifestyle',
+      'testing-process': 'testing-guide',
+      'costs-subsidies': 'costs-subsidies',
+      'insurance': 'insurance-rights'
+    };
+
+    const level = onboardingFamiliarity || 'beginner';
+    const isBeginner = level === 'beginner' || level === 'new' || level === 'little';
+
+    const englishCards: Record<string, any> = {
+      'what-is-fh': {
+        title: 'What is FH?',
+        shortSummary: 'What FH is and why early diagnosis matters.',
+        readingTime: '3 min read',
+        iconName: 'BookOpen',
+        keyTakeaway: 'FH is entirely genetic and present from birth.',
+        content: isBeginner 
+          ? "Familial Hypercholesterolaemia (FH) is a common genetic condition present from birth that prevents the body from clearing 'bad' LDL cholesterol from the blood. Unlike standard high cholesterol caused by diet or lifestyle, FH cholesterol levels are extremely high from birth, which can silently damage blood vessels. Armed with early diagnosis, clinical treatment can bring your heart risk back to a completely normal level."
+          : "Familial Hypercholesterolaemia (FH) is an autosomal dominant disorder characterized by severely elevated plasma low-density lipoprotein cholesterol (LDL-C) levels and premature cardiovascular disease. Genetic mutations typically occur in the LDLR, APOB, or PCSK9 genes. Early therapeutic interventions such as high-intensity statins can drastically reduce cumulative LDL-C exposure and lower lifetime cardiovascular risk to baseline.",
+        subsections: [
+          {
+            title: 'HOW COMMON IS IT?',
+            text: 'FH affects approximately 1 in 250 Singaporeans. Most people with FH are completely unaware they have it until they undergo a clinical genetic test.'
+          },
+          {
+            title: 'IS IT MY FAULT?',
+            text: 'No. FH is 100% genetic. It is inherited from a parent and cannot be solved through diet or exercise alone—although healthy habits remain vital.'
+          }
+        ]
+      },
+      'cascade-screening': {
+        title: 'Cascade Screening',
+        shortSummary: 'How testing helps identify and protect your close blood relatives.',
+        readingTime: '3 min read',
+        iconName: 'Users',
+        keyTakeaway: 'One test can protect both you and the people you love.',
+        content: isBeginner
+          ? "Cascade screening is a structured family-based screening program. If you are diagnosed with FH, your parents, siblings, and children have a 50% chance of sharing the same gene variation. Reaching out to them early allows them to get a simple, heavily subsidized test to protect their hearts from silent risk."
+          : "Cascade screening leverages cascade family contact tracing. Because FH is an autosomal dominant genetic condition, first-degree relatives have a 50% prior probability of inheritance. Identifying a pathogenic variant allows cascade testing of relatives to start early lipid-lowering interventions.",
+        subsections: [
+          {
+            title: 'PROTECTING YOUR FAMILY (CASCADE SCREENING)',
+            text: 'If your test is positive, your parents, siblings, and children have a 50% chance of having the same gene. Testing allows them to be screened and start early preventative care, saving lives.'
+          },
+          {
+            title: 'PRECISION TREATMENT',
+            text: 'Confirming your FH genotype helps clinicians select the exact right dosage and type of lipid-lowering medication (such as high-potency statins).'
+          }
+        ]
+      },
+      'genetic-testing': {
+        title: 'Genetic Testing',
+        shortSummary: 'Learn how genetic testing works and what the results mean.',
+        readingTime: '2 min read',
+        iconName: 'Dna',
+        keyTakeaway: 'Confirming your FH genotype allows clinicians to personalize your preventative treatment with high precision.',
+        content: isBeginner
+          ? "Genetic testing is a safe, simple blood draw that looks at your DNA to confirm if you have FH. Unlike standard cholesterol tests that only measure fat levels in the blood, a genetic test identifies the specific gene variation responsible. It takes 4 to 6 weeks for results, which helps your care team personalize your cardiovascular protection plan."
+          : "Clinical genetic testing employs Next-Generation Sequencing (NGS) to analyze key candidate genes, principally LDLR, APOB, and PCSK9. Confirming a pathogenic variant provides definitive diagnostic verification of FH, assists in cardiovascular risk stratification, and serves as the precise molecular index required for familial cascade screening."
+      },
+      'heart-health': {
+        title: 'Heart Health',
+        shortSummary: 'Understand how inherited high cholesterol impacts cardiovascular risk over time.',
+        readingTime: '2 min read',
+        iconName: 'Heart',
+        keyTakeaway: 'Early diagnosis and active management can prevent lipid build-up and keep your cardiovascular system strong.',
+        content: isBeginner
+          ? "Inherited high cholesterol causes 'bad' LDL cholesterol to build up silently in your blood vessels starting from birth. This build-up, known as arterial plaque, can narrow your arteries over time and increase the risk of heart attacks. Identifying FH early and starting treatment prevents this plaque from forming, keeping your heart and blood vessels strong."
+          : "Elevated serum LDL-C in FH patients drives accelerated atherogenesis from gestation. Lifelong exposure to high circulating lipid particles leads to progressive subendothelial accumulation of ApoB-containing lipoproteins, triggering macrophage foam cell formation, fibrous cap development, and premature coronary artery disease."
+      },
+      'treatment-medication': {
+        title: 'Treatment and Medication',
+        shortSummary: 'How highly effective, subsidized treatments protect your heart.',
+        readingTime: '2 min read',
+        iconName: 'Pill',
+        keyTakeaway: 'Starting treatment early can reduce your cardiovascular risk back to normal.',
+        content: isBeginner
+          ? "Because FH is inherited, diet and exercise are not enough to bring cholesterol to safe levels. Highly safe, daily medications like statins play a critical role. Statins help your liver clear 'bad' cholesterol out of your blood. When started early, treatments are incredibly effective and can lower your heart disease risk back to that of the general population."
+          : "Pharmacotherapy for FH is centered on maximizing hepatic LDL receptor expression. High-potency statins (e.g., Atorvastatin, Rosuvastatin) act as HMG-CoA reductase inhibitors, reducing intracellular cholesterol synthesis and upregulating LDL receptors. Combination therapy with Ezetimibe or PCSK9 inhibitors is frequently employed to achieve target LDL-C reductions.",
+        subsections: [
+          {
+            title: 'THE ROLE OF STATINS',
+            text: 'Statins are highly safe, thoroughly researched medications that help your liver clear cholesterol from your blood.'
+          },
+          {
+            title: 'EARLY TREATMENT SAVES LIVES',
+            text: 'Starting treatment early can reduce your cardiovascular risk back to the level of the general population.'
+          }
+        ]
+      },
+      'healthy-lifestyle': {
+        title: 'Healthy Lifestyle',
+        shortSummary: 'Key dietary and exercise habits to support your cardiovascular system.',
+        readingTime: '2 min read',
+        iconName: 'HeartPulse',
+        keyTakeaway: 'A heart-healthy foundation supports your body and optimizes the effectiveness of medical therapies.',
+        content: isBeginner
+          ? "A heart-healthy lifestyle is an essential foundation for managing FH. Focus on eating high-fiber foods (like oats, vegetables, and beans) and limiting saturated fats (found in fatty meats and butter). Regular physical activity, such as 30 minutes of brisk walking most days, supports your heart muscles and improves overall blood circulation."
+          : "Lifestyle modification serves as an obligatory adjunct to pharmacotherapy in FH management. A low-saturated-fat, high-soluble-fiber diet reduces exogenous cholesterol intake and enhances bile acid excretion. Regular aerobic exercise optimizes endothelial nitric oxide synthase (eNOS) activity, improves cardiovascular reserve, and helps manage secondary metabolic risks."
+      },
+      'testing-process': {
+        title: 'Testing Process',
+        shortSummary: 'Step-by-step walkthrough of what happens from counselling to blood draw.',
+        readingTime: '4 min read',
+        iconName: 'ClipboardList',
+        keyTakeaway: 'Every step is designed to fit seamlessly into your normal schedule.',
+        content: isBeginner
+          ? "Your genetic testing journey is completely outpatient and designed to fit into your schedule. It involves three simple steps: a friendly 30-minute pre-test counselling session to review family history, a standard 10-minute blood draw with no fasting required, and a follow-up results consultation 4 to 6 weeks later to discuss your personalized care plan."
+          : "The diagnostic testing pathway consists of systematic pre-test genetic counselling to evaluate familial risk, obtain informed consent, and map a 3-generation pedigree. This is followed by genomic sample collection (saliva or peripheral blood) and laboratory molecular analysis, culminating in a post-test results disclosure and clinical management consultation.",
+        steps: [
+          { num: 1, title: 'Learn about FH', description: 'Read this personalized guide in your HealthHub app.' },
+          { num: 2, title: 'Book counselling', description: 'Schedule your session easily in this app.' },
+          { num: 3, title: 'Attend session', description: 'A friendly 30-minute chat with a genetic counsellor to review family history.' },
+          { num: 4, title: 'Standard blood draw', description: 'A simple 10-minute blood draw at the clinic. No fasting or dietary prep required.' },
+          { num: 5, title: 'Get results in 4-6 weeks', description: 'Meet with your specialist to receive a clear explanation of your results.' },
+          { num: 6, title: 'Tailored preventative plan', description: 'If confirmed, start safe, subsidized treatments that return your risk to normal.' }
+        ]
+      },
+      'costs-subsidies': {
+        title: 'Costs and Subsidies',
+        shortSummary: 'MOH subsidies, MediSave coverage, and out-of-pocket costs.',
+        readingTime: '2.5 min read',
+        iconName: 'Coins',
+        keyTakeaway: 'Out-of-pocket costs are highly claimable via MediSave.',
+        content: isBeginner
+          ? "Healthcare in Singapore remains affordable and accessible. Clinical genetic testing for FH is subsidized by the Ministry of Health (MOH). Eligible Singapore Citizens receive up to 75% subsidies based on means-testing. The remaining co-pay can be paid using MediSave under the Chronic Disease Management Scheme, minimizing cash out-of-pocket."
+          : "FH genetic testing and counselling are highly cost-effective through MOH clinical subventions. Singapore Citizens are eligible for 50% to 75% subvention rates. The remainder constitutes a claimable expense under the MediSave500/700 Chronic Disease Management Scheme (CDMS), significantly reducing direct financial barriers to molecular diagnosis.",
+        subsections: [
+          {
+            title: 'MOH SUBSIDIES',
+            text: 'Eligible Singapore Citizens receive 50% to 75% subsidies for genetic counselling and testing, depending on their household means-test level.'
+          },
+          {
+            title: 'MEDISAVE CLAIMS',
+            text: 'Remaining out-of-pocket costs can be co-paid using your MediSave account under the Chronic Disease Management Scheme guidelines, minimizing cash outlay.'
+          },
+          {
+            title: 'CHAS CARD BENEFITS',
+            text: 'CHAS Blue, Orange, and Pioneer/Merdeka Generation cardholders receive enhanced subsidies, applied automatically at billing.'
+          }
+        ]
+      },
+      'insurance': {
+        title: 'Insurance Considerations',
+        shortSummary: 'How national guidelines protect your right to take a voluntary test.',
+        readingTime: '3 min read',
+        iconName: 'Shield',
+        keyTakeaway: 'National guidelines completely safeguard your right to take a proactive test.',
+        content: isBeginner
+          ? "Singapore's Ministry of Health and the Life Insurance Association (LIA) have established a strict moratorium on genetic testing. Insurers are legally prohibited from asking you to take a genetic test, and they cannot ask for voluntary genetic test results to deny standard life or health insurance policies, protecting your and your family's right to seek care."
+          : "The Singapore LIA Moratorium on Genetic Testing protects consumers against risk-rating or denial of coverage based on predictive clinical genetic tests. Insurers cannot mandate genetic testing, nor request predictive test results for underwriting standard life and health insurance policies under the established financial thresholds (e.g., S$500,000 for standard life insurance).",
+        subsections: [
+          {
+            title: 'NO IMPACT ON EXISTING POLICIES',
+            text: 'Existing active policies (like MediShield Life or Integrated Shield Plans) cannot be altered, cancelled, or re-priced based on genetic test results.'
+          },
+          {
+            title: 'STRICT LIA MORATORIUM',
+            text: 'Insurers are prohibited from asking you to take a genetic test, or from requesting genetic results for standard life/health policies under high limits.'
+          }
+        ]
+      }
+    };
+
+    return orderedIds.map(id => {
+      const englishCard = englishCards[id];
+      if (language === 'en') {
+        return { id, ...englishCard };
+      }
+
+      const mappedId = idTranslationMapping[id];
+      const localizedSec = localizedSections.find(s => s.id === mappedId);
+
+      if (localizedSec) {
+        return {
+          id,
+          title: localizedSec.title,
+          shortSummary: localizedSec.shortSummary,
+          readingTime: localizedSec.readingTime,
+          iconName: englishCard.iconName,
+          keyTakeaway: localizedSec.keyTakeaway,
+          content: localizedSec.content,
+          subsections: localizedSec.subsections,
+          steps: localizedSec.steps
+        };
+      } else {
+        return { id, ...englishCard };
+      }
+    });
+  }, [language, onboardingFamiliarity, onboardingConcerns, onboardingCompleted, questionnaireStatus, getLocalizedEducationalSections]);
+
+  const selectedTopicsList = useMemo(() => {
+    const raw = onboardingTopics || [];
+    const hasNotSure = raw.includes('topic-notsure');
+    const mapped = raw
+      .filter(t => t !== 'topic-resources' && t !== 'helpful-resources' && t !== 'topic-faqs' && t !== 'topic-stories')
+      .map(t => {
+        if (t === 'topic-basics') return 'what-is-fh';
+        if (t === 'topic-family' || t === 'cascade-screening') return 'cascade-screening';
+        if (t === 'topic-testing' || t === 'genetic-testing') return 'genetic-testing';
+        if (t === 'topic-risk' || t === 'heart-health') return 'heart-health';
+        if (t === 'topic-treatment' || t === 'treatment-medication') return 'treatment-medication';
+        if (t === 'topic-lifestyle' || t === 'healthy-lifestyle') return 'healthy-lifestyle';
+        if (t === 'topic-costs' || t === 'costs-subsidies') return 'costs-subsidies';
+        if (t === 'topic-insurance' || t === 'insurance-rights') return 'insurance';
+        if (t === 'topic-next' || t === 'testing-process') return 'testing-process';
+        return t;
+      })
+      .filter(t => t !== 'patient-experiences' && t !== 'topic-stories');
+
+    if (hasNotSure) {
+      const beginnerTopics = ['what-is-fh', 'heart-health', 'testing-process'];
+      const combined = Array.from(new Set([...mapped, ...beginnerTopics]));
+      return combined;
+    }
+
+    return mapped;
+  }, [onboardingTopics]);
+
+  const selectedGuideTopics = useMemo(() => {
+    if (!onboardingCompleted) return [];
+    return allGuideTopics.filter(topic => selectedTopicsList.includes(topic.id));
+  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
+
+  const unselectedGuideTopics = useMemo(() => {
+    if (!onboardingCompleted) return allGuideTopics;
+    return allGuideTopics.filter(topic => !selectedTopicsList.includes(topic.id));
+  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
+
+  // Auto-expand recommended groups and sections when onboarding completes
+  useEffect(() => {
+    if (onboardingCompleted) {
+      // Expand all main groups so sections inside are visible immediately
+      setExpandedGroups({
+        basics: true,
+        journey: true,
+        costs: true,
+      });
+
+      // Expand core sections and recommended/selected sections by default
+      const initialEduExpanded: Record<string, boolean> = {};
+      const sections = ['what-is-fh', 'why-testing-matters', 'testing-guide', 'costs-subsidies', 'insurance-rights', 'medication-fh'];
+      sections.forEach(secId => {
+        const isCore = secId === 'what-is-fh' || secId === 'why-testing-matters';
+        const isRec = isSectionRecommended(secId);
+        initialEduExpanded[secId] = isCore || isRec;
+      });
+      setEduExpanded(initialEduExpanded);
+    }
+  }, [onboardingCompleted, onboardingFamiliarity, onboardingTopics.length, onboardingConcerns.length]);
+
+  // 3. Personalized Onboarding - Sort FAQs based on Concerns
+  const sortedFaqs = [...getLocalizedFaqs(language)].sort((a, b) => {
+    if (!onboardingCompleted) return 0;
+    
+    // Determine if a category is prioritized
+    const isAPrioritized = 
+      (a.category === 'cost' && onboardingConcerns.includes('concern-cost')) ||
+      (a.category === 'insurance' && onboardingConcerns.includes('concern-insurance')) ||
+      (a.category === 'testing' && onboardingConcerns.includes('concern-test')) ||
+      (a.category === 'medication' && onboardingConcerns.includes('concern-meds')) ||
+      (a.category === 'family' && onboardingConcerns.includes('concern-family'));
+      
+    const isBPrioritized = 
+      (b.category === 'cost' && onboardingConcerns.includes('concern-cost')) ||
+      (b.category === 'insurance' && onboardingConcerns.includes('concern-insurance')) ||
+      (b.category === 'testing' && onboardingConcerns.includes('concern-test')) ||
+      (b.category === 'medication' && onboardingConcerns.includes('concern-meds')) ||
+      (b.category === 'family' && onboardingConcerns.includes('concern-family'));
+
+    if (isAPrioritized && !isBPrioritized) return -1;
+    if (!isAPrioritized && isBPrioritized) return 1;
+    return 0;
+  });
+
+  // 4. Personalized Onboarding - Sort Helpful Resources based on Concerns
+  const sortedHelpfulResources = [...getLocalizedHelpfulResources(helpfulResources, language)].sort((a, b) => {
+    if (!onboardingCompleted) return 0;
+    
+    // Compute score for resource a
+    let scoreA = 0;
+    if (onboardingConcerns.includes('concern-insurance') && (a.id === 'res-9')) scoreA += 5; // Moratorium clinical guide
+    if (onboardingConcerns.includes('concern-family') && (a.id === 'res-7')) scoreA += 5; // Patient Story: A mother's fight
+    if (onboardingConcerns.includes('concern-cost') && (a.id === 'res-1' || a.id === 'res-4' || a.id === 'res-8')) scoreA += 5; // Brochures/Subsidies
+    if (onboardingConcerns.includes('concern-test') && (a.id === 'res-2')) scoreA += 5; // Clinical Guide
+
+    // Compute score for resource b
+    let scoreB = 0;
+    if (onboardingConcerns.includes('concern-insurance') && (b.id === 'res-9')) scoreB += 5;
+    if (onboardingConcerns.includes('concern-family') && (b.id === 'res-7')) scoreB += 5;
+    if (onboardingConcerns.includes('concern-cost') && (b.id === 'res-1' || b.id === 'res-4' || b.id === 'res-8')) scoreB += 5;
+    if (onboardingConcerns.includes('concern-test') && (b.id === 'res-2')) scoreB += 5;
+
+    return scoreB - scoreA;
+  });
 
   useEffect(() => {
     if (activeScreen !== ScreenId.Education) {
@@ -1434,7 +1893,8 @@ export default function PhoneSimulator({
     setChecklist((prev) => {
       const next = prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item));
       const checkedCount = next.filter(item => item.checked).length;
-      const newPercent = countToPercent(checkedCount);
+      const totalCount = next.length;
+      const newPercent = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
       if (patientRecord?.patient_id && onUpdateEducationProgress) {
         onUpdateEducationProgress(patientRecord.patient_id, newPercent);
       }
@@ -1720,77 +2180,6 @@ export default function PhoneSimulator({
 
       {/* Screen Container with Scroll/Frame */}
       <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col relative overflow-hidden">
-
-        {/* ── Full-screen appointment sub-flows (inside chrome so status bar stays visible) ── */}
-
-        {/* RESCHEDULE – select new slot */}
-        {bookingSubFlow === 'reschedule-select' && (() => {
-          const rclinicsWithDistances = activeClinics.map(c => ({
-            ...c,
-            distance: calculateDistance(patientCoords.lat, patientCoords.lng, c.lat, c.lng),
-          })).sort((a, b) => a.distance - b.distance);
-          const rminDistance = Math.min(...rclinicsWithDistances.map(c => c.distance));
-          return (
-            <div className="flex flex-col flex-1 h-full overflow-hidden bg-slate-50 animate-fade-in">
-              {/* Header – matches "Secure Appointment Booking" layout */}
-              <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0 relative">
-                <div className="w-8" />
-                <span className="flex-1 text-center font-bold text-sm text-slate-800">{t('reschedule_select_title')}</span>
-                <button
-                  onClick={handleExitReschedule}
-                  className="w-8 flex items-center justify-center p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
-                  aria-label="Close"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Scrollable body */}
-              <div className="flex-1 overflow-y-auto flex flex-col">
-                {/* Current appointment banner */}
-                {appointment && (
-                  <div className="mx-4 mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-start gap-2">
-                    <span className="mt-0.5 text-[#00a859]"><Calendar className="w-4 h-4" /></span>
-                    <div>
-                      <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">{t('reschedule_current_appt')}</p>
-                      <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{getLocalizedDate(appointment.date, language)}</p>
-                      <p className="text-[10.5px] text-emerald-700">{appointment.timeSlot} · {appointment.clinic}</p>
-                    </div>
-                  </div>
-                )}
-
-                <p className="mx-4 mt-3 text-[10.5px] text-slate-500">
-                  {t('reschedule_choose_desc')}
-                </p>
-
-                <div className="px-4 pb-4 mt-3 space-y-4">
-                  {/* Clinic selector */}
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('reschedule_select_clinic')}</label>
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowRescheduleClinicDropdown(!showRescheduleClinicDropdown)}
-                        className="w-full bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center shadow-3xs cursor-pointer text-left transition hover:border-emerald-600/40"
-                      >
-                        <div className="flex gap-2.5 min-w-0 items-center">
-                          <div className="p-1.5 bg-emerald-50 rounded-lg shrink-0">
-                            <MapPin className="w-4 h-4 text-[#00a859]" />
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="font-bold text-xs text-slate-800 truncate">
-                              {activeClinics.find(c => c.id === rescheduleClinicId)?.name}
-                            </h4>
-                            <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
-                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} {t('booking_km_away')}
-                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance === rminDistance && (
-                                <span className="ml-1 text-emerald-700 font-semibold">· {t('reschedule_nearest')}</span>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
-                      </button>
-
 
         {/* ── Full-screen appointment sub-flows (inside chrome so status bar stays visible) ── */}
 
@@ -2416,45 +2805,6 @@ export default function PhoneSimulator({
                             style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
                           />
 
-
-                    {/* Primary & Secondary Call to Actions */}
-                    <div className="flex flex-col gap-2">
-                      <button
-                        id="hh-home-primary-cta"
-                        onClick={() => onChangeScreen(ScreenId.Booking)}
-                        className="w-full h-11 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent"
-                      >
-                        {appointment.status === 'booked' ? 'Manage booking' : t('book_now_btn')} <ChevronRight className="w-4 h-4" />
-                      </button>
-                      {isFHReferred && (
-                        <button
-                          onClick={() => onChangeScreen(ScreenId.ReferralIntro)}
-                          className="w-full py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
-                        >
-                          {t('why_referred_btn')}
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Patient Journey Progress Pathway */}
-                    {isFHReferred && (
-                      <div 
-                        onClick={() => onChangeScreen(ScreenId.ProgressTimeline)}
-                        className="space-y-3 pt-3.5 px-2 pb-1.5 border-t border-emerald-100/50 cursor-pointer hover:bg-emerald-50/50 rounded-xl transition-all duration-200 group"
-                      >
-                        <div className="flex justify-between items-center">
-                          <p className="text-[10px] font-bold text-emerald-800/80 uppercase tracking-widest font-sans group-hover:text-[#00a859] transition-colors">{t('your_journey')}</p>
-                          <ChevronRight className="w-3.5 h-3.5 text-emerald-600/70 group-hover:text-[#00a859] transition-all transform group-hover:translate-x-0.5" />
-                        </div>
-                        <div className="relative flex items-start justify-between px-3 pt-1" style={{ minHeight: '52px' }}>
-                          {/* Connecting Line Background */}
-                          <div className="absolute top-[9px] left-[12%] right-[12%] h-[3px] bg-slate-100 rounded-full" />
-                          {/* Colored Active Line */}
-                          <div 
-                            className="absolute top-[9px] left-[12%] h-[3px] bg-gradient-to-r from-emerald-400 to-[#00a859] rounded-full transition-all duration-500" 
-                            style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
-                          />
-
                           {/* Step 1: Referral */}
                           <div className="flex flex-col items-center relative z-10 w-[64px]">
                             <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
@@ -2726,16 +3076,6 @@ export default function PhoneSimulator({
                       <HeartPulse className="w-5 h-5 text-[#00a859]" />
                     </div>
                     <p className="text-xs text-slate-600 leading-relaxed pt-2">
-                    </div>
-                    <p className="text-xs text-slate-600 leading-relaxed pt-2">
-                      {t('genetic_testing_confirms')}
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <HeartPulse className="w-5 h-5 text-[#00a859]" />
-                    </div>
-                    <p className="text-xs text-slate-600 leading-relaxed pt-2">
                       {t('referred_results_help_team')}
                     </p>
                   </div>
@@ -2820,12 +3160,6 @@ export default function PhoneSimulator({
                       {t('referred_next_step_learning')}
                     </p>
                   </div>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      {t('referred_next_step_learning')}
-                    </p>
-                  </div>
                 </div>
               </div>
 
@@ -2886,81 +3220,375 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 2: EDUCATION HUB ----------------- */}
         {activeScreen === ScreenId.Education && (
-          <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50">
-            {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center shrink-0">
-              <div className="flex items-center gap-2">
-                <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer">
-                  <ArrowLeft className="w-5 h-5 text-slate-700" />
-                </button>
-                <span className="font-bold text-sm text-slate-800">{t('edu_hub_title')}</span>
-              </div>
-
-              {/* Text Size Accessibility Control */}
-              <div className="flex items-center gap-1 bg-slate-100/80 px-1.5 py-1 rounded-lg border border-slate-200">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight mr-1 select-none font-sans">Size:</span>
-                <button
-                  onClick={() => setTextSize('sm')}
-                  title="Small Text"
-                  className={`px-1.5 py-0.5 rounded-md text-[9px] font-extrabold transition cursor-pointer select-none ${
-                    textSize === 'sm'
-                      ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
-                  }`}
-                >
-                  A-
-                </button>
-                <button
-                  onClick={() => setTextSize('md')}
-                  title="Medium Text (Default)"
-                  className={`px-1.5 py-0.5 rounded-md text-[10.5px] font-extrabold transition cursor-pointer select-none ${
-                    textSize === 'md'
-                      ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
-                  }`}
-                >
-                  A
-                </button>
-                <button
-                  onClick={() => setTextSize('lg')}
-                  title="Large Text"
-                  className={`px-1.5 py-0.5 rounded-md text-[11.5px] font-extrabold transition cursor-pointer select-none ${
-                    textSize === 'lg'
-                      ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
-                  }`}
-                >
-                  A+
-                </button>
-              </div>
-            </div>
-
-            {!isFHReferred ? (
-              /* Fallback state when patient is not referred */
-              <div className="flex-col flex flex-1 pb-12 items-center justify-center p-6 text-center space-y-4 my-auto">
-                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
-                  <ShieldAlert className="w-8 h-8 text-emerald-600" />
-                </div>
-                <h3 className="font-bold text-sm text-slate-800">No Active Genetic Referrals</h3>
-                <p className="text-xs text-slate-500 leading-relaxed max-w-[280px]">
-                  This personalised educational hub is only visible for patients with an active clinical referral for FH genetic testing.
-                </p>
-                <button 
-                  onClick={() => onChangeScreen(ScreenId.Home)} 
-                  className="px-4 py-2.5 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-sm transition cursor-pointer"
-                >
-                  Back to HealthHub Home
-                </button>
-              </div>
-            ) : (
-              /* High-fidelity Education Hub content for referred patients */
-              <div className={`flex-1 overflow-y-auto flex flex-col pb-6 ${
-                textSize === 'sm' ? 'education-text-sm' :
-                textSize === 'lg' ? 'education-text-lg' :
+          isFHReferred && !onboardingCompleted ? (
+              <div className={`flex-col flex flex-1 h-full overflow-hidden bg-slate-50 ${
+                questionnaireTextSize === 'sm' ? 'education-text-sm' :
+                questionnaireTextSize === 'lg' ? 'education-text-lg' :
                 'education-text-md'
               }`}>
-              <div className="flex-1 overflow-y-auto flex flex-col pb-6">
+                {/* Dedicated Questionnaire Header */}
+                <div className="bg-white px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => {
+                        if (onboardingStep > 1) {
+                          setOnboardingStep(onboardingStep - 1);
+                        } else {
+                          onChangeScreen(ScreenId.Home);
+                        }
+                      }} 
+                      className="p-1.5 hover:bg-slate-100 rounded-full cursor-pointer transition flex items-center justify-center shrink-0"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-slate-700" />
+                    </button>
+                    <span className="font-extrabold text-[13.5px] text-slate-800 tracking-tight">Personalise Your Learning</span>
+                  </div>
+                  <button 
+                    id="onboarding-skip-btn"
+                    onClick={() => handleCompleteOnboarding(true, 'skipped')}
+                    className="text-xs text-slate-600 hover:text-slate-900 font-semibold px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition cursor-pointer select-none"
+                  >
+                    Skip
+                  </button>
+                </div>
+
+                {/* Questionnaire Text-Size Control */}
+                <div className="bg-white px-4 py-2 border-b border-slate-100 flex items-center justify-between shrink-0">
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-tight select-none font-sans">
+                    Text size:
+                  </span>
+                  <div className="flex items-center gap-1 bg-slate-100/80 px-1.5 py-1 rounded-lg border border-slate-200">
+                    <button
+                      onClick={() => setQuestionnaireTextSize('sm')}
+                      title="Small Text"
+                      className={`px-1.5 py-0.5 rounded-md text-[9px] font-extrabold transition cursor-pointer select-none ${
+                        questionnaireTextSize === 'sm'
+                          ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
+                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
+                      }`}
+                    >
+                      A-
+                    </button>
+                    <button
+                      onClick={() => setQuestionnaireTextSize('md')}
+                      title="Medium Text"
+                      className={`px-1.5 py-0.5 rounded-md text-[10.5px] font-extrabold transition cursor-pointer select-none ${
+                        questionnaireTextSize === 'md'
+                          ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
+                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
+                      }`}
+                    >
+                      A
+                    </button>
+                    <button
+                      onClick={() => setQuestionnaireTextSize('lg')}
+                      title="Large Text"
+                      className={`px-1.5 py-0.5 rounded-md text-[11.5px] font-extrabold transition cursor-pointer select-none ${
+                        questionnaireTextSize === 'lg'
+                          ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
+                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
+                      }`}
+                    >
+                      A+
+                    </button>
+                  </div>
+                </div>
+
+                {/* Questionnaire Content */}
+                <div className="flex-1 flex flex-col bg-white text-slate-800 overflow-y-auto">
+                  {/* Step Indicator and Content */}
+                  <div className="flex-1 p-5 flex flex-col justify-between space-y-6">
+                    {/* Progress Indicator */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-[11px] text-slate-500 font-bold">
+                        <span>QUESTION {onboardingStep} OF 3</span>
+                        <span className="text-[#00a859]">{Math.round((onboardingStep / 3) * 100)}% COMPLETE</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="bg-[#00a859] h-full transition-all duration-300" style={{ width: `${(onboardingStep / 3) * 100}%` }} />
+                      </div>
+                    </div>
+
+                    {/* STEP 1: FAMILIARITY */}
+                    {onboardingStep === 1 && (
+                      <div className="flex-1 flex flex-col space-y-4 animate-fade-in text-left">
+                        <div className="space-y-1">
+                          <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">Let's personalise your FH learning</h3>
+                          <p className="text-[11.5px] text-slate-500 leading-relaxed">
+                            Answer a few quick questions so we can highlight the information that's most relevant to you.
+                          </p>
+                        </div>
+
+                        <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11px] text-slate-600 font-medium shrink-0">
+                          <Clock className="w-4 h-4 text-[#00a859] shrink-0" />
+                          <span>Estimated time: Less than 1 minute • Complete or skip anytime</span>
+                        </div>
+
+                        <div className="space-y-3 pt-2 flex-1">
+                          <label className="block text-[12px] font-bold text-slate-800">
+                            How familiar are you with Familial Hypercholesterolaemia (FH)?
+                          </label>
+                          <div className="space-y-2">
+                            {[
+                              { id: 'new', label: "I am completely new to FH", desc: 'We will highlight basic concepts and explanations first.' },
+                              { id: 'little', label: "I know a little", desc: 'We will show intermediate modules and testing guides.' },
+                              { id: 'research', label: "I have done some research", desc: 'We will surface clinical details and research references.' },
+                              { id: 'advanced', label: "I already know quite a bit", desc: 'We will highlight advanced costs, insurance guidelines, and family care.' },
+                            ].map((opt) => {
+                              const isSelected = onboardingFamiliarity === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  onClick={() => setOnboardingFamiliarity(opt.id as any)}
+                                  className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
+                                    isSelected
+                                      ? 'bg-emerald-50/50 border-[#00a859] text-slate-900 shadow-xs'
+                                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                                  }`}
+                                >
+                                  <div className={`w-4 h-4 rounded-full border-2 mt-0.5 shrink-0 flex items-center justify-center transition-all ${
+                                    isSelected ? 'border-[#00a859] bg-[#00a859]' : 'border-slate-300 bg-white'
+                                  }`}>
+                                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                  </div>
+                                  <div className="space-y-0.5 min-w-0 flex-1">
+                                    <span className="text-[12px] font-bold text-slate-800 leading-tight block">{opt.label}</span>
+                                    <span className="text-[10px] text-slate-500 leading-normal block">{opt.desc}</span>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* STEP 2: TOPICS OF INTEREST */}
+                    {onboardingStep === 2 && (
+                      <div className="flex-1 flex flex-col space-y-4 animate-fade-in text-left">
+                        <div className="space-y-1">
+                          <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">{t('step2_q')}</h3>
+                          <p className="text-[11.5px] text-slate-500 leading-relaxed">
+                            {t('step2_sub')}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2.5 pt-1 overflow-y-auto max-h-[340px] pr-1">
+                          {[
+                            { id: 'topic-basics', icon: '🧬', label: t('step2_opt_basics') },
+                            { id: 'topic-risk', icon: '❤️', label: t('step2_opt_risk') },
+                            { id: 'topic-testing', icon: '🧪', label: t('step2_opt_testing') },
+                            { id: 'topic-family', icon: '👨‍👩‍👧', label: t('step2_opt_family') },
+                            { id: 'topic-treatment', icon: '💊', label: t('step2_opt_treatment') },
+                            { id: 'topic-lifestyle', icon: '🥗', label: t('step2_opt_lifestyle') },
+                            { id: 'topic-costs', icon: '💰', label: t('step2_opt_costs') },
+                            { id: 'topic-insurance', icon: '🛡️', label: t('step2_opt_insurance') },
+                            { id: 'topic-next', icon: '📋', label: t('step2_opt_testing_process') },
+                            { id: 'topic-notsure', icon: '🤔', label: t('step2_opt_not_sure') },
+                          ].map((opt) => {
+                            const isSelected = onboardingTopics.includes(opt.id);
+                            return (
+                              <div
+                                key={opt.id}
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setOnboardingTopics(onboardingTopics.filter(t => t !== opt.id));
+                                  } else {
+                                    if (opt.id === 'topic-notsure') {
+                                      setOnboardingTopics(['topic-notsure']);
+                                    } else {
+                                      setOnboardingTopics([...onboardingTopics.filter(t => t !== 'topic-notsure'), opt.id]);
+                                    }
+                                  }
+                                  setShowCascadeTooltip(false);
+                                }}
+                                className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between min-h-[56px] relative bg-white ${
+                                  isSelected
+                                    ? 'border-[#00a859] bg-emerald-50/40 ring-1 ring-[#00a859]/30 shadow-xs'
+                                    : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                                  }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0 flex-1 pr-1.5">
+                                  <span className="text-[13px] shrink-0">{opt.icon}</span>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center flex-wrap gap-1">
+                                      <span className="text-[11px] font-semibold text-slate-800 leading-tight">
+                                        {opt.label}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
+                                  isSelected ? 'bg-[#00a859] border-[#00a859] text-white' : 'border-slate-300 bg-white'
+                                }`}>
+                                  {isSelected && <Check className="w-2.5 h-2.5 stroke-[4px]" />}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* STEP 3: CONCERNS */}
+                    {onboardingStep === 3 && (
+                      <div className="flex-1 flex flex-col space-y-4 animate-fade-in text-left">
+                        <div className="space-y-1">
+                          <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">What matters most to you?</h3>
+                          <p className="text-[11.5px] text-slate-500 leading-relaxed">
+                            What are you most concerned about right now? We'll prioritize resources to address these concerns directly.
+                          </p>
+                        </div>
+
+                        <div className="space-y-2 pt-1 overflow-y-auto max-h-[340px] pr-1">
+                          {[
+                            { id: 'concern-diagnosis', label: '😟 Whether I actually have FH', desc: 'We will prioritize diagnostic tools and clinical metrics.' },
+                            { id: 'concern-family', label: '👨‍👩‍👧 My family and children', desc: 'We will highlight family testing and pediatric guidelines.' },
+                            { id: 'concern-cost', label: '💰 Testing cost and subsidies', desc: 'We will move MOH subventions and financial FAQs to the top.' },
+                            { id: 'concern-test', label: '🧪 The genetic test itself', desc: 'We will highlight LISA HO\'s pre-test counselling walkthrough video.' },
+                            { id: 'concern-meds', label: '💊 Medication and side effects', desc: 'We will highlight highly effective heart therapies and support.' },
+                            { id: 'concern-[#00a859]', label: '❤️ Heart disease and prevention', desc: 'We will focus on risk reduction and cardiovascular health.' },
+                            { id: 'concern-insurance', label: '🛡️ Insurance impact and moratorium', desc: 'We will prioritize the Life Insurance Association (LIA) guidelines.' },
+                            { id: 'concern-curious', label: '😊 I\'m just curious and want to explore', desc: 'We will present a balanced overview of all resources.' },
+                          ].map((opt) => {
+                            const isSelected = onboardingConcerns.includes(opt.id);
+                            return (
+                              <button
+                                key={opt.id}
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setOnboardingConcerns(onboardingConcerns.filter(c => c !== opt.id));
+                                  } else {
+                                    setOnboardingConcerns([...onboardingConcerns, opt.id]);
+                                  }
+                                }}
+                                className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 bg-white ${
+                                  isSelected
+                                    ? 'border-[#00a859] bg-emerald-50/40 shadow-xs'
+                                    : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                                }`}
+                              >
+                                <div className={`w-4 h-4 rounded border mt-0.5 shrink-0 flex items-center justify-center transition-all ${
+                                  isSelected ? 'bg-[#00a859] border-[#00a859] text-white' : 'border-slate-300 bg-white'
+                                }`}>
+                                  {isSelected && <Check className="w-2.5 h-2.5 stroke-[4px]" />}
+                                </div>
+                                <div className="space-y-0.5 min-w-0 flex-1">
+                                  <span className="text-[12px] font-bold text-slate-800 leading-tight block">{opt.label}</span>
+                                  <span className="text-[10px] text-slate-500 leading-normal block">{opt.desc}</span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Navigation Buttons */}
+                    <div className="flex gap-3 pt-4 border-t border-slate-100 shrink-0 font-sans">
+                      {onboardingStep > 1 && (
+                        <button
+                          onClick={() => setOnboardingStep(onboardingStep - 1)}
+                          className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer text-center select-none border border-slate-200"
+                        >
+                          Back
+                        </button>
+                      )}
+                      
+                      {onboardingStep < 3 ? (
+                        <button
+                          onClick={() => setOnboardingStep(onboardingStep + 1)}
+                          className="flex-1 py-3 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer text-center select-none"
+                        >
+                          Next
+                        </button>
+                      ) : (
+                        <button
+                          id="onboarding-finish-btn"
+                          onClick={() => handleCompleteOnboarding(true, 'completed')}
+                          className="flex-1 py-3 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer text-center select-none"
+                        >
+                          Get My Personalized Guide
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+          ) : (
+          <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50">
+              {/* Top Navigation */}
+              <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2">
+                  <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer">
+                    <ArrowLeft className="w-5 h-5 text-slate-700" />
+                  </button>
+                  <span className="font-bold text-sm text-slate-800">{t('edu_hub_title')}</span>
+                </div>
+
+                {/* Text Size Accessibility Control */}
+                <div className="flex items-center gap-1 bg-slate-100/80 px-1.5 py-1 rounded-lg border border-slate-200">
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight mr-1 select-none font-sans">Size:</span>
+                  <button
+                    onClick={() => setTextSize('sm')}
+                    title="Small Text"
+                    className={`px-1.5 py-0.5 rounded-md text-[9px] font-extrabold transition cursor-pointer select-none ${
+                      textSize === 'sm'
+                        ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
+                    }`}
+                  >
+                    A-
+                  </button>
+                  <button
+                    onClick={() => setTextSize('md')}
+                    title="Medium Text (Default)"
+                    className={`px-1.5 py-0.5 rounded-md text-[10.5px] font-extrabold transition cursor-pointer select-none ${
+                      textSize === 'md'
+                        ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
+                    }`}
+                  >
+                    A
+                  </button>
+                  <button
+                    onClick={() => setTextSize('lg')}
+                    title="Large Text"
+                    className={`px-1.5 py-0.5 rounded-md text-[11.5px] font-extrabold transition cursor-pointer select-none ${
+                      textSize === 'lg'
+                        ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
+                    }`}
+                  >
+                    A+
+                  </button>
+                </div>
+              </div>
+
+              {!isFHReferred ? (
+                /* Fallback state when patient is not referred */
+                <div className="flex-col flex flex-1 pb-12 items-center justify-center p-6 text-center space-y-4 my-auto">
+                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
+                    <ShieldAlert className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-800">No Active Genetic Referrals</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed max-w-[280px]">
+                    This personalised educational hub is only visible for patients with an active clinical referral for FH genetic testing.
+                  </p>
+                  <button 
+                    onClick={() => onChangeScreen(ScreenId.Home)} 
+                    className="px-4 py-2.5 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-sm transition cursor-pointer"
+                  >
+                    Back to HealthHub Home
+                  </button>
+                </div>
+              ) : (
+                /* High-fidelity Education Hub content for referred patients */
+                <div className={`flex-1 overflow-y-auto flex flex-col pb-6 ${
+                  textSize === 'sm' ? 'education-text-sm' :
+                  textSize === 'lg' ? 'education-text-lg' :
+                  'education-text-md'
+                }`}>
                 {/* Profile Info Row */}
                 <div className="bg-emerald-50/60 border-b border-emerald-100 px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0">
                   <span className="text-slate-600">{t('patient_label')}: <strong className="text-slate-800">{patientName} ({patientNric})</strong></span>
@@ -2973,7 +3601,7 @@ export default function PhoneSimulator({
                 </div>
 
                 {/* Hero Section - Edge-to-edge Deep Teal Banner */}
-                <div className="bg-[#00a859] text-white px-5 py-5 space-y-1.5 shrink-0">
+                <div className="bg-[#00a859] text-white px-5 py-5 space-y-2 shrink-0">
                   <span className="text-[9.5px] font-bold tracking-widest text-emerald-100 font-mono uppercase">{t('edu_hi_greeting').replace('{name}', patientFirstName)}</span>
                   <h3 className="font-display font-extrabold text-sm text-white tracking-tight leading-snug">
                     {t('edu_learning_guide_title')}
@@ -2981,6 +3609,35 @@ export default function PhoneSimulator({
                   <p className="text-[11px] text-emerald-50/90 leading-relaxed font-sans">
                     {t('edu_learning_guide_subtitle')}
                   </p>
+
+                  {/* Personalization Status Bar & Retake Hook */}
+                  {onboardingCompleted ? (
+                    <div className="bg-emerald-950/40 border border-emerald-400/20 rounded-xl p-2.5 flex items-center justify-between gap-3 text-[10px]">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                        <span className="text-emerald-50">Feed personalized to your interests</span>
+                      </div>
+                      <button
+                        onClick={handleRetakeOnboarding}
+                        className="font-extrabold text-amber-300 hover:text-amber-200 uppercase tracking-wider font-mono text-[9px] shrink-0 hover:underline cursor-pointer"
+                      >
+                        Retake Onboarding
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-emerald-950/25 border border-emerald-400/10 rounded-xl p-2.5 flex items-center justify-between gap-3 text-[10px]">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-300 shrink-0 animate-pulse" />
+                        <span className="text-emerald-50/80">Personalise your feed for a custom experience</span>
+                      </div>
+                      <button
+                        onClick={handleRetakeOnboarding}
+                        className="font-extrabold text-white bg-emerald-800 hover:bg-emerald-700 px-2 py-0.5 rounded uppercase tracking-wider font-mono text-[9px] shrink-0 hover:underline cursor-pointer"
+                      >
+                        Start
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Segmented Control Sub-Tabs */}
@@ -3051,6 +3708,30 @@ export default function PhoneSimulator({
                           {t('edu_note')}
                         </p>
                       </div>
+
+                      {/* Dynamic Video Recommendation Banner based on Onboarding Choices */}
+                      {onboardingCompleted && (onboardingTopics.includes('topic-testing') || onboardingConcerns.includes('concern-test')) && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
+                          <Sparkles className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                          <div className="space-y-0.5">
+                            <span className="text-[9px] font-extrabold text-amber-800 uppercase tracking-widest font-mono">RECOMMENDED WATCH</span>
+                            <p className="text-[10.5px] text-slate-700 leading-normal">
+                              Based on your interest/concern in <strong>genetic testing</strong>, we recommend starting with this 45-second guide explaining what to expect during counselling.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {onboardingCompleted && (onboardingTopics.includes('topic-stories') || onboardingConcerns.includes('concern-family')) && (
+                        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
+                          <Sparkles className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
+                          <div className="space-y-0.5">
+                            <span className="text-[9px] font-extrabold text-rose-800 uppercase tracking-widest font-mono">RECOMMENDED FOR YOUR FAMILY</span>
+                            <p className="text-[10.5px] text-slate-700 leading-normal">
+                              Based on your concern for <strong>family care & stories</strong>, watch how other families manage FH together and support each other.
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Patient Experience Video Section */}
                       <div className="bg-slate-900 rounded-2xl overflow-hidden relative shadow-md">
@@ -3195,200 +3876,394 @@ export default function PhoneSimulator({
                       </div>
 
                       {/* Learning Hub Accordions - Grouped */}
-                      <div className="space-y-3.5">
-                        <div className="flex justify-between items-center">
-                          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('edu_learning_hub')}</h4>
-                          <span className="text-[10px] text-slate-500 font-medium">{t('edu_modules_summary')}</span>
-                        </div>
+                      {(() => {
+                        const useDefaultLayout = !onboardingCompleted || questionnaireStatus === 'skipped' || selectedGuideTopics.length === 0;
 
-                        {[
-                          {
-                            id: 'basics',
-                            title: t('edu_group_basics_title'),
-                            description: t('edu_group_basics_desc'),
-                            icon: 'BookOpen',
-                            sectionIds: ['what-is-fh', 'medication-fh'],
-                          },
-                          {
-                            id: 'journey',
-                            title: t('edu_group_journey_title'),
-                            description: t('edu_group_journey_desc'),
-                            icon: 'ClipboardList',
-                            sectionIds: ['testing-guide', 'why-testing-matters'],
-                          },
-                          {
-                            id: 'costs',
-                            title: t('edu_group_costs_title'),
-                            description: t('edu_group_costs_desc'),
-                            icon: 'Shield',
-                            sectionIds: ['costs-subsidies', 'insurance-rights'],
-                          },
-                        ].map((group) => {
-                          const isGroupExpanded = !!expandedGroups[group.id];
+                        // Unified helpers for content richness, shared between Default Layout and Personalized Layout
+                        const getCustomIllus = (id: string) => {
+                          if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return (
+                            <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 text-center">
+                              <div className="text-[9.5px] font-bold text-emerald-800 mb-1">📋 Clinical Testing Flow</div>
+                              <div className="flex justify-between text-[8px] font-bold text-slate-500">
+                                <span>1. Booked</span><span>2. Consult</span><span>3. Blood Draw</span><span>4. Results</span>
+                              </div>
+                            </div>
+                          );
+                          if (id === 'costs-subsidies') return (
+                            <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 space-y-1">
+                              <div className="text-[9.5px] font-bold text-emerald-800">💰 Singapore Financing Model</div>
+                              <div className="flex justify-between text-[8.5px]"><span>Government Subsidy</span><span className="text-[#00a859] font-bold">Up to 75% Covered</span></div>
+                            </div>
+                          );
+                          if (id === 'insurance-rights' || id === 'insurance') return (
+                            <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3">
+                              <div className="text-[9.5px] font-bold text-emerald-800 mb-1">🛡️ Consumer Safeguard Grid</div>
+                              <div className="text-[8.5px] text-slate-600">Active policies cannot be changed, canceled, or re-priced at all.</div>
+                            </div>
+                          );
+                          if (id === 'treatment-medication' || id === 'medication-fh') return (
+                            <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3">
+                              <div className="text-[9.5px] font-bold text-emerald-800 mb-1">🧪 Liver LDL Clearance</div>
+                              <div className="text-[8.5px] text-slate-600">Statins boost recycling receptors on liver cells, pulling cholesterol from blood.</div>
+                            </div>
+                          );
+                          return null;
+                        };
+
+                        const getRelatedFaq = (id: string) => {
+                          if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return { q: "Does a positive test mean I have heart disease?", a: "No. A positive genetic test is not a diagnosis of heart disease. It simply identifies an inherited risk. Your medical team can take highly effective preventative steps to keep your heart healthy." };
+                          if (id === 'costs-subsidies') return { q: "How much will I pay out-of-pocket?", a: "Between S$18 and S$120 after MOH subsidies. Crucially, the remaining balance can be 100% paid using MediSave under the Chronic Disease Management Scheme." };
+                          if (id === 'insurance-rights' || id === 'insurance') return { q: "Will this affect my children's ability to get insurance?", a: "No. Singapore's Life Insurance Association (LIA) maintains a strict genetic testing moratorium protecting voluntary clinical genetic tests from impacting policies." };
+                          if (id === 'treatment-medication' || id === 'medication-fh') return { q: "Can I stop my cholesterol medication during testing?", a: "No, you should never stop or change your prescribed medication unless directed by your physician. DNA is unchanged by any medications." };
+                          return null;
+                        };
+
+                        const getRecommendedResource = (id: string) => {
+                          const targetResId = (() => {
+                            if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return 'res-8';
+                            if (id === 'costs-subsidies') return 'res-5';
+                            if (id === 'insurance-rights' || id === 'insurance') return 'res-9';
+                            if (id === 'treatment-medication' || id === 'medication-fh') return 'res-4';
+                            return null;
+                          })();
+                          return targetResId ? helpfulResources.find(r => r.id === targetResId) : null;
+                        };
+
+                        const getPersonalizedNote = (id: string) => {
+                          let note = "";
+                          if ((id === 'cascade-screening' || id === 'why-testing-matters') && onboardingConcerns.includes('concern-family')) {
+                            note = "We understand family health is your top priority. Cascade screening is a proactive, protective measure—not a diagnosis—empowering your family to safeguard cardiovascular health early.";
+                          } else if (id === 'costs-subsidies' && onboardingConcerns.includes('concern-cost')) {
+                             note = "MOH subsidies and CHAS benefits are structured to keep testing highly affordable, with remaining costs fully coverable by MediSave.";
+                          } else if ((id === 'insurance-rights' || id === 'insurance') && onboardingConcerns.includes('concern-insurance')) {
+                            note = "The LIA moratorium ensures proactive testing has zero impact on your ability to secure standard life and health insurance coverage.";
+                          } else if ((id === 'treatment-medication' || id === 'medication-fh') && onboardingConcerns.includes('concern-meds')) {
+                            note = "Uneasiness about starting medications is natural. Statins are highly safe, well-studied, and incredibly effective at bringing cardiovascular risk back to standard ranges.";
+                          }
+                          if (!note) return null;
                           return (
-                            <div key={group.id} className="bg-white border border-slate-200 rounded-2xl shadow-2xs overflow-hidden transition-all duration-250">
-                              {/* Group Header Row */}
-                              <button
-                                onClick={() => toggleGroup(group.id)}
-                                className={`w-full text-left p-4 flex items-center justify-between transition-colors cursor-pointer ${
-                                  isGroupExpanded ? 'bg-slate-50/70 border-b border-slate-100' : 'hover:bg-slate-50/30'
-                                }`}
-                              >
-                                <div className="flex gap-3.5 items-center flex-1 min-w-0">
-                                  <div className="p-2 bg-emerald-50 rounded-full border border-emerald-100/55 shrink-0 flex items-center justify-center">
-                                    {getIcon(group.icon || 'HelpCircle')}
+                            <div className="bg-emerald-50 border border-emerald-100/50 p-2.5 rounded-lg text-emerald-800 text-[9px] font-medium leading-relaxed">
+                              🛡️ <span className="font-bold">Personalized Support:</span> {note}
+                            </div>
+                          );
+                        };
+
+                        const renderGuideCard = (topic: any, isSelected: boolean) => {
+                          const isExpanded = isSelected ? !!eduExpanded[topic.id] : expandedOtherTopicId === topic.id;
+
+                          const toggleCard = () => {
+                            if (isSelected) {
+                              setEduExpanded(prev => ({ ...prev, [topic.id]: !prev[topic.id] }));
+                            } else {
+                              setExpandedOtherTopicId(isExpanded ? null : topic.id);
+                            }
+                          };
+
+                          const customIllus = getCustomIllus(topic.id);
+                          const relatedFaq = getRelatedFaq(topic.id);
+                          const res = getRecommendedResource(topic.id);
+
+                          return (
+                            <div key={topic.id} className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-3xs transition-all duration-200 text-left">
+                              <button onClick={toggleCard} aria-expanded={isExpanded} className="w-full text-left p-3.5 flex items-start gap-3 justify-between hover:bg-slate-50/55 transition cursor-pointer">
+                                <div className="flex gap-3 items-start flex-1 min-w-0">
+                                  <div className="mt-0.5 p-1.5 bg-emerald-50/70 rounded-lg border border-emerald-100/40 shrink-0 flex items-center justify-center">
+                                    {getIcon(topic.iconName || 'HelpCircle')}
                                   </div>
                                   <div className="flex-1 min-w-0 space-y-0.5">
-                                    <div className="flex items-center gap-2">
-                                      <h4 className="font-display font-extrabold text-[12px] text-slate-900 leading-tight tracking-tight">
-                                        {group.title}
-                                      </h4>
-                                      <span className="text-[8.5px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-100/35 shrink-0">
-                                        {group.sectionIds.length} {t('edu_topics')}
-                                      </span>
-                                    </div>
-                                    <p className="text-[10.5px] text-slate-500 leading-relaxed">
-                                      {group.description}
-                                    </p>
-                                  </div>
-                                </div>
-                                <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-250 ${isGroupExpanded ? 'rotate-180' : ''} ml-2`} />
-                              </button>
-
-                              {/* Group Content (Nested Topics) */}
-                              {isGroupExpanded && (
-                                <div className="p-3 bg-slate-50/40 space-y-2.5 border-t border-slate-100 animate-fade-in">
-                                  {group.sectionIds.map((secId) => {
-                                    const sec = getLocalizedEducationalSections(language).find(s => s.id === secId);
-                                    if (!sec) return null;
-
-                                    const isExpanded = !!eduExpanded[sec.id];
-
-                                    // Custom high fidelity titles and subtitles for collapsed/expanded states (English overrides)
-                                    let displayTitle = sec.title;
-                                    let displaySubtitle = sec.shortSummary;
-
-                                    if (language === 'en') {
-                                      if (sec.id === 'what-is-fh') {
-                                        displayTitle = isExpanded ? 'What is FH?' : 'Understanding FH';
-                                        displaySubtitle = isExpanded 
-                                          ? 'Familial Hypercholesterolaemia (FH) is a common genetic condition that causes very high cholesterol.' 
-                                          : 'What FH is and why early diagnosis matters.';
-                                      } else if (sec.id === 'fh-symptoms') {
-                                        displayTitle = isExpanded ? 'Symptoms & Physical Signs' : 'Visible Physical Signs';
-                                        displaySubtitle = isExpanded 
-                                          ? 'Learn the three main visible indicators of inherited high cholesterol on the body.' 
-                                          : 'Identify waxy deposits and yellow patches.';
-                                      } else if (sec.id === 'testing-guide') {
-                                        displayTitle = 'Your Testing Guide';
-                                        displaySubtitle = isExpanded 
-                                          ? 'Six straightforward steps from referral to your personal care plan.' 
-                                          : 'Step by step from counselling to your results.';
-                                      } else if (sec.id === 'medication-fh') {
-                                        displayTitle = 'Medication & FH';
-                                        displaySubtitle = isExpanded 
-                                          ? 'Highly effective, subsidized medical therapies to safeguard your heart.' 
-                                          : 'How statins work and what to expect.';
-                                      } else if (sec.id === 'why-testing-matters') {
-                                        displayTitle = 'Protecting Your Family';
-                                        displaySubtitle = isExpanded 
-                                          ? 'Confirming FH unlocks personalised care and protects your loved ones through cascade screening.' 
-                                          : 'How cascade screening keeps your loved ones safe.';
-                                      } else if (sec.id === 'costs-subsidies') {
-                                        displayTitle = 'Costs and Subsidies';
-                                        displaySubtitle = isExpanded 
-                                          ? 'Up to 75% Ministry of Health (MOH) subsidies for eligible Singapore citizens.' 
-                                          : 'What you pay and how subsidies and MediSave help.';
-                                      } else if (sec.id === 'insurance-rights') {
-                                        displayTitle = 'Insurance & Your Rights';
-                                        displaySubtitle = isExpanded 
-                                          ? 'National guidelines completely safeguard your right to take a proactive test without any policy impact.' 
-                                          : 'How the LIA Moratorium protects you.';
-                                      }
-                                    }
-
-                                    return (
-                                      <div key={sec.id} className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-3xs transition-all duration-200">
-                                        <button
-                                          onClick={() => toggleEdu(sec.id)}
-                                          className="w-full text-left p-3.5 flex items-start gap-3 justify-between hover:bg-slate-50/55 transition cursor-pointer"
-                                        >
-                                          <div className="flex gap-3 items-start flex-1 min-w-0">
-                                            <div className="mt-0.5 p-1.5 bg-emerald-50/70 rounded-lg border border-emerald-100/40 shrink-0 flex items-center justify-center">
-                                              {getIcon(sec.iconName || 'HelpCircle')}
-                                            </div>
-                                            <div className="flex-1 min-w-0 space-y-0.5">
-                                              <h5 className="font-display font-extrabold text-[11px] text-slate-900 leading-tight tracking-tight">
-                                                {displayTitle}
-                                              </h5>
-                                              <p className="text-[10px] text-slate-500 leading-relaxed">
-                                                {displaySubtitle}
-                                              </p>
-                                              
-                                              {/* Keyword Tag Bubbles - only shown when collapsed */}
-                                              {!isExpanded && sec.tags && sec.tags.length > 0 && (
-                                                <div className="flex flex-wrap gap-1 pt-1">
-                                                  {sec.tags.map((tag, tIdx) => (
-                                                    <span key={tIdx} className="text-[8px] bg-slate-50 text-slate-400 font-medium px-1.5 py-0.5 rounded border border-slate-200/30">
-                                                      {tag}
-                                                    </span>
-                                                  ))}
-                                                </div>
-                                              )}
-                                            </div>
-                                          </div>
-                                          <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''} self-start mt-0.5`} />
-                                        </button>
-                                        
-                                        {isExpanded && (
-                                          <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3">
-                                            <p className="text-slate-600 font-sans leading-relaxed text-[10.5px]">{sec.content}</p>
-
-                                            {/* Structured vertical steps timeline if steps exist */}
-                                            {sec.steps && sec.steps.length > 0 && (
-                                              <div className="relative pl-4 border-l-2 border-emerald-100 my-4 ml-2 space-y-3.5">
-                                                {sec.steps.map((st) => (
-                                                  <div key={st.num} className="relative">
-                                                    {/* Numbered visual dot */}
-                                                    <div className="absolute -left-[22px] top-0.5 w-4 h-4 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[9px] font-extrabold ring-4 ring-slate-50">
-                                                      {st.num}
-                                                    </div>
-                                                    <div className="space-y-0.5">
-                                                      <h6 className="font-bold text-[9.5px] text-slate-800">{st.title}</h6>
-                                                      <p className="text-[9px] text-slate-500 leading-normal">{st.description}</p>
-                                                    </div>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            )}
-
-                                            {/* Dynamic subsections like cascade screening/cost details */}
-                                            {sec.subsections && sec.subsections.length > 0 && (
-                                              <div className="space-y-2.5 my-2.5">
-                                                {sec.subsections.map((sub, sIdx) => (
-                                                  <div key={sIdx} className="bg-white border border-slate-150 p-3 rounded-lg shadow-3xs space-y-1">
-                                                    <h6 className="font-bold text-[9px] text-[#00a859] tracking-wider uppercase font-sans">{sub.title}</h6>
-                                                    <p className="text-[10px] text-slate-600 leading-relaxed font-sans">{sub.text}</p>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            )}
-
-                                            <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
-                                              <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway')}</p>
-                                              <p className="text-emerald-800 text-[10px] mt-0.5 leading-normal">{sec.keyTakeaway}</p>
-                                            </div>
-                                          </div>
+                                    <h5 className="font-display font-extrabold text-[11px] text-slate-900 leading-tight tracking-tight">{topic.title}</h5>
+                                    <p className="text-[10px] text-slate-500 leading-relaxed">{topic.shortSummary}</p>
+                                    {!isExpanded && (
+                                      <div className="flex items-center justify-between pt-1 w-full">
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-[8px] bg-slate-50 text-slate-400 font-medium px-1.5 py-0.5 rounded border border-slate-200/30">{topic.readingTime}</span>
+                                          {isSelected && (
+                                            <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">Selected for You</span>
+                                          )}
+                                        </div>
+                                        {!isSelected && (
+                                          <span className="text-[9.5px] font-extrabold text-[#00a859] flex items-center gap-0.5">
+                                            {t('step2_opt_learn_more') || 'Learn More'} <ChevronRight className="w-3 h-3" />
+                                          </span>
                                         )}
                                       </div>
-                                    );
-                                  })}
+                                    )}
+                                  </div>
+                                </div>
+                                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''} self-start mt-0.5`} />
+                              </button>
+
+                              {isExpanded && (
+                                <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3">
+                                  <p className="text-slate-600 font-sans leading-relaxed text-[10.5px]">{topic.content}</p>
+
+                                  {/* Reassuring support note */}
+                                  {getPersonalizedNote(topic.id)}
+
+                                  {topic.steps && topic.steps.length > 0 && (
+                                    <div className="relative pl-4 border-l-2 border-emerald-100 my-3 ml-2 space-y-3">
+                                      {topic.steps.map((st: any) => (
+                                        <div key={st.num} className="relative">
+                                          <div className="absolute -left-[22px] top-0.5 w-4 h-4 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[9px] font-extrabold ring-4 ring-slate-50">{st.num}</div>
+                                          <div className="space-y-0.5">
+                                            <h6 className="font-bold text-[9.5px] text-slate-800">{st.title}</h6>
+                                            <p className="text-[9px] text-slate-500 leading-normal">{st.description}</p>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {topic.subsections && topic.subsections.length > 0 && (
+                                    <div className="space-y-2 my-2">
+                                      {topic.subsections.map((sub: any, sIdx: number) => (
+                                        <div key={sIdx} className="bg-white border border-slate-150 p-2.5 rounded-lg shadow-3xs space-y-1">
+                                          <h6 className="font-bold text-[9px] text-[#00a859] tracking-wider uppercase font-sans">{sub.title}</h6>
+                                          <p className="text-[9.5px] text-slate-600 leading-relaxed font-sans">{sub.text}</p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {customIllus}
+
+                                  <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
+                                    <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway') || 'Key Takeaway'}</p>
+                                    <p className="text-emerald-800 text-[9.5px] mt-0.5 leading-normal">{topic.keyTakeaway}</p>
+                                  </div>
+
+                                  {!isSelected && (
+                                    <div className="flex justify-end pt-1">
+                                      <button onClick={(e) => { e.stopPropagation(); setExpandedOtherTopicId(null); }} className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9.5px] font-extrabold rounded-lg transition">
+                                        {t('step2_opt_show_less') || 'Show Less'}
+                                      </button>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>
                           );
-                        })}
-                      </div>
+                        };
+
+                        if (useDefaultLayout) {
+                          return (
+                            <div className="space-y-3.5">
+                              <div className="flex justify-between items-center">
+                                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('edu_learning_hub')}</h4>
+                                <span className="text-[10px] text-slate-500 font-medium">{t('edu_modules_summary')}</span>
+                              </div>
+
+                              {sortedGroups.map((group) => {
+                                const isGroupExpanded = !!expandedGroups[group.id];
+                                return (
+                                  <div key={group.id} className="bg-white border border-slate-200 rounded-2xl shadow-2xs overflow-hidden transition-all duration-250 text-left">
+                                    <button onClick={() => toggleGroup(group.id)} className={`w-full text-left p-4 flex items-center justify-between transition-colors cursor-pointer ${isGroupExpanded ? 'bg-slate-50/70 border-b border-slate-100' : 'hover:bg-slate-50/30'}`}>
+                                      <div className="flex gap-3.5 items-center flex-1 min-w-0">
+                                        <div className="p-2 bg-emerald-50 rounded-full border border-emerald-100/55 shrink-0 flex items-center justify-center">{getIcon(group.icon || 'HelpCircle')}</div>
+                                        <div className="flex-1 min-w-0 space-y-0.5">
+                                          <div className="flex items-center gap-2">
+                                            <h4 className="font-display font-extrabold text-[12px] text-slate-900 leading-tight tracking-tight">{group.title}</h4>
+                                            <span className="text-[8.5px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-100/35 shrink-0">{group.sectionIds.length} {t('edu_topics')}</span>
+                                          </div>
+                                          <p className="text-[10.5px] text-slate-500 leading-relaxed">{group.description}</p>
+                                        </div>
+                                      </div>
+                                      <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-250 ${isGroupExpanded ? 'rotate-180' : ''} ml-2`} />
+                                    </button>
+
+                                    {isGroupExpanded && (
+                                      <div className="p-3 bg-slate-50/40 space-y-2.5 border-t border-slate-100 animate-fade-in">
+                                        {group.sectionIds.map((secId) => {
+                                          let sec: any = null;
+                                          const idMapping: Record<string, string> = {
+                                            'what-is-fh': 'what-is-fh',
+                                            'why-testing-matters': 'cascade-screening',
+                                            'genetic-testing': 'genetic-testing',
+                                            'heart-health': 'heart-health',
+                                            'medication-fh': 'treatment-medication',
+                                            'healthy-lifestyle': 'healthy-lifestyle',
+                                            'testing-guide': 'testing-process',
+                                            'costs-subsidies': 'costs-subsidies',
+                                            'insurance-rights': 'insurance'
+                                          };
+
+                                          if (questionnaireStatus === 'completed') {
+                                            const mappedId = idMapping[secId] || secId;
+                                            const level = onboardingFamiliarity || 'new';
+                                            const pGuide = getPersonalisedGuideContent(mappedId, level, onboardingConcerns, language);
+                                            sec = {
+                                              id: secId,
+                                              title: pGuide.title,
+                                              shortSummary: pGuide.shortSummary,
+                                              readingTime: pGuide.readingTime,
+                                              iconName: pGuide.iconName || 'BookOpen',
+                                              keyTakeaway: pGuide.keyTakeaway,
+                                              content: pGuide.content,
+                                              subsections: pGuide.subsections,
+                                              steps: pGuide.steps
+                                            };
+                                          } else {
+                                            sec = getLocalizedEducationalSections(language).find(s => s.id === secId);
+                                          }
+
+                                          if (!sec) return null;
+                                          const isExpanded = !!eduExpanded[sec.id];
+                                          let displayTitle = sec.title;
+                                          let displaySubtitle = sec.shortSummary;
+
+                                          if (language === 'en' && questionnaireStatus !== 'completed') {
+                                            if (sec.id === 'what-is-fh') { displayTitle = isExpanded ? 'What is FH?' : 'Understanding FH'; displaySubtitle = isExpanded ? 'Familial Hypercholesterolaemia (FH) is a common genetic condition.' : 'What FH is and why early diagnosis matters.'; }
+                                            else if (sec.id === 'fh-symptoms') { displayTitle = isExpanded ? 'Symptoms & Physical Signs' : 'Visible Physical Signs'; displaySubtitle = isExpanded ? 'Learn the three main visible indicators of inherited high cholesterol on the body.' : 'Identify waxy deposits and yellow patches.'; }
+                                            else if (sec.id === 'testing-guide') { displayTitle = 'Your Testing Guide'; displaySubtitle = isExpanded ? 'Six straightforward steps from referral to your personal care plan.' : 'Step by step from counselling to your results.'; }
+                                            else if (sec.id === 'medication-fh') { displayTitle = 'Medication & FH'; displaySubtitle = isExpanded ? 'Highly effective, subsidized medical therapies.' : 'How statins work and what to expect.'; }
+                                            else if (sec.id === 'why-testing-matters') { displayTitle = 'Protecting Your Family'; displaySubtitle = isExpanded ? 'Confirming FH unlocks personalised care.' : 'How cascade screening keeps your loved ones safe.'; }
+                                            else if (sec.id === 'costs-subsidies') { displayTitle = 'Costs and Subsidies'; displaySubtitle = isExpanded ? 'Up to 75% MOH subsidies.' : 'What you pay and how subsidies and MediSave help.'; }
+                                            else if (sec.id === 'insurance-rights') { displayTitle = 'Insurance & Your Rights'; displaySubtitle = isExpanded ? 'National guidelines safeguard your right.' : 'How the LIA Moratorium protects you.'; }
+                                          }
+
+                                          return (
+                                            <div key={sec.id} className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-3xs transition-all duration-200">
+                                              <button onClick={() => toggleEdu(sec.id)} className="w-full text-left p-3.5 flex items-start gap-3 justify-between hover:bg-slate-50/55 transition cursor-pointer">
+                                                <div className="flex gap-3 items-start flex-1 min-w-0">
+                                                  <div className="mt-0.5 p-1.5 bg-emerald-50/70 rounded-lg border border-emerald-100/40 shrink-0 flex items-center justify-center">{getIcon(sec.iconName || 'HelpCircle')}</div>
+                                                  <div className="flex-1 min-w-0 space-y-0.5">
+                                                    <h5 className="font-display font-extrabold text-[11px] text-slate-900 leading-tight tracking-tight">{displayTitle}</h5>
+                                                    <p className="text-[10px] text-slate-500 leading-relaxed">{displaySubtitle}</p>
+                                                    {!isExpanded && sec.tags && sec.tags.length > 0 && (
+                                                      <div className="flex flex-wrap gap-1 pt-1">
+                                                        {sec.tags.map((tag, tIdx) => (
+                                                          <span key={tIdx} className="text-[8px] bg-slate-50 text-slate-400 font-medium px-1.5 py-0.5 rounded border border-slate-200/30">{tag}</span>
+                                                        ))}
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''} self-start mt-0.5`} />
+                                              </button>
+
+                                              {isExpanded && (() => {
+                                                const isCoreSection = sec.id === 'what-is-fh' || sec.id === 'why-testing-matters';
+                                                const isSelectedSection = isSectionRecommended(sec.id);
+                                                const shouldShowFullDepth = !onboardingCompleted || isCoreSection || isSelectedSection || !!forceFullExpand[sec.id];
+
+                                                if (!shouldShowFullDepth) {
+                                                  let summaryText = sec.id === 'testing-guide' ? "Your journey is fully structured, covering counselling and blood draw." : sec.shortSummary;
+                                                  let readingTimeLabel = sec.readingTime || "1-min read";
+                                                  return (
+                                                    <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-2.5 text-left">
+                                                      <p className="text-slate-600 font-sans leading-relaxed text-[10.5px] font-medium">{summaryText}</p>
+                                                      <div className="flex items-center justify-between pt-1">
+                                                        <span className="text-[9px] text-slate-400 font-mono font-medium flex items-center gap-1"><Clock className="w-3 h-3" /> {readingTimeLabel}</span>
+                                                        <button onClick={(e) => { e.stopPropagation(); setForceFullExpand(prev => ({ ...prev, [sec.id]: true })); }} className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] font-extrabold text-[9.5px] rounded-lg border border-emerald-100/40 cursor-pointer">Learn More</button>
+                                                      </div>
+                                                    </div>
+                                                  );
+                                                }
+
+                                                return (
+                                                  <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3.5 text-left animate-fade-in">
+                                                    <p className="text-slate-600 font-sans leading-relaxed text-[10.5px]">{sec.content}</p>
+
+                                                    {/* Unified Support Notes */}
+                                                    {getPersonalizedNote(sec.id)}
+
+                                                    {sec.steps && sec.steps.length > 0 && (
+                                                      <div className="relative pl-4 border-l-2 border-emerald-100 my-4 ml-2 space-y-3.5">
+                                                        {sec.steps.map((st) => (
+                                                          <div key={st.num} className="relative">
+                                                            <div className="absolute -left-[22px] top-0.5 w-4 h-4 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[9px] font-extrabold ring-4 ring-slate-50">{st.num}</div>
+                                                            <div className="space-y-0.5">
+                                                              <h6 className="font-bold text-[9.5px] text-slate-800">{st.title}</h6>
+                                                              <p className="text-[9px] text-slate-500 leading-normal">{st.description}</p>
+                                                            </div>
+                                                          </div>
+                                                        ))}
+                                                      </div>
+                                                    )}
+
+                                                    {sec.subsections && sec.subsections.length > 0 && (
+                                                      <div className="space-y-2 my-2">
+                                                        {sec.subsections.map((sub: any, sIdx: number) => (
+                                                          <div key={sIdx} className="bg-white border border-slate-150 p-2.5 rounded-lg shadow-3xs space-y-1">
+                                                            <h6 className="font-bold text-[9px] text-[#00a859] tracking-wider uppercase font-sans">{sub.title}</h6>
+                                                            <p className="text-[9.5px] text-slate-600 leading-relaxed font-sans">{sub.text}</p>
+                                                          </div>
+                                                        ))}
+                                                      </div>
+                                                    )}
+
+                                                    {/* Unified custom illustration diagrams */}
+                                                    {getCustomIllus(sec.id)}
+
+                                                    <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
+                                                      <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway')}</p>
+                                                      <p className="text-emerald-800 text-[10px] mt-0.5 leading-normal">{sec.keyTakeaway}</p>
+                                                    </div>
+                                                  </div>
+                                                );
+                                              })()}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        }
+
+                        // Personalized Layout
+                        return (
+                          <div className="space-y-5 text-left">
+                            {/* Section 1: Selected for You */}
+                            {selectedGuideTopics.length > 0 && (
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                  <h4 className="text-[12px] font-extrabold text-slate-900 font-display tracking-tight flex items-center gap-1.5">✨ Selected for You</h4>
+                                  <span className="text-[9.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50">Personalised</span>
+                                </div>
+                                <div className="space-y-3">
+                                  {selectedGuideTopics.map(topic => renderGuideCard(topic, true))}
+                                </div>
+                              </div>
+                            )}
+
+                             {/* Section 2: Other Topics You Can Explore */}
+                             {unselectedGuideTopics.length > 0 && (
+                               <div className="pt-2 border-t border-slate-100/60">
+                                 <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 transition-all duration-200 text-left">
+                                   <div className="flex items-center justify-between gap-2">
+                                     <div className="space-y-0.5">
+                                       <h4 className="text-[11.5px] font-extrabold text-slate-800 font-display tracking-tight flex items-center gap-1.5">
+                                         📚 {t('step2_opt_other_topics') || 'Other Topics You Can Explore'}
+                                       </h4>
+                                       <p className="text-[9.5px] text-slate-500 leading-relaxed font-medium">
+                                         {t('step2_opt_other_topics_desc') || 'More FH topics are available whenever you are ready.'}
+                                       </p>
+                                     </div>
+                                     <button
+                                       onClick={() => setShowOtherTopics(!showOtherTopics)}
+                                       aria-expanded={showOtherTopics}
+                                       className="flex items-center gap-1 text-[10px] font-extrabold text-[#00a859] hover:text-[#008f4c] transition cursor-pointer shrink-0 py-1 px-2 border border-emerald-100/50 hover:bg-emerald-50/30 rounded-lg"
+                                     >
+                                       <span>{showOtherTopics ? (t('step2_opt_minimise') || 'Minimise') : (t('step2_opt_view_other_topics') || 'View Other Topics')}</span>
+                                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showOtherTopics ? 'rotate-180' : ''}`} />
+                                     </button>
+                                   </div>
+
+                                   {showOtherTopics && (
+                                     <div className="space-y-3 pt-3 mt-3 border-t border-slate-100 animate-fade-in">
+                                       {unselectedGuideTopics.map(topic => renderGuideCard(topic, false))}
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
 
@@ -3438,23 +4313,61 @@ export default function PhoneSimulator({
                         <p className="text-[10px] text-slate-500 leading-relaxed font-sans">
                           {t('edu_checklist_card_desc')}
                         </p>
-                        <div className="space-y-2.5">
-                          {checklist.map((item) => (
-                            <button
-                              key={item.id}
-                              onClick={() => toggleChecklist(item.id)}
-                              className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition cursor-pointer"
-                            >
-                              {item.checked ? (
-                                <CheckSquare className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
-                              ) : (
-                                <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0 bg-white" />
-                              )}
-                              <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-700 font-medium'}`}>
-                                {item.text}
-                              </span>
-                            </button>
-                          ))}
+                        <div className="space-y-4">
+                          {/* 1. Selected for You (Personalised Items) */}
+                          {onboardingCompleted && checklist.some(item => item.isPersonalized) && (
+                            <div className="space-y-2.5">
+                              <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                                <span className="text-[10px] font-extrabold text-slate-950 flex items-center gap-1">✨ Selected for You</span>
+                                <span className="text-[8px] font-bold bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded border border-emerald-100/40">Personalised</span>
+                              </div>
+                              <div className="space-y-2">
+                                {checklist.filter(item => item.isPersonalized).map((item) => (
+                                  <button
+                                    key={item.id}
+                                    onClick={() => toggleChecklist(item.id)}
+                                    className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition cursor-pointer"
+                                  >
+                                    {item.checked ? (
+                                      <CheckSquare className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
+                                    ) : (
+                                      <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0 bg-white" />
+                                    )}
+                                    <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-700 font-medium'}`}>
+                                      {item.text}
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 2. Essential Requirements / General */}
+                          <div className="space-y-2.5">
+                            {onboardingCompleted && checklist.some(item => item.isPersonalized) && (
+                              <div className="flex items-center border-b border-slate-100 pb-1.5 pt-1">
+                                <span className="text-[10px] font-extrabold text-slate-500">📋 Essential Preparation</span>
+                              </div>
+                            )}
+                            <div className="space-y-2">
+                              {checklist.filter(item => !item.isPersonalized).map((item) => (
+                                <button
+                                  key={item.id}
+                                  onClick={() => toggleChecklist(item.id)}
+                                  className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition cursor-pointer"
+                                >
+                                  {item.checked ? (
+                                    <CheckSquare className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
+                                  ) : (
+                                    <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0 bg-white" />
+                                  )}
+                                  <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-700 font-medium'}`}>
+                                    {item.text}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -3496,7 +4409,7 @@ export default function PhoneSimulator({
                         </div>
 
                         <div className="space-y-2">
-                          {getLocalizedFaqs(language)
+                          {sortedFaqs
                             .filter(faq => activeFaqCategory === 'all' || faq.category === activeFaqCategory)
                             .map((faq, idx) => {
                               const isFaqExpanded = faqActiveIdx === idx;
@@ -3528,7 +4441,7 @@ export default function PhoneSimulator({
                         </div>
 
                         <div className="space-y-2.5">
-                          {getLocalizedHelpfulResources(helpfulResources, language).map((res) => {
+                          {sortedHelpfulResources.map((res) => {
                             // Dynamic color configurations for appealing & diverse icon cards based on immutable ID
                             let bgClass = "bg-slate-50 group-hover:bg-emerald-50 border-slate-100 group-hover:border-emerald-200";
                             let iconColor = "text-[#00a859]";
@@ -3629,7 +4542,7 @@ export default function PhoneSimulator({
               </div>
             )}
           </div>
-        )}
+        ))}
 
 
         {/* ----------------- SCREEN 3: BOOKING ----------------- */}
@@ -4432,73 +5345,6 @@ export default function PhoneSimulator({
                     <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${reminderPrefs.enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
                 </div>
-                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left">
-                        <div className="space-y-1 border-b border-slate-100 pb-3 text-left font-sans">
-                          <span className="text-[9px] font-mono text-slate-400 uppercase font-bold tracking-wider">{t('booking_assigned_specialist')}</span>
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-slate-150 text-[#00a859] font-extrabold flex items-center justify-center text-xs">
-                              {slot.provider.split(' ').pop()?.substring(0, 2).toUpperCase() || 'HL'}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-xs text-slate-800">{slot.provider}</h4>
-                              <p className="text-[10px] text-slate-500">{slot.role}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2 text-xs text-left">
-                          <div className="flex justify-between items-start gap-4">
-                            <span className="text-slate-500 font-medium">{t('booking_care_clinic')}</span>
-                            <span className="text-slate-800 text-right font-semibold">{slot.clinic}</span>
-                          </div>
-                          <div className="flex justify-between items-start gap-4">
-                            <span className="text-slate-500 font-medium">{t('booking_address_label')}</span>
-                            <span className="text-slate-500 text-right text-[11px] leading-snug">{slot.address}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-500 font-medium">{t('booking_date_label')}</span>
-                            <span className="text-slate-800 font-semibold font-mono">{getLocalizedDate(slot.date, language)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-500 font-medium">{t('booking_time_label')}</span>
-                            <span className="text-slate-800 font-semibold font-mono">{slot.time}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-500 font-medium">{t('booking_duration_label')}</span>
-                            <span className="text-slate-800 font-semibold">{slot.duration.replace('mins', t('booking_mins'))}</span>
-                          </div>
-                          <div className="flex justify-between border-t border-slate-100 pt-2.5 mt-2.5">
-                            <span className="text-slate-500 font-bold">{t('booking_out_of_pocket_label')}</span>
-                            <span className="text-[#00a859] font-extrabold font-mono">{slot.cost}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-2 space-y-2">
-                        <button
-                          onClick={() => handleBookSubmit(selectedSlotIdx || 0)}
-                          className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-700/10 transition cursor-pointer"
-                        >
-                          {t('booking_confirm_slot_btn')}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setBookingStep('available');
-                            setSelectedSlotIdx(null);
-                            setSelectedSlotObj(null);
-                          }}
-                          className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition cursor-pointer border border-slate-200"
-                        >
-                          {t('reschedule_slot')}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-          </div>
-        )}
 
                 {reminderPrefs.enabled && (
                   <div className="space-y-4 animate-fade-in text-left">
@@ -4603,118 +5449,6 @@ export default function PhoneSimulator({
                           {reminderPrefs.frequency !== '2_weeks' && reminderPrefs.frequency !== '1_week' && reminderPrefs.frequency !== 'monthly' && t('active_freq_standard')}
                         </p>
                       </div>
-        {/* ----------------- SCREEN 4: REMINDERS ----------------- */}
-        {activeScreen === ScreenId.ReminderSettings && (
-          <div className="flex-col flex flex-1 h-full overflow-hidden">
-            {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left shrink-0">
-              <button 
-                onClick={() => onChangeScreen(ScreenId.Home)} 
-                className="p-1 hover:bg-slate-100 rounded-full"
-              >
-                <ArrowLeft className="w-5 h-5 text-slate-700" />
-              </button>
-              <span className="font-bold text-sm text-slate-800">{t('settings_title')}</span>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
-              <div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  {isFHReferred ? t('settings_desc') : (
-                    language === 'ms' ? 'Konfigurasikan bagaimana dan bila anda menerima rujukan pesakit luar am dan makluman janji temu.' :
-                    language === 'zh' ? '配置您接收普通门诊转诊和预约提醒的方式和时间。' :
-                    language === 'ta' ? 'பொது வெளிநோயாளி பரிந்துரைகள் மற்றும் சந்திப்பு விழிப்பூட்டல்களை எப்போது பெறுவது என்பதை அமைக்கவும்.' :
-                    'Configure how and when you receive outpatient referral and appointment alerts.'
-                  )}
-                </p>
-              </div>
-
-              {/* Master Toggle */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex justify-between items-center">
-                <div>
-                  <h4 className="font-bold text-xs text-slate-800">
-                    {isFHReferred ? t('active_reminders') : (
-                      language === 'ms' ? 'Peringatan Aktif' :
-                      language === 'zh' ? '启用提醒' :
-                      language === 'ta' ? 'செயலில் உள்ள நினைவூட்டல்கள்' :
-                      'Active Reminders'
-                    )}
-                  </h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{t('active_reminders_desc')}</p>
-                </div>
-                <button
-                  onClick={() => onUpdateReminderPrefs(!reminderPrefs.enabled, reminderPrefs.channel, reminderPrefs.frequency)}
-                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${reminderPrefs.enabled ? 'bg-[#00a859]' : 'bg-slate-300'}`}
-                >
-                  <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${reminderPrefs.enabled ? 'translate-x-6' : 'translate-x-1'}`} />
-                </button>
-              </div>
-
-              {reminderPrefs.enabled && (
-                <div className="space-y-4 animate-fade-in text-left">
-                  
-                  {/* Select Channel */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('notification_channel')}</label>
-                    <div className="relative">
-                      <select
-                        id="reminder-channel-select"
-                        value={reminderPrefs.channel}
-                        onChange={(e) => onUpdateReminderPrefs(reminderPrefs.enabled, e.target.value as any, reminderPrefs.frequency === 'custom' ? '1_week' : reminderPrefs.frequency)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-3 pr-10 text-xs text-slate-800 font-medium cursor-pointer appearance-none focus:outline-none focus:border-[#00a859] focus:ring-1 focus:ring-[#00a859] transition"
-                      >
-                        <option value="sms">{t('settings_option_sms_only')}</option>
-                        <option value="push">{t('settings_option_push_only')}</option>
-                        <option value="both">{t('settings_option_both')}</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                        <ChevronDown className="w-4 h-4 text-slate-500" />
-                      </div>
-                    </div>
-                    {/* Short explanatory help text below dropdown */}
-                    <p className="text-[10px] text-slate-500 leading-normal">
-                      {reminderPrefs.channel === 'sms' && t('settings_help_sms')}
-                      {reminderPrefs.channel === 'push' && t('settings_help_push')}
-                      {reminderPrefs.channel === 'both' && (
-                        isFHReferred ? t('settings_help_both') : (
-                          language === 'ms' ? 'Sistem kami menghantar makluman kepada kedua-dua saluran SMS dan Push Aplikasi.' :
-                          language === 'zh' ? '系统将同时发送短信和应用推送提醒。' :
-                          language === 'ta' ? 'எஸ்.எம்.எஸ் மற்றும் புஷ் அறிவிப்புகள் இரண்டிலும் நினைவூட்டல்கள் அனுப்பப்படும்.' :
-                          'Our system sends alerts to both SMS and App Push channels.'
-                        )
-                      )}
-                    </p>
-                  </div>
-
-                  {/* Frequency settings */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('reminder_frequency')}</label>
-                    <div className="relative">
-                      <select
-                        id="reminder-frequency-select"
-                        value={reminderPrefs.frequency === 'custom' || reminderPrefs.frequency === '1_day' ? '1_week' : reminderPrefs.frequency}
-                        onChange={(e) => onUpdateReminderPrefs(reminderPrefs.enabled, reminderPrefs.channel, e.target.value as any)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-3 pr-10 text-xs text-slate-800 font-medium cursor-pointer appearance-none focus:outline-none focus:border-[#00a859] focus:ring-1 focus:ring-[#00a859] transition"
-                      >
-                        <option value="2_weeks">{t('freq_comprehensive')}</option>
-                        <option value="1_week">{t('freq_standard')}</option>
-                        <option value="monthly">{t('freq_minimal')}</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                        <ChevronDown className="w-4 h-4 text-slate-500" />
-                      </div>
-                    </div>
-                    <p className="text-[10px] text-slate-500 leading-normal">
-                      {t('frequency_desc')}
-                    </p>
-                    <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3.5 space-y-1 text-left">
-                      <div className="text-[9.5px] font-bold text-emerald-800 tracking-wider font-mono uppercase">{t('active_schedule')}</div>
-                      <p className="text-xs font-bold text-slate-800 font-sans">
-                        {reminderPrefs.frequency === '2_weeks' && t('active_freq_comprehensive')}
-                        {reminderPrefs.frequency === '1_week' && t('active_freq_standard')}
-                        {reminderPrefs.frequency === 'monthly' && t('active_freq_minimal')}
-                        {reminderPrefs.frequency !== '2_weeks' && reminderPrefs.frequency !== '1_week' && reminderPrefs.frequency !== 'monthly' && t('active_freq_standard')}
-                      </p>
                     </div>
 
                     {/* Dynamic previews based on selected channels */}
@@ -4932,123 +5666,6 @@ export default function PhoneSimulator({
                     </button>
                   </div>
                 )}
-
-              {/* ── Language Preferences ── */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-emerald-600" />
-                  {t('lang_pref_title')}
-                </label>
-                <p className="text-[10px] text-slate-500 leading-relaxed">{t('lang_pref_desc')}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {(Object.entries(LANG_LABELS) as [Language, string][]).map(([code, label]) => (
-                    <button
-                      key={code}
-                      onClick={() => handleLanguageChange(code)}
-                      className={`py-2 px-3 rounded-xl text-xs font-semibold transition border cursor-pointer ${
-                        language === code
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50 hover:border-emerald-200'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                  {/* Dynamic previews based on selected channels */}
-                  {(reminderPrefs.channel === 'sms' || reminderPrefs.channel === 'both') && (
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
-                        <span>{t('settings_sms_preview_title')}</span>
-                        <span className="text-emerald-700">{t('settings_sms_verified_sender')}</span>
-                      </label>
-                      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 border-b border-slate-100 pb-2">
-                          <Smartphone className="w-3.5 h-3.5 text-slate-400" />
-                          <span>MOH-HealthHub</span>
-                          <span className="ml-auto text-[9px] font-mono">{t('sms_today')}, 09:41 AM</span>
-                        </div>
-                        <div className="bg-slate-100 p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-slate-200/50">
-                          {(() => {
-                            const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
-                            const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
-                            const bookedClinicName = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.clinic : activeClinics[0].name;
-                            const nameStr = patientFirstName.charAt(0) + patientFirstName.slice(1).toLowerCase();
-
-                            if (isFHReferred) {
-                              return t('settings_sms_prefix')
-                                .replace('{date}', dateStr)
-                                .replace('{time}', timeStr);
-                            }
-
-                            if (language === 'ms') {
-                              return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi sehingga 75% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
-                            } else if (language === 'zh') {
-                              return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 75% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
-                            } else if (language === 'ta') {
-                              return `MOH HealthHub: ${dateStr} அன்று ${timeStr} மணிக்கு ${bookedClinicName}-இல் உங்கள் பொது வெளிநோயாளி ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 75% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/gen-ref`;
-                            } else {
-                              return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Subsidies up to 75% are cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
-                            }
-                          })()}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {(reminderPrefs.channel === 'push' || reminderPrefs.channel === 'both') && (
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-                        {t('settings_lockscreen_preview_title')}
-                      </label>
-                      <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
-                        <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
-                          <div className="w-4 h-4 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
-                          <span>{t('settings_lockscreen_header')}</span>
-                        </div>
-                        <div className="space-y-1">
-                          <h4 className="text-xs font-bold text-slate-100">
-                            {isFHReferred ? t('lock_counselling_reminder') : (
-                              language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
-                              language === 'zh' ? '普通门诊就诊提醒' :
-                              language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
-                              'Outpatient Appointment Reminder'
-                            )}
-                          </h4>
-                          <p className="text-[10.5px] text-slate-300 leading-snug">
-                            {(() => {
-                              const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
-                              const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
-                              if (isFHReferred) {
-                                return t('lockscreen_push_msg')
-                                  .replace('{date}', dateStr)
-                                  .replace('{time}', timeStr);
-                              }
-                              if (language === 'ms') {
-                                return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
-                              } else if (language === 'zh') {
-                                return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
-                              } else if (language === 'ta') {
-                                return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
-                              } else {
-                                return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
-                              }
-                            })()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Mock notify trigger */}
-                  <button
-                    onClick={onTriggerNotification}
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
-                  >
-                    <Bell className="w-4 h-4" /> {t('lock_trigger_push_alert')}
-                  </button>
-                </div>
-              )}
 
               {/* ── Language Preferences ── */}
               <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
@@ -5822,7 +6439,6 @@ export default function PhoneSimulator({
                   textSize === 'lg' ? 'education-text-lg' :
                   'education-text-md'
                 }`}>
-                <div className="bg-white w-full max-w-[340px] min-h-[380px] rounded-lg shadow-md p-4.5 flex flex-col border border-slate-300 relative select-text">
                   {/* Subtle watermarks and page header */}
                   <div className="border-b border-slate-100 pb-2 mb-3 flex justify-between items-center text-[8px] text-slate-400 font-bold uppercase tracking-wider font-mono">
                     <span>FIRST HEALTH GROUP • EDUCATIONAL SERVICES</span>

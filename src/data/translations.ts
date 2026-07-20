@@ -1,6 +1,15 @@
 import { FAQItem } from '../types';
 import { EduSection, educationalSections, HelpfulResource } from './education';
 
+import enPersonalisation from '../locales/en/personalisation.json';
+import enChecklist from '../locales/en/checklist.json';
+import msPersonalisation from '../locales/ms/personalisation.json';
+import msChecklist from '../locales/ms/checklist.json';
+import zhPersonalisation from '../locales/zh-SG/personalisation.json';
+import zhChecklist from '../locales/zh-SG/checklist.json';
+import taPersonalisation from '../locales/ta-SG/personalisation.json';
+import taChecklist from '../locales/ta-SG/checklist.json';
+
 export type Language = 'en' | 'ms' | 'zh' | 'ta';
 
 export const LANG_LABELS: Record<Language, string> = {
@@ -12,6 +21,8 @@ export const LANG_LABELS: Record<Language, string> = {
 
 export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
   en: {
+    ...enPersonalisation,
+    ...enChecklist,
     // Top Bar & Greetings
     health: 'Health',
     hub: 'Hub',
@@ -533,6 +544,8 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     sms_today: 'Today',
   },
   ms: {
+    ...msPersonalisation,
+    ...msChecklist,
     health: 'Health',
     hub: 'Hub',
     active_user: 'Pengguna Aktif',
@@ -1044,6 +1057,8 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     sms_today: 'Hari Ini',
   },
   zh: {
+    ...zhPersonalisation,
+    ...zhChecklist,
     health: 'Health',
     hub: 'Hub',
     active_user: '活跃用户',
@@ -1556,6 +1571,8 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     sms_today: '今天',
   },
   ta: {
+    ...taPersonalisation,
+    ...taChecklist,
     health: 'Health',
     hub: 'Hub',
     active_user: 'செயலில் உள்ள பயனர்',
@@ -2070,34 +2087,104 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
 };
 
 // Localized preCounsellingChecklist
-export const getLocalizedChecklist = (lang: Language) => {
-  switch (lang) {
-    case 'ms':
-      return [
-        { id: 'prep-2', text: 'Ubat-ubatan semasa dan suplemen yang anda sedang ambil.', checked: false },
-        { id: 'prep-3', text: 'Soalan yang ingin anda tanyakan kepada kaunselor genetik anda.', checked: false },
-        { id: 'prep-4', text: 'NRIC atau Singpass untuk pendaftaran masuk.', checked: false },
-      ];
-    case 'zh':
-      return [
-        { id: 'prep-2', text: '您目前正在服用的药物和膳食补充剂。', checked: false },
-        { id: 'prep-3', text: '您想向基因咨询师咨询的具体问题。', checked: false },
-        { id: 'prep-4', text: '携带登记入场所需的身份证 (NRIC) 或使用 Singpass。', checked: false },
-      ];
-    case 'ta':
-      return [
-        { id: 'prep-2', text: 'நீங்கள் தற்போது உட்கொள்ளும் மருந்துகள் மற்றும் சப்ளிமெண்ட்ஸ்.', checked: false },
-        { id: 'prep-3', text: 'உங்கள் மரபணு ஆலோசகரிடம் நீங்கள் கேட்க விரும்பும் கேள்விகள்.', checked: false },
-        { id: 'prep-4', text: 'பதிவு செய்ய உங்கள் அடையாள அட்டை (NRIC) அல்லது Singpass.', checked: false },
-      ];
-    case 'en':
-    default:
-      return [
-        { id: 'prep-2', text: 'Prepare a list of your current medications & supplement', checked: false },
-        { id: 'prep-3', text: 'Review Learn section for resources and common questions', checked: false },
-        { id: 'prep-4', text: 'Bring your NRIC or Singpass for identity verification', checked: false },
-      ];
+export const getLocalizedChecklist = (
+  lang: Language,
+  familiarity?: string | null,
+  topics: string[] = [],
+  concerns: string[] = []
+) => {
+  const t = (key: string): string => {
+    return UI_TRANSLATIONS[lang]?.[key] || UI_TRANSLATIONS['en']?.[key] || key;
+  };
+
+  // 1. Mandatory items (always shown)
+  const items = [
+    { id: 'mandatory_nric', text: t('mandatory_nric'), checked: false, isPersonalized: false },
+    { id: 'mandatory_meds', text: t('mandatory_meds'), checked: false, isPersonalized: false },
+  ];
+
+  // If onboarding is completed (or details are provided), add personalized tasks
+  if (familiarity) {
+    // 2. Knowledge-based preparation tasks
+    if (familiarity === 'new' || familiarity === 'beginner') {
+      items.push({ id: 'knowledge_new', text: t('knowledge_new'), checked: false, isPersonalized: true });
+    } else if (familiarity === 'little' || familiarity === 'research' || familiarity === 'intermediate') {
+      items.push({ id: 'knowledge_little_research', text: t('knowledge_little_research'), checked: false, isPersonalized: true });
+    } else if (familiarity === 'advanced') {
+      items.push({ id: 'knowledge_advanced', text: t('knowledge_advanced'), checked: false, isPersonalized: true });
+    }
+
+    // 3. Topic-based preparation tasks
+    if (
+      topics.includes('topic-costs') ||
+      topics.includes('topic-subsidies') ||
+      topics.includes('costs-subsidies') ||
+      topics.includes('costs')
+    ) {
+      items.push({ id: 'topic_costs', text: t('topic_costs'), checked: false, isPersonalized: true });
+    }
+    if (
+      topics.includes('topic-insurance') ||
+      topics.includes('insurance-rights') ||
+      topics.includes('insurance')
+    ) {
+      items.push({ id: 'topic_insurance', text: t('topic_insurance'), checked: false, isPersonalized: true });
+    }
+    if (
+      topics.includes('topic-family') ||
+      topics.includes('cascade-screening') ||
+      topics.includes('family')
+    ) {
+      items.push({ id: 'topic_family', text: t('topic_family'), checked: false, isPersonalized: true });
+    }
+    if (
+      topics.includes('topic-treatment') ||
+      topics.includes('topic-medication') ||
+      topics.includes('treatment-medication') ||
+      topics.includes('medication')
+    ) {
+      items.push({ id: 'topic_treatment', text: t('topic_treatment'), checked: false, isPersonalized: true });
+    }
+
+    // 4. Concern-based preparation tasks
+    if (
+      concerns.includes('concern-test') ||
+      concerns.includes('concern-testing') ||
+      concerns.includes('testing-process') ||
+      concerns.includes('test')
+    ) {
+      items.push({ id: 'concern_test', text: t('concern_test'), checked: false, isPersonalized: true });
+    }
+    if (
+      concerns.includes('concern-family') ||
+      concerns.includes('family')
+    ) {
+      items.push({ id: 'concern_family', text: t('concern_family'), checked: false, isPersonalized: true });
+    }
+    if (
+      concerns.includes('concern-cost') ||
+      concerns.includes('concern-costs') ||
+      concerns.includes('cost')
+    ) {
+      items.push({ id: 'concern_cost', text: t('concern_cost'), checked: false, isPersonalized: true });
+    }
+    if (
+      concerns.includes('concern-insurance') ||
+      concerns.includes('insurance')
+    ) {
+      items.push({ id: 'concern_insurance', text: t('concern_insurance'), checked: false, isPersonalized: true });
+    }
+  } else {
+    // Fallback/standard items when onboarding is skipped or not completed yet
+    items.push({
+      id: 'prep_review',
+      text: t('edu_checklist_progress_desc') || 'Review Learn section for resources and common questions',
+      checked: false,
+      isPersonalized: false,
+    });
   }
+
+  return items;
 };
 
 // Localized educationalSections

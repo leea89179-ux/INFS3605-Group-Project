@@ -1,6 +1,6 @@
 {
-  "name": "PoC: INFS3605-Group-Project",
-  "description": "Singapore HealthHub Familial Hypercholesterolaemia (FH) precision-genomics genetic testing compliance referral portal prototype.",
+  "name": "Remix: INFS3605-Group-Project",
+  "description": "HealthHub FH Personalised Genetic Education & Checklist",
   "requestFramePermissions": [
     "geolocation"
   ],
