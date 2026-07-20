@@ -542,6 +542,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     not_on_file: 'Not on file',
     not_yet_assigned: 'Not yet assigned',
     sms_today: 'Today',
+    concern_test_desc: 'Learn what happens before, during and after genetic testing.',
   },
   ms: {
     ...msPersonalisation,
@@ -1055,6 +1056,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     not_on_file: 'Tiada dalam rekod',
     not_yet_assigned: 'Belum ditentukan',
     sms_today: 'Hari Ini',
+    concern_test_desc: 'Ketahui apa yang berlaku sebelum, semasa dan selepas ujian genetik.',
   },
   zh: {
     ...zhPersonalisation,
@@ -1569,6 +1571,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     not_on_file: '暂无记录',
     not_yet_assigned: '暂未指定',
     sms_today: '今天',
+    concern_test_desc: '了解基因检测前、检测中和检测后会发生什么。',
   },
   ta: {
     ...taPersonalisation,
@@ -2083,6 +2086,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     not_on_file: 'பதிவேட்டில் இல்லை',
     not_yet_assigned: 'இன்னும் ஒதுக்கப்படவில்லை',
     sms_today: 'இன்று',
+    concern_test_desc: 'மரபணு சோதனைக்கு முன், அதன் போது மற்றும் அதற்குப் பிறகு என்ன நடக்கும் என்பதை அறிந்து கொள்ளுங்கள்.',
   },
 };
 

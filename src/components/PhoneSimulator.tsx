@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
@@ -3445,7 +3445,7 @@ export default function PhoneSimulator({
                             { id: 'concern-diagnosis', label: '😟 Whether I actually have FH', desc: 'We will prioritize diagnostic tools and clinical metrics.' },
                             { id: 'concern-family', label: '👨‍👩‍👧 My family and children', desc: 'We will highlight family testing and pediatric guidelines.' },
                             { id: 'concern-cost', label: '💰 Testing cost and subsidies', desc: 'We will move MOH subventions and financial FAQs to the top.' },
-                            { id: 'concern-test', label: '🧪 The genetic test itself', desc: 'We will highlight LISA HO\'s pre-test counselling walkthrough video.' },
+                            { id: 'concern-test', label: '🧪 The genetic test itself', desc: t('concern_test_desc') },
                             { id: 'concern-meds', label: '💊 Medication and side effects', desc: 'We will highlight highly effective heart therapies and support.' },
                             { id: 'concern-[#00a859]', label: '❤️ Heart disease and prevention', desc: 'We will focus on risk reduction and cardiovascular health.' },
                             { id: 'concern-insurance', label: '🛡️ Insurance impact and moratorium', desc: 'We will prioritize the Life Insurance Association (LIA) guidelines.' },
