@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
+import { getPersonalizedStory } from '../data/personalizedStories';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
@@ -938,6 +939,18 @@ export default function PhoneSimulator({
   const patientFullName = patientRecord?.name || patientDetails.fullName;
   const patientNric = patientRecord?.nric_fin || patientDetails.nric;
   const patientFirstName = patientName.split(' ')[0].toUpperCase();
+  const patientFirstNameCapitalized = patientName.split(' ')[0];
+  const getTamilName = (engName: string): string => {
+    switch (engName) {
+      case 'Sarah': return 'சாரா';
+      case 'Daniel': return 'டேனியல்';
+      case 'Emily': return 'எமிலி';
+      case 'Michael': return 'மைக்கேல்';
+      case 'Priya': return 'பிரியா';
+      case 'Lisa': return 'லிசா';
+      default: return engName;
+    }
+  };
   const patientAge = patientRecord?.age ?? patientDetails.age;
   const patientGender = patientRecord?.gender || patientDetails.gender;
   const patientEmail = patientRecord?.email || patientDetails.email;
@@ -1140,6 +1153,37 @@ export default function PhoneSimulator({
       res = res.replace('text-sm', 'text-base');
     }
     return res;
+  };
+
+  const getButtonTextSizeClass = (lang: string) => {
+    if (lang === 'ta') return 'text-[9.5px] px-1.5 py-2 leading-tight break-words';
+    if (lang === 'ms') return 'text-[10.5px] px-1.5 py-2.5 leading-tight break-words';
+    return 'text-xs py-2.5 px-3';
+  };
+
+  const renderRichContent = (content: string) => {
+    if (!content) return null;
+    const lines = content.split('\n').map(l => l.trim()).filter(Boolean);
+    return (
+      <div className="space-y-1.5 text-[10.5px] text-slate-600 font-sans leading-relaxed">
+        {lines.map((line, idx) => {
+          if (line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
+            const cleanText = line.replace(/^[•\-\*]\s*/, '');
+            return (
+              <div key={idx} className="flex items-start gap-1.5 pl-1 my-0.5">
+                <span className="text-[#00a859] font-bold shrink-0 mt-0.5">•</span>
+                <span className="text-slate-700 text-[10px] leading-relaxed">{cleanText}</span>
+              </div>
+            );
+          }
+          return (
+            <p key={idx} className="text-slate-600 text-[10.5px] leading-relaxed">
+              {line}
+            </p>
+          );
+        })}
+      </div>
+    );
   };
 
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
@@ -3036,7 +3080,11 @@ export default function PhoneSimulator({
               <div>
                 <h3 className="text-base font-bold text-slate-800 leading-snug">{t('referred_intro_title')}</h3>
                 <div className="mt-2 space-y-2">
-                  <p className="text-xs text-slate-700 leading-relaxed">{t('referred_hi_lisa')}</p>
+                  <p className="text-xs text-slate-700 leading-relaxed">
+                    {t('referred_hi_lisa')
+                      .replace('Lisa', patientFirstNameCapitalized)
+                      .replace('லிசா', getTamilName(patientFirstNameCapitalized))}
+                  </p>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     {t('referred_doctor_rec')}
                   </p>
@@ -3227,8 +3275,8 @@ export default function PhoneSimulator({
                 'education-text-md'
               }`}>
                 {/* Dedicated Questionnaire Header */}
-                <div className="bg-white px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
-                  <div className="flex items-center gap-2">
+                <div className="bg-white px-3 py-2.5 border-b border-slate-100 flex items-center justify-between gap-1 shrink-0">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     <button 
                       onClick={() => {
                         if (onboardingStep > 1) {
@@ -3241,23 +3289,31 @@ export default function PhoneSimulator({
                     >
                       <ArrowLeft className="w-5 h-5 text-slate-700" />
                     </button>
-                    <span className="font-extrabold text-[13.5px] text-slate-800 tracking-tight">Personalise Your Learning</span>
+                    <span className={`font-extrabold text-slate-800 tracking-tight truncate ${
+                      language === 'ta' ? 'text-[11.5px]' : 'text-[13.5px]'
+                    }`}>
+                      {t('title')}
+                    </span>
                   </div>
                   <button 
                     id="onboarding-skip-btn"
                     onClick={() => handleCompleteOnboarding(true, 'skipped')}
-                    className="text-xs text-slate-600 hover:text-slate-900 font-semibold px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition cursor-pointer select-none"
+                    className={`font-semibold bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition cursor-pointer select-none shrink-0 ${
+                      language === 'ta' ? 'text-[9.5px] px-2 py-1' : 'text-xs px-3 py-1.5'
+                    }`}
                   >
-                    Skip
+                    {t('btn_skip')}
                   </button>
                 </div>
 
                 {/* Questionnaire Text-Size Control */}
-                <div className="bg-white px-4 py-2 border-b border-slate-100 flex items-center justify-between shrink-0">
-                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-tight select-none font-sans">
-                    Text size:
+                <div className="bg-white px-4 py-2 border-b border-slate-100 flex items-center justify-between gap-2 shrink-0 flex-wrap">
+                  <span className={`font-extrabold text-slate-500 uppercase tracking-tight select-none font-sans ${
+                    language === 'ta' ? 'text-[9.5px]' : 'text-[10px]'
+                  }`}>
+                    {t('text_size_label')}
                   </span>
-                  <div className="flex items-center gap-1 bg-slate-100/80 px-1.5 py-1 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-1 bg-slate-100/80 px-1 py-0.5 rounded-lg border border-slate-200 shrink-0">
                     <button
                       onClick={() => setQuestionnaireTextSize('sm')}
                       title="Small Text"
@@ -3298,11 +3354,13 @@ export default function PhoneSimulator({
                 <div className="flex-1 flex flex-col bg-white text-slate-800 overflow-y-auto">
                   {/* Step Indicator and Content */}
                   <div className="flex-1 p-5 flex flex-col justify-between space-y-6">
-                    {/* Progress Indicator */}
+                     {/* Progress Indicator */}
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center text-[11px] text-slate-500 font-bold">
-                        <span>QUESTION {onboardingStep} OF 3</span>
-                        <span className="text-[#00a859]">{Math.round((onboardingStep / 3) * 100)}% COMPLETE</span>
+                      <div className={`flex justify-between items-center text-slate-500 font-bold ${
+                        language === 'ta' || language === 'ms' ? 'text-[9.5px]' : 'text-[11px]'
+                      }`}>
+                        <span>{t('question_indicator').replace('{step}', onboardingStep.toString())}</span>
+                        <span className="text-[#00a859]">{t('percentage_complete').replace('{percent}', Math.round((onboardingStep / 3) * 100).toString())}</span>
                       </div>
                       <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div className="bg-[#00a859] h-full transition-all duration-300" style={{ width: `${(onboardingStep / 3) * 100}%` }} />
@@ -3313,27 +3371,29 @@ export default function PhoneSimulator({
                     {onboardingStep === 1 && (
                       <div className="flex-1 flex flex-col space-y-4 animate-fade-in text-left">
                         <div className="space-y-1">
-                          <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">Let's personalise your FH learning</h3>
+                          <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">{t('step1_title')}</h3>
                           <p className="text-[11.5px] text-slate-500 leading-relaxed">
-                            Answer a few quick questions so we can highlight the information that's most relevant to you.
+                            {t('step1_subtitle')}
                           </p>
                         </div>
 
-                        <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11px] text-slate-600 font-medium shrink-0">
+                        <div className={`bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 flex items-center gap-2 text-slate-600 font-medium shrink-0 leading-normal ${
+                          language === 'ta' ? 'text-[9.5px]' : 'text-[11px]'
+                        }`}>
                           <Clock className="w-4 h-4 text-[#00a859] shrink-0" />
-                          <span>Estimated time: Less than 1 minute • Complete or skip anytime</span>
+                          <span>{t('est_time_desc')}</span>
                         </div>
 
                         <div className="space-y-3 pt-2 flex-1">
                           <label className="block text-[12px] font-bold text-slate-800">
-                            How familiar are you with Familial Hypercholesterolaemia (FH)?
+                            {t('step1_q')}
                           </label>
                           <div className="space-y-2">
                             {[
-                              { id: 'new', label: "I am completely new to FH", desc: 'We will highlight basic concepts and explanations first.' },
-                              { id: 'little', label: "I know a little", desc: 'We will show intermediate modules and testing guides.' },
-                              { id: 'research', label: "I have done some research", desc: 'We will surface clinical details and research references.' },
-                              { id: 'advanced', label: "I already know quite a bit", desc: 'We will highlight advanced costs, insurance guidelines, and family care.' },
+                              { id: 'new', label: t('step1_opt1_title'), desc: t('step1_opt1_desc') },
+                              { id: 'little', label: t('step1_opt2_title'), desc: t('step1_opt2_desc') },
+                              { id: 'research', label: t('step1_opt3_title'), desc: t('step1_opt3_desc') },
+                              { id: 'advanced', label: t('step1_opt4_title'), desc: t('step1_opt4_desc') },
                             ].map((opt) => {
                               const isSelected = onboardingFamiliarity === opt.id;
                               return (
@@ -3373,7 +3433,9 @@ export default function PhoneSimulator({
                           </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2.5 pt-1 overflow-y-auto max-h-[340px] pr-1">
+                        <div className={`grid gap-2.5 pt-1 overflow-y-auto max-h-[340px] pr-1 ${
+                          language === 'ta' || language === 'ms' ? 'grid-cols-1' : 'grid-cols-2'
+                        }`}>
                           {[
                             { id: 'topic-basics', icon: '🧬', label: t('step2_opt_basics') },
                             { id: 'topic-risk', icon: '❤️', label: t('step2_opt_risk') },
@@ -3412,7 +3474,9 @@ export default function PhoneSimulator({
                                   <span className="text-[13px] shrink-0">{opt.icon}</span>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center flex-wrap gap-1">
-                                      <span className="text-[11px] font-semibold text-slate-800 leading-tight">
+                                      <span className={`font-semibold text-slate-800 leading-tight ${
+                                        language === 'ta' || language === 'ms' ? 'text-[11.5px]' : 'text-[11px]'
+                                      }`}>
                                         {opt.label}
                                       </span>
                                     </div>
@@ -3434,22 +3498,22 @@ export default function PhoneSimulator({
                     {onboardingStep === 3 && (
                       <div className="flex-1 flex flex-col space-y-4 animate-fade-in text-left">
                         <div className="space-y-1">
-                          <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">What matters most to you?</h3>
+                          <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">{t('step3_q')}</h3>
                           <p className="text-[11.5px] text-slate-500 leading-relaxed">
-                            What are you most concerned about right now? We'll prioritize resources to address these concerns directly.
+                            {t('step3_sub')}
                           </p>
                         </div>
 
                         <div className="space-y-2 pt-1 overflow-y-auto max-h-[340px] pr-1">
                           {[
-                            { id: 'concern-diagnosis', label: '😟 Whether I actually have FH', desc: 'We will prioritize diagnostic tools and clinical metrics.' },
-                            { id: 'concern-family', label: '👨‍👩‍👧 My family and children', desc: 'We will highlight family testing and pediatric guidelines.' },
-                            { id: 'concern-cost', label: '💰 Testing cost and subsidies', desc: 'We will move MOH subventions and financial FAQs to the top.' },
-                            { id: 'concern-test', label: '🧪 The genetic test itself', desc: t('concern_test_desc') },
-                            { id: 'concern-meds', label: '💊 Medication and side effects', desc: 'We will highlight highly effective heart therapies and support.' },
-                            { id: 'concern-[#00a859]', label: '❤️ Heart disease and prevention', desc: 'We will focus on risk reduction and cardiovascular health.' },
-                            { id: 'concern-insurance', label: '🛡️ Insurance impact and moratorium', desc: 'We will prioritize the Life Insurance Association (LIA) guidelines.' },
-                            { id: 'concern-curious', label: '😊 I\'m just curious and want to explore', desc: 'We will present a balanced overview of all resources.' },
+                            { id: 'concern-diagnosis', label: '😟 ' + t('concern_diagnosis_title'), desc: t('concern_diagnosis_desc') },
+                            { id: 'concern-family', label: '👨‍👩‍👧 ' + t('concern_family_title'), desc: t('concern_family_desc') },
+                            { id: 'concern-cost', label: '💰 ' + t('concern_cost_title'), desc: t('concern_cost_desc') },
+                            { id: 'concern-test', label: '🧪 ' + t('concern_test_title'), desc: t('concern_test_desc') },
+                            { id: 'concern-meds', label: '💊 ' + t('concern_meds_title'), desc: t('concern_meds_desc') },
+                            { id: 'concern-[#00a859]', label: '❤️ ' + t('concern_heart_title'), desc: t('concern_heart_desc') },
+                            { id: 'concern-insurance', label: '🛡️ ' + t('concern_insurance_title'), desc: t('concern_insurance_desc') },
+                            { id: 'concern-curious', label: '😊 ' + t('concern_curious_title'), desc: t('concern_curious_desc') },
                           ].map((opt) => {
                             const isSelected = onboardingConcerns.includes(opt.id);
                             return (
@@ -3470,7 +3534,7 @@ export default function PhoneSimulator({
                               >
                                 <div className={`w-4 h-4 rounded border mt-0.5 shrink-0 flex items-center justify-center transition-all ${
                                   isSelected ? 'bg-[#00a859] border-[#00a859] text-white' : 'border-slate-300 bg-white'
-                                }`}>
+                                }}`}>
                                   {isSelected && <Check className="w-2.5 h-2.5 stroke-[4px]" />}
                                 </div>
                                 <div className="space-y-0.5 min-w-0 flex-1">
@@ -3489,26 +3553,26 @@ export default function PhoneSimulator({
                       {onboardingStep > 1 && (
                         <button
                           onClick={() => setOnboardingStep(onboardingStep - 1)}
-                          className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer text-center select-none border border-slate-200"
+                          className={`flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition cursor-pointer text-center select-none border border-slate-200 ${getButtonTextSizeClass(language)}`}
                         >
-                          Back
+                          {t('btn_back')}
                         </button>
                       )}
                       
                       {onboardingStep < 3 ? (
                         <button
                           onClick={() => setOnboardingStep(onboardingStep + 1)}
-                          className="flex-1 py-3 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer text-center select-none"
+                          className={`flex-1 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl font-bold shadow-xs transition cursor-pointer text-center select-none ${getButtonTextSizeClass(language)}`}
                         >
-                          Next
+                          {t('btn_next')}
                         </button>
                       ) : (
                         <button
                           id="onboarding-finish-btn"
                           onClick={() => handleCompleteOnboarding(true, 'completed')}
-                          className="flex-1 py-3 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer text-center select-none"
+                          className={`flex-1 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl font-bold shadow-xs transition cursor-pointer text-center select-none ${getButtonTextSizeClass(language)}`}
                         >
-                          Get My Personalized Guide
+                          {t('btn_get_guide')}
                         </button>
                       )}
                     </div>
@@ -3518,17 +3582,23 @@ export default function PhoneSimulator({
           ) : (
           <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50">
               {/* Top Navigation */}
-              <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-2">
-                  <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer">
-                    <ArrowLeft className="w-5 h-5 text-slate-700" />
+              <div className="bg-white px-3 py-2.5 border-b border-slate-200 flex items-center justify-between gap-1 shrink-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer shrink-0">
+                    <ArrowLeft className="w-4 h-4 text-slate-700" />
                   </button>
-                  <span className="font-bold text-sm text-slate-800">{t('edu_hub_title')}</span>
+                  <span className="font-bold text-[13px] text-slate-800 truncate">{t('edu_hub_title')}</span>
                 </div>
+              </div>
 
-                {/* Text Size Accessibility Control */}
-                <div className="flex items-center gap-1 bg-slate-100/80 px-1.5 py-1 rounded-lg border border-slate-200">
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight mr-1 select-none font-sans">Size:</span>
+              {/* Text Size Accessibility Control Bar */}
+              <div className="bg-white px-3 py-1.5 border-b border-slate-200 flex items-center justify-between gap-2 shrink-0 select-none">
+                <span className={`font-extrabold text-slate-500 uppercase tracking-tight select-none font-sans ${
+                  language === 'ta' ? 'text-[9.5px]' : 'text-[10px]'
+                }`}>
+                  {t('text_size_label')}
+                </span>
+                <div className="flex items-center gap-1 bg-slate-100/80 px-1 py-0.5 rounded-lg border border-slate-200 shrink-0">
                   <button
                     onClick={() => setTextSize('sm')}
                     title="Small Text"
@@ -3542,7 +3612,7 @@ export default function PhoneSimulator({
                   </button>
                   <button
                     onClick={() => setTextSize('md')}
-                    title="Medium Text (Default)"
+                    title="Medium Text"
                     className={`px-1.5 py-0.5 rounded-md text-[10.5px] font-extrabold transition cursor-pointer select-none ${
                       textSize === 'md'
                         ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
@@ -3612,30 +3682,35 @@ export default function PhoneSimulator({
 
                   {/* Personalization Status Bar & Retake Hook */}
                   {onboardingCompleted ? (
-                    <div className="bg-emerald-950/40 border border-emerald-400/20 rounded-xl p-2.5 flex items-center justify-between gap-3 text-[10px]">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                        <span className="text-emerald-50">Feed personalized to your interests</span>
+                    <div className="bg-emerald-950/40 border border-emerald-400/20 rounded-xl p-2.5 flex flex-col gap-2 text-[10.5px]">
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0 mt-0.5" />
+                        <span className="text-emerald-50 leading-tight">{t('feed_personalized')}</span>
                       </div>
-                      <button
-                        onClick={handleRetakeOnboarding}
-                        className="font-extrabold text-amber-300 hover:text-amber-200 uppercase tracking-wider font-mono text-[9px] shrink-0 hover:underline cursor-pointer"
-                      >
-                        Retake Onboarding
-                      </button>
+                      <div className="flex justify-end border-t border-emerald-800/30 pt-1.5">
+                        <button
+                          onClick={handleRetakeOnboarding}
+                          className="font-extrabold text-amber-300 hover:text-amber-200 uppercase tracking-wider font-mono text-[9px] hover:underline cursor-pointer flex items-center gap-1"
+                        >
+                          <Sparkles className="w-3 h-3 text-amber-300 shrink-0" />
+                          {t('retake_onboarding')}
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <div className="bg-emerald-950/25 border border-emerald-400/10 rounded-xl p-2.5 flex items-center justify-between gap-3 text-[10px]">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-300 shrink-0 animate-pulse" />
-                        <span className="text-emerald-50/80">Personalise your feed for a custom experience</span>
+                    <div className="bg-emerald-950/25 border border-emerald-400/10 rounded-xl p-2.5 flex flex-col gap-2 text-[10.5px]">
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-300 shrink-0 mt-0.5 animate-pulse" />
+                        <span className="text-emerald-50/80 leading-tight">{t('personalize_feed_prompt')}</span>
                       </div>
-                      <button
-                        onClick={handleRetakeOnboarding}
-                        className="font-extrabold text-white bg-emerald-800 hover:bg-emerald-700 px-2 py-0.5 rounded uppercase tracking-wider font-mono text-[9px] shrink-0 hover:underline cursor-pointer"
-                      >
-                        Start
-                      </button>
+                      <div className="flex justify-end border-t border-emerald-800/20 pt-1.5">
+                        <button
+                          onClick={handleRetakeOnboarding}
+                          className="font-extrabold text-white bg-emerald-800 hover:bg-emerald-700 px-2 py-0.5 rounded uppercase tracking-wider font-mono text-[9.5px] cursor-pointer"
+                        >
+                          {t('btn_start')}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -3709,114 +3784,133 @@ export default function PhoneSimulator({
                         </p>
                       </div>
 
-                      {/* Dynamic Video Recommendation Banner based on Onboarding Choices */}
-                      {onboardingCompleted && (onboardingTopics.includes('topic-testing') || onboardingConcerns.includes('concern-test')) && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
-                          <Sparkles className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
-                          <div className="space-y-0.5">
-                            <span className="text-[9px] font-extrabold text-amber-800 uppercase tracking-widest font-mono">RECOMMENDED WATCH</span>
-                            <p className="text-[10.5px] text-slate-700 leading-normal">
-                              Based on your interest/concern in <strong>genetic testing</strong>, we recommend starting with this 45-second guide explaining what to expect during counselling.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {onboardingCompleted && (onboardingTopics.includes('topic-stories') || onboardingConcerns.includes('concern-family')) && (
-                        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
-                          <Sparkles className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
-                          <div className="space-y-0.5">
-                            <span className="text-[9px] font-extrabold text-rose-800 uppercase tracking-widest font-mono">RECOMMENDED FOR YOUR FAMILY</span>
-                            <p className="text-[10.5px] text-slate-700 leading-normal">
-                              Based on your concern for <strong>family care & stories</strong>, watch how other families manage FH together and support each other.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Patient Experience Video Section */}
-                      <div className="bg-slate-900 rounded-2xl overflow-hidden relative shadow-md">
-                        {/* Simulated Video Frame */}
-                        <div className="h-44 flex flex-col items-center justify-center relative p-4 text-center">
-                          {isPlayingVideo ? (
-                            <div className="absolute inset-0 bg-emerald-950/85 flex flex-col justify-between p-4 text-white">
-                              <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 self-start">{t('edu_video_story_label')}</span>
-                              
-                              {/* CSS cartoon animations based on active simulated frame */}
-                              <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-                                {videoFrame === 0 && (
-                                  <div className="animate-fade-in space-y-1">
-                                    <span className="text-2xl">💡</span>
-                                    <p className="text-[11px] font-semibold">{t('edu_video_frame_0')}</p>
-                                  </div>
-                                )}
-                                {videoFrame === 1 && (
-                                  <div className="animate-fade-in space-y-1">
-                                    <span className="text-2xl">🤝</span>
-                                    <p className="text-[11px] font-semibold">{t('edu_video_frame_1')}</p>
-                                  </div>
-                                )}
-                                {videoFrame === 2 && (
-                                  <div className="animate-fade-in space-y-1">
-                                    <span className="text-2xl">🛡️</span>
-                                    <p className="text-[11px] font-semibold">{t('edu_video_frame_2')}</p>
-                                  </div>
-                                )}
-                                {videoFrame === 3 && (
-                                  <div className="animate-fade-in space-y-1">
-                                    <span className="text-2xl">❤️</span>
-                                    <p className="text-[11px] font-semibold">{t('edu_video_frame_3')}</p>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Video progress indicator bar */}
-                              <div className="w-full flex items-center gap-2">
-                                <div className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden">
-                                  <div className="bg-emerald-400 h-full transition-all duration-300" style={{ width: `${(videoFrame + 1) * 25}%` }} />
+                      {/* Dynamic Video Recommendation Banner and Patient Experience Section */}
+                      {(() => {
+                        const activeStory = getPersonalizedStory(
+                          onboardingFamiliarity,
+                          onboardingTopics,
+                          onboardingConcerns,
+                          questionnaireStatus,
+                          language
+                        );
+                        return (
+                          <>
+                            {onboardingCompleted && questionnaireStatus === 'completed' && (
+                              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
+                                <Sparkles className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
+                                <div className="space-y-0.5 text-left">
+                                  <span className="text-[9px] font-extrabold text-emerald-800 uppercase tracking-widest font-mono">
+                                    {language === 'ms' ? 'Disyorkan Untuk Anda' :
+                                     language === 'zh' ? '为您推荐' :
+                                     language === 'ta' ? 'உங்களுக்கு பரிந்துரைக்கப்படுகிறது' :
+                                     'RECOMMENDED FOR YOU'}
+                                  </span>
+                                  <p className="text-[10.5px] text-slate-700 leading-normal">
+                                    {language === 'ms' ? 'Disyorkan berdasarkan topik yang anda pilih.' :
+                                     language === 'zh' ? '根据您选择的主题推荐。' :
+                                     language === 'ta' ? 'நீங்கள் தேர்ந்தெடுத்த தலைப்புகளின் அடிப்படையில் பரிந்துரைக்கப்படுகிறது.' :
+                                     'Recommended based on the topics you selected.'}
+                                  </p>
                                 </div>
-                                <span className="text-[9px] font-mono">0:{(videoFrame + 1) * 11} / 0:45</span>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="absolute inset-0 bg-slate-900/90 flex flex-col justify-center items-center text-white p-4">
-                              <div className="w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center shadow-lg cursor-pointer transform active:scale-95 transition" onClick={() => setIsPlayingVideo(true)}>
-                                <Play className="w-6 h-6 text-white ml-0.5 fill-current" />
+                            )}
+
+                            {/* Patient Experience Wrapper Card */}
+                            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3 text-left">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-extrabold text-[#00a859] uppercase tracking-widest font-mono">
+                                    {language === 'ms' ? 'Pengalaman Pesakit' :
+                                     language === 'zh' ? '患者体验故事' :
+                                     language === 'ta' ? 'நோயாளி அனுபவம்' :
+                                     'Patient Experience'}
+                                  </span>
+                                  <h4 className="font-display font-extrabold text-slate-900 text-[13px] leading-snug">
+                                    {activeStory.title}
+                                  </h4>
+                                </div>
+                                <div className="bg-slate-100 px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold text-slate-500 shrink-0">
+                                  0:45
+                                </div>
                               </div>
-                              <h4 className="font-bold text-xs mt-3">{t('edu_video_title')}</h4>
-                              <p className="text-[10px] text-slate-400 mt-1 max-w-[240px]">{t('edu_video_subtitle')}</p>
+
+                              {activeStory.summary && (
+                                <p className="text-[10.5px] text-slate-600 leading-relaxed">
+                                  {activeStory.summary}
+                                </p>
+                              )}
+
+                              {/* Patient Experience Video Section */}
+                              <div className="bg-slate-900 rounded-2xl overflow-hidden relative shadow-md">
+                                {/* Simulated Video Frame */}
+                                <div className="h-44 flex flex-col items-center justify-center relative p-4 text-center">
+                                  {isPlayingVideo ? (
+                                    <div className="absolute inset-0 bg-emerald-950/85 flex flex-col justify-between p-4 text-white">
+                                      <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 self-start">{activeStory.videoLabel}</span>
+                                      
+                                      {/* CSS cartoon animations based on active simulated frame */}
+                                      <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+                                        <div className="animate-fade-in space-y-1">
+                                          <span className="text-2xl">
+                                            {videoFrame === 0 ? '💡' : videoFrame === 1 ? '🤝' : videoFrame === 2 ? '🛡️' : '❤️'}
+                                          </span>
+                                          <p className="text-[11px] font-semibold leading-normal">
+                                            {activeStory.frames[videoFrame]}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      {/* Video progress indicator bar */}
+                                      <div className="w-full flex items-center gap-2">
+                                        <div className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden">
+                                          <div className="bg-emerald-400 h-full transition-all duration-300" style={{ width: `${(videoFrame + 1) * 25}%` }} />
+                                        </div>
+                                        <span className="text-[9px] font-mono">0:{(videoFrame + 1) * 11} / 0:45</span>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="absolute inset-0 bg-slate-900/90 flex flex-col justify-center items-center text-white p-4">
+                                      <div className="w-12 h-12 rounded-full bg-[#00a859] hover:bg-emerald-500 flex items-center justify-center shadow-lg cursor-pointer transform active:scale-95 transition" onClick={() => setIsPlayingVideo(true)}>
+                                        <Play className="w-6 h-6 text-white ml-0.5 fill-current" />
+                                      </div>
+                                      <h4 className="font-bold text-xs mt-3">{activeStory.title}</h4>
+                                      <p className="text-[10px] text-slate-400 mt-1 max-w-[240px] leading-normal">{activeStory.subtitle}</p>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Video controls */}
+                                <div className="bg-slate-950 px-4 py-2 flex justify-between items-center text-xs text-slate-300 border-t border-slate-800">
+                                  <button 
+                                    onClick={() => setIsPlayingVideo(!isPlayingVideo)}
+                                    className="text-emerald-400 font-bold hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
+                                  >
+                                    {isPlayingVideo ? <><Pause className="w-3.5 h-3.5" /> {t('edu_pause_story')}</> : <><Play className="w-3.5 h-3.5" /> {t('edu_play_story')}</>}
+                                  </button>
+                                  
+                                  <button 
+                                    onClick={() => setShowTranscript(!showTranscript)}
+                                    className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-medium transition cursor-pointer"
+                                  >
+                                    <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                                    {showTranscript ? t('edu_hide_transcript') : t('edu_view_transcript')}
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Accessible Transcript Container */}
+                              {showTranscript && (
+                                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[10px] text-slate-600 leading-relaxed space-y-1.5 animate-fade-in">
+                                  <p className="font-bold text-emerald-800 uppercase tracking-wider text-[8px] font-mono border-b border-slate-200 pb-1">{t('edu_video_transcript_title')}</p>
+                                  {activeStory.transcript.map((para, index) => (
+                                    <p key={index} className="leading-relaxed">{para}</p>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-
-                        {/* Video controls */}
-                        <div className="bg-slate-950 px-4 py-2 flex justify-between items-center text-xs text-slate-300 border-t border-slate-800">
-                          <button 
-                            onClick={() => setIsPlayingVideo(!isPlayingVideo)}
-                            className="text-emerald-400 font-bold hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
-                          >
-                            {isPlayingVideo ? <><Pause className="w-3.5 h-3.5" /> {t('edu_pause_story')}</> : <><Play className="w-3.5 h-3.5" /> {t('edu_play_story')}</>}
-                          </button>
-                          
-                          <button 
-                            onClick={() => setShowTranscript(!showTranscript)}
-                            className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-medium transition cursor-pointer"
-                          >
-                            <FileText className="w-3.5 h-3.5 text-emerald-400" />
-                            {showTranscript ? t('edu_hide_transcript') : t('edu_view_transcript')}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Accessible Transcript Container */}
-                      {showTranscript && (
-                        <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-[10px] text-slate-600 leading-relaxed space-y-1.5 shadow-3xs animate-fade-in">
-                          <p className="font-bold text-emerald-800 uppercase tracking-wider text-[8px] font-mono border-b border-slate-100 pb-1">{t('edu_video_transcript_title')}</p>
-                          <p>{t('edu_video_transcript_1')}</p>
-                          <p>{t('edu_video_transcript_2')}</p>
-                          <p>{t('edu_video_transcript_3')}</p>
-                          <p>{t('edu_video_transcript_4')}</p>
-                        </div>
-                      )}
+                          </>
+                        );
+                      })()}
 
                       {/* Spec 4: Statistics 2x2 Grid 'Did You Know?' */}
                       <div className="space-y-2.5">
@@ -3880,35 +3974,101 @@ export default function PhoneSimulator({
                         const useDefaultLayout = !onboardingCompleted || questionnaireStatus === 'skipped' || selectedGuideTopics.length === 0;
 
                         // Unified helpers for content richness, shared between Default Layout and Personalized Layout
-                        const getCustomIllus = (id: string) => {
-                          if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return (
-                            <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 text-center">
-                              <div className="text-[9.5px] font-bold text-emerald-800 mb-1">📋 Clinical Testing Flow</div>
-                              <div className="flex justify-between text-[8px] font-bold text-slate-500">
-                                <span>1. Booked</span><span>2. Consult</span><span>3. Blood Draw</span><span>4. Results</span>
-                              </div>
-                            </div>
-                          );
-                          if (id === 'costs-subsidies') return (
-                            <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 space-y-1">
-                              <div className="text-[9.5px] font-bold text-emerald-800">💰 Singapore Financing Model</div>
-                              <div className="flex justify-between text-[8.5px]"><span>Government Subsidy</span><span className="text-[#00a859] font-bold">Up to 75% Covered</span></div>
-                            </div>
-                          );
-                          if (id === 'insurance-rights' || id === 'insurance') return (
-                            <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3">
-                              <div className="text-[9.5px] font-bold text-emerald-800 mb-1">🛡️ Consumer Safeguard Grid</div>
-                              <div className="text-[8.5px] text-slate-600">Active policies cannot be changed, canceled, or re-priced at all.</div>
-                            </div>
-                          );
-                          if (id === 'treatment-medication' || id === 'medication-fh') return (
-                            <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3">
-                              <div className="text-[9.5px] font-bold text-emerald-800 mb-1">🧪 Liver LDL Clearance</div>
-                              <div className="text-[8.5px] text-slate-600">Statins boost recycling receptors on liver cells, pulling cholesterol from blood.</div>
-                            </div>
-                          );
-                          return null;
-                        };
+                         const getCustomIllus = (id: string) => {
+                           if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return (
+                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 text-center my-2">
+                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1.5">📋 Clinical Testing Flow</div>
+                               <div className="flex justify-between text-[8px] font-bold text-slate-500">
+                                 <span>1. Booked</span><span>2. Consult</span><span>3. Blood Draw</span><span>4. Results</span>
+                               </div>
+                             </div>
+                           );
+                           if (id === 'costs-subsidies') return (
+                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 space-y-1 my-2">
+                               <div className="text-[9.5px] font-bold text-emerald-800">💰 Singapore Financing Model</div>
+                               <div className="flex justify-between text-[8.5px]"><span>Government Subsidy</span><span className="text-[#00a859] font-bold">Up to 75% Covered</span></div>
+                             </div>
+                           );
+                           if (id === 'insurance-rights' || id === 'insurance') return (
+                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 my-2">
+                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1">🛡️ Consumer Safeguard Grid</div>
+                               <div className="text-[8.5px] text-slate-600">Active policies cannot be changed, canceled, or re-priced at all.</div>
+                             </div>
+                           );
+                           if (id === 'treatment-medication' || id === 'medication-fh') return (
+                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 my-2">
+                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1">🧪 Liver LDL Clearance</div>
+                               <div className="text-[8.5px] text-slate-600">Statins boost recycling receptors on liver cells, pulling cholesterol from blood.</div>
+                             </div>
+                           );
+                           if (id === 'cascade-screening' || id === 'why-testing-matters') return (
+                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-2.5 text-center my-2 space-y-1.5">
+                               <div className="text-[9.5px] font-bold text-emerald-800">🌳 Family Cascade Screening Tree</div>
+                               <div className="flex flex-col items-center space-y-1 text-[8.5px] text-slate-700">
+                                 <div className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">Index Patient (You)</div>
+                                 <div className="text-slate-400 font-mono text-[8px] leading-none">│ (50% inheritance probability)</div>
+                                 <div className="flex gap-2 justify-center">
+                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">Parents</div>
+                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">Siblings</div>
+                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">Children</div>
+                                 </div>
+                               </div>
+                             </div>
+                           );
+                           if (id === 'what-is-fh') return (
+                             <div className="grid grid-cols-2 gap-2 my-2">
+                               <div className="bg-slate-50 border border-slate-150 p-2 rounded-lg text-center">
+                                 <div className="text-[8.5px] font-extrabold text-slate-500 uppercase tracking-tight">Standard High Cholesterol</div>
+                                 <div className="text-[8.5px] text-slate-600 mt-1">Caused by lifestyle & diet. Reversible with habits.</div>
+                               </div>
+                               <div className="bg-emerald-50/50 border border-emerald-100/60 p-2 rounded-lg text-center">
+                                 <div className="text-[8.5px] font-extrabold text-emerald-700 uppercase tracking-tight">FH (Familial)</div>
+                                 <div className="text-[8.5px] text-emerald-800 mt-1">Genetic from birth. Lifelong, requires medical care.</div>
+                               </div>
+                             </div>
+                           );
+                           if (id === 'heart-health') return (
+                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-2.5 my-2">
+                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1.5 text-center">⏳ Lipids Over Time (Artery Buildup)</div>
+                               <div className="flex items-center justify-between text-[7.5px] font-bold text-slate-500 relative">
+                                 <div className="flex flex-col items-center">
+                                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 mb-1"></span>
+                                   <span>Birth (Clear)</span>
+                                 </div>
+                                 <div className="h-0.5 bg-slate-200 flex-1 mx-1 -mt-3"></div>
+                                 <div className="flex flex-col items-center">
+                                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400 mb-1"></span>
+                                   <span>Adulthood (Plaque)</span>
+                                 </div>
+                                 <div className="h-0.5 bg-slate-200 flex-1 mx-1 -mt-3"></div>
+                                 <div className="flex flex-col items-center">
+                                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mb-1"></span>
+                                   <span>Early Treatment (Safe)</span>
+                                 </div>
+                               </div>
+                             </div>
+                           );
+                           if (id === 'healthy-lifestyle' || id === 'lifestyle') return (
+                             <div className="grid grid-cols-3 gap-1.5 my-2">
+                               <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
+                                 <span className="text-xs">🍎</span>
+                                 <div className="text-[7.5px] font-extrabold text-slate-700">Fiber</div>
+                                 <div className="text-[7px] text-slate-400 leading-tight">Oats, beans, veggies</div>
+                               </div>
+                               <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
+                                 <span className="text-xs">🚫</span>
+                                 <div className="text-[7.5px] font-extrabold text-slate-700">Limits</div>
+                                 <div className="text-[7px] text-slate-400 leading-tight">No butter, palm oil</div>
+                               </div>
+                               <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
+                                 <span className="text-xs">🏃‍♂️</span>
+                                 <div className="text-[7.5px] font-extrabold text-slate-700">Active</div>
+                                 <div className="text-[7px] text-slate-400 leading-tight">30m daily walk</div>
+                               </div>
+                             </div>
+                           );
+                           return null;
+                         };
 
                         const getRelatedFaq = (id: string) => {
                           if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return { q: "Does a positive test mean I have heart disease?", a: "No. A positive genetic test is not a diagnosis of heart disease. It simply identifies an inherited risk. Your medical team can take highly effective preventative steps to keep your heart healthy." };
@@ -3995,7 +4155,7 @@ export default function PhoneSimulator({
 
                               {isExpanded && (
                                 <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3">
-                                  <p className="text-slate-600 font-sans leading-relaxed text-[10.5px]">{topic.content}</p>
+                                {renderRichContent(topic.content)}
 
                                   {/* Reassuring support note */}
                                   {getPersonalizedNote(topic.id)}
@@ -4162,7 +4322,7 @@ export default function PhoneSimulator({
 
                                                 return (
                                                   <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3.5 text-left animate-fade-in">
-                                                    <p className="text-slate-600 font-sans leading-relaxed text-[10.5px]">{sec.content}</p>
+                                                    {renderRichContent(sec.content)}
 
                                                     {/* Unified Support Notes */}
                                                     {getPersonalizedNote(sec.id)}
@@ -5473,6 +5633,7 @@ export default function PhoneSimulator({
 
                               if (isFHReferred) {
                                 return t('settings_sms_prefix')
+                                  .replace('Lisa', nameStr)
                                   .replace('{date}', dateStr)
                                   .replace('{time}', timeStr);
                               }
