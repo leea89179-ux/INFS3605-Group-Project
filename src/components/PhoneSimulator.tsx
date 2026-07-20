@@ -1238,7 +1238,7 @@ export default function PhoneSimulator({
     },
   ];
 
-  // List of all 11 guide topics
+  // List of all 9 guide topics
   const allGuideTopics = useMemo(() => {
     const orderedIds = [
       'what-is-fh',
@@ -1252,211 +1252,11 @@ export default function PhoneSimulator({
       'insurance'
     ];
 
-    if (onboardingCompleted && questionnaireStatus === 'completed') {
-      const level = onboardingFamiliarity || 'new';
-      return orderedIds.map(id => {
-        return getPersonalisedGuideContent(id, level, onboardingConcerns, language);
-      });
-    }
-
-    const localizedSections = getLocalizedEducationalSections(language);
-    
-    const idTranslationMapping: Record<string, string> = {
-      'what-is-fh': 'what-is-fh',
-      'cascade-screening': 'why-testing-matters',
-      'genetic-testing': 'genetic-testing',
-      'heart-health': 'heart-health',
-      'treatment-medication': 'medication-fh',
-      'healthy-lifestyle': 'healthy-lifestyle',
-      'testing-process': 'testing-guide',
-      'costs-subsidies': 'costs-subsidies',
-      'insurance': 'insurance-rights'
-    };
-
-    const level = onboardingFamiliarity || 'beginner';
-    const isBeginner = level === 'beginner' || level === 'new' || level === 'little';
-
-    const englishCards: Record<string, any> = {
-      'what-is-fh': {
-        title: 'What is FH?',
-        shortSummary: 'What FH is and why early diagnosis matters.',
-        readingTime: '3 min read',
-        iconName: 'BookOpen',
-        keyTakeaway: 'FH is entirely genetic and present from birth.',
-        content: isBeginner 
-          ? "Familial Hypercholesterolaemia (FH) is a common genetic condition present from birth that prevents the body from clearing 'bad' LDL cholesterol from the blood. Unlike standard high cholesterol caused by diet or lifestyle, FH cholesterol levels are extremely high from birth, which can silently damage blood vessels. Armed with early diagnosis, clinical treatment can bring your heart risk back to a completely normal level."
-          : "Familial Hypercholesterolaemia (FH) is an autosomal dominant disorder characterized by severely elevated plasma low-density lipoprotein cholesterol (LDL-C) levels and premature cardiovascular disease. Genetic mutations typically occur in the LDLR, APOB, or PCSK9 genes. Early therapeutic interventions such as high-intensity statins can drastically reduce cumulative LDL-C exposure and lower lifetime cardiovascular risk to baseline.",
-        subsections: [
-          {
-            title: 'HOW COMMON IS IT?',
-            text: 'FH affects approximately 1 in 250 Singaporeans. Most people with FH are completely unaware they have it until they undergo a clinical genetic test.'
-          },
-          {
-            title: 'IS IT MY FAULT?',
-            text: 'No. FH is 100% genetic. It is inherited from a parent and cannot be solved through diet or exercise alone—although healthy habits remain vital.'
-          }
-        ]
-      },
-      'cascade-screening': {
-        title: 'Cascade Screening',
-        shortSummary: 'How testing helps identify and protect your close blood relatives.',
-        readingTime: '3 min read',
-        iconName: 'Users',
-        keyTakeaway: 'One test can protect both you and the people you love.',
-        content: isBeginner
-          ? "Cascade screening is a structured family-based screening program. If you are diagnosed with FH, your parents, siblings, and children have a 50% chance of sharing the same gene variation. Reaching out to them early allows them to get a simple, heavily subsidized test to protect their hearts from silent risk."
-          : "Cascade screening leverages cascade family contact tracing. Because FH is an autosomal dominant genetic condition, first-degree relatives have a 50% prior probability of inheritance. Identifying a pathogenic variant allows cascade testing of relatives to start early lipid-lowering interventions.",
-        subsections: [
-          {
-            title: 'PROTECTING YOUR FAMILY (CASCADE SCREENING)',
-            text: 'If your test is positive, your parents, siblings, and children have a 50% chance of having the same gene. Testing allows them to be screened and start early preventative care, saving lives.'
-          },
-          {
-            title: 'PRECISION TREATMENT',
-            text: 'Confirming your FH genotype helps clinicians select the exact right dosage and type of lipid-lowering medication (such as high-potency statins).'
-          }
-        ]
-      },
-      'genetic-testing': {
-        title: 'Genetic Testing',
-        shortSummary: 'Learn how genetic testing works and what the results mean.',
-        readingTime: '2 min read',
-        iconName: 'Dna',
-        keyTakeaway: 'Confirming your FH genotype allows clinicians to personalize your preventative treatment with high precision.',
-        content: isBeginner
-          ? "Genetic testing is a safe, simple blood draw that looks at your DNA to confirm if you have FH. Unlike standard cholesterol tests that only measure fat levels in the blood, a genetic test identifies the specific gene variation responsible. It takes 4 to 6 weeks for results, which helps your care team personalize your cardiovascular protection plan."
-          : "Clinical genetic testing employs Next-Generation Sequencing (NGS) to analyze key candidate genes, principally LDLR, APOB, and PCSK9. Confirming a pathogenic variant provides definitive diagnostic verification of FH, assists in cardiovascular risk stratification, and serves as the precise molecular index required for familial cascade screening."
-      },
-      'heart-health': {
-        title: 'Heart Health',
-        shortSummary: 'Understand how inherited high cholesterol impacts cardiovascular risk over time.',
-        readingTime: '2 min read',
-        iconName: 'Heart',
-        keyTakeaway: 'Early diagnosis and active management can prevent lipid build-up and keep your cardiovascular system strong.',
-        content: isBeginner
-          ? "Inherited high cholesterol causes 'bad' LDL cholesterol to build up silently in your blood vessels starting from birth. This build-up, known as arterial plaque, can narrow your arteries over time and increase the risk of heart attacks. Identifying FH early and starting treatment prevents this plaque from forming, keeping your heart and blood vessels strong."
-          : "Elevated serum LDL-C in FH patients drives accelerated atherogenesis from gestation. Lifelong exposure to high circulating lipid particles leads to progressive subendothelial accumulation of ApoB-containing lipoproteins, triggering macrophage foam cell formation, fibrous cap development, and premature coronary artery disease."
-      },
-      'treatment-medication': {
-        title: 'Treatment and Medication',
-        shortSummary: 'How highly effective, subsidized treatments protect your heart.',
-        readingTime: '2 min read',
-        iconName: 'Pill',
-        keyTakeaway: 'Starting treatment early can reduce your cardiovascular risk back to normal.',
-        content: isBeginner
-          ? "Because FH is inherited, diet and exercise are not enough to bring cholesterol to safe levels. Highly safe, daily medications like statins play a critical role. Statins help your liver clear 'bad' cholesterol out of your blood. When started early, treatments are incredibly effective and can lower your heart disease risk back to that of the general population."
-          : "Pharmacotherapy for FH is centered on maximizing hepatic LDL receptor expression. High-potency statins (e.g., Atorvastatin, Rosuvastatin) act as HMG-CoA reductase inhibitors, reducing intracellular cholesterol synthesis and upregulating LDL receptors. Combination therapy with Ezetimibe or PCSK9 inhibitors is frequently employed to achieve target LDL-C reductions.",
-        subsections: [
-          {
-            title: 'THE ROLE OF STATINS',
-            text: 'Statins are highly safe, thoroughly researched medications that help your liver clear cholesterol from your blood.'
-          },
-          {
-            title: 'EARLY TREATMENT SAVES LIVES',
-            text: 'Starting treatment early can reduce your cardiovascular risk back to the level of the general population.'
-          }
-        ]
-      },
-      'healthy-lifestyle': {
-        title: 'Healthy Lifestyle',
-        shortSummary: 'Key dietary and exercise habits to support your cardiovascular system.',
-        readingTime: '2 min read',
-        iconName: 'HeartPulse',
-        keyTakeaway: 'A heart-healthy foundation supports your body and optimizes the effectiveness of medical therapies.',
-        content: isBeginner
-          ? "A heart-healthy lifestyle is an essential foundation for managing FH. Focus on eating high-fiber foods (like oats, vegetables, and beans) and limiting saturated fats (found in fatty meats and butter). Regular physical activity, such as 30 minutes of brisk walking most days, supports your heart muscles and improves overall blood circulation."
-          : "Lifestyle modification serves as an obligatory adjunct to pharmacotherapy in FH management. A low-saturated-fat, high-soluble-fiber diet reduces exogenous cholesterol intake and enhances bile acid excretion. Regular aerobic exercise optimizes endothelial nitric oxide synthase (eNOS) activity, improves cardiovascular reserve, and helps manage secondary metabolic risks."
-      },
-      'testing-process': {
-        title: 'Testing Process',
-        shortSummary: 'Step-by-step walkthrough of what happens from counselling to blood draw.',
-        readingTime: '4 min read',
-        iconName: 'ClipboardList',
-        keyTakeaway: 'Every step is designed to fit seamlessly into your normal schedule.',
-        content: isBeginner
-          ? "Your genetic testing journey is completely outpatient and designed to fit into your schedule. It involves three simple steps: a friendly 30-minute pre-test counselling session to review family history, a standard 10-minute blood draw with no fasting required, and a follow-up results consultation 4 to 6 weeks later to discuss your personalized care plan."
-          : "The diagnostic testing pathway consists of systematic pre-test genetic counselling to evaluate familial risk, obtain informed consent, and map a 3-generation pedigree. This is followed by genomic sample collection (saliva or peripheral blood) and laboratory molecular analysis, culminating in a post-test results disclosure and clinical management consultation.",
-        steps: [
-          { num: 1, title: 'Learn about FH', description: 'Read this personalized guide in your HealthHub app.' },
-          { num: 2, title: 'Book counselling', description: 'Schedule your session easily in this app.' },
-          { num: 3, title: 'Attend session', description: 'A friendly 30-minute chat with a genetic counsellor to review family history.' },
-          { num: 4, title: 'Standard blood draw', description: 'A simple 10-minute blood draw at the clinic. No fasting or dietary prep required.' },
-          { num: 5, title: 'Get results in 4-6 weeks', description: 'Meet with your specialist to receive a clear explanation of your results.' },
-          { num: 6, title: 'Tailored preventative plan', description: 'If confirmed, start safe, subsidized treatments that return your risk to normal.' }
-        ]
-      },
-      'costs-subsidies': {
-        title: 'Costs and Subsidies',
-        shortSummary: 'MOH subsidies, MediSave coverage, and out-of-pocket costs.',
-        readingTime: '2.5 min read',
-        iconName: 'Coins',
-        keyTakeaway: 'Out-of-pocket costs are highly claimable via MediSave.',
-        content: isBeginner
-          ? "Healthcare in Singapore remains affordable and accessible. Clinical genetic testing for FH is subsidized by the Ministry of Health (MOH). Eligible Singapore Citizens receive up to 75% subsidies based on means-testing. The remaining co-pay can be paid using MediSave under the Chronic Disease Management Scheme, minimizing cash out-of-pocket."
-          : "FH genetic testing and counselling are highly cost-effective through MOH clinical subventions. Singapore Citizens are eligible for 50% to 75% subvention rates. The remainder constitutes a claimable expense under the MediSave500/700 Chronic Disease Management Scheme (CDMS), significantly reducing direct financial barriers to molecular diagnosis.",
-        subsections: [
-          {
-            title: 'MOH SUBSIDIES',
-            text: 'Eligible Singapore Citizens receive 50% to 75% subsidies for genetic counselling and testing, depending on their household means-test level.'
-          },
-          {
-            title: 'MEDISAVE CLAIMS',
-            text: 'Remaining out-of-pocket costs can be co-paid using your MediSave account under the Chronic Disease Management Scheme guidelines, minimizing cash outlay.'
-          },
-          {
-            title: 'CHAS CARD BENEFITS',
-            text: 'CHAS Blue, Orange, and Pioneer/Merdeka Generation cardholders receive enhanced subsidies, applied automatically at billing.'
-          }
-        ]
-      },
-      'insurance': {
-        title: 'Insurance Considerations',
-        shortSummary: 'How national guidelines protect your right to take a voluntary test.',
-        readingTime: '3 min read',
-        iconName: 'Shield',
-        keyTakeaway: 'National guidelines completely safeguard your right to take a proactive test.',
-        content: isBeginner
-          ? "Singapore's Ministry of Health and the Life Insurance Association (LIA) have established a strict moratorium on genetic testing. Insurers are legally prohibited from asking you to take a genetic test, and they cannot ask for voluntary genetic test results to deny standard life or health insurance policies, protecting your and your family's right to seek care."
-          : "The Singapore LIA Moratorium on Genetic Testing protects consumers against risk-rating or denial of coverage based on predictive clinical genetic tests. Insurers cannot mandate genetic testing, nor request predictive test results for underwriting standard life and health insurance policies under the established financial thresholds (e.g., S$500,000 for standard life insurance).",
-        subsections: [
-          {
-            title: 'NO IMPACT ON EXISTING POLICIES',
-            text: 'Existing active policies (like MediShield Life or Integrated Shield Plans) cannot be altered, cancelled, or re-priced based on genetic test results.'
-          },
-          {
-            title: 'STRICT LIA MORATORIUM',
-            text: 'Insurers are prohibited from asking you to take a genetic test, or from requesting genetic results for standard life/health policies under high limits.'
-          }
-        ]
-      }
-    };
-
+    const level = onboardingFamiliarity || 'new';
     return orderedIds.map(id => {
-      const englishCard = englishCards[id];
-      if (language === 'en') {
-        return { id, ...englishCard };
-      }
-
-      const mappedId = idTranslationMapping[id];
-      const localizedSec = localizedSections.find(s => s.id === mappedId);
-
-      if (localizedSec) {
-        return {
-          id,
-          title: localizedSec.title,
-          shortSummary: localizedSec.shortSummary,
-          readingTime: localizedSec.readingTime,
-          iconName: englishCard.iconName,
-          keyTakeaway: localizedSec.keyTakeaway,
-          content: localizedSec.content,
-          subsections: localizedSec.subsections,
-          steps: localizedSec.steps
-        };
-      } else {
-        return { id, ...englishCard };
-      }
+      return getPersonalisedGuideContent(id, level, onboardingConcerns || [], language);
     });
-  }, [language, onboardingFamiliarity, onboardingConcerns, onboardingCompleted, questionnaireStatus, getLocalizedEducationalSections]);
+  }, [language, onboardingFamiliarity, onboardingConcerns]);
 
   const selectedTopicsList = useMemo(() => {
     const raw = onboardingTopics || [];
@@ -3977,40 +3777,40 @@ export default function PhoneSimulator({
                          const getCustomIllus = (id: string) => {
                            if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return (
                              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 text-center my-2">
-                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1.5">📋 Clinical Testing Flow</div>
+                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1.5">{t('illus_clinical_testing_flow')}</div>
                                <div className="flex justify-between text-[8px] font-bold text-slate-500">
-                                 <span>1. Booked</span><span>2. Consult</span><span>3. Blood Draw</span><span>4. Results</span>
+                                 <span>{t('illus_step_booked')}</span><span>{t('illus_step_consult')}</span><span>{t('illus_step_blood_draw')}</span><span>{t('illus_step_results')}</span>
                                </div>
                              </div>
                            );
                            if (id === 'costs-subsidies') return (
                              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 space-y-1 my-2">
-                               <div className="text-[9.5px] font-bold text-emerald-800">💰 Singapore Financing Model</div>
-                               <div className="flex justify-between text-[8.5px]"><span>Government Subsidy</span><span className="text-[#00a859] font-bold">Up to 75% Covered</span></div>
+                               <div className="text-[9.5px] font-bold text-emerald-800">{t('illus_singapore_financing_model')}</div>
+                               <div className="flex justify-between text-[8.5px]"><span>{t('illus_government_subsidy')}</span><span className="text-[#00a859] font-bold">{t('illus_up_to_75_covered')}</span></div>
                              </div>
                            );
                            if (id === 'insurance-rights' || id === 'insurance') return (
                              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 my-2">
-                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1">🛡️ Consumer Safeguard Grid</div>
-                               <div className="text-[8.5px] text-slate-600">Active policies cannot be changed, canceled, or re-priced at all.</div>
+                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1">{t('illus_consumer_safeguard_grid')}</div>
+                               <div className="text-[8.5px] text-slate-600">{t('illus_active_policies_note')}</div>
                              </div>
                            );
                            if (id === 'treatment-medication' || id === 'medication-fh') return (
                              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 my-2">
-                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1">🧪 Liver LDL Clearance</div>
-                               <div className="text-[8.5px] text-slate-600">Statins boost recycling receptors on liver cells, pulling cholesterol from blood.</div>
+                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1">{t('illus_liver_ldl_clearance')}</div>
+                               <div className="text-[8.5px] text-slate-600">{t('illus_statins_boost_note')}</div>
                              </div>
                            );
                            if (id === 'cascade-screening' || id === 'why-testing-matters') return (
                              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-2.5 text-center my-2 space-y-1.5">
-                               <div className="text-[9.5px] font-bold text-emerald-800">🌳 Family Cascade Screening Tree</div>
+                               <div className="text-[9.5px] font-bold text-emerald-800">{t('illus_family_cascade_tree')}</div>
                                <div className="flex flex-col items-center space-y-1 text-[8.5px] text-slate-700">
-                                 <div className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">Index Patient (You)</div>
-                                 <div className="text-slate-400 font-mono text-[8px] leading-none">│ (50% inheritance probability)</div>
+                                 <div className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">{t('illus_index_patient')}</div>
+                                 <div className="text-slate-400 font-mono text-[8px] leading-none">{t('illus_inheritance_prob')}</div>
                                  <div className="flex gap-2 justify-center">
-                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">Parents</div>
-                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">Siblings</div>
-                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">Children</div>
+                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">{t('illus_parents')}</div>
+                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">{t('illus_siblings')}</div>
+                                   <div className="bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200">{t('illus_children')}</div>
                                  </div>
                                </div>
                              </div>
@@ -4018,32 +3818,32 @@ export default function PhoneSimulator({
                            if (id === 'what-is-fh') return (
                              <div className="grid grid-cols-2 gap-2 my-2">
                                <div className="bg-slate-50 border border-slate-150 p-2 rounded-lg text-center">
-                                 <div className="text-[8.5px] font-extrabold text-slate-500 uppercase tracking-tight">Standard High Cholesterol</div>
-                                 <div className="text-[8.5px] text-slate-600 mt-1">Caused by lifestyle & diet. Reversible with habits.</div>
+                                 <div className="text-[8.5px] font-extrabold text-slate-500 uppercase tracking-tight">{t('illus_standard_high_cholesterol')}</div>
+                                 <div className="text-[8.5px] text-slate-600 mt-1">{t('illus_standard_desc')}</div>
                                </div>
                                <div className="bg-emerald-50/50 border border-emerald-100/60 p-2 rounded-lg text-center">
-                                 <div className="text-[8.5px] font-extrabold text-emerald-700 uppercase tracking-tight">FH (Familial)</div>
-                                 <div className="text-[8.5px] text-emerald-800 mt-1">Genetic from birth. Lifelong, requires medical care.</div>
-                               </div>
+                                 <div className="text-[8.5px] font-extrabold text-emerald-700 uppercase tracking-tight">{t('illus_fh_familial')}</div>
+                                 <div className="text-[8.5px] text-emerald-800 mt-1">{t('illus_fh_desc')}</div>
+                                </div>
                              </div>
                            );
                            if (id === 'heart-health') return (
                              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-2.5 my-2">
-                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1.5 text-center">⏳ Lipids Over Time (Artery Buildup)</div>
+                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1.5 text-center">{t('illus_lipids_over_time')}</div>
                                <div className="flex items-center justify-between text-[7.5px] font-bold text-slate-500 relative">
                                  <div className="flex flex-col items-center">
                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 mb-1"></span>
-                                   <span>Birth (Clear)</span>
+                                   <span>{t('illus_birth_clear')}</span>
                                  </div>
                                  <div className="h-0.5 bg-slate-200 flex-1 mx-1 -mt-3"></div>
                                  <div className="flex flex-col items-center">
                                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 mb-1"></span>
-                                   <span>Adulthood (Plaque)</span>
+                                   <span>{t('illus_adulthood_plaque')}</span>
                                  </div>
                                  <div className="h-0.5 bg-slate-200 flex-1 mx-1 -mt-3"></div>
                                  <div className="flex flex-col items-center">
                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mb-1"></span>
-                                   <span>Early Treatment (Safe)</span>
+                                   <span>{t('illus_early_treatment_safe')}</span>
                                  </div>
                                </div>
                              </div>
@@ -4052,18 +3852,18 @@ export default function PhoneSimulator({
                              <div className="grid grid-cols-3 gap-1.5 my-2">
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
                                  <span className="text-xs">🍎</span>
-                                 <div className="text-[7.5px] font-extrabold text-slate-700">Fiber</div>
-                                 <div className="text-[7px] text-slate-400 leading-tight">Oats, beans, veggies</div>
+                                 <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_fiber')}</div>
+                                 <div className="text-[7px] text-slate-400 leading-tight">{t('illus_fiber_desc')}</div>
                                </div>
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
                                  <span className="text-xs">🚫</span>
-                                 <div className="text-[7.5px] font-extrabold text-slate-700">Limits</div>
-                                 <div className="text-[7px] text-slate-400 leading-tight">No butter, palm oil</div>
+                                 <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_limits')}</div>
+                                 <div className="text-[7px] text-slate-400 leading-tight">{t('illus_limits_desc')}</div>
                                </div>
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
                                  <span className="text-xs">🏃‍♂️</span>
-                                 <div className="text-[7.5px] font-extrabold text-slate-700">Active</div>
-                                 <div className="text-[7px] text-slate-400 leading-tight">30m daily walk</div>
+                                 <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_active')}</div>
+                                 <div className="text-[7px] text-slate-400 leading-tight">{t('illus_active_desc')}</div>
                                </div>
                              </div>
                            );
@@ -4071,10 +3871,10 @@ export default function PhoneSimulator({
                          };
 
                         const getRelatedFaq = (id: string) => {
-                          if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return { q: "Does a positive test mean I have heart disease?", a: "No. A positive genetic test is not a diagnosis of heart disease. It simply identifies an inherited risk. Your medical team can take highly effective preventative steps to keep your heart healthy." };
-                          if (id === 'costs-subsidies') return { q: "How much will I pay out-of-pocket?", a: "Between S$18 and S$120 after MOH subsidies. Crucially, the remaining balance can be 100% paid using MediSave under the Chronic Disease Management Scheme." };
-                          if (id === 'insurance-rights' || id === 'insurance') return { q: "Will this affect my children's ability to get insurance?", a: "No. Singapore's Life Insurance Association (LIA) maintains a strict genetic testing moratorium protecting voluntary clinical genetic tests from impacting policies." };
-                          if (id === 'treatment-medication' || id === 'medication-fh') return { q: "Can I stop my cholesterol medication during testing?", a: "No, you should never stop or change your prescribed medication unless directed by your physician. DNA is unchanged by any medications." };
+                          if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return { q: t('edu_faq_testing_q'), a: t('edu_faq_testing_a') };
+                          if (id === 'costs-subsidies') return { q: t('edu_faq_costs_q'), a: t('edu_faq_costs_a') };
+                          if (id === 'insurance-rights' || id === 'insurance') return { q: t('edu_faq_insurance_q'), a: t('edu_faq_insurance_a') };
+                          if (id === 'treatment-medication' || id === 'medication-fh') return { q: t('edu_faq_meds_q'), a: t('edu_faq_meds_a') };
                           return null;
                         };
 
@@ -4092,18 +3892,18 @@ export default function PhoneSimulator({
                         const getPersonalizedNote = (id: string) => {
                           let note = "";
                           if ((id === 'cascade-screening' || id === 'why-testing-matters') && onboardingConcerns.includes('concern-family')) {
-                            note = "We understand family health is your top priority. Cascade screening is a proactive, protective measure—not a diagnosis—empowering your family to safeguard cardiovascular health early.";
+                            note = t('edu_note_cascade');
                           } else if (id === 'costs-subsidies' && onboardingConcerns.includes('concern-cost')) {
-                             note = "MOH subsidies and CHAS benefits are structured to keep testing highly affordable, with remaining costs fully coverable by MediSave.";
+                             note = t('edu_note_costs');
                           } else if ((id === 'insurance-rights' || id === 'insurance') && onboardingConcerns.includes('concern-insurance')) {
-                            note = "The LIA moratorium ensures proactive testing has zero impact on your ability to secure standard life and health insurance coverage.";
+                            note = t('edu_note_insurance');
                           } else if ((id === 'treatment-medication' || id === 'medication-fh') && onboardingConcerns.includes('concern-meds')) {
-                            note = "Uneasiness about starting medications is natural. Statins are highly safe, well-studied, and incredibly effective at bringing cardiovascular risk back to standard ranges.";
+                            note = t('edu_note_meds');
                           }
                           if (!note) return null;
                           return (
                             <div className="bg-emerald-50 border border-emerald-100/50 p-2.5 rounded-lg text-emerald-800 text-[9px] font-medium leading-relaxed">
-                              🛡️ <span className="font-bold">Personalized Support:</span> {note}
+                              🛡️ <span className="font-bold">{t('edu_personalized_support_prefix')}</span> {note}
                             </div>
                           );
                         };
@@ -4138,7 +3938,7 @@ export default function PhoneSimulator({
                                         <div className="flex items-center gap-1.5">
                                           <span className="text-[8px] bg-slate-50 text-slate-400 font-medium px-1.5 py-0.5 rounded border border-slate-200/30">{topic.readingTime}</span>
                                           {isSelected && (
-                                            <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">Selected for You</span>
+                                            <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">{t('edu_selected_for_you')}</span>
                                           )}
                                         </div>
                                         {!isSelected && (
@@ -4155,12 +3955,37 @@ export default function PhoneSimulator({
 
                               {isExpanded && (
                                 <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3">
-                                {renderRichContent(topic.content)}
+                                  {/* 1 short introduction sentence */}
+                                  <p className="text-slate-700 font-medium text-[10px] leading-normal font-sans">
+                                    {topic.content}
+                                  </p>
+
+                                  {/* up to 3 short points or visual items */}
+                                  {topic.visualItems && topic.visualItems.length > 0 && (
+                                    <div className="grid grid-cols-1 gap-2 my-2">
+                                      {topic.visualItems.map((item: any, itemIdx: number) => (
+                                        <div key={itemIdx} className="bg-white border border-slate-200/50 rounded-xl p-2.5 flex items-start gap-3 shadow-3xs transition hover:border-emerald-200/50">
+                                          <div className="text-sm shrink-0 leading-none mt-0.5 select-none bg-slate-50 border border-slate-100 p-1 rounded-lg w-7 h-7 flex items-center justify-center">
+                                            {item.icon}
+                                          </div>
+                                          <div className="space-y-0.5 flex-1 min-w-0 text-left">
+                                            <h6 className="font-bold text-[10px] text-slate-900 leading-tight">
+                                              {item.label}
+                                            </h6>
+                                            <p className="text-[9px] text-slate-500 leading-normal">
+                                              {item.text}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
 
                                   {/* Reassuring support note */}
                                   {getPersonalizedNote(topic.id)}
 
-                                  {topic.steps && topic.steps.length > 0 && (
+                                  {/* Only render old steps if no visualItems are present to avoid duplication */}
+                                  {(!topic.visualItems || topic.visualItems.length === 0) && topic.steps && topic.steps.length > 0 && (
                                     <div className="relative pl-4 border-l-2 border-emerald-100 my-3 ml-2 space-y-3">
                                       {topic.steps.map((st: any) => (
                                         <div key={st.num} className="relative">
@@ -4174,7 +3999,8 @@ export default function PhoneSimulator({
                                     </div>
                                   )}
 
-                                  {topic.subsections && topic.subsections.length > 0 && (
+                                  {/* Only render old subsections if no visualItems are present */}
+                                  {(!topic.visualItems || topic.visualItems.length === 0) && topic.subsections && topic.subsections.length > 0 && (
                                     <div className="space-y-2 my-2">
                                       {topic.subsections.map((sub: any, sIdx: number) => (
                                         <div key={sIdx} className="bg-white border border-slate-150 p-2.5 rounded-lg shadow-3xs space-y-1">
@@ -4187,6 +4013,7 @@ export default function PhoneSimulator({
 
                                   {customIllus}
 
+                                  {/* 1 short Key Takeaway */}
                                   <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
                                     <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway') || 'Key Takeaway'}</p>
                                     <p className="text-emerald-800 text-[9.5px] mt-0.5 leading-normal">{topic.keyTakeaway}</p>
@@ -4259,8 +4086,7 @@ export default function PhoneSimulator({
                                               iconName: pGuide.iconName || 'BookOpen',
                                               keyTakeaway: pGuide.keyTakeaway,
                                               content: pGuide.content,
-                                              subsections: pGuide.subsections,
-                                              steps: pGuide.steps
+                                              visualItems: pGuide.visualItems
                                             };
                                           } else {
                                             sec = getLocalizedEducationalSections(language).find(s => s.id === secId);
@@ -4307,14 +4133,14 @@ export default function PhoneSimulator({
                                                 const shouldShowFullDepth = !onboardingCompleted || isCoreSection || isSelectedSection || !!forceFullExpand[sec.id];
 
                                                 if (!shouldShowFullDepth) {
-                                                  let summaryText = sec.id === 'testing-guide' ? "Your journey is fully structured, covering counselling and blood draw." : sec.shortSummary;
+                                                  let summaryText = sec.id === 'testing-guide' ? (t('edu_testing_guide_summary') || "Your journey is fully structured, covering counselling and blood draw.") : sec.shortSummary;
                                                   let readingTimeLabel = sec.readingTime || "1-min read";
                                                   return (
                                                     <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-2.5 text-left">
                                                       <p className="text-slate-600 font-sans leading-relaxed text-[10.5px] font-medium">{summaryText}</p>
                                                       <div className="flex items-center justify-between pt-1">
                                                         <span className="text-[9px] text-slate-400 font-mono font-medium flex items-center gap-1"><Clock className="w-3 h-3" /> {readingTimeLabel}</span>
-                                                        <button onClick={(e) => { e.stopPropagation(); setForceFullExpand(prev => ({ ...prev, [sec.id]: true })); }} className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] font-extrabold text-[9.5px] rounded-lg border border-emerald-100/40 cursor-pointer">Learn More</button>
+                                                        <button onClick={(e) => { e.stopPropagation(); setForceFullExpand(prev => ({ ...prev, [sec.id]: true })); }} className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] font-extrabold text-[9.5px] rounded-lg border border-emerald-100/40 cursor-pointer">{t('step2_opt_learn_more') || 'Learn More'}</button>
                                                       </div>
                                                     </div>
                                                   );
@@ -4322,12 +4148,37 @@ export default function PhoneSimulator({
 
                                                 return (
                                                   <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3.5 text-left animate-fade-in">
-                                                    {renderRichContent(sec.content)}
+                                                    {/* 1 short introduction sentence */}
+                                                    <p className="text-slate-700 font-medium text-[10px] leading-normal font-sans">
+                                                      {sec.content}
+                                                    </p>
+
+                                                    {/* up to 3 short points or visual items */}
+                                                    {sec.visualItems && sec.visualItems.length > 0 && (
+                                                      <div className="grid grid-cols-1 gap-2 my-2">
+                                                        {sec.visualItems.map((item: any, itemIdx: number) => (
+                                                          <div key={itemIdx} className="bg-white border border-slate-200/50 rounded-xl p-2.5 flex items-start gap-3 shadow-3xs transition hover:border-emerald-200/50">
+                                                            <div className="text-sm shrink-0 leading-none mt-0.5 select-none bg-slate-50 border border-slate-100 p-1 rounded-lg w-7 h-7 flex items-center justify-center">
+                                                              {item.icon}
+                                                            </div>
+                                                            <div className="space-y-0.5 flex-1 min-w-0 text-left">
+                                                              <h6 className="font-bold text-[10px] text-slate-900 leading-tight">
+                                                                {item.label}
+                                                              </h6>
+                                                              <p className="text-[9px] text-slate-500 leading-normal">
+                                                                {item.text}
+                                                              </p>
+                                                            </div>
+                                                          </div>
+                                                        ))}
+                                                      </div>
+                                                    )}
 
                                                     {/* Unified Support Notes */}
                                                     {getPersonalizedNote(sec.id)}
 
-                                                    {sec.steps && sec.steps.length > 0 && (
+                                                    {/* Only render old steps if no visualItems are present to avoid duplication */}
+                                                    {(!sec.visualItems || sec.visualItems.length === 0) && sec.steps && sec.steps.length > 0 && (
                                                       <div className="relative pl-4 border-l-2 border-emerald-100 my-4 ml-2 space-y-3.5">
                                                         {sec.steps.map((st) => (
                                                           <div key={st.num} className="relative">
@@ -4341,7 +4192,8 @@ export default function PhoneSimulator({
                                                       </div>
                                                     )}
 
-                                                    {sec.subsections && sec.subsections.length > 0 && (
+                                                    {/* Only render old subsections if no visualItems are present */}
+                                                    {(!sec.visualItems || sec.visualItems.length === 0) && sec.subsections && sec.subsections.length > 0 && (
                                                       <div className="space-y-2 my-2">
                                                         {sec.subsections.map((sub: any, sIdx: number) => (
                                                           <div key={sIdx} className="bg-white border border-slate-150 p-2.5 rounded-lg shadow-3xs space-y-1">
@@ -4355,6 +4207,7 @@ export default function PhoneSimulator({
                                                     {/* Unified custom illustration diagrams */}
                                                     {getCustomIllus(sec.id)}
 
+                                                    {/* 1 short Key Takeaway */}
                                                     <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
                                                       <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway')}</p>
                                                       <p className="text-emerald-800 text-[10px] mt-0.5 leading-normal">{sec.keyTakeaway}</p>
@@ -4381,8 +4234,8 @@ export default function PhoneSimulator({
                             {selectedGuideTopics.length > 0 && (
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                  <h4 className="text-[12px] font-extrabold text-slate-900 font-display tracking-tight flex items-center gap-1.5">✨ Selected for You</h4>
-                                  <span className="text-[9.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50">Personalised</span>
+                                  <h4 className="text-[12px] font-extrabold text-slate-900 font-display tracking-tight flex items-center gap-1.5">✨ {t('edu_selected_for_you')}</h4>
+                                  <span className="text-[9.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50">{t('edu_personalised_badge')}</span>
                                 </div>
                                 <div className="space-y-3">
                                   {selectedGuideTopics.map(topic => renderGuideCard(topic, true))}
@@ -4478,8 +4331,8 @@ export default function PhoneSimulator({
                           {onboardingCompleted && checklist.some(item => item.isPersonalized) && (
                             <div className="space-y-2.5">
                               <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                                <span className="text-[10px] font-extrabold text-slate-950 flex items-center gap-1">✨ Selected for You</span>
-                                <span className="text-[8px] font-bold bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded border border-emerald-100/40">Personalised</span>
+                                <span className="text-[10px] font-extrabold text-slate-950 flex items-center gap-1">✨ {t('edu_selected_for_you')}</span>
+                                <span className="text-[8px] font-bold bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded border border-emerald-100/40">{t('edu_personalised_badge') || 'Personalised'}</span>
                               </div>
                               <div className="space-y-2">
                                 {checklist.filter(item => item.isPersonalized).map((item) => (
@@ -4506,7 +4359,7 @@ export default function PhoneSimulator({
                           <div className="space-y-2.5">
                             {onboardingCompleted && checklist.some(item => item.isPersonalized) && (
                               <div className="flex items-center border-b border-slate-100 pb-1.5 pt-1">
-                                <span className="text-[10px] font-extrabold text-slate-500">📋 Essential Preparation</span>
+                                <span className="text-[10px] font-extrabold text-slate-500">📋 {t('edu_checklist_essential_prep')}</span>
                               </div>
                             )}
                             <div className="space-y-2">
