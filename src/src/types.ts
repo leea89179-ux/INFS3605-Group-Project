@@ -16,7 +16,7 @@ export interface Appointment {
 
 export interface ReminderPreferences {
   enabled: boolean;
-  channel: 'sms' | 'push' | 'both';
+  channel: string;
   frequency: 'daily' | 'weekly' | 'monthly' | '7days_before';
   previewText: string;
 }

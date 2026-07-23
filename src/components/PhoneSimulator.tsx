@@ -2812,9 +2812,45 @@ export default function PhoneSimulator({
                         </div>
                       </div>
                     )}
+
+
+
                   </div>
                 </div>
               )}
+
+              {/* Ask HealthBuddy AI Assistant Promo Banner */}
+              <div className="px-4">
+                <button
+                  onClick={() => setChatOpen(true)}
+                  className="w-full text-left bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-800/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-md hover:border-emerald-700 transition cursor-pointer"
+                >
+                  <div className="space-y-1 flex-1">
+                    <span className="bg-emerald-500/20 text-emerald-400 text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-500/30 font-sans inline-flex items-center gap-1 select-none">
+                      <Sparkles className="w-2.5 h-2.5" /> GovTech AI Companion
+                    </span>
+                    <h4 className="font-bold text-xs text-white tracking-tight leading-tight">
+                      {isFHReferred ? t('chatbot_banner_title') : (
+                        language === 'ms' ? 'Tanya Pembantu AI HealthBuddy' :
+                        language === 'zh' ? '咨询 HealthBuddy AI 智能助理' :
+                        language === 'ta' ? 'HealthBuddy AI உதவியாளரிடம் கேளுங்கள்' :
+                        'Ask HealthBuddy AI Assistant'
+                      )}
+                    </h4>
+                    <p className="text-[10px] text-slate-300 leading-normal">
+                      {isFHReferred ? t('chatbot_banner_body') : (
+                        language === 'ms' ? 'Ketahui lebih lanjut tentang subsidi, persediaan, dan penjagaan kesihatan am anda.' :
+                        language === 'zh' ? '了解您的普通门诊补贴津贴、就诊准备和基本健康建议。' :
+                        language === 'ta' ? 'மானியங்கள், தயாரிப்பு மற்றும் உங்கள் பொதுவான மருத்துவக் கேள்விகள் பற்றி மேலும் அறியவும்.' :
+                        'Learn about subsidies, clinic preparation, and general health advice instantly.'
+                      )}
+                    </p>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                    <MessageSquare className="w-4.5 h-4.5 text-emerald-400" />
+                  </div>
+                </button>
+              </div>
 
               {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
               <div className="space-y-2">
@@ -4776,7 +4812,7 @@ export default function PhoneSimulator({
                       onClick={() => onChangeScreen(ScreenId.Booking)}
                       className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
                     >
-                      Go to Secure Booking
+                      {t('edu_cta_btn')}
                     </button>
                   </div>
                 </div>
@@ -5847,6 +5883,65 @@ export default function PhoneSimulator({
                           </div>
                           <div className="bg-[#e2f4c5] p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-[#d3eab0] relative shadow-3xs max-w-[280px]">
                             <h4 className="text-[11px] font-extrabold text-emerald-900 mb-1">MOH Appointment Alert</h4>
+                    {selectedChannels.includes('push') && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                          {t('settings_lockscreen_preview_title')}
+                        </label>
+                        <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
+                          <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
+                            <div className="w-4 h-4 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
+                            <span>{t('settings_lockscreen_header')}</span>
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-slate-100">
+                              {isFHReferred ? t('lock_counselling_reminder') : (
+                                language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
+                                language === 'zh' ? '普通门诊就诊提醒' :
+                                language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
+                                'Outpatient Appointment Reminder'
+                              )}
+                            </h4>
+                            <p className="text-[10.5px] text-slate-300 leading-snug">
+                              {(() => {
+                                const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
+                                const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
+                                if (isFHReferred) {
+                                  return t('lockscreen_push_msg')
+                                    .replace('{date}', dateStr)
+                                    .replace('{time}', timeStr);
+                                }
+                                if (language === 'ms') {
+                                  return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
+                                } else if (language === 'zh') {
+                                  return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
+                                } else if (language === 'ta') {
+                                  return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
+                                } else {
+                                  return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
+                                }
+                              })()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedChannels.includes('email') && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
+                          <span>{language === 'ms' ? 'Pratonton Makluman Emel' : language === 'zh' ? '电子邮件提醒预览' : language === 'ta' ? 'மின்னஞ்சல் விழிப்பூட்டல் முன்னோட்டம்' : 'Email Notification Preview'}</span>
+                          <span className="text-emerald-700">Official MOH Domain</span>
+                        </label>
+                        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
+                          <div className="text-[9.5px] font-bold text-slate-800 border-b border-slate-100 pb-2 flex justify-between">
+                            <span>From: appointment-reminders@healthhub.sg</span>
+                            <span className="text-slate-400 font-normal">{t('sms_today')}</span>
+                          </div>
+                          <div className="text-xs font-bold text-slate-800 font-sans mt-1">
+                            {isFHReferred ? 'Upcoming Outpatient Appointment: Genetic Counselling' : 'MOH HealthHub: Outpatient Appointment Confirmed'}
+                          </div>
+                          <p className="text-[10.5px] text-slate-600 leading-normal mt-1">
                             {(() => {
                               const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
                               const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
@@ -6612,6 +6707,14 @@ export default function PhoneSimulator({
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
+        {/* Floating AI Assistant Chat Button inside Phone Simulator */}
+        {!chatOpen && isFHReferred && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="absolute bottom-4 right-4 z-40 w-12 h-12 bg-[#00a859] hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 group"
+            title={t('chatbot_title')}
+          >
+            <MessageSquare className="w-5.5 h-5.5 text-white" />
           </button>
         )}
 
