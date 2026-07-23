@@ -12,6 +12,9 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
   // API Route for Chatbot proxying to Gemini
   app.post("/api/chat", async (req, res) => {
     try {

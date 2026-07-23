@@ -22,8 +22,6 @@ interface PhoneSimulatorProps {
   patientRecord?: PatientRecord;
   percentComplete?: number;
   onUpdateEducationProgress?: (patientId: string, percent: number) => void;
-  isChatOpen?: boolean;
-  onToggleChat?: (isOpen: boolean) => void;
 }
 
 export const PERSONA_DETAILS: Record<string, { fullName: string; nric: string; dob: string; gender: string; email: string; age: number; address: string }> = {
@@ -895,13 +893,7 @@ export default function PhoneSimulator({
   patientRecord,
   percentComplete,
   onUpdateEducationProgress,
-  isChatOpen,
-  onToggleChat,
 }: PhoneSimulatorProps) {
-  // Controlled or uncontrolled chat state
-  const [localIsChatOpen, setLocalIsChatOpen] = useState(false);
-  const chatOpen = isChatOpen !== undefined ? isChatOpen : localIsChatOpen;
-  const setChatOpen = onToggleChat !== undefined ? onToggleChat : setLocalIsChatOpen;
 
   // Local state for interactive elements
   const [language, setLanguage] = useState<Language>(() => {
@@ -1475,186 +1467,312 @@ export default function PhoneSimulator({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showNotificationPopup, setShowNotificationPopup] = useState<boolean>(false);
 
-  // Chatbot State inside PhoneSimulator
-  interface ChatMessage {
-    id: string;
-    sender: 'user' | 'bot';
-    text: string;
-    timestamp: Date;
-  }
+  // Knowledge Check State inside PhoneSimulator
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
+  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
 
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  // Keep chatbot greeting in sync with language and referral type
+  // Reset quiz when onboarding status or persona changes
   useEffect(() => {
-    const greetingText = isFHReferred 
-      ? t('chatbot_greeting')
-      : (language === 'ms' ? "Hai! Saya **HealthBuddy**, Pembantu GovTech Singapura anda. Saya boleh membantu menjawab soalan tentang janji temu klinikal anda, subsidi, persediaan, dan tempahan. Apakah yang ingin anda tanyakan hari ini?" :
-         language === 'zh' ? "您好！我是 **HealthBuddy**，您的新加坡 GovTech 智能助理。我可以回答有关您的普通门诊预约、补贴津贴、就诊准备和预约相关的问题。请问您今天有什么需要了解的？" :
-         language === 'ta' ? "வணக்கம்! நான் **HealthBuddy**, உங்கள் GovTech சிங்கப்பூர் உதவியாளர். உங்கள் மருத்துவ சந்திப்பு, மானியங்கள், தயாரிப்பு மற்றும் முன்பதிவு பற்றிய கேள்விகளுக்கு நான் உதவலாம். இன்று என்ன அறிய விரும்புகிறீர்கள்?" :
-         "Hello! I am **HealthBuddy**, your GovTech Singapore Assistant. I can help answer questions about your clinical appointment, subsidies, preparation, and booking. What's on your mind today?");
+    setQuizAnswers({});
+    setQuizSubmitted(false);
+  }, [onboardingCompleted, questionnaireStatus, onboardingFamiliarity, onboardingTopics, currentPatientId]);
 
-    setChatMessages([{
-      id: 'init-1',
-      sender: 'bot',
-      text: greetingText,
-      timestamp: new Date(),
-    }]);
-  }, [language, isFHReferred]); // eslint-disable-line react-hooks/exhaustive-deps
-  const [chatInput, setChatInput] = useState('');
-  const [chatIsTyping, setChatIsTyping] = useState(false);
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  // Dynamic Knowledge Check Questions based on Onboarding Status & Preferences
+  const quizQuestions = useMemo(() => {
+    const isGeneral = !onboardingCompleted || questionnaireStatus === 'skipped';
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+    if (isGeneral) {
+      return [
+        {
+          id: 'q1',
+          question: language === 'ms' ? 'Apakah itu Familial Hypercholesterolaemia (FH)?' :
+                    language === 'zh' ? '什么是家族性高胆固醇血症 (FH)？' :
+                    language === 'ta' ? 'குடும்ப மிகை கொழுப்புத்தன்மை (FH) என்றால் என்ன?' :
+                    'What is Familial Hypercholesterolaemia (FH)?',
+          options: [
+            language === 'ms' ? 'Keadaan genetik diwarisi yang menyebabkan kolesterol LDL tinggi sejak lahir' :
+            language === 'zh' ? '一种导致自出生起低密度脂蛋白(LDL)偏高的遗传性疾病' :
+            language === 'ta' ? 'பிறப்பிலிருந்தே அதிக LDL கொழுப்பை ஏற்படுத்தும் பரம்பரை நோய்' :
+            'An inherited genetic condition causing high LDL cholesterol from birth',
 
-  useEffect(() => {
-    if (chatOpen) {
-      scrollToBottom();
+            language === 'ms' ? 'Keadaan sementara disebabkan oleh makanan berlemak' :
+            language === 'zh' ? '高脂肪饮食引起的临时状况' :
+            language === 'ta' ? 'அதிக கொழுப்புள்ள உணவால் ஏற்படும் தற்காலிக நிலை' :
+            'A temporary condition caused by a high-fat diet',
+
+            language === 'ms' ? 'Kekurangan vitamin ringan yang mudah diubat' :
+            language === 'zh' ? '轻微的维生素缺乏症' :
+            language === 'ta' ? 'ஒரு லேசான வைட்டமின் குறைபாடு' :
+            'A mild vitamin deficiency'
+          ],
+          correctAnswer: 0,
+          explanation: language === 'ms' ? 'FH adalah keadaan genetik yang mengurangkan keupayaan hati untuk membersihkan kolesterol LDL ("jahat").' :
+                       language === 'zh' ? 'FH 是一种遗传性疾病，会削弱肝脏清除“坏”胆固醇 (LDL) 的能力。' :
+                       language === 'ta' ? 'FH என்பது கல்லீரலின் LDL கொழுப்பை அகற்றும் திறனைக் குறைக்கும் ஒரு மரபணு நிலை.' :
+                       'FH is a genetic condition present from birth that impairs the liver\'s ability to clear bad LDL cholesterol.'
+        },
+        {
+          id: 'q2',
+          question: language === 'ms' ? 'Mengapa ujian genetik untuk FH penting?' :
+                    language === 'zh' ? '为什么 FH 基因检测非常重要？' :
+                    language === 'ta' ? 'FH மரபணு சோதனை ஏன் முக்கியமானது?' :
+                    'Why is genetic testing for FH important?',
+          options: [
+            language === 'ms' ? 'Ia mengesahkan genotip anda dan membolehkan rawatan awal yang disasarkan' :
+            language === 'zh' ? '它可以确诊您的基因型，从而支持早期针对性治疗' :
+            language === 'ta' ? 'இது உங்கள் மரபணு வகையை உறுதிசெய்து ஆரம்பகால சிகிச்சையை அனுமதிக்கிறது' :
+            'It confirms your genotype and enables early, targeted treatment',
+
+            language === 'ms' ? 'Ia menggantikan keperluan untuk pemakanan sihat' :
+            language === 'zh' ? '它可以完全替代健康饮食' :
+            language === 'ta' ? 'இது ஆரோக்கியமான உணவின் தேவையை மாற்றுகிறது' :
+            'It replaces the need for healthy eating',
+
+            language === 'ms' ? 'Ia diwajibkan untuk semua kemasukan hospital' :
+            language === 'zh' ? '新加坡所有住院患者都必须强制进行此检测' :
+            language === 'ta' ? 'இது அனைத்து மருத்துவமனை சேர்க்கைகளுக்கும் கட்டாயமாகும்' :
+            'It is mandatory for all hospital admissions'
+          ],
+          correctAnswer: 0,
+          explanation: language === 'ms' ? 'Pengesahan genetik membantu doktor memilih rawatan yang tepat sebelum kolesterol membina plak.' :
+                       language === 'zh' ? '基因确诊有助于医生在胆固醇堆积前制定精准治疗方案。' :
+                       language === 'ta' ? 'மரபணு உறுதிப்படுத்தல் மருத்துவர்களுக்கு துல்லியமான சிகிச்சையைத் தேர்வுசெய்ய உதவுகிறது.' :
+                       'Genetic testing confirms diagnosis and enables early intervention before plaque builds up.'
+        },
+        {
+          id: 'q3',
+          question: language === 'ms' ? 'Berapakah peluang ahli keluarga darjah pertama mewarisi gen FH?' :
+                    language === 'zh' ? '直系亲属（父母、兄弟姐妹、子女）遗传 FH 基因的概率是多少？' :
+                    language === 'ta' ? 'முதல் நிலை குடும்ப உறுப்பினர்களுக்கு FH மரபணுவை பரம்பரை பெற எவ்வளவு வாய்ப்பு உள்ளது?' :
+                    'What chance do first-degree family members have of inheriting the FH gene?',
+          options: [
+            '10%',
+            '25%',
+            '50%'
+          ],
+          correctAnswer: 2,
+          explanation: language === 'ms' ? 'FH diwarisi secara dominan autosomal, jadi ahli keluarga terdekat mempunyai peluang 50%.' :
+                       language === 'zh' ? 'FH 属于常染色体显性遗传，直系亲属有 50% 的概率携带相同基因。' :
+                       language === 'ta' ? 'FH ஆட்டோசோமால் ஆதிக்கம் செலுத்துகிறது, எனவே நெருங்கிய குடும்பத்தினருக்கு 50% வாய்ப்பு உள்ளது.' :
+                       'FH is autosomal dominant, meaning first-degree relatives have a 50% chance of carrying the gene.'
+        },
+        {
+          id: 'q4',
+          question: language === 'ms' ? 'Apakah faedah utama diagnosis dan rawatan awal FH?' :
+                    language === 'zh' ? '早期诊断和治疗 FH 的主要好处是什么？' :
+                    language === 'ta' ? 'FH ஆரம்பகால நோயறிதல் மற்றும் சிகிச்சையின் முக்கிய நன்மை என்ன?' :
+                    'What is a primary benefit of early diagnosis and treatment for FH?',
+          options: [
+            language === 'ms' ? 'Ia mengurangkan risiko penyakit jantung jangka panjang kembali ke paras normal' :
+            language === 'zh' ? '它可以将长期心血管疾病风险大幅降低至普通人群水平' :
+            language === 'ta' ? 'இது நீண்ட கால இதய நோய் அபாயத்தை சாதாரண நிலைக்குக் குறைக்கிறது' :
+            'It reduces long-term heart disease risk back down to normal levels',
+
+            language === 'ms' ? 'Ia menghapuskan keperluan untuk pemeriksaan kesihatan berterusan' :
+            language === 'zh' ? '它无需后续进行任何健康复查' :
+            language === 'ta' ? 'இது எதிர்கால மருத்துவ பரிசோதனைகளின் தேவையை நீக்குகிறது' :
+            'It eliminates the need for future health checkups',
+
+            language === 'ms' ? 'Ia menyembuhkan kolesterol sepenuhnya dalam 1 minggu' :
+            language === 'zh' ? '它可在 1 周内永久治愈高胆固醇' :
+            language === 'ta' ? 'இது 1 வாரத்தில் கொழுப்பை நிரந்தரமாக குணப்படுத்துகிறது' :
+            'It cures cholesterol permanently in 1 week'
+          ],
+          correctAnswer: 0,
+          explanation: language === 'ms' ? 'Rawatan awal seperti statin mengurangkan risiko serangan jantung sehingga 80%.' :
+                       language === 'zh' ? '早期应用他汀类药物治疗可将心血管疾病风险降低高达 80%。' :
+                       language === 'ta' ? 'ஆரம்பகால சிகிச்சை இதய நோய் அபாயத்தை 80% வரை குறைக்கிறது.' :
+                       'Early diagnosis and treatment reduce long-term cardiovascular risk by up to 80%.'
+        }
+      ];
     }
-  }, [chatMessages, chatIsTyping, chatOpen]);
 
-  // Formats "**bold text**" safely as HTML/React bolding inside the simulator
-  const renderChatFormattedText = (text: string, isBot: boolean) => {
-    if (!text) return null;
-    const parts = text.split('**');
-    return parts.map((part, index) => {
-      if (index % 2 === 1) {
-        return (
-          <strong 
-            key={index} 
-            className={`font-extrabold ${isBot ? 'text-[#00a859] font-black' : 'text-white'}`}
-          >
-            {part}
-          </strong>
-        );
-      }
-      return part;
+    const isAdvanced = onboardingFamiliarity === 'research' || onboardingFamiliarity === 'advanced';
+    const questions: any[] = [];
+
+    // Question 1: FH Core / Diagnosis (adjusted by familiarity)
+    questions.push({
+      id: 'pq1',
+      question: isAdvanced
+        ? (language === 'ms' ? 'Apakah mekanisme utama yang menyebabkan kolesterol LDL amat tinggi dalam pesakit FH?' :
+           language === 'zh' ? '导致 FH 患者体内的 LDL 胆固醇极其高升的主要机制是什么？' :
+           language === 'ta' ? 'FH நோயாளிகளில் LDL கொழுப்பு மிக அதிகமாக இருப்பதற்கான முக்கிய காரணம் என்ன?' :
+           'What is the physiological mechanism responsible for elevated LDL cholesterol in FH?')
+        : (language === 'ms' ? 'Apakah sifat utama Familial Hypercholesterolaemia (FH)?' :
+           language === 'zh' ? '家族性高胆固醇血症 (FH) 的主要特征是什么？' :
+           language === 'ta' ? 'குடும்ப மிகை கொழுப்புத்தன்மையின் (FH) முக்கிய அம்சம் என்ன?' :
+           'What is the primary characteristic of Familial Hypercholesterolaemia (FH)?'),
+      options: isAdvanced ? [
+        language === 'ms' ? 'Kerosakan penerima LDLR genetik yang mengurangkan pembersihan LDL oleh hati' :
+        language === 'zh' ? 'LDLR 基因突变导致肝脏 LDL 受体清除能力下降' :
+        language === 'ta' ? 'கல்லீரல் LDL அகற்றுதலைக் குறைக்கும் LDLR மரபணு குறைபாடு' :
+        'Genetic mutations (e.g. LDLR) that impair hepatic clearance of LDL particles',
+
+        language === 'ms' ? 'Penyerapan vitamin berlebihan dalam usus' :
+        language === 'zh' ? '肠道对维生素的过度吸收' :
+        language === 'ta' ? 'குடலில் அதிகப்படியான வைட்டமின் உறிஞ்சப்படுதல்' :
+        'Excessive intestinal absorption of dietary vitamins',
+
+        language === 'ms' ? 'Kegagalan sementara pengeluaran hormon ginjal' :
+        language === 'zh' ? '肾脏激素分泌的暂时失调' :
+        language === 'ta' ? 'சிறுநீரக ஹார்மோன் உற்பத்தியின் தற்காலிக செயலிழப்பு' :
+        'Temporary suppression of renal hormone secretion'
+      ] : [
+        language === 'ms' ? 'Ia adalah keadaan diwarisi dari lahir yang menyebabkan kolesterol tinggi tanpa kira diet' :
+        language === 'zh' ? '这是一种出生即有的遗传性疾病，仅靠饮食无法完全控制' :
+        language === 'ta' ? 'இது பிறப்பிலிருந்தே உள்ள பரம்பரை நிலை, உணவால் மட்டும் கட்டுப்படுத்த முடியாது' :
+        'It is an inherited condition present from birth causing high cholesterol regardless of diet',
+
+        language === 'ms' ? 'Ia adalah penyakit yang berpunca daripada pengambilan gula berlebihan sahaja' :
+        language === 'zh' ? '这是一种单纯因过度食用糖分引起的疾病' :
+        language === 'ta' ? 'இது அதிகப்படியான சர்க்கரையால் மட்டுமே ஏற்படும் நோய்' :
+        'It is caused purely by consuming too much sugar',
+
+        language === 'ms' ? 'Ia hanya menjejas orang warga tua berumur 70 tahun ke atas' :
+        language === 'zh' ? '它只影响 70 岁以上的年长人群' :
+        language === 'ta' ? 'இது 70 வயதிற்கு மேற்பட்ட முதியவர்களை மட்டுமே பாதிக்கும்' :
+        'It only affects elderly individuals aged over 70'
+      ],
+      correctAnswer: 0,
+      explanation: isAdvanced
+        ? 'FH is predominantly caused by mutations in the LDLR, APOB, or PCSK9 genes affecting hepatic clearance.'
+        : 'FH is an inherited condition from birth, meaning medication alongside healthy lifestyle is usually necessary.'
     });
-  };
 
-  const handleChatSend = (text: string, topic?: string) => {
-    if (!text.trim()) return;
+    // Question 2: Topic specific based on onboardingTopics
+    if (onboardingTopics.includes('topic-costs') || onboardingTopics.includes('topic-family')) {
+      questions.push({
+        id: 'pq_costs_family',
+        question: onboardingTopics.includes('topic-costs')
+          ? (language === 'ms' ? 'Bagaimanakah Kementerian Kesihatan (MOH) menyubsidi ujian genetik FH?' :
+             language === 'zh' ? '新加坡卫生部 (MOH) 如何资助 FH 基因检测与咨询？' :
+             language === 'ta' ? 'சிங்கப்பூர் சுகாதார அமைச்சகம் (MOH) FH சோதனையை எவ்வாறு மானியம் செய்கிறது?' :
+             'How does MOH Singapore support FH genetic testing and counselling?')
+          : (language === 'ms' ? 'Apakah yang dimaksudkan dengan Saringan Kaskad Keluarga untuk FH?' :
+             language === 'zh' ? '什么是 FH 的“级联家系筛查” (Cascade Screening)？' :
+             language === 'ta' ? 'FH-க்கான "குடும்ப அடுக்கு திரையிடல்" (Cascade Screening) என்றால் என்ன?' :
+             'What is Cascade Screening for FH?'),
+        options: onboardingTopics.includes('topic-costs') ? [
+          language === 'ms' ? 'Rakyat Singapore menerima subsidi MOH 50%–75% dan boleh menggunakan MediSave' :
+          language === 'zh' ? '符合资格的新加坡公民享有 50%–75% MOH 补贴，并可用 MediSave 支付' :
+          language === 'ta' ? 'சிங்கப்பூரியர்கள் 50%-75% MOH மானியத்தைப் பெறுகிறார்கள் மற்றும் MediSave ஐப் பயன்படுத்தலாம்' :
+          'Eligible Singapore Citizens receive 50%–75% MOH subsidies and can fully use MediSave',
 
-    const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
-      sender: 'user',
-      text,
-      timestamp: new Date(),
-    };
+          language === 'ms' ? 'Tiada subsidi diberikan untuk sebarang ujian genetik' :
+          language === 'zh' ? '基因检测完全没有任何政府补贴' :
+          language === 'ta' ? 'மரபணு சோதனைக்கு அரசு மானியம் எதுவும் இல்லை' :
+          'No subsidies are provided for genetic testing',
 
-    setChatMessages((prev) => [...prev, userMsg]);
-    setChatInput('');
-    setChatIsTyping(true);
+          language === 'ms' ? 'Ujian hanya percuma jika dirawat di hospital swasta' :
+          language === 'zh' ? '检测仅在私立医院免费提供' :
+          language === 'ta' ? 'தனியார் மருத்துவமனைகளில் மட்டுமே சோதனை இலவசம்' :
+          'Testing is only free at private hospitals'
+        ] : [
+          language === 'ms' ? 'Menyaring ahli keluarga darjah pertama untuk mengesan FH awal dan melindungi mereka' :
+          language === 'zh' ? '对先证者的直系亲属进行针对性筛查，及早保护家人' :
+          language === 'ta' ? 'முதல் நிலை குடும்ப உறுப்பினர்களை சோதித்து ஆரம்பத்திலேயே பாதுகாத்தல்' :
+          'Testing first-degree relatives of an identified patient to detect FH early and protect loved ones',
 
-    fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, language, topic, isFHReferred }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Server returned an error');
-        return res.json();
-      })
-      .then((data) => {
-        const botMsg: ChatMessage = {
-          id: `bot-${Date.now()}`,
-          sender: 'bot',
-          text: data.text || 'Sorry, I could not process that response.',
-          timestamp: new Date(),
-        };
-        setChatMessages((prev) => [...prev, botMsg]);
-        setChatIsTyping(false);
-      })
-      .catch((err) => {
-        console.warn('[PhoneSimulator Chat] Backend /api/chat error, falling back to local simulation:', err);
+          language === 'ms' ? 'Ujian larian bertubi-tubi di gimnasium' :
+          language === 'zh' ? '在体育馆进行的多次连续体能测试' :
+          language === 'ta' ? 'உடற்பயிற்சி கூடத்தில் தொடர்ச்சியான உடற்பயிற்சி சோதனை' :
+          'A sequence of physical fitness tests',
 
-        setTimeout(() => {
-          // Multilingual keyword lists for free-typed queries
-          const insuranceKeywords = ['insurance', 'shield', 'policy', 'moratorium', 'insurans', 'polisi', '保险', '保障', 'காப்பீடு', 'பாலிசி'];
-          const costKeywords = ['cost', 'subsidy', 'pay', 'price', 'chas', 'medisave', 'kos', 'subsidi', 'bayar', '费用', '补贴', '支付', 'மானியம்', 'கட்டணம்', 'செலுத்த'];
-          const familyKeywords = ['family', 'children', 'parents', 'cascade', 'keluarga', 'kanak', 'ibu', 'bapa', '家庭', '家人', '孩子', '父母', 'குடும்பம்', 'குழந்தை', 'பெற்றோர்'];
-          const prepKeywords = ['prepare', 'prep', 'checklist', 'fast', 'sedia', 'berpuasa', 'senarai', '准备', '禁食', '清单', 'தயார்', 'உண்ணாவிரதம்', 'பட்டியல்'];
-
-          const query = text.toLowerCase();
-          const matchKeywords = (list: string[]) => list.some(k => query.includes(k));
-
-          let resolvedTopic = topic;
-          if (!resolvedTopic) {
-            if (matchKeywords(insuranceKeywords)) resolvedTopic = 'insurance';
-            else if (matchKeywords(costKeywords)) resolvedTopic = 'cost';
-            else if (matchKeywords(familyKeywords)) resolvedTopic = 'family';
-            else if (matchKeywords(prepKeywords)) resolvedTopic = 'prep';
-          }
-
-           let botResponse: string;
-          if (isFHReferred) {
-            if (resolvedTopic === 'insurance') {
-              botResponse = t('chatbot_fallback_insurance');
-            } else if (resolvedTopic === 'cost') {
-              botResponse = t('chatbot_fallback_cost');
-            } else if (resolvedTopic === 'family') {
-              botResponse = t('chatbot_fallback_family');
-            } else if (resolvedTopic === 'prep') {
-              botResponse = t('chatbot_fallback_prep');
-            } else {
-              // Try matching against localized FAQs
-              const localFaqs = getLocalizedFaqs(language);
-              const matchedFaq = localFaqs.find(faq =>
-                query.split(/\s+/).some(word => word.length > 3 && faq.question.toLowerCase().includes(word))
-              );
-              botResponse = matchedFaq
-                ? `**${matchedFaq.question}**\n\n${matchedFaq.answer}`
-                : t('chatbot_fallback_default');
-            }
-          } else {
-            // General clinical fallback answers for Sarah (non-referred)
-            if (resolvedTopic === 'cost' || query.includes('subsidy') || query.includes('pay') || query.includes('chas') || query.includes('medisave') || query.includes('kos') || query.includes('bayar') || query.includes('费用') || query.includes('补贴') || query.includes('கட்டணம்') || query.includes('செலுத்த')) {
-              botResponse = language === 'ms' ? "Janji temu klinikal sangat disubsidi oleh MOH untuk Warganegara Singapura. Anda boleh menggunakan kad **CHAS** anda untuk subsidi tambahan, dan rawatan yang layak boleh dibayar melalui **MediSave**." :
-                            language === 'zh' ? "新加坡公民的门诊预约可获得 MOH 的高度补贴。您可以使用您的 **CHAS** 卡获得额外津贴，符合条件的治疗费用也可以通过 **MediSave** 支付。" :
-                            language === 'ta' ? "சிங்கப்பூர் குடிமக்களுக்கு மருத்துவ சந்திப்புகள் MOH ஆல் பெரிதும் மானியம் பெறுகின்றன. கூடுதல் மானியங்களுக்கு உங்கள் **CHAS** அட்டையைப் பயன்படுத்தலாம், மேலும் தகுதியான சிகிச்சைகளுக்கு **MediSave** மூலம் செலுத்தலாம்." :
-                            "Clinical appointments are highly subsidized by MOH for Singapore Citizens. You can use your **CHAS** card for additional subsidies, and eligible treatments are payable via **MediSave**.";
-            } else if (resolvedTopic === 'prep' || query.includes('checklist') || query.includes('sedia') || query.includes('准备') || query.includes('தயார்')) {
-              botResponse = language === 'ms' ? "Sila bawa **NRIC/Singpass** anda dan sebarang **ubat-ubatan semasa** yang anda ambil. Tidak perlu berpuasa melainkan diarahkan khas oleh doktor anda." :
-                            language === 'zh' ? "请携带您的 **身份证/Singpass** 以及您正在服用的任何**当前药物**。除非医生特别指示，否则无需空腹。" :
-                            language === 'ta' ? "தயவுசெய்து உங்கள் **NRIC/Singpass** மற்றும் நீங்கள் எடுத்துக்கொள்ளும் ஏதேனும் **தற்போதைய மருந்துகளை** கொண்டு வாருங்கள். உங்கள் மருத்துவர் குறிப்பாக அறிவுறுத்தாதவரை உண்ணாவிரதம் தேவையிலை." :
-                            "Please bring your **NRIC/Singpass** and any **current medications** you are taking. No fasting is required unless specifically instructed by your doctor.";
-            } else if (resolvedTopic === 'reschedule' || query.includes('booking') || query.includes('appointment') || query.includes('tempah') || query.includes('预约') || query.includes('முன்பதிவு')) {
-              botResponse = language === 'ms' ? "Anda boleh mengurus, menempah, atau menukar janji temu anda dengan serta-merta di tab **Book** (Tempah) aplikasi ini. Hanya pilih tarikh dan masa baharu yang sesuai dengan jadual anda." :
-                            language === 'zh' ? "您可以在此应用程序的**预约**标签页中立即管理、预订或重新安排您的门诊时间。只需选择适合您行程的新日期和时间即可。" :
-                            language === 'ta' ? "இந்த பயன்பாட்டின் **முன்பதிவு** தாவலில் உங்கள் சந்திப்பை உடனடியாக நிர்வகிக்கலாம், முன்பதிவு செய்யலாம் அல்லது மாற்றலாம். உங்கள் அட்டவணைக்கு ஏற்ற புதிய தேதி மற்றும் நேரத்தைத் தேர்வு செய்யவும்." :
-                            "You can manage, book, or reschedule your appointment instantly in the **Book** tab of this app. Just choose a new date and time that fits your schedule.";
-            } else {
-              botResponse = language === 'ms' ? "Saya sedia membantu anda dengan janji temu klinikal anda. Anda boleh menyemak tab **Book** (Tempah) atau beritahu saya jika anda mempunyai soalan lain!" :
-                            language === 'zh' ? "我在此协助您了解您的门诊预约。您可以查看**预约**标签页，或者如果还有其他问题，请告诉我！" :
-                            language === 'ta' ? "உங்கள் மருத்துவ சந்திப்புக்கு உதவ நான் இங்கே இருக்கிறேன். நீங்கள் **முன்பதிவு** தாவலை சரிபார்க்கலாம் அல்லது உங்களுக்கு வேறு கேள்விகள் இருந்தால் எனக்கு தெரிவிக்கலாம்!" :
-                            "I am here to help you with your clinical appointment. You can check the **Book** tab or let me know if you have other questions!";
-            }
-          }
-
-          const botMsg: ChatMessage = {
-            id: `bot-${Date.now()}`,
-            sender: 'bot',
-            text: botResponse,
-            timestamp: new Date(),
-          };
-
-          setChatMessages((prev) => [...prev, botMsg]);
-          setChatIsTyping(false);
-        }, 800);
+          language === 'ms' ? 'Saringan darah berulang setiap hari selama seminggu' :
+          language === 'zh' ? '连续一周每天重复抽血的测试' :
+          language === 'ta' ? 'ஒரு வாரம் தினமும் இரத்த பரிசோதனை செய்தல்' :
+          'Daily repeated blood draws for a week'
+        ],
+        correctAnswer: 0,
+        explanation: onboardingTopics.includes('topic-costs')
+          ? 'Singapore Citizens get 50-75% subsidies for FH counselling and genetic testing, with MediSave coverage.'
+          : 'Cascade screening tests parents, siblings, and children of an index patient who have a 50% inheritance chance.'
       });
-  };
+    }
 
-  const handleChatReset = () => {
-    setChatMessages([
-      {
-        id: 'init-1',
-        sender: 'bot',
-        text: t('chatbot_greeting'),
-        timestamp: new Date(),
-      },
-    ]);
-  };
+    // Question 3: Insurance / Rights or Testing Process
+    if (onboardingTopics.includes('topic-insurance') || onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next')) {
+      questions.push({
+        id: 'pq_insurance_testing',
+        question: onboardingTopics.includes('topic-insurance')
+          ? (language === 'ms' ? 'Bagaimanakah Moratorium LIA melindungi hak insurans anda semasa ujian genetik?' :
+             language === 'zh' ? '新加坡 LIA 暂行规定如何在基因检测期间保障您的保险权益？' :
+             language === 'ta' ? 'மரபணு சோதனையின் போது LIA ஒப்பந்தம் உங்கள் காப்பீட்டு உரிமைகளை எவ்வாறு பாதுகாக்கிறது?' :
+             'How does the LIA Moratorium protect your insurance rights during genetic testing?')
+          : (language === 'ms' ? 'Apakah persediaan yang diperlukan sebelum ujian darah genetik FH?' :
+             language === 'zh' ? '进行 FH 基因检测抽血前需要做哪些准备？' :
+             language === 'ta' ? 'FH மரபணு இரத்த பரிசோதனைக்கு முன் என்ன தயாரிப்பு தேவை?' :
+             'What preparation is needed before the FH genetic test blood draw?'),
+        options: onboardingTopics.includes('topic-insurance') ? [
+          language === 'ms' ? 'Syarikat insurans tidak boleh memaksa pengeluaran keputusan ujian atau mengubah polisi sedia ada' :
+          language === 'zh' ? '保险公司不得要求强制披露基因检测结果，现有保单（如 MediShield Life）完全不受影响' :
+          language === 'ta' ? 'காப்பீட்டு நிறுவனங்கள் முடிவுகளை வெளியிட கட்டாயப்படுத்தக்கூடாது, தற்போதைய பாலிசிகள் பாதிக்கப்படாது' :
+          'Insurers cannot force disclosure of genetic test results, and existing policies remain 100% protected',
+
+          language === 'ms' ? 'Semua insuran dibatalkan secara automatik apabila mengambil ujian' :
+          language === 'zh' ? '进行检测后，所有保险将被自动取消' :
+          language === 'ta' ? 'சோதனை செய்தவுடன் அனைத்து காப்பீடுகளும் ரத்து செய்யப்படும்' :
+          'All existing insurance policies are automatically canceled',
+
+          language === 'ms' ? 'Insurans menaikkan kadar premium secara serta-merta sebanyak 200%' :
+          language === 'zh' ? '保险保费将立即大幅上涨 200%' :
+          language === 'ta' ? 'காப்பீட்டு கட்டணம் உடனடியாக 200% உயரும்' :
+          'Insurers immediately double all premium rates'
+        ] : [
+          language === 'ms' ? 'Tiada puasa diperlukan; ia adalah ujian darah pesakit luar yang ringkas' :
+          language === 'zh' ? '无需禁食；这是一项简短的门诊普通抽血' :
+          language === 'ta' ? 'உண்ணாவிரதம் தேவையில்லை; இது ஒரு எளிய வெளிநோயாளி இரத்த பரிசோதனை' :
+          'No fasting is required; it is a simple outpatient blood draw',
+
+          language === 'ms' ? 'Perlu berpuasa ketat selama 24 jam tanpa air' :
+          language === 'zh' ? '需要严格禁食禁水 24 小时' :
+          language === 'ta' ? '24 மணி நேரம் தண்ணீர் இன்றி உண்ணாவிரதம் இருக்க வேண்டும்' :
+          'Strict 24-hour water and food fasting',
+
+          language === 'ms' ? 'Perlu dimasukkan ke wad hospital selama 2 hari' :
+          language === 'zh' ? '必须住院观察 2 天' :
+          language === 'ta' ? '2 நாட்களுக்கு மருத்துவமனையில் தங்கி இருக்க வேண்டும்' :
+          'Inpatient hospital stay for 2 days'
+        ],
+        correctAnswer: 0,
+        explanation: onboardingTopics.includes('topic-insurance')
+          ? 'Under Singapore\'s LIA moratorium, test results cannot be demanded for standard policies and active plans cannot be altered.'
+          : 'The FH blood draw requires no fasting and takes only a few minutes during an outpatient visit.'
+      });
+    }
+
+    // Question 4: Treatment / Lifestyle / General fallback
+    questions.push({
+      id: 'pq_treatment',
+      question: language === 'ms' ? 'Apakah peranan ubat-ubatan (seperti statin) dalam pengurusan FH?' :
+                language === 'zh' ? '药物（如他汀类药物）在 FH 治疗管理中发挥什么作用？' :
+                language === 'ta' ? 'FH மேலாண்மையில் மருந்துகளின் (ஸ்டேடின்கள் போன்றவை) பங்கு என்ன?' :
+                'What role do medications (such as statins) play in managing FH?',
+      options: [
+        language === 'ms' ? 'Ia membantu hati membersihkan kolesterol LDL dan mengurangkan risiko penyakit jantung' :
+        language === 'zh' ? '它们能有效帮助肝脏清除血液中的 LDL 胆固醇，大幅降低心血管风险' :
+        language === 'ta' ? 'அவை கல்லீரலுக்கு LDL கொழுப்பை அகற்ற உதவுகின்றன மற்றும் இதய நோய் அபாயத்தைக் குறைக்கின்றன' :
+        'They assist the liver in clearing bad LDL cholesterol, significantly lowering heart disease risk',
+
+        language === 'ms' ? 'Ia mengubah DNA anda secara kekal' :
+        language === 'zh' ? '它们会永久改变您的人体 DNA 结构' :
+        language === 'ta' ? 'அவை உங்கள் டிஎன்ஏவை நிரந்தரமாக மாற்றுகின்றன' :
+        'They permanently modify your body\'s DNA structure',
+
+        language === 'ms' ? 'Ia hanya digunakan selama 3 hari sahaja' :
+        language === 'zh' ? '它们只需连续服用 3 天即可' :
+        language === 'ta' ? 'அவை 3 நாட்களுக்கு மட்டுமே பயன்படுத்தப்படுகின்றன' :
+        'They are only used temporarily for 3 days'
+      ],
+      correctAnswer: 0,
+      explanation: language === 'ms' ? 'Statin adalah ubat yang sangat selamat dan terbukti meningkatkan keupayaan pembersihan kolesterol.' :
+                   language === 'zh' ? '他汀类药物高度安全、疗效明确，是帮助 FH 患者控制胆固醇的核心有效保障。' :
+                   language === 'ta' ? 'ஸ்டேடின்கள் பாதுகாப்பானவை மற்றும் கொழுப்பைக் குறைக்க பெரிதும் உதவுகின்றன.' :
+                   'Statins are well-studied, safe medications that help your liver clear bad cholesterol efficiently.'
+    });
+
+    return questions;
+  }, [onboardingCompleted, questionnaireStatus, onboardingFamiliarity, onboardingTopics, language]);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -2453,26 +2571,26 @@ export default function PhoneSimulator({
                   <Globe className="w-5 h-5 text-slate-700" />
                 </button>
 
-                {/* Language Dropdown */}
+                {/* Dropdown Menu */}
                 {langMenuOpen && (
                   <>
-                    {/* Backdrop */}
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setLangMenuOpen(false)}
-                    />
-                    {/* Menu */}
-                    <div className="absolute top-8 right-8 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 min-w-[160px] animate-fade-in">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400 px-2 pt-1 pb-2 font-mono border-b border-slate-100 mb-1">
-                        {t('lang_pref_title')}
-                      </p>
-                      {(Object.entries(LANG_LABELS) as [Language, string][]).map(([code, label]) => (
+                    <div className="fixed inset-0 z-40" onClick={() => setLangMenuOpen(false)} />
+                    <div className="absolute right-0 top-8 bg-white border border-slate-200 rounded-xl shadow-lg p-1 z-50 min-w-[120px] text-xs font-medium animate-fade-in">
+                      {[
+                        { code: 'en', label: 'English' },
+                        { code: 'ms', label: 'Bahasa Melayu' },
+                        { code: 'zh', label: '简体中文' },
+                        { code: 'ta', label: 'தமிழ்' }
+                      ].map(({ code, label }) => (
                         <button
                           key={code}
-                          onClick={() => handleLanguageChange(code)}
-                          className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                            language === code
-                              ? 'bg-emerald-50 text-emerald-700 font-bold'
+                          onClick={() => {
+                            setLanguage(code as any);
+                            setLangMenuOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 rounded-lg flex items-center justify-between text-xs cursor-pointer ${
+                            language === code 
+                              ? 'bg-emerald-50 text-[#00a859] font-bold' 
                               : 'text-slate-700 hover:bg-slate-50'
                           }`}
                         >
@@ -2760,18 +2878,6 @@ export default function PhoneSimulator({
                     </div>
                     <span className="text-[9.5px] font-bold text-slate-700 leading-tight">CHAS</span>
                   </div>
-
-                  {/* Card 3: Ask HealthBuddy AI / Help Desk */}
-                  <button
-                    onClick={() => setChatOpen(true)}
-                    className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 hover:shadow-xs transition aspect-square cursor-pointer"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1 shrink-0 relative">
-                      <MessageSquare className="w-4 h-4 text-[#00a859]" />
-                      <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-amber-500 fill-amber-500 animate-pulse" />
-                    </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_ask_ai')}</span>
-                  </button>
 
                   {/* Card 4: Medical reports / certs */}
                   <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
@@ -4538,15 +4644,173 @@ export default function PhoneSimulator({
                     </div>
                   )}
 
-                  {/* Secure Booking CTA prompt */}
-                  <div className="bg-[#00a859] text-white p-5 rounded-2xl shadow-sm text-center space-y-2.5">
-                    <h4 className="font-bold text-xs">{t('edu_cta_title')}</h4>
-                    <p className="text-[10px] text-emerald-100 max-w-[260px] mx-auto leading-normal">
-                      {t('edu_cta_subtitle')}
-                    </p>
+                  {/* Knowledge Check Section (Part 2) */}
+                  <div className="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-3xs text-left space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-100 text-[#00a859] flex items-center justify-center font-bold text-xs">
+                          <CheckSquare className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-display font-extrabold text-xs text-slate-900">Knowledge Check</h4>
+                          <p className="text-[10px] text-slate-500 font-medium">3 questions • &lt; 1 minute</p>
+                        </div>
+                      </div>
+                      <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-extrabold border border-emerald-100">
+                        Optional
+                      </span>
+                    </div>
+
+                    {!quizSubmitted ? (
+                      <div className="space-y-4">
+                        {quizQuestions.map((q, idx) => {
+                          const selectedOpt = quizAnswers[q.id];
+                          return (
+                            <div key={q.id} className="space-y-2 bg-slate-50/70 border border-slate-150 p-3 rounded-xl">
+                              <p className="text-[11px] font-bold text-slate-800 leading-snug">
+                                {idx + 1}. {q.question}
+                              </p>
+                              <div className="space-y-1.5 pt-1">
+                                {q.options.map((opt, optIdx) => {
+                                  const isSelected = selectedOpt === optIdx;
+                                  return (
+                                    <button
+                                      key={optIdx}
+                                      onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: optIdx }))}
+                                      className={`w-full text-left p-2.5 rounded-lg text-[10.5px] font-medium transition flex items-center gap-2.5 cursor-pointer border ${
+                                        isSelected
+                                          ? 'bg-emerald-50 border-[#00a859] text-emerald-900 font-bold'
+                                          : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100/60'
+                                      }`}
+                                    >
+                                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                                        isSelected ? 'border-[#00a859] bg-[#00a859] text-white' : 'border-slate-300'
+                                      }`}>
+                                        {isSelected && <span className="text-[9px] font-bold">✓</span>}
+                                      </div>
+                                      <span className="leading-tight">{opt}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        <button
+                          onClick={() => setQuizSubmitted(true)}
+                          disabled={Object.keys(quizAnswers).length < quizQuestions.length}
+                          className={`w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                            Object.keys(quizAnswers).length >= quizQuestions.length
+                              ? 'bg-[#00a859] hover:bg-emerald-700 text-white shadow-sm'
+                              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          }`}
+                        >
+                          Submit Answers
+                        </button>
+                      </div>
+                    ) : (
+                      /* Quiz Results View */
+                      <div className="space-y-4 animate-fade-in">
+                        {/* Score summary banner */}
+                        {(() => {
+                          const correctCount = quizQuestions.filter(q => quizAnswers[q.id] === q.correctAnswer).length;
+                          const total = quizQuestions.length;
+                          const percentage = Math.round((correctCount / total) * 100);
+                          return (
+                            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-2 text-left">
+                              <div className="flex items-center justify-between">
+                                <h5 className="font-extrabold text-xs text-emerald-900">Knowledge Check Complete</h5>
+                                <span className="font-display font-extrabold text-lg text-[#00a859]">
+                                  {percentage}%
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-bold text-xs text-emerald-950">Great work!</p>
+                                <p className="text-[10.5px] text-emerald-800 leading-relaxed font-sans">
+                                  You've completed the Knowledge Check and reinforced the key information to help prepare for your counselling appointment.
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Questions feedback */}
+                        <div className="space-y-3">
+                          {quizQuestions.map((q, idx) => {
+                            const userAns = quizAnswers[q.id];
+                            const isCorrect = userAns === q.correctAnswer;
+                            return (
+                              <div key={q.id} className={`p-3 rounded-xl border space-y-2 ${
+                                isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/30 border-rose-200'
+                              }`}>
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className="text-[11px] font-bold text-slate-800 leading-snug">
+                                    {idx + 1}. {q.question}
+                                  </p>
+                                  <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ${
+                                    isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                  }`}>
+                                    {isCorrect ? '✓ Correct' : '✕ Incorrect'}
+                                  </span>
+                                </div>
+
+                                <div className="space-y-1 pt-1">
+                                  {q.options.map((opt, optIdx) => {
+                                    const isUserChoice = userAns === optIdx;
+                                    const isCorrectChoice = q.correctAnswer === optIdx;
+                                    let badgeStyle = 'bg-white border-slate-200 text-slate-600';
+                                    if (isCorrectChoice) {
+                                      badgeStyle = 'bg-emerald-100/80 border-emerald-300 text-emerald-900 font-bold';
+                                    } else if (isUserChoice && !isCorrect) {
+                                      badgeStyle = 'bg-rose-100/80 border-rose-300 text-rose-900 font-medium';
+                                    }
+
+                                    return (
+                                      <div key={optIdx} className={`p-2 rounded-lg text-[10px] border flex items-center justify-between ${badgeStyle}`}>
+                                        <span>{opt}</span>
+                                        {isCorrectChoice && <span className="text-[9px] text-emerald-700 font-bold">✓ Correct Answer</span>}
+                                        {isUserChoice && !isCorrectChoice && <span className="text-[9px] text-rose-700 font-bold">Your Choice</span>}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+
+                                <div className="bg-white/80 p-2.5 rounded-lg border border-slate-200/60 text-[10px] text-slate-600 leading-relaxed">
+                                  <span className="font-bold text-slate-800">Explanation: </span>
+                                  {q.explanation}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setQuizAnswers({});
+                            setQuizSubmitted(false);
+                          }}
+                          className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
+                        >
+                          Try Again
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Contextual Booking Reinforcement Card */}
+                  <div className="bg-[#00a859] rounded-2xl p-5 text-center space-y-3.5 shadow-sm">
+                    <div className="space-y-1.5 px-1">
+                      <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
+                        Ready to book your GAC counselling slot?
+                      </h4>
+                      <p className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto">
+                        Take the active step today. Booking takes under 20 seconds within HealthHub.
+                      </p>
+                    </div>
                     <button
                       onClick={() => onChangeScreen(ScreenId.Booking)}
-                      className="w-full py-2.5 bg-white hover:bg-slate-100 text-[#00a859] rounded-xl text-xs font-bold shadow-sm transition cursor-pointer select-none border border-transparent"
+                      className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
                     >
                       {t('edu_cta_btn')}
                     </button>
@@ -5619,6 +5883,65 @@ export default function PhoneSimulator({
                           </div>
                           <div className="bg-[#e2f4c5] p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-[#d3eab0] relative shadow-3xs max-w-[280px]">
                             <h4 className="text-[11px] font-extrabold text-emerald-900 mb-1">MOH Appointment Alert</h4>
+                    {selectedChannels.includes('push') && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                          {t('settings_lockscreen_preview_title')}
+                        </label>
+                        <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
+                          <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
+                            <div className="w-4 h-4 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
+                            <span>{t('settings_lockscreen_header')}</span>
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-slate-100">
+                              {isFHReferred ? t('lock_counselling_reminder') : (
+                                language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
+                                language === 'zh' ? '普通门诊就诊提醒' :
+                                language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
+                                'Outpatient Appointment Reminder'
+                              )}
+                            </h4>
+                            <p className="text-[10.5px] text-slate-300 leading-snug">
+                              {(() => {
+                                const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
+                                const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
+                                if (isFHReferred) {
+                                  return t('lockscreen_push_msg')
+                                    .replace('{date}', dateStr)
+                                    .replace('{time}', timeStr);
+                                }
+                                if (language === 'ms') {
+                                  return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
+                                } else if (language === 'zh') {
+                                  return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
+                                } else if (language === 'ta') {
+                                  return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
+                                } else {
+                                  return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
+                                }
+                              })()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedChannels.includes('email') && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
+                          <span>{language === 'ms' ? 'Pratonton Makluman Emel' : language === 'zh' ? '电子邮件提醒预览' : language === 'ta' ? 'மின்னஞ்சல் விழிப்பூட்டல் முன்னோட்டம்' : 'Email Notification Preview'}</span>
+                          <span className="text-emerald-700">Official MOH Domain</span>
+                        </label>
+                        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
+                          <div className="text-[9.5px] font-bold text-slate-800 border-b border-slate-100 pb-2 flex justify-between">
+                            <span>From: appointment-reminders@healthhub.sg</span>
+                            <span className="text-slate-400 font-normal">{t('sms_today')}</span>
+                          </div>
+                          <div className="text-xs font-bold text-slate-800 font-sans mt-1">
+                            {isFHReferred ? 'Upcoming Outpatient Appointment: Genetic Counselling' : 'MOH HealthHub: Outpatient Appointment Confirmed'}
+                          </div>
+                          <p className="text-[10.5px] text-slate-600 leading-normal mt-1">
                             {(() => {
                               const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
                               const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
@@ -6226,165 +6549,7 @@ export default function PhoneSimulator({
           </div>
         )}
 
-        {/* ----------------- SCREEN 8: CHATBOT OVERLAY ----------------- */}
-        {chatOpen && (
-          <div className="absolute inset-0 z-45 flex-col flex h-full overflow-hidden bg-slate-50 animate-fade-in text-left">
-            {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between shrink-0 sticky top-0 z-10 shadow-3xs">
-              <div className="flex items-center gap-2">
-                <button onClick={() => setChatOpen(false)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer transition">
-                  <ArrowLeft className="w-5 h-5 text-slate-700" />
-                </button>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-sm text-slate-800">{t('chatbot_title')}</span>
-                    <span className="bg-emerald-500/10 text-[9px] text-[#00a859] font-mono px-1 rounded border border-emerald-500/20 font-bold flex items-center gap-0.5 select-none">
-                      <Sparkles className="w-2.5 h-2.5" /> AI
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-[#00a859] rounded-full animate-pulse" />
-                    <span className="text-[9px] text-slate-400 font-medium">{t('chatbot_online')}</span>
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={handleChatReset}
-                title="Reset conversation"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-              </button>
-            </div>
 
-            {/* Message Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-100/40 flex flex-col min-h-0">
-              {chatMessages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`flex gap-2 max-w-[85%] ${m.sender === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
-                >
-                  {m.sender === 'bot' ? (
-                    <div className="w-6 h-6 rounded-full bg-[#00a859] flex items-center justify-center shrink-0 text-[9px] text-white font-extrabold select-none shadow-3xs">
-                      SG
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-slate-300 flex items-center justify-center shrink-0 text-slate-600 shadow-3xs">
-                      <User className="w-3.5 h-3.5" />
-                    </div>
-                  )}
-                  <div
-                    className={`p-3 rounded-2xl text-xs leading-relaxed ${
-                      m.sender === 'user'
-                        ? 'bg-[#00a859] text-white rounded-tr-none shadow-sm text-left'
-                        : 'bg-white text-slate-800 rounded-tl-none border border-slate-200/80 shadow-3xs text-left'
-                    }`}
-                  >
-                    <p className="whitespace-pre-line">{renderChatFormattedText(m.text, m.sender === 'bot')}</p>
-                    <div
-                      className={`text-[8px] mt-1 font-mono text-right leading-none ${
-                        m.sender === 'user' ? 'text-emerald-200' : 'text-slate-400'
-                      }`}
-                    >
-                      {m.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {chatIsTyping && (
-                <div className="flex gap-2 max-w-[80%] self-start">
-                  <div className="w-6 h-6 rounded-full bg-[#00a859] flex items-center justify-center text-[9px] text-white font-bold shadow-3xs">
-                    SG
-                  </div>
-                  <div className="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none shadow-3xs">
-                    <div className="flex gap-1 items-center py-1">
-                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Quick Replies */}
-            <div className="p-2 border-t border-slate-100 bg-white flex gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 select-none">
-              {(isFHReferred
-                ? [
-                    { text: t('chatbot_quick_insurance'), tag: 'insurance' },
-                    { text: t('chatbot_quick_cost'), tag: 'cost' },
-                    { text: t('chatbot_quick_family'), tag: 'family' },
-                    { text: t('chatbot_quick_prep'), tag: 'prep' },
-                  ]
-                : [
-                    { 
-                      text: language === 'ms' ? 'Berapakah kos janji temu?' :
-                            language === 'zh' ? '门诊预约需要多少费用？' :
-                            language === 'ta' ? 'சந்திப்பிற்கு எவ்வளவு கட்டணம்?' :
-                            'How much does the appointment cost?', 
-                      tag: 'cost' 
-                    },
-                    { 
-                      text: language === 'ms' ? 'Apakah yang perlu saya sediakan?' :
-                            language === 'zh' ? '我需要做什么准备？' :
-                            language === 'ta' ? 'நான் என்ன தயார் செய்ய வேண்டும்?' :
-                            'What should I prepare?', 
-                      tag: 'prep' 
-                    },
-                    { 
-                      text: language === 'ms' ? 'Adakah terdapat subsidi CHAS?' :
-                            language === 'zh' ? '有 CHAS 津贴吗？' :
-                            language === 'ta' ? 'CHAS மானியங்கள் உள்ளனவா?' :
-                            'Are there CHAS subsidies?', 
-                      tag: 'subsidies' 
-                    },
-                    { 
-                      text: language === 'ms' ? 'Bagaimana saya menukar slot saya?' :
-                            language === 'zh' ? '如何更改我的预约时间？' :
-                            language === 'ta' ? 'எனது நேரத்தை எவ்வாறு மாற்றுவது?' :
-                            'How do I reschedule my slot?', 
-                      tag: 'reschedule' 
-                    },
-                  ]
-              ).map((q, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleChatSend(q.text, q.tag)}
-                  className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-200 transition shrink-0 active:scale-95 cursor-pointer"
-                >
-                  {q.text}
-                </button>
-              ))}
-            </div>
-
-            {/* Input Tray */}
-            <div className="p-3 border-t border-slate-200 bg-white flex gap-2 shrink-0">
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleChatSend(chatInput)}
-                placeholder={t('chatbot_placeholder')}
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#00a859] focus:bg-white transition"
-              />
-              <button
-                onClick={() => handleChatSend(chatInput)}
-                disabled={!chatInput.trim()}
-                className="p-2 bg-[#00a859] hover:bg-emerald-700 disabled:opacity-40 disabled:hover:bg-[#00a859] text-white rounded-xl transition flex items-center justify-center shrink-0 cursor-pointer"
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Advisory Info */}
-            <div className="px-3 py-2.5 bg-slate-50 text-[9px] text-slate-500 border-t border-slate-200 flex items-center gap-1.5 leading-snug shrink-0">
-              <AlertCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
-              <span className="text-left font-medium">{t('chatbot_footer')}</span>
-            </div>
-          </div>
-        )}
 
         {/* SIMULATED PDF / CLINICAL BROCHURE DOCUMENT VIEWER MODAL */}
         {selectedResource && (
@@ -6533,6 +6698,15 @@ export default function PhoneSimulator({
           </AnimatePresence>
         ) : null}
 
+        {/* Floating Contextual Action Button for FH Referred patients */}
+        {isFHReferred && activeScreen !== ScreenId.Booking && (
+          <button
+            onClick={() => onChangeScreen(ScreenId.Booking)}
+            className="absolute bottom-4 right-4 z-40 bg-[#00a859] hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-full flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 text-xs font-bold font-sans animate-subtle-pulse"
+            title={appointment.status === 'booked' ? 'View Booking' : 'Book Now'}
+          >
+            <Calendar className="w-4 h-4 text-white" />
+            <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
         {/* Floating AI Assistant Chat Button inside Phone Simulator */}
         {!chatOpen && isFHReferred && (
           <button

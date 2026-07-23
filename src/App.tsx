@@ -25,7 +25,6 @@ import {
 import PhoneSimulator from './components/PhoneSimulator';
 import AnnotationsPanel from './components/AnnotationsPanel';
 import DatabaseViewer from './components/DatabaseViewer';
-import Chatbot from './components/Chatbot';
 import { HeartPulse, Compass, Settings, Layers, Users, BookOpen, Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, Calendar, Check, ArrowRight, CircleHelp as HelpCircle, Database, MessageSquare, X } from 'lucide-react';
 
 export default function App() {
@@ -756,79 +755,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Box 2: HealthBuddy Interactive Chatbot Hub Controller */}
-          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl text-left">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
-                  <span className="p-1.5 bg-emerald-950/40 text-emerald-400 rounded-lg border border-emerald-900/50">
-                    <Sparkles className="w-4 h-4" />
-                  </span>
-                  {isFHReferred ? "HealthBuddy AI Assistant" : "HealthBuddy General AI"}
-                </h3>
-                <p className="text-[10px] text-slate-400 font-medium">GovTech Singapore Patient Companion</p>
-              </div>
-              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-900 select-none">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE SIMULATOR
-              </span>
-            </div>
-
-            <p className="text-slate-300 text-xs leading-relaxed">
-              {isFHReferred 
-                ? "This advanced AI assistant is now fully integrated into the live mobile device simulator! It is programmed with official Ministry of Health Singapore guidelines."
-                : "This general clinical AI assistant is now fully integrated for patients on standard primary care pathways! It handles general booking, preparation, and clinical inquiries."
-              }
-            </p>
-
-            <div className="space-y-2.5 text-[11px] text-slate-300">
-              {isFHReferred ? (
-                <>
-                  <div className="flex items-start gap-2.5">
-                    <div className="mt-0.5 text-emerald-500 font-bold">✓</div>
-                    <div>
-                      <strong className="text-slate-200 font-semibold">CHAS Subsidy Calculations:</strong> Answers patient cost concerns dynamically using Lisa Ho's CHAS profile.
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5">
-                    <div className="mt-0.5 text-emerald-500 font-bold">✓</div>
-                    <div>
-                      <strong className="text-slate-200 font-semibold">LIA Moratorium Guardrails:</strong> Reassures patient privacy by clarifying genetic testing insurance policies.
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-start gap-2.5">
-                    <div className="mt-0.5 text-emerald-500 font-bold">✓</div>
-                    <div>
-                      <strong className="text-slate-200 font-semibold">Polyclinic Fee Information:</strong> Responds to standard treatment fees and CHAS subsidies.
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5">
-                    <div className="mt-0.5 text-emerald-500 font-bold">✓</div>
-                    <div>
-                      <strong className="text-slate-200 font-semibold">Pre-Appointment Guidelines:</strong> Directs patients on clinical preparation and Singpass usage.
-                    </div>
-                  </div>
-                </>
-              )}
-              <div className="flex items-start gap-2.5">
-                <div className="mt-0.5 text-[#00a859] font-bold">✓</div>
-                <div>
-                  <strong className="text-slate-200 font-semibold">Direct Navigation:</strong> Prompts the user to book or modify appointments within the app itself.
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setIsFloatingChatOpen(true)}
-              className="w-full mt-2 py-3 px-4 bg-[#00a859] hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-emerald-900/10 cursor-pointer active:scale-98 transition-all"
-            >
-              <MessageSquare className="w-4 h-4 text-white" />
-              Open Floating AI Assistant
-            </button>
-          </div>
-
         </div>
 
         {/* MIDDLE COLUMN (Lg: 4/12) - High Fidelity Mobile Device Simulator */}
@@ -854,8 +780,6 @@ export default function App() {
             patientRecord={activePatient}
             percentComplete={percentComplete}
             onUpdateEducationProgress={handleUpdateEducationProgress}
-            isChatOpen={isFloatingChatOpen}
-            onToggleChat={setIsFloatingChatOpen}
           />
 
         </div>
