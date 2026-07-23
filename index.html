@@ -1,9 +1,42 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" id="html-root">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>HealthHub FH Assistant – GovTech Singapore</title>
+    <meta name="description" content="Singapore HealthHub Familial Hypercholesterolaemia (FH) genetic testing referral app. Book counselling, learn about FH subsidies, and manage appointments." />
+    <meta name="theme-color" content="#00a859" />
+
+    <!-- Canonical & hreflang SEO -->
+    <link rel="alternate" hreflang="en"    href="/en/" />
+    <link rel="alternate" hreflang="ms"    href="/ms/" />
+    <link rel="alternate" hreflang="zh-Hans" href="/zh-CN/" />
+    <link rel="alternate" hreflang="ta"    href="/ta/" />
+    <link rel="alternate" hreflang="x-default" href="/en/" />
+
+    <!-- Google Fonts preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Inline script to set html lang before React hydrates (avoids flash) -->
+    <script>
+      (function () {
+        var map = { en: 'en', ms: 'ms', 'zh-CN': 'zh-Hans', ta: 'ta' };
+        var stored = localStorage.getItem('fh-app-language');
+        var urlLocale = location.pathname.split('/').filter(Boolean)[0];
+        var urlLang = { en:'en', ms:'ms', 'zh-CN':'zh', ta:'ta' }[urlLocale];
+        var lang = urlLang || stored || null;
+        if (!lang) {
+          var bl = (navigator.language || '').toLowerCase();
+          if (bl.startsWith('ms') || bl.startsWith('id')) lang = 'ms';
+          else if (bl.startsWith('zh')) lang = 'zh';
+          else if (bl.startsWith('ta')) lang = 'ta';
+          else lang = 'en';
+        }
+        var htmlLang = { en:'en', ms:'ms', zh:'zh-Hans', ta:'ta' }[lang] || 'en';
+        document.getElementById('html-root').lang = htmlLang;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
