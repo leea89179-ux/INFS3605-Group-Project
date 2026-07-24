@@ -4063,9 +4063,7 @@ export default function PhoneSimulator({
         {[
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
           ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : []),
-          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
-          { icon: <ClipboardList className="w-5 h-5" />, label: 'Journey', screen: ScreenId.ProgressTimeline },
-          { icon: <User className="w-5 h-5" />, label: 'Profile', screen: ScreenId.Profile }
+          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking }
         ].map((tab) => (
           <button
             key={tab.label}
