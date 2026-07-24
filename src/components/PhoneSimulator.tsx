@@ -5724,6 +5724,21 @@ export default function PhoneSimulator({
                   </p>
                 </div>
 
+                {/* Account & Profile Navigation */}
+                <button
+                  onClick={() => onChangeScreen(ScreenId.Profile)}
+                  className="w-full bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex items-center gap-3 hover:bg-slate-50/60 hover:border-slate-300 active:scale-[0.99] transition cursor-pointer text-left"
+                >
+                  <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100 text-[#00a859] shrink-0">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-xs text-slate-800">Account &amp; Profile</h4>
+                    <p className="text-[10px] text-slate-500 mt-0.5">View your personal details and profile</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                </button>
+
                 {/* Master Toggle */}
                 <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex justify-between items-center">
                   <div>
