@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
 import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
@@ -1278,16 +1278,6 @@ export default function PhoneSimulator({
     return mapped;
   }, [onboardingTopics]);
 
-  const selectedGuideTopics = useMemo(() => {
-    if (!onboardingCompleted) return [];
-    return allGuideTopics.filter(topic => selectedTopicsList.includes(topic.id));
-  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
-
-  const unselectedGuideTopics = useMemo(() => {
-    if (!onboardingCompleted) return allGuideTopics;
-    return allGuideTopics.filter(topic => !selectedTopicsList.includes(topic.id));
-  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
-
   // Auto-expand recommended groups and sections when onboarding completes
   useEffect(() => {
     if (onboardingCompleted) {
@@ -1309,59 +1299,6 @@ export default function PhoneSimulator({
       setEduExpanded(initialEduExpanded);
     }
   }, [onboardingCompleted, onboardingFamiliarity, onboardingTopics.length, onboardingConcerns.length]);
-
-  // 3. Personalized Onboarding - Sort FAQs based on Concerns
-  const sortedFaqs = [...getLocalizedFaqs(language)].sort((a, b) => {
-    if (!onboardingCompleted) return 0;
-    
-    // Determine if a category is prioritized
-    const isAPrioritized = 
-      (a.category === 'cost' && onboardingConcerns.includes('concern-cost')) ||
-      (a.category === 'insurance' && onboardingConcerns.includes('concern-insurance')) ||
-      (a.category === 'testing' && onboardingConcerns.includes('concern-test')) ||
-      (a.category === 'medication' && onboardingConcerns.includes('concern-meds')) ||
-      (a.category === 'family' && onboardingConcerns.includes('concern-family'));
-      
-    const isBPrioritized = 
-      (b.category === 'cost' && onboardingConcerns.includes('concern-cost')) ||
-      (b.category === 'insurance' && onboardingConcerns.includes('concern-insurance')) ||
-      (b.category === 'testing' && onboardingConcerns.includes('concern-test')) ||
-      (b.category === 'medication' && onboardingConcerns.includes('concern-meds')) ||
-      (b.category === 'family' && onboardingConcerns.includes('concern-family'));
-
-    if (isAPrioritized && !isBPrioritized) return -1;
-    if (!isAPrioritized && isBPrioritized) return 1;
-    return 0;
-  });
-
-  // 4. Personalized Onboarding - Sort Helpful Resources based on Concerns
-  const sortedHelpfulResources = [...getLocalizedHelpfulResources(helpfulResources, language)].sort((a, b) => {
-    if (!onboardingCompleted) return 0;
-    
-    // Compute score for resource a
-    let scoreA = 0;
-    if (onboardingConcerns.includes('concern-insurance') && (a.id === 'res-9')) scoreA += 5; // Moratorium clinical guide
-    if (onboardingConcerns.includes('concern-family') && (a.id === 'res-7')) scoreA += 5; // Patient Story: A mother's fight
-    if (onboardingConcerns.includes('concern-cost') && (a.id === 'res-1' || a.id === 'res-4' || a.id === 'res-8')) scoreA += 5; // Brochures/Subsidies
-    if (onboardingConcerns.includes('concern-test') && (a.id === 'res-2')) scoreA += 5; // Clinical Guide
-
-    // Compute score for resource b
-    let scoreB = 0;
-    if (onboardingConcerns.includes('concern-insurance') && (b.id === 'res-9')) scoreB += 5;
-    if (onboardingConcerns.includes('concern-family') && (b.id === 'res-7')) scoreB += 5;
-    if (onboardingConcerns.includes('concern-cost') && (b.id === 'res-1' || b.id === 'res-4' || b.id === 'res-8')) scoreB += 5;
-    if (onboardingConcerns.includes('concern-test') && (b.id === 'res-2')) scoreB += 5;
-
-    return scoreB - scoreA;
-  });
-
-  useEffect(() => {
-    if (activeScreen !== ScreenId.Education) {
-      setViewingChecklist(false);
-    }
-
-    return mapped;
-  }, [onboardingTopics]);
 
   const selectedGuideTopics = useMemo(() => {
     if (!onboardingCompleted) return [];
@@ -4572,68 +4509,6 @@ export default function PhoneSimulator({
                           </div>
                         );
                       })()}
-                    </div>
-                  )}
-
-                        // Personalized Layout
-                        return (
-                          <div className="bg-emerald-50/40 border border-emerald-100/60 rounded-xl p-3.5 space-y-2">
-                            <div className="flex justify-between text-[11px] text-slate-700 font-bold">
-                              <span>{t('edu_checklist_progress_title')}</span>
-                              <span className="text-emerald-700">
-                                {t('edu_checklist_progress_detail')
-                                  .replace('{completed}', String(completedCount))
-                                  .replace('{total}', String(totalCount))
-                                  .replace('{percent}', String(percent))}
-                              </span>
-                            </div>
-                            <div className="w-full h-2 bg-slate-200/75 rounded-full overflow-hidden">
-                              <div className="bg-[#00a859] h-full transition-all duration-300" style={{ width: `${percent}%` }} />
-                            </div>
-                            {percent === 100 ? (
-                              <p className="text-[10px] text-emerald-800 font-medium flex items-center gap-1">
-                                <span className="text-emerald-600 font-bold">✓</span> {t('edu_checklist_progress_success')}
-                              </p>
-                            ) : (
-                              <p className="text-[10px] text-slate-500 leading-normal">
-                                {t('edu_checklist_progress_desc')}
-                              </p>
-                            )}
-
-                             {/* Section 2: Other Topics You Can Explore */}
-                             {unselectedGuideTopics.length > 0 && (
-                               <div className="pt-2 border-t border-slate-100/60">
-                                 <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 transition-all duration-200 text-left">
-                                   <div className="flex items-center justify-between gap-2">
-                                     <div className="space-y-0.5">
-                                       <h4 className="text-[11.5px] font-extrabold text-slate-800 font-display tracking-tight flex items-center gap-1.5">
-                                         <BookOpen className="w-3.5 h-3.5 text-[#00a859] inline mr-1" />{t('step2_opt_other_topics') || 'Other Topics You Can Explore'}
-                                       </h4>
-                                       <p className="text-[9.5px] text-slate-500 leading-relaxed font-medium">
-                                         {t('step2_opt_other_topics_desc') || 'More FH topics are available whenever you are ready.'}
-                                       </p>
-                                     </div>
-                                     <button
-                                       onClick={() => setShowOtherTopics(!showOtherTopics)}
-                                       aria-expanded={showOtherTopics}
-                                       className="flex items-center gap-1 text-[10px] font-extrabold text-[#00a859] hover:text-[#008f4c] transition cursor-pointer shrink-0 py-1 px-2 border border-emerald-100/50 hover:bg-emerald-50/30 rounded-lg"
-                                     >
-                                       <span>{showOtherTopics ? (t('step2_opt_minimise') || 'Minimise') : (t('step2_opt_view_other_topics') || 'View Other Topics')}</span>
-                                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showOtherTopics ? 'rotate-180' : ''}`} />
-                                     </button>
-                                   </div>
-
-                                   {showOtherTopics && (
-                                     <div className="space-y-3 pt-3 mt-3 border-t border-slate-100 animate-fade-in">
-                                       {unselectedGuideTopics.map(topic => renderGuideCard(topic, false))}
-                                     </div>
-                                   )}
-                                 </div>
-                               </div>
-                             )}
-                          </div>
-                        );
-                      })()}
 
                       {/* Pre-counselling Preparation Checklist Card */}
                       <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
@@ -4908,7 +4783,7 @@ export default function PhoneSimulator({
                                     <span>{t('edu_view_resource')}</span>
                                     <ExternalLink className="w-2.5 h-2.5 transition" />
                                   </div>
-                                </button>
+                                </div>
 
                                 {/* Slide Prev / Next Buttons */}
                                 <div className="flex items-center justify-between gap-2 pt-0.5">
@@ -6185,6 +6060,11 @@ export default function PhoneSimulator({
                           </div>
                           <div className="bg-[#e2f4c5] p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-[#d3eab0] relative shadow-3xs max-w-[280px]">
                             <h4 className="text-[11px] font-extrabold text-emerald-900 mb-1">MOH Appointment Alert</h4>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {selectedChannels.includes('push') && (
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
@@ -6291,7 +6171,7 @@ export default function PhoneSimulator({
                                 </>;
                               }
                             })()}
-                          </div>
+                          </p>
                         </div>
                       </div>
                     )}
@@ -7009,6 +6889,9 @@ export default function PhoneSimulator({
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
+          </button>
+        )}
+
         {/* Floating AI Assistant Chat Button inside Phone Simulator */}
         {!chatOpen && isFHReferred && (
           <button
@@ -7016,8 +6899,7 @@ export default function PhoneSimulator({
             className="absolute bottom-4 right-4 z-40 w-12 h-12 bg-[#00a859] hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 group"
             title={t('chatbot_title')}
           >
-            <Calendar className="w-4 h-4 text-white" />
-            <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
+            <MessageCircle className="w-5 h-5 text-white" />
           </button>
         )}
 
