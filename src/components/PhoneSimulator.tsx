@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail, Brain } from 'lucide-react';
-import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail, Brain, FlaskConical, Apple, Ban, Activity, Building2, TriangleAlert as AlertTriangle } from 'lucide-react';
+import { educationalSections, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
 import { getPersonalizedStory } from '../data/personalizedStories';
@@ -1093,6 +1093,7 @@ export default function PhoneSimulator({
   const [showOtherTopics, setShowOtherTopics] = useState<boolean>(false);
   const [expandedOtherTopicId, setExpandedOtherTopicId] = useState<string | null>(null);
   const [showCascadeTooltip, setShowCascadeTooltip] = useState<boolean>(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const handleCompleteOnboarding = (completed: boolean = true, status?: 'completed' | 'skipped') => {
     setOnboardingCompleted(completed);
@@ -4728,12 +4729,6 @@ export default function PhoneSimulator({
                               typeTagClass = "bg-sky-50 text-sky-700 border-sky-100";
                               viewLinkColor = "text-sky-600 group-hover:text-sky-700";
                               hoverBorderClass = "hover:border-sky-200 hover:bg-sky-50/10";
-                            } else if (group.id === 'clinical') {
-                              bgClass = "bg-emerald-50 group-hover:bg-emerald-100/80";
-                              itemIconColor = "text-emerald-600";
-                              typeTagClass = "bg-emerald-50 text-emerald-700";
-                              viewLinkColor = "text-emerald-600 group-hover:text-emerald-700";
-                              hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
                             }
 
                             return (
@@ -4754,64 +4749,14 @@ export default function PhoneSimulator({
                                       <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#00a859] transition leading-tight">{res.title}</h5>
                                       <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 border ${typeTagClass}`}>{res.type}</span>
                                     </div>
-                                    <span>{group.title}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className={`text-[8.5px] font-mono px-1.5 py-0.2 rounded-full font-extrabold ${group.badgeBg}`}>
-                                      {group.items.length} {group.items.length === 1 ? 'Item' : 'Items'}
-                                    </span>
                                   </div>
                                 </div>
 
-                                {/* Slide Dots Indicator */}
-                                <div className="flex items-center justify-between px-1 text-[10px]">
-                                  <div className="flex items-center gap-1.5">
-                                    {group.items.map((_, idx) => (
-                                      <button
-                                        key={idx}
-                                        onClick={() => group.setSlideIdx(idx)}
-                                        title={`Go to Slide ${idx + 1}`}
-                                        className={`transition-all rounded-full cursor-pointer ${
-                                          idx === currentIdx
-                                            ? 'w-5 h-1.5 bg-[#00a859]'
-                                            : 'w-1.5 h-1.5 bg-slate-200 hover:bg-slate-300'
-                                        }`}
-                                      />
-                                    ))}
-                                  </div>
+                                <div className="flex items-center justify-end px-1 text-[10px]">
                                   <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor}`}>
                                     <span>{t('edu_view_resource')}</span>
                                     <ExternalLink className="w-2.5 h-2.5 transition" />
                                   </div>
-                                </div>
-
-                                {/* Slide Prev / Next Buttons */}
-                                <div className="flex items-center justify-between gap-2 pt-0.5">
-                                  <button
-                                    onClick={() => group.setSlideIdx(prev => Math.max(0, prev - 1))}
-                                    disabled={currentIdx === 0}
-                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
-                                      currentIdx === 0
-                                        ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
-                                        : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer shadow-3xs'
-                                    }`}
-                                  >
-                                    <ChevronLeft className="w-3 h-3" />
-                                    <span>Prev Slide</span>
-                                  </button>
-
-                                  <button
-                                    onClick={() => group.setSlideIdx(prev => Math.min(group.items.length - 1, prev + 1))}
-                                    disabled={currentIdx === group.items.length - 1}
-                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
-                                      currentIdx === group.items.length - 1
-                                        ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
-                                        : 'text-white bg-[#00a859] hover:bg-emerald-700 cursor-pointer shadow-3xs'
-                                    }`}
-                                  >
-                                    <span>Next Slide</span>
-                                    <ChevronRight className="w-3 h-3" />
-                                  </button>
                                 </div>
                               </button>
                             );
