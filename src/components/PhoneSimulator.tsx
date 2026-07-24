@@ -6025,50 +6025,6 @@ export default function PhoneSimulator({
                       </div>
                     )}
 
-                    {selectedChannels.includes('push') && (
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-                          {t('settings_lockscreen_preview_title')}
-                        </label>
-                        <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
-                          <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
-                            <div className="w-4 h-4 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
-                            <span>{t('settings_lockscreen_header')}</span>
-                          </div>
-                          <div className="space-y-1">
-                            <h4 className="text-xs font-bold text-slate-100">
-                              {isFHReferred ? t('lock_counselling_reminder') : (
-                                language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
-                                language === 'zh' ? '普通门诊就诊提醒' :
-                                language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
-                                'Outpatient Appointment Reminder'
-                              )}
-                            </h4>
-                            <p className="text-[10.5px] text-slate-300 leading-snug">
-                              {(() => {
-                                const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
-                                const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
-                                if (isFHReferred) {
-                                  return t('lockscreen_push_msg')
-                                    .replace('{date}', dateStr)
-                                    .replace('{time}', timeStr);
-                                }
-                                if (language === 'ms') {
-                                  return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
-                                } else if (language === 'zh') {
-                                  return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
-                                } else if (language === 'ta') {
-                                  return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
-                                } else {
-                                  return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
-                                }
-                              })()}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     {selectedChannels.includes('email') && (
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
