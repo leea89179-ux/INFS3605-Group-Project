@@ -1179,7 +1179,7 @@ export default function PhoneSimulator({
   };
 
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    basics: true,
+    basics: false,
     journey: false,
     costs: false,
   });
@@ -1359,13 +1359,155 @@ export default function PhoneSimulator({
     if (activeScreen !== ScreenId.Education) {
       setViewingChecklist(false);
     }
-  }, [activeScreen]);
 
+    return mapped;
+  }, [onboardingTopics]);
+
+  const selectedGuideTopics = useMemo(() => {
+    if (!onboardingCompleted) return [];
+    return allGuideTopics.filter(topic => selectedTopicsList.includes(topic.id));
+  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
+
+  const unselectedGuideTopics = useMemo(() => {
+    if (!onboardingCompleted) return allGuideTopics;
+    return allGuideTopics.filter(topic => !selectedTopicsList.includes(topic.id));
+  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
+
+  // Ensure all Education Hub tabs and groups remain closed by default when viewing
   useEffect(() => {
-    if (viewingChecklist) {
-      setEduSubTab('checklist');
+    // Keep all topic cards closed by default unless user explicitly clicks them
+    setEduExpanded({});
+    setExpandedGroups({
+      basics: false,
+      journey: false,
+      costs: false,
+    });
+  }, [onboardingCompleted]);
+
+  // 3. Personalized Onboarding - FAQ & Resource Scoring based on Questionnaire Answers
+  const getFaqMatchScore = (faq: { category: string; question: string; answer: string }) => {
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') return 0;
+    let score = 0;
+    
+    // Check concerns
+    if (onboardingConcerns.includes('concern-cost') && faq.category === 'cost') score += 10;
+    if (onboardingConcerns.includes('concern-insurance') && faq.category === 'insurance') score += 10;
+    if (onboardingConcerns.includes('concern-test') && faq.category === 'testing') score += 10;
+    if (onboardingConcerns.includes('concern-meds') && faq.category === 'medication') score += 10;
+    if (onboardingConcerns.includes('concern-family') && faq.category === 'family') score += 10;
+    if (onboardingConcerns.includes('concern-diagnosis') && faq.category === 'testing') score += 8;
+
+    // Check topics
+    if ((onboardingTopics.includes('topic-costs') || onboardingTopics.includes('costs-subsidies')) && faq.category === 'cost') score += 6;
+    if ((onboardingTopics.includes('topic-insurance') || onboardingTopics.includes('insurance')) && faq.category === 'insurance') score += 6;
+    if ((onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next') || onboardingTopics.includes('genetic-testing') || onboardingTopics.includes('testing-process')) && faq.category === 'testing') score += 6;
+    if ((onboardingTopics.includes('topic-treatment') || onboardingTopics.includes('treatment-medication')) && faq.category === 'medication') score += 6;
+    if ((onboardingTopics.includes('topic-family') || onboardingTopics.includes('cascade-screening')) && faq.category === 'family') score += 6;
+    if ((onboardingTopics.includes('topic-basics') || onboardingTopics.includes('topic-risk')) && faq.category === 'testing') score += 4;
+
+    return score;
+  };
+
+  const getFaqMatchReason = (faq: { category: string }) => {
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') return null;
+    const score = getFaqMatchScore(faq as any);
+    if (score <= 0) return null;
+
+    if (faq.category === 'cost') return language === 'ms' ? 'Kos & Subsidi' : language === 'zh' ? '费用与津贴' : language === 'ta' ? 'செலவு' : 'Costs & Subsidies';
+    if (faq.category === 'insurance') return language === 'ms' ? 'Insurans' : language === 'zh' ? '保险权益' : language === 'ta' ? 'காப்பீடு' : 'Insurance';
+    if (faq.category === 'testing') return language === 'ms' ? 'Ujian Genetic' : language === 'zh' ? '基因检测' : language === 'ta' ? 'பரிசோதனை' : 'Testing';
+    if (faq.category === 'medication') return language === 'ms' ? 'Ubat-ubatan' : language === 'zh' ? '药物治疗' : language === 'ta' ? 'மருந்துகள்' : 'Medication';
+    if (faq.category === 'family') return language === 'ms' ? 'Pemeriksaan Keluarga' : language === 'zh' ? '家属筛查' : language === 'ta' ? 'குடும்ப பரிசோதனை' : 'Family Screening';
+
+    return null;
+  };
+
+  const sortedFaqs = [...getLocalizedFaqs(language)].sort((a, b) => {
+    return getFaqMatchScore(b) - getFaqMatchScore(a);
+  });
+
+  const getResourceMatchScore = (res: HelpfulResource) => {
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') return 0;
+    let score = 0;
+
+    // res-9: Consumer Guide: Moratorium on Genetic Testing and Insurance
+    if (res.id === 'res-9') {
+      if (onboardingConcerns.includes('concern-insurance')) score += 10;
+      if (onboardingTopics.includes('topic-insurance') || onboardingTopics.includes('insurance')) score += 6;
     }
-  }, [viewingChecklist]);
+
+    // res-7: Patient Story: A Mother's Fight for Her Children (Video)
+    if (res.id === 'res-7') {
+      if (onboardingConcerns.includes('concern-family')) score += 10;
+      if (onboardingTopics.includes('topic-family') || onboardingTopics.includes('cascade-screening')) score += 6;
+      if (onboardingConcerns.includes('concern-[#00a859]') || onboardingTopics.includes('topic-risk')) score += 3;
+    }
+
+    // res-6: Patient Story: Living with FH (Young Adult Video)
+    if (res.id === 'res-6') {
+      if (onboardingConcerns.includes('concern-diagnosis') || onboardingConcerns.includes('concern-curious')) score += 10;
+      if (onboardingTopics.includes('topic-basics') || onboardingTopics.includes('topic-testing')) score += 6;
+    }
+
+    // res-1: MOH Familial Hypercholesterolaemia Patient Information Leaflet
+    if (res.id === 'res-1') {
+      if (onboardingConcerns.includes('concern-cost')) score += 8;
+      if (onboardingTopics.includes('topic-basics') || onboardingTopics.includes('topic-costs')) score += 6;
+      if (onboardingConcerns.includes('concern-curious') || onboardingConcerns.includes('concern-diagnosis')) score += 6;
+    }
+
+    // res-4: Primary Care FH English Brochure
+    if (res.id === 'res-4') {
+      if (onboardingConcerns.includes('concern-meds') || onboardingConcerns.includes('concern-cost')) score += 10;
+      if (onboardingTopics.includes('topic-treatment') || onboardingTopics.includes('topic-costs') || onboardingTopics.includes('treatment-medication')) score += 6;
+    }
+
+    // res-8: Genetic Testing for FH: Patient Decision Aid
+    if (res.id === 'res-8') {
+      if (onboardingConcerns.includes('concern-test') || onboardingConcerns.includes('concern-cost')) score += 10;
+      if (onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next') || onboardingTopics.includes('genetic-testing')) score += 6;
+    }
+
+    // res-5: Singapore Heart Foundation FH Guide
+    if (res.id === 'res-5') {
+      if (onboardingConcerns.includes('concern-[#00a859]') || onboardingConcerns.includes('concern-curious')) score += 10;
+      if (onboardingTopics.includes('topic-risk') || onboardingTopics.includes('topic-lifestyle')) score += 6;
+    }
+
+    // res-2: Clinical Practice Guidelines for Familial Hypercholesterolaemia
+    if (res.id === 'res-2') {
+      if (onboardingConcerns.includes('concern-test')) score += 8;
+      if (onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next')) score += 6;
+      if (onboardingFamiliarity === 'research' || onboardingFamiliarity === 'advanced') score += 8;
+    }
+
+    return score;
+  };
+
+  const getResourceMatchReason = (res: HelpfulResource) => {
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') return null;
+    const score = getResourceMatchScore(res);
+    if (score <= 0) return null;
+
+    if (res.id === 'res-9') return language === 'ms' ? 'Insurans' : language === 'zh' ? '保险权益' : language === 'ta' ? 'காப்பீடு' : 'Insurance Protections';
+    if (res.id === 'res-7') return language === 'ms' ? 'Keluarga' : language === 'zh' ? '家庭故事' : language === 'ta' ? 'குடும்பம்' : 'Family & Children';
+    if (res.id === 'res-6') return language === 'ms' ? 'Pengalaman' : language === 'zh' ? '确诊经历' : language === 'ta' ? 'அனுபவம்' : 'Living with Diagnosis';
+    if (res.id === 'res-1' || res.id === 'res-4' || res.id === 'res-8') {
+      if (onboardingConcerns.includes('concern-cost') || onboardingTopics.includes('topic-costs')) {
+        return language === 'ms' ? 'Kos & Subsidi' : language === 'zh' ? '费用津贴' : language === 'ta' ? 'செலவு' : 'Costs & Subsidies';
+      }
+    }
+    if (res.id === 'res-8') return language === 'ms' ? 'Panduan Ujian' : language === 'zh' ? '检测指南' : language === 'ta' ? 'பரிசோதனை' : 'Testing Decision Aid';
+    if (res.id === 'res-4') return language === 'ms' ? 'Ubat-ubatan' : language === 'zh' ? '药物治疗' : language === 'ta' ? 'மருந்துகள்' : 'Treatment & Meds';
+    if (res.id === 'res-5') return language === 'ms' ? 'Kesihatan Jantung' : language === 'zh' ? '心脏健康' : language === 'ta' ? 'இதய ஆரோக்கியம்' : 'Heart Health';
+    if (res.id === 'res-2') return language === 'ms' ? 'Panduan Klinikal' : language === 'zh' ? '临床指南' : language === 'ta' ? 'மருத்துவ வழிகாட்டி' : 'Clinical Practice';
+
+    return language === 'ms' ? 'Padanan Relevan' : language === 'zh' ? '契合需求' : language === 'ta' ? 'பொருத்தமானது' : 'Personalized Match';
+  };
+
+  const sortedHelpfulResources = [...getLocalizedHelpfulResources(helpfulResources, language)].sort((a, b) => {
+    return getResourceMatchScore(b) - getResourceMatchScore(a);
+  });
 
   useEffect(() => {
     if (downloadToast) {
@@ -1953,21 +2095,71 @@ export default function PhoneSimulator({
   const getIcon = (name: string, customColor?: string) => {
     const color = customColor || "text-[#00a859]";
     switch (name) {
-      case 'HeartPulse': return <HeartPulse className={`w-5 h-5 ${color}`} />;
-      case 'Dna': return <Dna className={`w-5 h-5 ${color}`} />;
-      case 'ClipboardList': return <ClipboardList className={`w-5 h-5 ${color}`} />;
-      case 'Coins': return <Coins className={`w-5 h-5 ${color}`} />;
+      case 'HeartPulse':
+      case '❤️':
+      case 'heart': return <HeartPulse className={`w-5 h-5 ${color}`} />;
+      case 'Dna':
+      case '🧬': return <Dna className={`w-5 h-5 ${color}`} />;
+      case 'ClipboardList':
+      case '📋': return <ClipboardList className={`w-5 h-5 ${color}`} />;
+      case 'Coins':
+      case '💰':
+      case '💵': return <Coins className={`w-5 h-5 ${color}`} />;
       case 'ShieldAlert': return <ShieldAlert className={`w-5 h-5 ${color}`} />;
-      case 'Pills': return <Pill className={`w-5 h-5 ${color}`} />;
-      case 'Pill': return <Pill className={`w-5 h-5 ${color}`} />;
-      case 'Heart': return <HeartPulse className={`w-5 h-5 ${color}`} />;
-      case 'HelpCircle': return <Info className={`w-5 h-5 ${color}`} />;
+      case 'Pills':
+      case 'Pill':
+      case '💊': return <Pill className={`w-5 h-5 ${color}`} />;
+      case 'HelpCircle':
+      case '🤔':
+      case '😟':
+      case '😊': return <Info className={`w-5 h-5 ${color}`} />;
       case 'FileText': return <FileText className={`w-5 h-5 ${color}`} />;
       case 'BookOpen': return <BookOpen className={`w-5 h-5 ${color}`} />;
-      case 'Users': return <Users className={`w-5 h-5 ${color}`} />;
-      case 'Shield': return <Shield className={`w-5 h-5 ${color}`} />;
-      case 'ShieldCheck': return <ShieldCheck className={`w-5 h-5 ${color}`} />;
+      case 'Users':
+      case '👥':
+      case '👨‍👩‍👧': return <Users className={`w-5 h-5 ${color}`} />;
+      case 'Shield':
+      case 'ShieldCheck':
+      case '🛡️':
+      case '🛡': return <ShieldCheck className={`w-5 h-5 ${color}`} />;
       case 'Play': return <Play className={`w-5 h-5 ${color} fill-current ml-0.5`} />;
+      case 'FlaskConical':
+      case '🧪':
+      case '💉': return <FlaskConical className={`w-5 h-5 ${color}`} />;
+      case 'Apple':
+      case '🥗':
+      case '🍎': return <Apple className={`w-5 h-5 ${color}`} />;
+      case 'Ban':
+      case '🚫': return <Ban className={`w-5 h-5 ${color}`} />;
+      case 'Activity':
+      case '🏃‍♂️':
+      case '🏃':
+      case '🩸':
+      case 'TrendingUp':
+      case '📈':
+      case 'TrendingDown':
+      case '📉': return <Activity className={`w-5 h-5 ${color}`} />;
+      case 'RefreshCw':
+      case '🔄': return <RefreshCw className={`w-5 h-5 ${color}`} />;
+      case 'Search':
+      case '🔍': return <Search className={`w-5 h-5 ${color}`} />;
+      case 'MessageSquare':
+      case '🗣️':
+      case '🗣': return <MessageSquare className={`w-5 h-5 ${color}`} />;
+      case 'Calendar':
+      case '📅': return <Calendar className={`w-5 h-5 ${color}`} />;
+      case 'Building2':
+      case '🇸🇬':
+      case '🏦': return <Building2 className={`w-5 h-5 ${color}`} />;
+      case 'Lock':
+      case '🔒': return <Shield className={`w-5 h-5 ${color}`} />;
+      case 'CheckCircle':
+      case '✅': return <CheckCircle className={`w-5 h-5 ${color}`} />;
+      case 'Clock':
+      case '⏳': return <Clock className={`w-5 h-5 ${color}`} />;
+      case 'Sparkles':
+      case '✨':
+      case '⭐': return <Sparkles className={`w-5 h-5 ${color}`} />;
       default: return <Info className={`w-5 h-5 ${color}`} />;
     }
   };
@@ -2914,7 +3106,7 @@ export default function PhoneSimulator({
                 <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-none">
                   {/* Card 1: Diabetes Hub (Beautiful custom stylized graphic matching screenshot style) */}
                   <div className="bg-amber-100/90 border border-amber-200 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
-                    <div className="absolute right-2 bottom-2 text-5xl opacity-40 select-none">🩺</div>
+                    <HeartPulse className="absolute -right-1 -bottom-1 w-14 h-14 text-amber-500/20 stroke-[1.5]" />
                     <div>
                       <span className="bg-amber-500/20 text-amber-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">
                         {language === 'ms' ? 'Hab Aktif' :
@@ -2939,7 +3131,7 @@ export default function PhoneSimulator({
 
                   {/* Card 2: Mental Well-being */}
                   <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
-                    <div className="absolute right-2 bottom-2 text-5xl opacity-40 select-none">🧠</div>
+                    <Brain className="absolute -right-1 -bottom-1 w-14 h-14 text-emerald-500/20 stroke-[1.5]" />
                     <div>
                       <span className="bg-emerald-500/20 text-emerald-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">
                         {language === 'ms' ? 'Sumber' :
@@ -3041,33 +3233,30 @@ export default function PhoneSimulator({
                 <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-4">{t('why_this_matters')}</h4>
                 <div className="space-y-3">
                   {/* Card 1 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Check className="w-5 h-5 text-[#00a859]" />
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <Check className="w-4.5 h-4.5 text-[#00a859]" />
                     </div>
                     <div className="flex-1">
                       <h5 className="text-xs font-bold text-slate-800">{t('early_diagnosis')}</h5>
-                      <p className="text-xs text-slate-600 leading-relaxed mt-1">{t('early_diagnosis_desc')}</p>
                     </div>
                   </div>
                   {/* Card 2 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Users className="w-5 h-5 text-[#00a859]" />
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <Users className="w-4.5 h-4.5 text-[#00a859]" />
                     </div>
                     <div className="flex-1">
                       <h5 className="text-xs font-bold text-slate-800">{t('protect_family')}</h5>
-                      <p className="text-xs text-slate-600 leading-relaxed mt-1">{t('protect_family_desc')}</p>
                     </div>
                   </div>
                   {/* Card 3 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Sparkles className="w-5 h-5 text-[#00a859]" />
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <Sparkles className="w-4.5 h-4.5 text-[#00a859]" />
                     </div>
                     <div className="flex-1">
                       <h5 className="text-xs font-bold text-slate-800">{t('personalized_care')}</h5>
-                      <p className="text-xs text-slate-600 leading-relaxed mt-1">{t('personalized_care_desc')}</p>
                     </div>
                   </div>
                 </div>
@@ -4386,14 +4575,7 @@ export default function PhoneSimulator({
                     </div>
                   )}
 
-                  {/* TAB 2: MY CHECKLIST */}
-                  {eduSubTab === 'checklist' && (
-                    <div className="space-y-4 animate-fade-in">
-                      {/* Checklist Progress Bar */}
-                      {(() => {
-                        const completedCount = checklist.filter(item => item.checked).length;
-                        const totalCount = checklist.length;
-                        const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+                        // Personalized Layout
                         return (
                           <div className="bg-emerald-50/40 border border-emerald-100/60 rounded-xl p-3.5 space-y-2">
                             <div className="flex justify-between text-[11px] text-slate-700 font-bold">
@@ -4417,6 +4599,38 @@ export default function PhoneSimulator({
                                 {t('edu_checklist_progress_desc')}
                               </p>
                             )}
+
+                             {/* Section 2: Other Topics You Can Explore */}
+                             {unselectedGuideTopics.length > 0 && (
+                               <div className="pt-2 border-t border-slate-100/60">
+                                 <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 transition-all duration-200 text-left">
+                                   <div className="flex items-center justify-between gap-2">
+                                     <div className="space-y-0.5">
+                                       <h4 className="text-[11.5px] font-extrabold text-slate-800 font-display tracking-tight flex items-center gap-1.5">
+                                         <BookOpen className="w-3.5 h-3.5 text-[#00a859] inline mr-1" />{t('step2_opt_other_topics') || 'Other Topics You Can Explore'}
+                                       </h4>
+                                       <p className="text-[9.5px] text-slate-500 leading-relaxed font-medium">
+                                         {t('step2_opt_other_topics_desc') || 'More FH topics are available whenever you are ready.'}
+                                       </p>
+                                     </div>
+                                     <button
+                                       onClick={() => setShowOtherTopics(!showOtherTopics)}
+                                       aria-expanded={showOtherTopics}
+                                       className="flex items-center gap-1 text-[10px] font-extrabold text-[#00a859] hover:text-[#008f4c] transition cursor-pointer shrink-0 py-1 px-2 border border-emerald-100/50 hover:bg-emerald-50/30 rounded-lg"
+                                     >
+                                       <span>{showOtherTopics ? (t('step2_opt_minimise') || 'Minimise') : (t('step2_opt_view_other_topics') || 'View Other Topics')}</span>
+                                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showOtherTopics ? 'rotate-180' : ''}`} />
+                                     </button>
+                                   </div>
+
+                                   {showOtherTopics && (
+                                     <div className="space-y-3 pt-3 mt-3 border-t border-slate-100 animate-fade-in">
+                                       {unselectedGuideTopics.map(topic => renderGuideCard(topic, false))}
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             )}
                           </div>
                         );
                       })()}
@@ -4428,6 +4642,9 @@ export default function PhoneSimulator({
                             <CheckSquare className="w-4 h-4 text-[#00a859]" />
                             <h4 className="font-bold text-xs text-slate-800 font-sans">{t('edu_checklist_card_title')}</h4>
                           </div>
+                          <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-extrabold border border-emerald-100">
+                            Optional
+                          </span>
                         </div>
                         <p className="text-[10px] text-slate-500 leading-relaxed font-sans">
                           {t('edu_checklist_card_desc')}
@@ -4501,6 +4718,35 @@ export default function PhoneSimulator({
                           <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('faq_title').toUpperCase()}</h4>
                         </div>
 
+                        {/* Personalized FAQ Banner */}
+                        {onboardingCompleted && questionnaireStatus === 'completed' && (
+                          <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
+                            <Sparkles className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
+                            <div className="space-y-0.5 text-left min-w-0 flex-1">
+                              <div className="flex justify-between items-center gap-2">
+                                <span className="text-[9px] font-extrabold text-emerald-800 uppercase tracking-widest font-mono">
+                                  {language === 'ms' ? 'Soalan Lazim Dipersonalisasi' :
+                                   language === 'zh' ? '个性化常见问题' :
+                                   language === 'ta' ? 'தனிப்பயனாக்கப்பட்ட கேள்விகள்' :
+                                   'PERSONALIZED FAQS'}
+                                </span>
+                                <span className="text-[8px] bg-white text-emerald-800 font-extrabold px-1.5 py-0.5 rounded font-mono border border-emerald-200 shrink-0">
+                                  {language === 'ms' ? 'Mengikut Jawapan Soal Selidik' :
+                                   language === 'zh' ? '基于问卷回答' :
+                                   language === 'ta' ? 'கேள்வித்தாள் பதில்கள்' :
+                                   'Based on Questionnaire'}
+                                </span>
+                              </div>
+                              <p className="text-[10.5px] text-slate-700 leading-normal font-sans">
+                                {language === 'ms' ? 'Soalan yang paling relevan dengan pilihan topik dan kebimbangan anda telah diutamakan di atas.' :
+                                 language === 'zh' ? '根据您选择的主题和关注点，最相关的常见问题已优先置顶显示。' :
+                                 language === 'ta' ? 'நீங்கள் தேர்ந்தெடுத்த தலைப்புகள் மற்றும் கவலைகளுக்கு மிகவும் தொடர்புடைய கேள்விகள் மேலே வரிசைப்படுத்தப்பட்டுள்ளன.' :
+                                 'FAQs most relevant to your selected topics and concerns are prioritized at the top.'}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Category Filter Tabs */}
                         <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                           {[
@@ -4532,14 +4778,23 @@ export default function PhoneSimulator({
                             .filter(faq => activeFaqCategory === 'all' || faq.category === activeFaqCategory)
                             .map((faq, idx) => {
                               const isFaqExpanded = faqActiveIdx === idx;
+                              const matchReason = getFaqMatchReason(faq);
                               return (
-                                <div key={idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-3xs">
+                                <div key={idx} className={`bg-white border rounded-xl overflow-hidden shadow-3xs transition ${matchReason ? 'border-emerald-300/80 ring-1 ring-emerald-500/10' : 'border-slate-200'}`}>
                                   <button
                                     onClick={() => setFaqActiveIdx(isFaqExpanded ? null : idx)}
-                                    className="w-full text-left p-3.5 text-xs font-bold text-slate-800 flex justify-between items-center hover:bg-slate-50 transition cursor-pointer"
+                                    className="w-full text-left p-3.5 text-xs font-bold text-slate-800 flex justify-between items-start hover:bg-slate-50 transition cursor-pointer gap-2"
                                   >
-                                    <span className="leading-snug pr-3">{faq.question}</span>
-                                    <ChevronRight className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isFaqExpanded ? 'rotate-90' : ''}`} />
+                                    <div className="space-y-1 flex-1 pr-1 min-w-0">
+                                      {matchReason && (
+                                        <span className="inline-flex items-center gap-1 text-[8.5px] font-extrabold bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-md border border-emerald-200/60 font-mono tracking-tight">
+                                          <Sparkles className="w-2.5 h-2.5 text-[#00a859] shrink-0" />
+                                          {language === 'ms' ? 'Disyorkan' : language === 'zh' ? '推荐关注' : language === 'ta' ? 'பரிந்துரைக்கப்பட்டது' : 'Recommended'}: {matchReason}
+                                        </span>
+                                      )}
+                                      <span className="block font-bold text-slate-900 leading-snug">{faq.question}</span>
+                                    </div>
+                                    <ChevronRight className={`w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5 transition-transform ${isFaqExpanded ? 'rotate-90' : ''}`} />
                                   </button>
                                   
                                   {isFaqExpanded && (
@@ -4553,8 +4808,8 @@ export default function PhoneSimulator({
                         </div>
                       </div>
 
-                      {/* Helpful Resources Section */}
-                      <div className="space-y-3">
+                      {/* Helpful Resources Section (Grouped by Category) */}
+                      <div className="space-y-3 pt-1">
                         <div className="flex justify-between items-center">
                           <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono font-sans">{t('edu_helpful_resources')}</h4>
                         </div>
@@ -4598,6 +4853,12 @@ export default function PhoneSimulator({
                               typeTagClass = "bg-sky-50 text-sky-700 border-sky-100";
                               viewLinkColor = "text-sky-600 group-hover:text-sky-700";
                               hoverBorderClass = "hover:border-sky-200 hover:bg-sky-50/10";
+                            } else if (group.id === 'clinical') {
+                              bgClass = "bg-emerald-50 group-hover:bg-emerald-100/80";
+                              itemIconColor = "text-emerald-600";
+                              typeTagClass = "bg-emerald-50 text-emerald-700";
+                              viewLinkColor = "text-emerald-600 group-hover:text-emerald-700";
+                              hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
                             }
 
                             return (
@@ -4618,23 +4879,64 @@ export default function PhoneSimulator({
                                       <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#00a859] transition leading-tight">{res.title}</h5>
                                       <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 border ${typeTagClass}`}>{res.type}</span>
                                     </div>
-                                    <p className="text-[10px] text-slate-500 leading-normal mt-1">{res.summary}</p>
+                                    <span>{group.title}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className={`text-[8.5px] font-mono px-1.5 py-0.2 rounded-full font-extrabold ${group.badgeBg}`}>
+                                      {group.items.length} {group.items.length === 1 ? 'Item' : 'Items'}
+                                    </span>
                                   </div>
                                 </div>
-                                
-                                <div className="flex justify-between items-center pl-9 pt-0.5">
-                                  {/* Resource Keyword Tags */}
-                                  <div className="flex flex-wrap gap-1">
-                                    {res.keywords.map((kw, i) => (
-                                      <span key={i} className="text-[8px] bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded font-sans border border-slate-200/50">
-                                        #{kw}
-                                      </span>
+
+                                {/* Slide Dots Indicator */}
+                                <div className="flex items-center justify-between px-1 text-[10px]">
+                                  <div className="flex items-center gap-1.5">
+                                    {group.items.map((_, idx) => (
+                                      <button
+                                        key={idx}
+                                        onClick={() => group.setSlideIdx(idx)}
+                                        title={`Go to Slide ${idx + 1}`}
+                                        className={`transition-all rounded-full cursor-pointer ${
+                                          idx === currentIdx
+                                            ? 'w-5 h-1.5 bg-[#00a859]'
+                                            : 'w-1.5 h-1.5 bg-slate-200 hover:bg-slate-300'
+                                        }`}
+                                      />
                                     ))}
                                   </div>
                                   <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor}`}>
                                     <span>{t('edu_view_resource')}</span>
                                     <ExternalLink className="w-2.5 h-2.5 transition" />
                                   </div>
+                                </button>
+
+                                {/* Slide Prev / Next Buttons */}
+                                <div className="flex items-center justify-between gap-2 pt-0.5">
+                                  <button
+                                    onClick={() => group.setSlideIdx(prev => Math.max(0, prev - 1))}
+                                    disabled={currentIdx === 0}
+                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
+                                      currentIdx === 0
+                                        ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
+                                        : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer shadow-3xs'
+                                    }`}
+                                  >
+                                    <ChevronLeft className="w-3 h-3" />
+                                    <span>Prev Slide</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => group.setSlideIdx(prev => Math.min(group.items.length - 1, prev + 1))}
+                                    disabled={currentIdx === group.items.length - 1}
+                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
+                                      currentIdx === group.items.length - 1
+                                        ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
+                                        : 'text-white bg-[#00a859] hover:bg-emerald-700 cursor-pointer shadow-3xs'
+                                    }`}
+                                  >
+                                    <span>Next Slide</span>
+                                    <ChevronRight className="w-3 h-3" />
+                                  </button>
                                 </div>
                               </button>
                             );
@@ -5041,12 +5343,12 @@ export default function PhoneSimulator({
                   </ul>
                   <button 
                     onClick={() => {
-                      setViewingChecklist(true);
+                      setEduSubTab('guides');
                       onChangeScreen(ScreenId.Education);
                     }}
                     className="text-[#00a859] font-extrabold text-[11px] hover:underline flex items-center gap-0.5 text-left pt-1"
                   >
-                    {t('booking_view_checklist')} <ChevronRight className="w-3.5 h-3.5" />
+                    {t('edu_tab_guides')} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -5223,7 +5525,7 @@ export default function PhoneSimulator({
 
                             {gpsError && (
                               <p className="text-[9px] text-red-600 font-semibold leading-tight bg-red-50 border border-red-100 p-2 rounded">
-                                ⚠️ {gpsError}
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 inline mr-1" />{gpsError}
                               </p>
                             )}
                           </div>
@@ -6079,8 +6381,8 @@ export default function PhoneSimulator({
 
                   {/* Step 1: Referral received */}
                   <div className="relative">
-                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs">
-                      ✓
+                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white shadow-xs">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_referral_received')}</h5>
@@ -6090,8 +6392,8 @@ export default function PhoneSimulator({
 
                   {/* Step 2: Education completed */}
                   <div className="relative">
-                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs">
-                      ✓
+                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white shadow-xs">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_edu_completed')}</h5>
@@ -6104,7 +6406,7 @@ export default function PhoneSimulator({
                     <div className={`absolute -left-[21px] w-5 h-5 rounded-full border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs ${
                       (appointment.status === 'booked' || appointment.status === 'confirmed') ? 'bg-emerald-500' : 'bg-amber-500'
                     }`}>
-                      {(appointment.status === 'booked' || appointment.status === 'confirmed') ? '✓' : '3'}
+                      {(appointment.status === 'booked' || appointment.status === 'confirmed') ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '3'}
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_slot_booked')}</h5>
@@ -6137,7 +6439,7 @@ export default function PhoneSimulator({
                           ? 'bg-amber-500' 
                           : 'bg-slate-300'
                     }`}>
-                      {appointment.status === 'confirmed' ? '✓' : '4'}
+                      {appointment.status === 'confirmed' ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '4'}
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_attend_counselling')}</h5>
@@ -6714,7 +7016,8 @@ export default function PhoneSimulator({
             className="absolute bottom-4 right-4 z-40 w-12 h-12 bg-[#00a859] hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 group"
             title={t('chatbot_title')}
           >
-            <MessageSquare className="w-5.5 h-5.5 text-white" />
+            <Calendar className="w-4 h-4 text-white" />
+            <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
           </button>
         )}
 

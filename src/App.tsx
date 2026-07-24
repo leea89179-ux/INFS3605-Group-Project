@@ -32,7 +32,6 @@ export default function App() {
   const [activeScreen, setActiveScreen] = useState<ScreenId>(ScreenId.Home);
   const [isFHReferred, setIsFHReferred] = useState<boolean>(false);
   const [rightPanelTab, setRightPanelTab] = useState<'annotations' | 'database'>('database');
-  const [isFloatingChatOpen, setIsFloatingChatOpen] = useState<boolean>(false);
   
   // Feature 6: Relational Database Tables State
   // Starts empty — real values are loaded from Supabase in the
@@ -46,6 +45,7 @@ export default function App() {
   const [resultsTable, setResultsTable] = useState<ResultsRecord[]>([]);
   const [selectedPatientId, setSelectedPatientId] = useState<string>('SL001');
   const [isLoadingDb, setIsLoadingDb] = useState<boolean>(true);
+  const [emilyWongRefreshTrigger, setEmilyWongRefreshTrigger] = useState<number>(0);
 
   // SQL rolling log stream (Feature 6)
   const [queryLogs, setQueryLogs] = useState<DBQueryLog[]>([]);
@@ -474,6 +474,10 @@ export default function App() {
     let eduPercent = 0;
     let refType: 'clinical_referral' | 'cascade_screening' | 'clinical_suspicion' = 'clinical_referral';
 
+    if (patientId === 'EW003') {
+      setEmilyWongRefreshTrigger(prev => prev + 1);
+    }
+
     if (patientId === 'SL001') {
       referred = false;
       apptStatus = 'pending';
@@ -496,9 +500,6 @@ export default function App() {
     }
 
     setIsFHReferred(referred);
-    if (!referred) {
-      setIsFloatingChatOpen(false);
-    }
 
     // Update appointment state locally
     setAppointmentTable(prev => {

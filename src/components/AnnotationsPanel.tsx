@@ -86,7 +86,7 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       title: 'Screen 5: Active Progress Timeline',
       problemSolved: 'Clinical disorientation. Genetic referrals feel like a black box. Patients do not know what steps lie ahead, how long they take, or what happens next, causing them to disengage.',
       uxGuidelines: [
-        'Milestone Visualization: A clear vertical sequence with completed checkmarks (e.g., ✓ Referral Received, ✓ Education Completed) and future translucent states (e.g. Receive Results).',
+        'Milestone Visualization: A clear vertical sequence with completed checkmarks (e.g., Referral Received, Education Completed) and future translucent states (e.g. Receive Results).',
         'Timeline Countdown: Prominently shows "Your appointment is in 6 days" and displays the clinic address with an integrated map direction CTA.',
         'Preparation Prompt: Direct connection back to the prep checklist right below the timeline, ensuring patients are medically prepared before arrival.'
       ],

@@ -151,12 +151,6 @@ export const educationalSections: EduSection[] = [
   }
 ];
 
-export const preCounsellingChecklist = [
-  { id: 'prep-1', text: 'Bring your NRIC or Singpass for identity verification', checked: false },
-  { id: 'prep-2', text: 'Prepare a list of your current medications & supplements', checked: false },
-  { id: 'prep-3', text: 'Review Learn section for resources and common questions.', checked: false },
-];
-
 export const faqs: FAQItem[] = [
   {
     category: 'testing',
@@ -189,7 +183,7 @@ export const helpfulResources: HelpfulResource[] = [
   {
     id: 'res-7',
     title: 'Patient Story: A Mother\'s Fight for Her Children',
-    summary: 'A moving patient video sharing a mother’s perspective on living with FH and her hopes to get her two young children screened early to safeguard their future.',
+    summary: 'A mother shares her journey with FH and the importance of early screening for her children.',
     keywords: ['patient-story', 'video', 'mother', 'pediatric-screening', 'family-hope'],
     readingTime: '6-min Video',
     iconName: 'Play',
@@ -226,7 +220,7 @@ export const helpfulResources: HelpfulResource[] = [
   {
     id: 'res-6',
     title: 'Patient Story: Living with FH (A Young Man\'s Journey)',
-    summary: 'A powerful patient video sharing the experience of a young man diagnosed with FH, navigating early detection, genetic screening, and starting life with high cholesterol.',
+    summary: 'A young man\'s experience with FH diagnosis, genetic screening, and starting treatment early.',
     keywords: ['patient-story', 'video', 'young-adult', 'lived-experience'],
     readingTime: '5-min Video',
     iconName: 'Play',
@@ -263,7 +257,7 @@ export const helpfulResources: HelpfulResource[] = [
   {
     id: 'res-9',
     title: 'Consumer Guide: Moratorium on Genetic Testing and Insurance',
-    summary: 'The official Ministry of Health Singapore consumer guide explaining the national moratorium, how genetic test results affect your insurance applications, and your rights as a consumer.',
+    summary: 'MOH guide explaining Singapore\'s genetic testing moratorium and insurance protections.',
     keywords: ['insurance', 'moratorium', 'genetic-testing', 'rights', 'lia-guidelines'],
     readingTime: '6-page Guide',
     iconName: 'ShieldCheck',
@@ -300,7 +294,7 @@ export const helpfulResources: HelpfulResource[] = [
   {
     id: 'res-5',
     title: 'Singapore Heart Foundation FH Guide',
-    summary: 'The Singapore Heart Foundation informative guide on FH risk factors, cardiovascular implications, and lifestyle modifications to manage genetic high cholesterol.',
+    summary: 'Singapore Heart Foundation guide on FH risks, heart health, and lifestyle management.',
     keywords: ['shf', 'risk-factors', 'heart-health', 'prevention'],
     readingTime: '5-page Digital Guide',
     iconName: 'Heart',
@@ -329,7 +323,7 @@ export const helpfulResources: HelpfulResource[] = [
   {
     id: 'res-4',
     title: 'Primary Care FH English Brochure',
-    summary: 'A comprehensive educational brochure distributed by Singapore Primary Care Network for patients and families about FH detection, genetic risks, and treatment options.',
+    summary: 'Primary Care Network guide to FH detection, genetic risks, and treatment options.',
     keywords: ['primary-care', 'brochure', 'patient-handout'],
     readingTime: '4-page Brochure',
     iconName: 'BookOpen',
@@ -366,7 +360,7 @@ export const helpfulResources: HelpfulResource[] = [
   {
     id: 'res-8',
     title: 'NHG Genomics Assessment Clinic (GAC) Brochure',
-    summary: 'The National Healthcare Group official Genomics Assessment Clinic patient guide on clinical genetic counselling, risk assessment, and DNA testing in Singapore.',
+    summary: 'NHG guide on genetic counselling, risk assessment, and DNA testing.',
     keywords: ['nhg', 'gac', 'genetic-counselling', 'dna-testing', 'clinical-genomics'],
     readingTime: '8-page Brochure',
     iconName: 'ClipboardList',
@@ -403,7 +397,7 @@ export const helpfulResources: HelpfulResource[] = [
   {
     id: 'res-1',
     title: 'NUHS Clinical FH Patient Pamphlet',
-    summary: 'The official National University Health System clinical pamphlet explaining DNA test mechanics, cardiovascular risk, and lipid management in Singapore.',
+    summary: 'NUHS guide explaining DNA testing, heart risk, and lipid management.',
     keywords: ['nuhs', 'patient-handout', 'clinical-pamphlet'],
     readingTime: '6-page Brochure',
     iconName: 'BookOpen',
@@ -440,7 +434,7 @@ export const helpfulResources: HelpfulResource[] = [
   {
     id: 'res-2',
     title: 'MOH National FH Genetic Testing Programme',
-    summary: 'The official Ministry of Health Singapore press announcement launching the subsidized national clinical DNA testing and cascade screening initiative.',
+    summary: 'MOH guide on subsidized national genetic testing and cascade screening.',
     keywords: ['moh', 'guidelines', 'clinical-standards'],
     readingTime: '18-page Document',
     iconName: 'Dna',
