@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", "Noto Sans SC", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
@@ -35,7 +35,75 @@
   animation: bounceShort 3s ease-in-out infinite;
 }
 
+@keyframes subtlePulse {
+  0% { transform: scale(1); }
+  6% { transform: scale(1.05); }
+  12% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.animate-subtle-pulse {
+  animation: subtlePulse 6s ease-in-out infinite;
+}
+
 /* Custom shadow utilities */
 .text-shadow-sm {
   text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* Accessibility Font Size Overrides for Small Text (90%) */
+.education-text-sm p,
+.education-text-sm li,
+.education-text-sm h1,
+.education-text-sm h2,
+.education-text-sm h3,
+.education-text-sm h4,
+.education-text-sm h5,
+.education-text-sm h6,
+.education-text-sm span:not(.font-mono):not(.hashtag-tag):not(.micro-badge) {
+  font-size: 90% !important;
+}
+.education-text-sm .\text-\[9px\] { font-size: 8px !important; }
+.education-text-sm .\text-\[9\.5px\] { font-size: 8.5px !important; }
+.education-text-sm .\text-\[10px\] { font-size: 9px !important; }
+.education-text-sm .\text-\[10\.5px\] { font-size: 9.5px !important; }
+.education-text-sm .\text-\[11px\] { font-size: 10px !important; }
+.education-text-sm .\text-\[11\.5px\] { font-size: 10.5px !important; }
+.education-text-sm .\text-\[12px\] { font-size: 11px !important; }
+.education-text-sm .\text-\[12\.5px\] { font-size: 11.5px !important; }
+.education-text-sm .\text-\[15px\] { font-size: 13px !important; }
+.education-text-sm .text-xs { font-size: 11px !important; }
+.education-text-sm .text-sm { font-size: 12.5px !important; }
+.education-text-sm .text-base { font-size: 14px !important; }
+
+/* Accessibility Font Size Overrides for Large Text (118%) */
+.education-text-lg p,
+.education-text-lg li,
+.education-text-lg h1,
+.education-text-lg h2,
+.education-text-lg h3,
+.education-text-lg h4,
+.education-text-lg h5,
+.education-text-lg h6,
+.education-text-lg span:not(.font-mono):not(.hashtag-tag):not(.micro-badge) {
+  font-size: 118% !important;
+}
+.education-text-lg .\text-\[9px\] { font-size: 11.5px !important; }
+.education-text-lg .\text-\[9\.5px\] { font-size: 12px !important; }
+.education-text-lg .\text-\[10px\] { font-size: 13px !important; }
+.education-text-lg .\text-\[10\.5px\] { font-size: 13.5px !important; }
+.education-text-lg .\text-\[11px\] { font-size: 14.5px !important; }
+.education-text-lg .\text-\[11\.5px\] { font-size: 15px !important; }
+.education-text-lg .\text-\[12px\] { font-size: 15.5px !important; }
+.education-text-lg .\text-\[12\.5px\] { font-size: 16.5px !important; }
+.education-text-lg .\text-\[15px\] { font-size: 18.5px !important; }
+.education-text-lg .text-xs { font-size: 14.5px !important; }
+.education-text-lg .text-sm { font-size: 17px !important; }
+.education-text-lg .text-base { font-size: 19.5px !important; }
+
+/* Strict locks for hashtags and micro badges so they never balloon when changing text size */
+.hashtag-tag,
+.micro-badge {
+  font-size: 8px !important;
+  line-height: 1.1 !important;
 }

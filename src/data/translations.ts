@@ -1,5 +1,14 @@
 import { FAQItem } from '../types';
-import { EduSection, educationalSections } from './education';
+import { EduSection, educationalSections, HelpfulResource } from './education';
+
+import enPersonalisation from '../locales/en/personalisation.json';
+import enChecklist from '../locales/en/checklist.json';
+import msPersonalisation from '../locales/ms/personalisation.json';
+import msChecklist from '../locales/ms/checklist.json';
+import zhPersonalisation from '../locales/zh-SG/personalisation.json';
+import zhChecklist from '../locales/zh-SG/checklist.json';
+import taPersonalisation from '../locales/ta-SG/personalisation.json';
+import taChecklist from '../locales/ta-SG/checklist.json';
 
 export type Language = 'en' | 'ms' | 'zh' | 'ta';
 
@@ -12,6 +21,8 @@ export const LANG_LABELS: Record<Language, string> = {
 
 export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
   en: {
+    ...enPersonalisation,
+    ...enChecklist,
     // Top Bar & Greetings
     health: 'Health',
     hub: 'Hub',
@@ -76,6 +87,8 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     confirm_booking_btn: 'Confirm Booking',
     appointment_confirmed_title: 'Appointment Confirmed!',
     booking_success_desc: 'Your genetic counselling slot is locked. An SMS and Push notification have been scheduled.',
+    booking_success_details: 'Your session is scheduled for {date} at {time} at {clinic}.',
+    booking_scheduled_upcoming: 'Scheduled & Upcoming',
     add_to_calendar: 'Add to Calendar',
     reschedule_slot: 'Reschedule Slot',
     back_to_home: 'Back to Home',
@@ -179,6 +192,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     booking_nric_verified: 'Ready & Registered • NRIC/Singpass pre-cleared for clinical intake.',
     booking_unverified_alert: 'Attendance is unverified. Tap on lockscreen push alerts or settings to confirm attendance.',
     booking_session_desc: '45-minute session to answer family worries and finalize testing.',
+    booking_setup_reminders: 'Set up your reminder alerts & frequency',
     booking_review_details: 'Review Appointment Details',
     booking_confirm_slot_btn: 'Confirm Booking',
     booking_add_calendar_success: 'Apple Calendar .ics event downloaded successfully!',
@@ -337,8 +351,268 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     role_consultant_paediatric_geneticist: 'Consultant Paediatric Geneticist',
     role_lead_paediatric_counsellor: 'Lead Paediatric Counsellor',
     role_consultant_geneticist: 'Consultant Geneticist',
+    chatbot_greeting: "Hello! I am **HealthBuddy**, your GovTech Singapore FH Assistant. I can help answer questions about **Familial Hypercholesterolaemia (FH)**, test costs, insurance moratoriums, and booking. What's on your mind today?",
+    chatbot_placeholder: 'Ask about subsidies, insurance protection, prep...',
+    chatbot_quick_insurance: 'Will this affect my insurance?',
+    chatbot_quick_cost: 'How much does FH testing cost?',
+    chatbot_quick_family: 'Does it affect my family?',
+    chatbot_quick_prep: 'What should I prepare?',
+    chatbot_footer: 'Providing official MOH Singapore and GovTech policy answers.',
+    chatbot_online: 'GovTech Support - Online',
+    chatbot_title: 'HealthBuddy Assistant',
+    chatbot_reset: 'Reset conversation',
+    chatbot_banner_title: 'Have FH Genetic testing concerns?',
+    chatbot_banner_body: 'Get instant, secure answers on CHAS subsidies, insurance protections, and clinic preparation.',
+    edu_hub_title: 'Education Hub',
+    edu_note: 'Please note: Being referred for a genetic test does not mean you have FH. It is simply a proactive measure to assess your natural risk.',
+    edu_video_title: '▶ What happens during FH testing?',
+    edu_video_subtitle: 'See what to expect before your appointment.',
+    edu_play_story: 'Play Story',
+    edu_pause_story: 'Pause Story',
+    edu_view_transcript: 'View Transcript',
+    edu_hide_transcript: 'Hide Transcript',
+    edu_video_story_label: 'Patient Experience Story (Chloe, 21)',
+    edu_video_frame_0: '"I eat healthy and stay active. I thought high cholesterol was only for elderly people or those who lead an unhealthy lifestyle."',
+    edu_video_frame_1: '"The genetic counsellor didn\'t push me at all. They just laid out the facts and let me make my own decision."',
+    edu_video_frame_2: '"I found out existing health insurance is fully protected, and MOH subsidies cover up to 75% of the cost."',
+    edu_video_frame_3: '"I decided to do the test because getting clear facts helped me take control of my health and clarity on how to keep myself healthy."',
+    edu_video_transcript_title: 'Video Transcript & Captions',
+    edu_video_transcript_1: '"Hey everyone, I\'m Chloe. When a screening flagged my LDL cholesterol as extremely high, I was totally confused. I live a healthy lifestyle, exercise regularly, and eat well, so I assumed high cholesterol was something only older people get, or maybe people who lead unhealty lifestyles. My doctor explained that FH is inherited from birth—it has nothing to do with lifestyle or age."',
+    edu_video_transcript_2: '"I was really skeptical about genetic counselling at first but, the counsellor didn\'t try to push me. She just explained how the genetics work, answered my questions about privacy, and left the decision completely up to me."',
+    edu_video_transcript_3: '"We talked about the practical side too. She clarified that under Singapore\'s guidelines, existing health insurance can\'t be touched, and MOH covers up to 75% of the costs. There were no hidden catches."',
+    edu_video_transcript_4: '"In the end, I decided to go ahead and take the blood test. Getting the facts didn\'t change who I am, but it did give me clarity on how to keep myself healthy. It\'s about knowing your body, not living in fear."',
+    booking_header_title: 'Book Appointment',
+    faq_title: 'Frequently Asked Questions',
+    faq_category_all: 'ALL',
+    faq_category_cost: 'COST',
+    faq_category_insurance: 'INSURANCE',
+    faq_category_testing: 'TESTING',
+    faq_category_medication: 'MEDICATION',
+    edu_did_you_know: 'Did You Know?',
+    edu_for_you_badge: 'For You',
+    edu_stat_prevalence_val: '1 in 250',
+    edu_stat_prevalence_lbl: 'Singaporeans have FH',
+    edu_stat_undiagnosed_val: '~90%',
+    edu_stat_undiagnosed_lbl: 'Remain Undiagnosed in SG',
+    edu_stat_risk_val: 'Up to 80%',
+    edu_stat_risk_lbl: 'Lower Heart Attack Risk',
+    edu_stat_family_val: '50%',
+    edu_stat_family_lbl: 'First-Degree Family Risk',
+    edu_stat_subsidies_val: 'Up to 75%',
+    edu_stat_subsidies_lbl: 'MOH Direct Subsidies',
+    edu_stat_cost_val: '5–5',
+    edu_stat_cost_lbl: 'Typical Out-of-Pocket Cost',
+    edu_stat_insurance_val: '0%',
+    edu_stat_insurance_lbl: 'Impact on Existing Insurance',
+    edu_stat_meds_val: '30+ Yrs',
+    edu_stat_meds_lbl: 'Statin Safety Evidence',
+    edu_stat_testing_val: '4–6 Wks',
+    edu_stat_testing_lbl: 'DNA Report Turnaround',
+    edu_learning_hub: 'LEARNING HUB',
+    edu_modules_summary: '3 Modules • 6 Topics',
+    edu_group_basics_title: 'Understanding FH & Meds',
+    edu_group_basics_desc: 'Learn about the genetic condition, physical signs, and standard treatments.',
+    edu_group_journey_title: 'Your Clinical Journey',
+    edu_group_journey_desc: 'A step-by-step guide to testing and protecting your family.',
+    edu_group_costs_title: 'Subsidies & Protections',
+    edu_group_costs_desc: 'MOH subsidies, MediSave coverage, and your legal insurance rights.',
+    booking_mins: 'mins',
+    chatbot_fallback_insurance: "Under the Singapore **LIA Moratorium**, insurers **cannot** ask you to disclose genetic test results. Existing plans like **MediShield Life** and Integrated Shield are completely unaffected.",
+    chatbot_fallback_cost: "FH testing is subsidized **50–75%** by MOH for eligible Singaporeans. Out-of-pocket costs typically range from **S$50 to S$120** and can be **fully paid using MediSave**.",
+    chatbot_fallback_family: "FH is inherited — first-degree family members have a **50% chance** of sharing the gene. Your team will coordinate **cascade screening** to protect your family early.",
+    chatbot_fallback_prep: "No fasting needed! Prepare your **family medical history**, **current medications**, and your **Singpass**. A 30-minute counselling session will guide you first.",
+    chatbot_fallback_default: "I am here to help with FH testing. Your referral is a **subsidized, protected preventative screen**. Check the **Learn** tab or **Book** tab for more.",
+    // Home quick links
+    link_ask_ai: 'Ask AI',
+    link_help_desk: 'Help Desk',
+    link_medical_reports: 'Medical reports',
+    link_medication_refill: 'Medication refill',
+    link_payment: 'Payment',
+    link_programmes: 'Programmes',
+    // Notifications popup
+    notif_header: 'Notifications',
+    notif_close: 'Close',
+    notif_referral_title: 'FH Genetic Referral Active',
+    notif_referral_desc: 'Your clinical referral is active. Read why your doctor recommended testing.',
+    notif_referral_time: '2h ago',
+    notif_booking_booked: 'Counselling Appointment Booked',
+    notif_booking_unbooked: 'Action Required: Book Counselling',
+    notif_booking_confirmed_msg: 'Pre-test genetic counselling confirmed for {date} @ {time}.',
+    notif_booking_pending_msg: 'Please secure your pre-test genetic counselling session slot.',
+    notif_time_just_now: 'Just now',
+    notif_time_1d_ago: '1d ago',
+    // Cancel flow
+    cancel_worries_text: 'Have worries about costs, safety, or procedures?',
+    cancel_address_concerns: 'Address your concerns in our',
+    cancel_faq_link: 'FAQ section',
+    cancel_if_need_diff_time: 'If you need a different time, you can reschedule without losing your place in the programme.',
+    cancel_reschedule_btn: 'Reschedule Instead',
+    cancel_continue_btn: 'Continue Cancelling',
+    cancel_confirm_title: 'Confirm cancellation',
+    cancel_confirm_desc: 'Cancelling will release this booked slot. You are welcome to book again at any time, though availability may vary.',
+    cancel_yes_btn: 'Yes, Cancel This Appointment',
+    cancel_keep_btn: 'Keep My Appointment',
+    cancel_success_title: 'Your appointment has been cancelled.',
+    cancel_success_desc: 'You can book a new slot whenever you are ready.',
+    cancel_book_new_btn: 'Book a New Appointment',
+    cancel_return_home: 'Return to Home',
+    // Reschedule flow
+    reschedule_select_title: 'Select a new slot',
+    reschedule_current_appt: 'Current appointment',
+    reschedule_choose_desc: 'Choose a replacement clinic, date and time. Your current appointment stays confirmed until you complete the reschedule.',
+    reschedule_select_clinic: 'Select clinic',
+    reschedule_nearest: 'Nearest',
+    reschedule_no_slots: 'No available slots on this day.',
+    reschedule_keep_current: 'Keep current appointment',
+    reschedule_review_title: 'Review change',
+    reschedule_review_desc: 'Review the change before confirming. Your current appointment will remain active until you press Confirm Reschedule.',
+    reschedule_new_appt: 'New appointment',
+    reschedule_confirm_btn: 'Confirm Reschedule',
+    reschedule_different_slot: 'Choose a Different Slot',
+    reschedule_success_title: 'Appointment rescheduled.',
+    reschedule_success_desc: 'Your appointment has been updated.',
+    reschedule_done_btn: 'Done',
+    // Profile screen
+    profile_my_profile: 'My Profile',
+    profile_section_personal: 'Personal Information',
+    profile_section_contact: 'Contact Information',
+    profile_section_emergency: 'Emergency Contact',
+    profile_section_healthcare: 'Healthcare Preferences',
+    profile_section_medical: 'Medical Information',
+    profile_section_account: 'Account',
+    profile_label_full_name: 'Full name',
+    profile_label_dob: 'Date of birth',
+    profile_label_gender: 'Gender',
+    profile_label_nric: 'NRIC / Health ID',
+    profile_label_preferred_lang: 'Preferred language',
+    profile_label_mobile: 'Mobile number',
+    profile_label_email: 'Email address',
+    profile_label_address: 'Residential address',
+    profile_label_contact_name: 'Contact name',
+    profile_label_relationship: 'Relationship',
+    profile_label_phone: 'Phone number',
+    profile_label_preferred_clinic: 'Preferred clinic',
+    profile_label_ldl: 'LDL cholesterol',
+    profile_label_active_referrals: 'Active referrals',
+    profile_label_upcoming_appts: 'Upcoming appts',
+    profile_fh_testing_badge: 'FH Genetic Testing (MOH Subsidised)',
+    profile_no_appointments: 'No scheduled appointments',
+    profile_book_session_now: 'Book counselling session now',
+    profile_view_reminder_settings: 'View Reminder & Notification Settings',
+    profile_label_linked_account: 'Linked HealthHub account',
+    profile_label_privacy: 'Privacy settings',
+    profile_verified_singpass: 'Verified via Singpass',
+    profile_privacy_registry: 'National Genomic Registry Secure',
+    profile_logout: 'Log out from HealthHub',
+    profile_yrs: 'yrs',
+    gender_male: 'Male',
+    gender_female: 'Female',
+    // Booking screen – location / calendar
+    booking_location_label: 'Location:',
+    booking_change_location: 'Change Location',
+    booking_default_address: 'Default address',
+    booking_search_location: 'Search Location:',
+    booking_detecting: 'Detecting...',
+    booking_live_location: 'Live Location',
+    booking_search_results: 'Search Results:',
+    booking_suggestions: 'Suggestions:',
+    booking_no_matches: 'No matches. Click below to use:',
+    booking_distance: 'Distance:',
+    booking_nearest_clinic: 'Nearest Clinic',
+    booking_legend_today: 'Today',
+    booking_legend_selected: 'Selected Day',
+    booking_km_away: 'km away',
+    // Learn FH screen
+    edu_learning_guide_title: 'Your FH Learning Guide',
+    edu_learning_guide_subtitle: 'A personalised guide on why and how to prepare after you have been referred for FH genetic testing.',
+    edu_tab_guides: 'Guides',
+    edu_tab_checklist: 'Checklist',
+    edu_tab_faqs: 'FAQs & Links',
+    edu_topics: 'Topics',
+    edu_helpful_resources: 'Helpful Resources',
+    edu_view_resource: 'View Resource',
+    edu_checklist_progress_title: 'Preparation Progress',
+    edu_checklist_progress_detail: '{completed} of {total} completed ({percent}%)',
+    edu_checklist_progress_success: 'Excellent! You are fully prepared for your consultation.',
+    edu_checklist_progress_desc: 'Complete these steps before your appointment to make the most of your session with the genetic counsellor.',
+    edu_checklist_card_title: 'Pre-Counselling Checklist',
+    edu_checklist_card_desc: 'Completing these simple tasks reduces appointment anxiety and ensures highly customized care:',
+    edu_checklist_essential_prep: 'Essential Preparation',
+    patient_label: 'Patient',
+    edu_hi_greeting: 'HI {name},',
+    edu_cta_title: 'Ready to book your GAC counselling slot?',
+    edu_cta_subtitle: 'Take the active step today. Booking takes under 20 seconds within HealthHub.',
+    edu_cta_btn: 'Go to Secure Booking',
+    edu_key_takeaway: 'Key Takeaway',
+    edu_doc_page_of: 'PAGE {current} OF {total}',
+    edu_website_btn: 'WEBSITE',
+    edu_print_btn: 'PRINT',
+    edu_page_label: 'Page',
+    edu_prev_btn: 'Prev',
+    edu_next_btn: 'Next Page',
+    edu_finish_btn: 'Finish Reading',
+    not_on_file: 'Not on file',
+    not_yet_assigned: 'Not yet assigned',
+    sms_today: 'Today',
+    concern_test_desc: 'Learn what happens before, during and after genetic testing.',
+    
+    // New Illustration/Comparison Card Keys
+    illus_clinical_testing_flow: 'Clinical Testing Flow',
+    illus_step_booked: '1. Booked',
+    illus_step_consult: '2. Consult',
+    illus_step_blood_draw: '3. Blood Draw',
+    illus_step_results: '4. Results',
+    illus_singapore_financing_model: 'Singapore Financing Model',
+    illus_government_subsidy: 'Government Subsidy',
+    illus_up_to_75_covered: 'Up to 75% Covered',
+    illus_consumer_safeguard_grid: 'Consumer Safeguard Grid',
+    illus_active_policies_note: 'Active policies cannot be changed, canceled, or re-priced at all.',
+    illus_liver_ldl_clearance: 'Liver LDL Clearance',
+    illus_statins_boost_note: 'Statins boost recycling receptors on liver cells, pulling cholesterol from blood.',
+    illus_family_cascade_tree: 'Family Cascade Screening Tree',
+    illus_index_patient: 'Index Patient (You)',
+    illus_inheritance_prob: '│ (50% inheritance probability)',
+    illus_parents: 'Parents',
+    illus_siblings: 'Siblings',
+    illus_children: 'Children',
+    illus_standard_high_cholesterol: 'Standard High Cholesterol',
+    illus_standard_desc: 'Caused by lifestyle & diet. Reversible with habits.',
+    illus_fh_familial: 'FH (Familial)',
+    illus_fh_desc: 'Genetic from birth. Lifelong, requires medical care.',
+    illus_lipids_over_time: '⏳ Lipids Over Time (Artery Buildup)',
+    illus_birth_clear: 'Birth (Clear)',
+    illus_adulthood_plaque: 'Adulthood (Plaque)',
+    illus_early_treatment_safe: 'Early Treatment (Safe)',
+    illus_fiber: 'Fiber',
+    illus_fiber_desc: 'Oats, beans, veggies',
+    illus_limits: 'Limits',
+    illus_limits_desc: 'No butter, palm oil',
+    illus_active: 'Active',
+    illus_active_desc: '30m daily walk',
+    
+    // Additional Keys
+    edu_selected_for_you: 'Selected for You',
+    edu_personalised_badge: 'Personalised',
+    edu_testing_guide_summary: 'Your journey is fully structured, covering counselling and blood draw.',
+    edu_personalized_support_prefix: 'Personalized Support:',
+    edu_note_cascade: 'We understand family health is your top priority. Cascade screening is a proactive, protective measure—not a diagnosis—empowering your family to safeguard cardiovascular health early.',
+    edu_note_costs: 'MOH subsidies and CHAS benefits are structured to keep testing highly affordable, with remaining costs fully coverable by MediSave.',
+    edu_note_insurance: 'The LIA moratorium ensures proactive testing has zero impact on your ability to secure standard life and health insurance coverage.',
+    edu_note_meds: 'Uneasiness about starting medications is natural. Statins are highly safe, well-studied, and incredibly effective at bringing cardiovascular risk back to standard ranges.',
+    
+    // Localized Guide FAQs
+    edu_faq_testing_q: "Does a positive test mean I have heart disease?",
+    edu_faq_testing_a: "No. A positive genetic test is not a diagnosis of heart disease. It simply identifies an inherited risk. Your medical team can take highly effective preventative steps to keep your heart healthy.",
+    edu_faq_costs_q: "How much will I pay out-of-pocket?",
+    edu_faq_costs_a: "Between S$15 and S$45 after MOH subsidies. Crucially, the remaining balance can be 100% paid using MediSave under the Chronic Disease Management Scheme.",
+    edu_faq_insurance_q: "Will this affect my children's ability to get insurance?",
+    edu_faq_insurance_a: "No. Singapore's Life Insurance Association (LIA) maintains a strict genetic testing moratorium protecting voluntary clinical genetic tests from impacting policies.",
+    edu_faq_meds_q: "Can I stop my cholesterol medication during testing?",
+    edu_faq_meds_a: "No, you should never stop or change your prescribed medication unless directed by your physician. DNA is unchanged by any medications.",
   },
   ms: {
+    ...msPersonalisation,
+    ...msChecklist,
     health: 'Health',
     hub: 'Hub',
     active_user: 'Pengguna Aktif',
@@ -396,6 +670,8 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     confirm_booking_btn: 'Sahkan Tempahan',
     appointment_confirmed_title: 'Janji Temu Disahkan!',
     booking_success_desc: 'Slot kaunseling genetik anda telah ditempah. SMS dan pemberitahuan Push telah dijadualkan.',
+    booking_success_details: 'Sesi anda dijadualkan pada {date} pukul {time} di {clinic}.',
+    booking_scheduled_upcoming: 'Dijadualkan & Akan Datang',
     add_to_calendar: 'Tambah ke Kalendar',
     reschedule_slot: 'Penjadualan Semula',
     back_to_home: 'Kembali ke Laman Utama',
@@ -496,6 +772,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     booking_nric_verified: 'Sedia & Berdaftar • NRIC/Singpass pra-dibersihkan untuk kemasukan klinikal.',
     booking_unverified_alert: 'Kehadiran tidak disahkan. Ketik pada makluman tolak skrin kunci atau tetapan untuk mengesahkan kehadiran.',
     booking_session_desc: 'Sesi 45 minit untuk menjawab kebimbangan keluarga dan memuktamadkan ujian.',
+    booking_setup_reminders: 'Sediakan isyarat & kekerapan peringatan anda',
     booking_review_details: 'Semak Butiran Janji Temu',
     booking_confirm_slot_btn: 'Sahkan Tempahan',
     booking_add_calendar_success: 'Acara kalendar Apple .ics berjaya dimuat turun!',
@@ -654,8 +931,268 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     role_consultant_paediatric_geneticist: 'Pakar Genetik Pediatrik Perunding',
     role_lead_paediatric_counsellor: 'Kaunselor Pediatrik Utama',
     role_consultant_geneticist: 'Pakar Genetik Perunding',
+    chatbot_greeting: "Hai! Saya **HealthBuddy**, Pembantu FH GovTech Singapura anda. Saya boleh membantu menjawab soalan tentang **Familial Hypercholesterolaemia (FH)**, kos ujian, moratorium insurans, dan tempahan. Apakah yang ingin anda tanyakan hari ini?",
+    chatbot_placeholder: 'Tanya tentang subsidi, perlindungan insurans, persediaan...',
+    chatbot_quick_insurance: 'Adakah ini menjejaskan insurans saya?',
+    chatbot_quick_cost: 'Berapakah kos ujian FH?',
+    chatbot_quick_family: 'Adakah ini menjejaskan keluarga saya?',
+    chatbot_quick_prep: 'Apakah yang perlu saya sediakan?',
+    chatbot_footer: 'Memberikan jawapan dasar rasmi MOH Singapura dan GovTech.',
+    chatbot_online: 'Sokongan GovTech - Dalam Talian',
+    chatbot_title: 'Pembantu HealthBuddy',
+    chatbot_reset: 'Set semula perbualan',
+    chatbot_banner_title: 'Ada kebimbangan mengenai ujian genetik FH?',
+    chatbot_banner_body: 'Dapatkan jawapan segera dan selamat mengenai subsidi CHAS, perlindungan insurans, dan persediaan klinik.',
+    edu_hub_title: 'Pusat Pendidikan',
+    edu_note: 'Sila ambil perhatian: Dirujuk untuk ujian genetik tidak bermakna anda menghidap FH. Ia hanyalah langkah pencegahan untuk menilai risiko semula jadi anda.',
+    edu_video_title: '▶ Apa yang berlaku semasa ujian FH?',
+    edu_video_subtitle: 'Ketahui apa yang perlu dijangkakan sebelum temujanji anda.',
+    edu_play_story: 'Main Cerita',
+    edu_pause_story: 'Jeda Cerita',
+    edu_view_transcript: 'Lihat Transkrip',
+    edu_hide_transcript: 'Sembunyikan Transkrip',
+    edu_video_story_label: 'Cerita Pengalaman Pesien (Chloe, 21)',
+    edu_video_frame_0: '"Saya makan dengan sihat dan aktif. Saya ingat kolesterol tinggi hanya untuk orang tua atau mereka yang mempunyai gaya hidup tidak sihat."',
+    edu_video_frame_1: '"Kaunselor genetik tidak memaksa saya langsung. Mereka hanya menyenaraikan fakta dan membiarkan saya membuat keputusan sendiri."',
+    edu_video_frame_2: '"Saya dapati insurans kesihatan sedia ada dilindungi sepenuhnya, dan subsidi MOH menampung sehingga 75% daripada kos."',
+    edu_video_frame_3: '"Saya memutuskan untuk melakukan ujian kerana mendapatkan fakta yang jelas membantu saya mengawal kesihatan saya dan kejelasan tentang cara untuk kekal sihat."',
+    edu_video_transcript_title: 'Transkrip & Sari Kata Video',
+    edu_video_transcript_1: '"Hei semua, saya Chloe. Apabila ujian menandakan kolesterol LDL saya sebagai sangat tinggi, saya sangat keliru. Saya hidup dengan gaya hidup sihat, bersenam secara teratur, dan makan dengan baik, jadi saya menganggap kolesterol tinggi adalah sesuatu yang hanya dialami orang tua, atau mungkin orang yang mempunyai gaya hidup tidak sihat. Doktor saya menerangkan bahawa FH diwarisi sejak lahir—tiada kaitan dengan gaya hidup atau umur."',
+    edu_video_transcript_2: '"Pada mulanya saya sangat skeptikal tentang kaunseling genetik, tetapi kaunselor tidak cuba memaksa saya. Dia hanya menerangkan cara genetik berfungsi, menjawab soalan saya tentang privasi, dan membiarkan keputusan sepenuhnya kepada saya."',
+    edu_video_transcript_3: '"Kami juga membincangkan aspek praktikal. Dia menjelaskan bahawa di bawah garis panduan Singapura, insurans kesihatan sedia ada tidak boleh diubah, dan MOH menampung sehingga 75% kos. Tiada perangkap tersembunyi."',
+    edu_video_transcript_4: '"Akhirnya, saya memutuskan untuk meneruskan dan mengambil ujian darah. Mendapatkan fakta tidak mengubah siapa saya, tetapi ia memberi saya kejelasan tentang cara untuk kekal sihat. Ia tentang mengenali badan anda, bukan hidup dalam ketakutan."',
+    booking_header_title: 'Tempah Janji Temu',
+    faq_title: 'Soalan Lazim',
+    faq_category_all: 'SEMUA',
+    faq_category_cost: 'KOS',
+    faq_category_insurance: 'INSURAN',
+    faq_category_testing: 'UJIAN',
+    faq_category_medication: 'UBATAN',
+    edu_did_you_know: 'Tahukah Anda?',
+    edu_for_you_badge: 'Untuk Anda',
+    edu_stat_prevalence_val: '1 dalam 250',
+    edu_stat_prevalence_lbl: 'Rakyat SG Menghidap FH',
+    edu_stat_undiagnosed_val: '~90%',
+    edu_stat_undiagnosed_lbl: 'Belum Didiagnosis di SG',
+    edu_stat_risk_val: 'Sehingga 80%',
+    edu_stat_risk_lbl: 'Risiko Jantung Lebih Rendah',
+    edu_stat_family_val: '50%',
+    edu_stat_family_lbl: 'Risiko Keturunan Keluarga',
+    edu_stat_subsidies_val: 'Sehingga 75%',
+    edu_stat_subsidies_lbl: 'Subsidi Langsung MOH',
+    edu_stat_cost_val: '5–5',
+    edu_stat_cost_lbl: 'Anggaran Kos Sendiri Biasa',
+    edu_stat_insurance_val: '0%',
+    edu_stat_insurance_lbl: 'Kesan pada Insurans Sedia Ada',
+    edu_stat_meds_val: '30+ Thn',
+    edu_stat_meds_lbl: 'Bukti Keselamatan Statin',
+    edu_stat_testing_val: '4–6 Mggu',
+    edu_stat_testing_lbl: 'Masa Laporan Ujian DNA',
+    edu_learning_hub: 'HUB PEMBELAJARAN',
+    edu_modules_summary: '3 Modul • 6 Topik',
+    edu_group_basics_title: 'Memahami FH & Ubat',
+    edu_group_basics_desc: 'Ketahui tentang keadaan genetik, tanda fizikal, dan rawatan standard.',
+    edu_group_journey_title: 'Perjalanan Klinikal Anda',
+    edu_group_journey_desc: 'Panduan langkah demi langkah untuk ujian dan melindungi keluarga anda.',
+    edu_group_costs_title: 'Subsidi & Perlindungan',
+    edu_group_costs_desc: 'Subsidi MOH, liputan MediSave, dan hak insurans undang-undang anda.',
+    booking_mins: 'minit',
+    chatbot_fallback_insurance: "Di bawah **Moratorium LIA Singapura**, syarikat insurans **tidak boleh** meminta anda mendedahkan keputusan ujian genetik. Pelan sedia ada seperti **MediShield Life** dan Integrated Shield tidak terjejas langsung.",
+    chatbot_fallback_cost: "Ujian FH disubsidi **50–75%** oleh MOH untuk rakyat Malaysia yang layak. Kos sendiri biasanya antara **S$50 hingga S$120** dan boleh **dibayar sepenuhnya menggunakan MediSave**.",
+    chatbot_fallback_family: "FH diwarisi — ahli keluarga darjah pertama mempunyai **peluang 50%** mewarisi gen tersebut. Pasukan anda akan menyelaras **pemeriksaan kaskad** untuk melindungi keluarga anda.",
+    chatbot_fallback_prep: "Tidak perlu berpuasa! Sediakan **sejarah perubatan keluarga**, **ubat-ubatan semasa**, dan **Singpass** anda. Sesi kaunseling 30 minit akan membimbing anda terlebih dahulu.",
+    chatbot_fallback_default: "Saya sedia membantu mengenai ujian FH. Rujukan anda adalah **saringan pencegahan yang disubsidi dan dilindungi**. Semak tab **Belajar** atau **Tempah** untuk maklumat lanjut.",
+    // Home quick links
+    link_ask_ai: 'Tanya AI',
+    link_help_desk: 'Meja Bantuan',
+    link_medical_reports: 'Laporan Perubatan',
+    link_medication_refill: 'Tambah Ubat',
+    link_payment: 'Pembayaran',
+    link_programmes: 'Program Kesihatan',
+    // Notifications popup
+    notif_header: 'Pemberitahuan',
+    notif_close: 'Tutup',
+    notif_referral_title: 'Rujukan Genetik FH Aktif',
+    notif_referral_desc: 'Rujukan klinikal anda aktif. Baca sebab doktor anda mengesyorkan ujian.',
+    notif_referral_time: '2 jam lalu',
+    notif_booking_booked: 'Janji Temu Kaunseling Ditempah',
+    notif_booking_unbooked: 'Tindakan Diperlukan: Tempah Kaunseling',
+    notif_booking_confirmed_msg: 'Kaunseling genetik pra-ujian disahkan pada {date} @ {time}.',
+    notif_booking_pending_msg: 'Sila tempah slot sesi kaunseling genetik pra-ujian anda.',
+    notif_time_just_now: 'Baru sahaja',
+    notif_time_1d_ago: '1 hari lalu',
+    // Cancel flow
+    cancel_worries_text: 'Ada kebimbangan tentang kos, keselamatan, atau prosedur?',
+    cancel_address_concerns: 'Selesaikan kebimbangan anda di bahagian',
+    cancel_faq_link: 'Soalan Lazim kami',
+    cancel_if_need_diff_time: 'Jika anda memerlukan waktu yang berbeza, anda boleh menjadualkan semula tanpa kehilangan tempat dalam program.',
+    cancel_reschedule_btn: 'Jadualkan Semula Sebaliknya',
+    cancel_continue_btn: 'Teruskan Pembatalan',
+    cancel_confirm_title: 'Sahkan pembatalan',
+    cancel_confirm_desc: 'Pembatalan akan melepaskan slot ini. Anda boleh menempah semula bila-bila masa, walaupun ketersediaan mungkin berbeza.',
+    cancel_yes_btn: 'Ya, Batalkan Janji Temu Ini',
+    cancel_keep_btn: 'Kekalkan Janji Temu Saya',
+    cancel_success_title: 'Janji temu anda telah dibatalkan.',
+    cancel_success_desc: 'Anda boleh menempah slot baru bila-bila masa anda bersedia.',
+    cancel_book_new_btn: 'Tempah Janji Temu Baru',
+    cancel_return_home: 'Kembali ke Laman Utama',
+    // Reschedule flow
+    reschedule_select_title: 'Pilih slot baru',
+    reschedule_current_appt: 'Janji temu semasa',
+    reschedule_choose_desc: 'Pilih klinik, tarikh dan masa pengganti. Janji temu semasa anda kekal disahkan sehingga anda selesai menjadualkan semula.',
+    reschedule_select_clinic: 'Pilih klinik',
+    reschedule_nearest: 'Terdekat',
+    reschedule_no_slots: 'Tiada slot tersedia pada hari ini.',
+    reschedule_keep_current: 'Kekalkan janji temu semasa',
+    reschedule_review_title: 'Semak perubahan',
+    reschedule_review_desc: 'Semak perubahan sebelum mengesahkan. Janji temu semasa anda kekal aktif sehingga anda tekan Sahkan Penjadualan Semula.',
+    reschedule_new_appt: 'Janji temu baru',
+    reschedule_confirm_btn: 'Sahkan Penjadualan Semula',
+    reschedule_different_slot: 'Pilih Slot Berbeza',
+    reschedule_success_title: 'Janji temu telah dijadualkan semula.',
+    reschedule_success_desc: 'Janji temu anda telah dikemas kini.',
+    reschedule_done_btn: 'Selesai',
+    // Profile screen
+    profile_my_profile: 'Profil Saya',
+    profile_section_personal: 'Maklumat Peribadi',
+    profile_section_contact: 'Maklumat Hubungan',
+    profile_section_emergency: 'Kenalan Kecemasan',
+    profile_section_healthcare: 'Pilihan Penjagaan Kesihatan',
+    profile_section_medical: 'Maklumat Perubatan',
+    profile_section_account: 'Akaun',
+    profile_label_full_name: 'Nama penuh',
+    profile_label_dob: 'Tarikh lahir',
+    profile_label_gender: 'Jantina',
+    profile_label_nric: 'NRIC / ID Kesihatan',
+    profile_label_preferred_lang: 'Bahasa pilihan',
+    profile_label_mobile: 'Nombor telefon bimbit',
+    profile_label_email: 'Alamat e-mel',
+    profile_label_address: 'Alamat kediaman',
+    profile_label_contact_name: 'Nama kenalan',
+    profile_label_relationship: 'Hubungan',
+    profile_label_phone: 'Nombor telefon',
+    profile_label_preferred_clinic: 'Klinik pilihan',
+    profile_label_ldl: 'Kolesterol LDL',
+    profile_label_active_referrals: 'Rujukan aktif',
+    profile_label_upcoming_appts: 'Janji temu akan datang',
+    profile_fh_testing_badge: 'Ujian Genetik FH (Bersubsidi MOH)',
+    profile_no_appointments: 'Tiada janji temu dijadualkan',
+    profile_book_session_now: 'Tempah sesi kaunseling sekarang',
+    profile_view_reminder_settings: 'Lihat Tetapan Peringatan & Pemberitahuan',
+    profile_label_linked_account: 'Akaun HealthHub yang dipautkan',
+    profile_label_privacy: 'Tetapan privasi',
+    profile_verified_singpass: 'Disahkan melalui Singpass',
+    profile_privacy_registry: 'Pendaftaran Genomik Nasional Selamat',
+    profile_logout: 'Log keluar dari HealthHub',
+    profile_yrs: 'thn',
+    gender_male: 'Lelaki',
+    gender_female: 'Perempuan',
+    // Booking screen – location / calendar
+    booking_location_label: 'Lokasi:',
+    booking_change_location: 'Tukar Lokasi',
+    booking_default_address: 'Alamat lalai',
+    booking_search_location: 'Cari Lokasi:',
+    booking_detecting: 'Mengesan...',
+    booking_live_location: 'Lokasi Semasa',
+    booking_search_results: 'Keputusan Carian:',
+    booking_suggestions: 'Cadangan:',
+    booking_no_matches: 'Tiada padanan. Klik di bawah untuk menggunakan:',
+    booking_distance: 'Jarak:',
+    booking_nearest_clinic: 'Klinik Terdekat',
+    booking_legend_today: 'Hari Ini',
+    booking_legend_selected: 'Hari Dipilih',
+    booking_km_away: 'km jauh',
+    // Learn FH screen
+    edu_learning_guide_title: 'Panduan Pembelajaran FH Anda',
+    edu_learning_guide_subtitle: 'Panduan peribadi tentang sebab dan cara bersedia setelah anda dirujuk untuk ujian genetik FH.',
+    edu_tab_guides: 'Panduan',
+    edu_tab_checklist: 'Senarai Semak',
+    edu_tab_faqs: 'Soal Jawab & Pautan',
+    edu_topics: 'Topik',
+    edu_helpful_resources: 'Sumber Berguna',
+    edu_view_resource: 'Lihat Sumber',
+    edu_checklist_progress_title: 'Kemajuan Persediaan',
+    edu_checklist_progress_detail: '{completed} daripada {total} selesai ({percent}%)',
+    edu_checklist_progress_success: 'Cemerlang! Anda telah bersedia sepenuhnya untuk sesi konsultasi anda.',
+    edu_checklist_progress_desc: 'Lengkapkan langkah-langkah ini sebelum janji temu anda untuk memanfaatkan sesi anda bersama kaunselor genetik dengan sebaiknya.',
+    edu_checklist_card_title: 'Senarai Semak Pra-Kaunseling',
+    edu_checklist_card_desc: 'Melengkapkan tugasan mudah ini dapat mengurangkan kebimbangan janji temu dan memastikan penjagaan yang sangat disesuaikan:',
+    edu_checklist_essential_prep: 'Persediaan Penting',
+    patient_label: 'Pesakit',
+    edu_hi_greeting: 'HAI {name},',
+    edu_cta_title: 'Bersedia untuk menempah slot kaunseling GAC anda?',
+    edu_cta_subtitle: 'Ambil langkah aktif hari ini. Tempahan mengambil masa kurang daripada 20 saat dalam HealthHub.',
+    edu_cta_btn: 'Pergi ke Tempahan Selamat',
+    edu_key_takeaway: 'Rumusan Utama',
+    edu_doc_page_of: 'MUKA SURAT {current} DARIPADA {total}',
+    edu_website_btn: 'LAMAN WEB',
+    edu_print_btn: 'CETAK',
+    edu_page_label: 'Muka surat',
+    edu_prev_btn: 'Sblm',
+    edu_next_btn: 'Seterusnya',
+    edu_finish_btn: 'Selesai Membaca',
+    not_on_file: 'Tiada dalam rekod',
+    not_yet_assigned: 'Belum ditentukan',
+    sms_today: 'Hari Ini',
+    concern_test_desc: 'Ketahui apa yang berlaku sebelum, semasa dan selepas ujian genetik.',
+    
+    // New Illustration/Comparison Card Keys
+    illus_clinical_testing_flow: 'Aliran Ujian Klinikal',
+    illus_step_booked: '1. Ditempah',
+    illus_step_consult: '2. Rundingan',
+    illus_step_blood_draw: '3. Ambil Darah',
+    illus_step_results: '4. Keputusan',
+    illus_singapore_financing_model: 'Model Pembiayaan Singapura',
+    illus_government_subsidy: 'Subsidi Kerajaan',
+    illus_up_to_75_covered: 'Sehingga 75% Ditanggung',
+    illus_consumer_safeguard_grid: 'Grid Perlindungan Pengguna',
+    illus_active_policies_note: 'Polisi aktif tidak boleh diubah, dibatalkan, atau dinaikkan harga sama sekali.',
+    illus_liver_ldl_clearance: 'Pembersihan LDL Hati',
+    illus_statins_boost_note: 'Statin meningkatkan reseptor kitar semula pada sel hati, menarik kolesterol daripada darah.',
+    illus_family_cascade_tree: 'Salasilah Saringan Lata Keluarga',
+    illus_index_patient: 'Pesakit Indeks (Anda)',
+    illus_inheritance_prob: '│ (50% kebarangkalian warisan)',
+    illus_parents: 'Ibu Bapa',
+    illus_siblings: 'Adik-Beradik',
+    illus_children: 'Anak-Anak',
+    illus_standard_high_cholesterol: 'Kolesterol Tinggi Biasa',
+    illus_standard_desc: 'Disebabkan oleh gaya hidup & diet. Boleh dipulihkan dengan tabiat.',
+    illus_fh_familial: 'FH (Warisan)',
+    illus_fh_desc: 'Genetik sejak lahir. Sepanjang hayat, memerlukan penjagaan perubatan.',
+    illus_lipids_over_time: '⏳ Lipid Dari Masa ke Masa (Pengumpulan Arteri)',
+    illus_birth_clear: 'Lahir (Bersih)',
+    illus_adulthood_plaque: 'Dewasa (Plak)',
+    illus_early_treatment_safe: 'Rawatan Awal (Selamat)',
+    illus_fiber: 'Serat',
+    illus_fiber_desc: 'Oat, kacang, sayuran',
+    illus_limits: 'Hadkan',
+    illus_limits_desc: 'Elakkan mentega, minyak sawit',
+    illus_active: 'Aktif',
+    illus_active_desc: 'Jalan laju 30m setiap hari',
+    
+    // Additional Keys
+    edu_selected_for_you: 'Dipilih untuk Anda',
+    edu_personalised_badge: 'Diperibadikan',
+    edu_testing_guide_summary: 'Perjalanan anda distrukturkan sepenuhnya, meliputi sesi kaunseling dan pengambilan darah.',
+    edu_personalized_support_prefix: 'Sokongan Diperibadikan:',
+    edu_note_cascade: 'Kami memahami kesihatan keluarga adalah keutamaan anda. Saringan lata ialah langkah proaktif yang melindungi—bukan diagnosis—membolehkan keluarga anda menjaga kesihatan jantung lebih awal.',
+    edu_note_costs: 'Subsidi MOH dan manfaat CHAS distrukturkan untuk memastikan ujian sangat mampu milik, dengan baki kos boleh dibayar sepenuhnya oleh MediSave.',
+    edu_note_insurance: 'Moratorium LIA memastikan ujian proaktif tidak menjejaskan keupayaan anda untuk mendapatkan perlindungan insurans hayat dan kesihatan standard.',
+    edu_note_meds: 'Rasa bimbang untuk memulakan ubat adalah perkara biasa. Statin adalah sangat selamat, dikaji secara meluas, dan sangat berkesan untuk mengembalikan risiko kardiovaskular ke tahap biasa.',
+    
+    // Localized Guide FAQs
+    edu_faq_testing_q: "Adakah keputusan ujian positif bermakna saya menghidap penyakit jantung?",
+    edu_faq_testing_a: "Tidak. Ujian genetik yang positif bukanlah diagnosis penyakit jantung. Ia hanya mengenal pasti risiko warisan. Pasukan perubatan anda boleh mengambil langkah pencegahan yang sangat berkesan untuk menjaga kesihatan jantung anda.",
+    edu_faq_costs_q: "Berapakah kos yang perlu saya bayar sendiri?",
+    edu_faq_costs_a: "Antara S$15 hingga S$45 selepas subsidi MOH. Paling penting, baki kos boleh dibayar 100% menggunakan MediSave di bawah Skim Pengurusan Penyakit Kronik.",
+    edu_faq_insurance_q: "Adakah ini akan menjejaskan keupayaan anak-anak saya untuk mendapatkan insurans?",
+    edu_faq_insurance_a: "Tidak. Persatuan Insurans Hayat (LIA) Singapura mengekalkan moratorium ujian genetik yang ketat bagi melindungi ujian genetik klinikal sukarela daripada menjejaskan polisi insurans.",
+    edu_faq_meds_q: "Bolehkah saya menghentikan ubat kolesterol saya semasa ujian dijalankan?",
+    edu_faq_meds_a: "Tidak, anda tidak boleh menghentikan atau mengubah ubat yang ditetapkan melainkan diarahkan oleh doktor anda. DNA tidak berubah oleh sebarang ubat.",
   },
   zh: {
+    ...zhPersonalisation,
+    ...zhChecklist,
     health: 'Health',
     hub: 'Hub',
     active_user: '活跃用户',
@@ -713,6 +1250,8 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     confirm_booking_btn: '确认预约',
     appointment_confirmed_title: '预约已确认！',
     booking_success_desc: '您的基因咨询时段已锁定。我们已为您安排了短信和应用推送提醒。',
+    booking_success_details: '您的咨询时段已安排在 {date} 的 {time}，地点为 {clinic}。',
+    booking_scheduled_upcoming: '已安排与即将进行',
     add_to_calendar: '添加到日历',
     reschedule_slot: '重新安排预约',
     back_to_home: '返回主页',
@@ -813,6 +1352,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     booking_nric_verified: '已就绪并登记 • NRIC/Singpass 临床入院前验证已通过。',
     booking_unverified_alert: '到场状态尚未验证。请点击锁屏推送或设置页面来确认您将按时出席。',
     booking_session_desc: '45分钟的专家问诊，为您解答家族担忧并最终确定检测细节。',
+    booking_setup_reminders: '设置您的提醒警报与通知频率',
     booking_review_details: '核对预约细节',
     booking_confirm_slot_btn: '确认预约时段',
     booking_add_calendar_success: 'Apple日历 .ics 事件已成功下载！',
@@ -971,8 +1511,269 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     role_consultant_paediatric_geneticist: '儿科基因专科顾问医生',
     role_lead_paediatric_counsellor: '首席儿科基因咨询师',
     role_consultant_geneticist: '基因专科顾问医生',
+    chatbot_greeting: "您好！我是 **HealthBuddy**，您的新加坡卫生部 FH 智能助理。我可以回答有关**家族性高胆固醇血症 (FH)**、检测费用、保险保护以及预约相关的问题。请问您今天有什么需要了解的？",
+    chatbot_placeholder: '询问津贴、保险保障、检测准备...',
+    chatbot_quick_insurance: '这会影响我的保险吗？',
+    chatbot_quick_cost: 'FH检测需要多少费用？',
+    chatbot_quick_family: '这会影响我的家人吗？',
+    chatbot_quick_prep: '我需要做什么准备？',
+    chatbot_footer: '提供新加坡卫生部 MOH 和 GovTech 官方政策解答。',
+    chatbot_online: 'GovTech 支持 - 在线',
+    chatbot_title: 'HealthBuddy 助理',
+    chatbot_reset: '重置对话',
+    chatbot_banner_title: '对FH基因检测有疑虑？',
+    chatbot_banner_body: '立即获得关于CHAS补贴、保险保障和诊所准备的安全解答。',
+    edu_hub_title: '教育中心',
+    edu_note: '请注意：被转介进行基因检测并不意味着您患有FH，这只是一项主动评估您自然风险的预防措施。',
+    edu_video_title: '▶ FH检测期间会发生什么？',
+    edu_video_subtitle: '在预约前了解您可以预期的内容。',
+    edu_play_story: '播放故事',
+    edu_pause_story: '暂停故事',
+    edu_view_transcript: '查看文字稿',
+    edu_hide_transcript: '隐藏文字稿',
+    edu_video_story_label: '患者体验故事 (Chloe, 21)',
+    edu_video_frame_0: '"我饮食健康并保持活跃。我以为高胆固醇只属于老年人或生活方式不健康的人。"',
+    edu_video_frame_1: '"遗传咨询师完全没有强迫我。他们只是列出事实，让我自己做决定。"',
+    edu_video_frame_2: '"我发现现有的健康保险受到完全保护，MOH补贴覆盖高达75%的费用。"',
+    edu_video_frame_3: '"我决定做这个检测，因为获得清晰的事实帮助我掌控自己的健康，并明确如何保持健康。"',
+    edu_video_transcript_title: '视频文字稿与字幕',
+    edu_video_transcript_1: '"大家好，我是Chloe。当一次筛查显示我的LDL胆固醇极高时，我完全困惑了。我生活方式健康，定期运动，饮食均衡，所以我以为高胆固醇只是老年人才会有的问题，或者那些生活方式不健康的人。我的医生解释说FH是从出生时就遗传的——与生活方式或年龄无关。"',
+    edu_video_transcript_2: '"起初我对遗传咨询持怀疑态度，但咨询师并没有试图强迫我。她只是解释了遗传学的原理，回答了我关于隐私的问题，并完全把决定权留给了我。"',
+    edu_video_transcript_3: '"我们还讨论了实际问题。她澄清说在新加坡的指导方针下，现有的健康保险不会受到影响，MOH覆盖高达75%的费用。没有任何隐藏的陷阱。"',
+    edu_video_transcript_4: '"最终，我决定继续进行血液检测。获得事实并没有改变我是谁，但它确实让我清楚地知道如何保持健康。这是关于了解你的身体，而不是生活在恐惧中。"',
+    booking_header_title: '预约挂号',
+    faq_title: '常见问题',
+    faq_category_all: '全部',
+    faq_category_cost: '费用',
+    faq_category_insurance: '保险',
+    faq_category_testing: '检测',
+    faq_category_medication: '药物',
+    edu_did_you_know: '您知道吗？',
+    edu_for_you_badge: '为您推荐',
+    edu_stat_prevalence_val: '1 / 250',
+    edu_stat_prevalence_lbl: '新加坡本地人患有 FH',
+    edu_stat_undiagnosed_val: '~90%',
+    edu_stat_undiagnosed_lbl: '本地患者尚未被确诊',
+    edu_stat_risk_val: '高达 80%',
+    edu_stat_risk_lbl: '早期预防降低心血管风险',
+    edu_stat_family_val: '50%',
+    edu_stat_family_lbl: '直系亲属遗传概率',
+    edu_stat_subsidies_val: '高达 75%',
+    edu_stat_subsidies_lbl: '卫生部 MOH 直接医疗津贴',
+    edu_stat_cost_val: '5–5',
+    edu_stat_cost_lbl: '个人自付款项（可扣 MediSave）',
+    edu_stat_insurance_val: '0%',
+    edu_stat_insurance_lbl: '对已生效商业保单的影响',
+    edu_stat_meds_val: '30+ 年',
+    edu_stat_meds_lbl: '他汀类药物临床安全验证',
+    edu_stat_testing_val: '4–6 周',
+    edu_stat_testing_lbl: '临床专科 DNA 报告周期',
+    edu_learning_hub: '学习中心',
+    edu_modules_summary: '3 个模块 • 6 个主题',
+    edu_group_basics_title: '了解FH与药物',
+    edu_group_basics_desc: '了解遗传病症、身体症状和标准治疗方法。',
+    edu_group_journey_title: '您的临床旅程',
+    edu_group_journey_desc: '检测和保护家人的逐步指南。',
+    edu_group_costs_title: '补贴与保障',
+    edu_group_costs_desc: 'MOH补贴、MediSave保障及您的法定保险权利。',
+    booking_mins: '分钟',
+    chatbot_fallback_insurance: "根据新加坡**LIA暂停协议**，保险公司**不得**要求您披露基因检测结果。**MediShield Life**等现有保单完全不受影响。",
+    chatbot_fallback_cost: "FH检测获MOH **50–75%** 补贴（符合资格的新加坡公民）。自付费用通常为 **S$50至S$120**，可**全额使用MediSave支付**。",
+    chatbot_fallback_family: "FH具有遗传性——直系亲属有 **50%** 的概率携带相同基因。您的医疗团队将协调**级联筛查**，及早保护家人健康。",
+    chatbot_fallback_prep: "无需空腹！请准备好**家族病史**（尤其是早发心脏病史）、**当前用药清单**及**Singpass**。30分钟咨询会首先为您详细说明。",
+    chatbot_fallback_default: "我在此协助您了解FH检测。您的转诊是一项**受补贴、受保护的预防性筛查**。欢迎查阅**学习**或**预约**标签页。",
+    chatbot_close: '关闭聊天',
+    // Home quick links
+    link_ask_ai: 'AI咨询',
+    link_help_desk: '帮助台',
+    link_medical_reports: '病历报告',
+    link_medication_refill: '药物续配',
+    link_payment: '付款',
+    link_programmes: '健康项目',
+    // Notifications popup
+    notif_header: '通知',
+    notif_close: '关闭',
+    notif_referral_title: 'FH基因检测转诊已启动',
+    notif_referral_desc: '您的临床转诊已启动。了解医生建议检测的原因。',
+    notif_referral_time: '2小时前',
+    notif_booking_booked: '遗传咨询预约已完成',
+    notif_booking_unbooked: '需要行动：立即预约咨询',
+    notif_booking_confirmed_msg: '检测前基因咨询已确认，时间为 {date} @ {time}。',
+    notif_booking_pending_msg: '请预约您的检测前基因咨询时段。',
+    notif_time_just_now: '刚刚',
+    notif_time_1d_ago: '1天前',
+    // Cancel flow
+    cancel_worries_text: '对费用、安全性或流程有疑虑？',
+    cancel_address_concerns: '请查阅我们的',
+    cancel_faq_link: '常见问答',
+    cancel_if_need_diff_time: '如需更换时间，您可以重新安排，不会失去在计划中的位置。',
+    cancel_reschedule_btn: '改为重新安排',
+    cancel_continue_btn: '继续取消',
+    cancel_confirm_title: '确认取消',
+    cancel_confirm_desc: '取消将释放此预约时段。您可随时重新预约，但名额可能有所变化。',
+    cancel_yes_btn: '是的，取消此预约',
+    cancel_keep_btn: '保留我的预约',
+    cancel_success_title: '您的预约已取消。',
+    cancel_success_desc: '您可以在准备好后随时预约新时段。',
+    cancel_book_new_btn: '预约新时段',
+    cancel_return_home: '返回主页',
+    // Reschedule flow
+    reschedule_select_title: '选择新时段',
+    reschedule_current_appt: '当前预约',
+    reschedule_choose_desc: '请选择替代诊所、日期和时间。完成重新安排之前，您的当前预约仍保持有效。',
+    reschedule_select_clinic: '选择诊所',
+    reschedule_nearest: '最近',
+    reschedule_no_slots: '今天没有可用时段。',
+    reschedule_keep_current: '保留当前预约',
+    reschedule_review_title: '审核更改',
+    reschedule_review_desc: '确认前请先审核更改。当前预约将保持有效，直到您点击确认重新安排。',
+    reschedule_new_appt: '新预约',
+    reschedule_confirm_btn: '确认重新安排',
+    reschedule_different_slot: '选择其他时段',
+    reschedule_success_title: '预约已重新安排。',
+    reschedule_success_desc: '您的预约已更新。',
+    reschedule_done_btn: '完成',
+    // Profile screen
+    profile_my_profile: '我的档案',
+    profile_section_personal: '个人信息',
+    profile_section_contact: '联系信息',
+    profile_section_emergency: '紧急联系人',
+    profile_section_healthcare: '医疗偏好',
+    profile_section_medical: '医疗信息',
+    profile_section_account: '账户',
+    profile_label_full_name: '全名',
+    profile_label_dob: '出生日期',
+    profile_label_gender: '性别',
+    profile_label_nric: '身份证 / 健康ID',
+    profile_label_preferred_lang: '首选语言',
+    profile_label_mobile: '手机号码',
+    profile_label_email: '电邮地址',
+    profile_label_address: '住宅地址',
+    profile_label_contact_name: '联系人姓名',
+    profile_label_relationship: '关系',
+    profile_label_phone: '电话号码',
+    profile_label_preferred_clinic: '首选诊所',
+    profile_label_ldl: 'LDL胆固醇',
+    profile_label_active_referrals: '活跃转诊',
+    profile_label_upcoming_appts: '即将到来的预约',
+    profile_fh_testing_badge: 'FH基因检测（MOH补贴）',
+    profile_no_appointments: '暂无预约',
+    profile_book_session_now: '立即预约咨询',
+    profile_view_reminder_settings: '查看提醒与通知设置',
+    profile_label_linked_account: '已关联的HealthHub账户',
+    profile_label_privacy: '隐私设置',
+    profile_verified_singpass: '已通过Singpass验证',
+    profile_privacy_registry: '国家基因组注册库安全',
+    profile_logout: '从HealthHub退出',
+    profile_yrs: '岁',
+    gender_male: '男',
+    gender_female: '女',
+    // Booking screen – location / calendar
+    booking_location_label: '位置：',
+    booking_change_location: '更改位置',
+    booking_default_address: '默认地址',
+    booking_search_location: '搜索位置：',
+    booking_detecting: '正在检测...',
+    booking_live_location: '实时位置',
+    booking_search_results: '搜索结果：',
+    booking_suggestions: '建议：',
+    booking_no_matches: '未找到匹配项。点击下方使用：',
+    booking_distance: '距离：',
+    booking_nearest_clinic: '最近诊所',
+    booking_legend_today: '今天',
+    booking_legend_selected: '已选日期',
+    booking_km_away: '公里外',
+    // Learn FH screen
+    edu_learning_guide_title: '您的FH学习指南',
+    edu_learning_guide_subtitle: '一份个性化指南，帮助您了解为何以及如何在被转诊接受FH基因检测后做好准备。',
+    edu_tab_guides: '指南',
+    edu_tab_checklist: '清单',
+    edu_tab_faqs: '常见问答与链接',
+    edu_topics: '主题',
+    edu_helpful_resources: '有用资源',
+    edu_view_resource: '查看资源',
+    edu_checklist_progress_title: '准备工作进度',
+    edu_checklist_progress_detail: '已完成 {completed} / {total} ({percent}%)',
+    edu_checklist_progress_success: '非常棒！您已为咨询做好了充分准备。',
+    edu_checklist_progress_desc: '请在预约前完成这些步骤，以便在与基因咨询师面谈时获得最大的收获。',
+    edu_checklist_card_title: '咨询前准备清单',
+    edu_checklist_card_desc: '完成这些简单的步骤可以减轻您对预约的焦虑，并确保获得高度定制化的照护：',
+    edu_checklist_essential_prep: '基本准备工作',
+    patient_label: '患者',
+    edu_hi_greeting: '您好 {name}，',
+    edu_cta_title: '准备好预约您的GAC咨询时段了吗？',
+    edu_cta_subtitle: '今天就行动。在HealthHub内预约仅需20秒。',
+    edu_cta_btn: '前往安全预约',
+    edu_key_takeaway: '核心要点',
+    edu_doc_page_of: '第 {current} 页，共 {total} 页',
+    edu_website_btn: '官方网站',
+    edu_print_btn: '打印',
+    edu_page_label: '页',
+    edu_prev_btn: '上一页',
+    edu_next_btn: '下一页',
+    edu_finish_btn: '阅读完毕',
+    not_on_file: '暂无记录',
+    not_yet_assigned: '暂未指定',
+    sms_today: '今天',
+    concern_test_desc: '了解基因检测前、检测中和检测后会发生什么。',
+    
+    // New Illustration/Comparison Card Keys
+    illus_clinical_testing_flow: '临床检测流程',
+    illus_step_booked: '1. 已预约',
+    illus_step_consult: '2. 咨询',
+    illus_step_blood_draw: '3. 采血',
+    illus_step_results: '4. 报告出炉',
+    illus_singapore_financing_model: '新加坡医疗融资模式',
+    illus_government_subsidy: '政府津贴',
+    illus_up_to_75_covered: '最高涵盖 75%',
+    illus_consumer_safeguard_grid: '消费者保障网',
+    illus_active_policies_note: '生效中的保单绝不能被修改、取消或重新定价。',
+    illus_liver_ldl_clearance: '肝脏 LDL 清除机制',
+    illus_statins_boost_note: '他汀类药物可增加肝细胞表面的受体数量，从而加速从血液中清除胆固醇。',
+    illus_family_cascade_tree: '家族级联筛查树',
+    illus_index_patient: '索引患者（您）',
+    illus_inheritance_prob: '│ (50% 遗传概率)',
+    illus_parents: '父母',
+    illus_siblings: '兄弟姐妹',
+    illus_children: '子女',
+    illus_standard_high_cholesterol: '普通高胆固醇',
+    illus_standard_desc: '由生活方式和饮食引起。可通过习惯改善。',
+    illus_fh_familial: 'FH (家族性)',
+    illus_fh_desc: '自出生起即为遗传性。终生，需要医疗护理。',
+    illus_lipids_over_time: '⏳ 脂质随时间积聚趋势（动脉堵塞）',
+    illus_birth_clear: '出生（血管干净）',
+    illus_adulthood_plaque: '成年（斑块形成）',
+    illus_early_treatment_safe: '早期治疗（安全可控）',
+    illus_fiber: '膳食纤维',
+    illus_fiber_desc: '燕麦、豆类、蔬菜',
+    illus_limits: '限制摄入',
+    illus_limits_desc: '避免黄油、棕榈油',
+    illus_active: '保持运动',
+    illus_active_desc: '每天快走 30 分钟',
+    
+    // Additional Keys
+    edu_selected_for_you: '为您精心推荐',
+    edu_personalised_badge: '个性化',
+    edu_testing_guide_summary: '您的基因检测之旅非常清晰，包含前期咨询和采血流程。',
+    edu_personalized_support_prefix: '个性化支持：',
+    edu_note_cascade: '我们理解家人的健康是您的重中之重。家系筛查是一项主动的预防性保护措施，而不是一种诊断，它能让您的家人及早守护心血管健康。',
+    edu_note_costs: '新加坡卫生部津贴和 CHAS 计划旨在确保高性价比的检测服务，剩余自付部分可由 MediSave 账户全额结清。',
+    edu_note_insurance: 'LIA 暂缓执行协定确保主动接受自愿检测绝不会影响您获得标准人寿及医疗保险的能力。',
+    edu_note_meds: '对开始服用药物感到担忧是很自然的。他汀类药物安全性极高、研究充分，能极其有效地让您的心血管风险回归标准范围。',
+    
+    // Localized Guide FAQs
+    edu_faq_testing_q: "检测结果呈阳性是否意味着我患有心脏病？",
+    edu_faq_testing_a: "不是的。基因检测呈阳性并不是心脏病的临床诊断，它仅代表您携带有遗传性风险。您的医疗团队可以通过极其有效的预防措施来守护您的心脏健康。",
+    edu_faq_costs_q: "扣除补贴后，我个人需要自付多少费用？",
+    edu_faq_costs_a: "在扣除卫生部（MOH）津贴后，个人自付费用通常仅在 15 至 45 新元之间。更重要的是，剩余账单可通过慢性疾病管理计划（CDMP）使用 MediSave 账户予以 100% 全额支付。",
+    edu_faq_insurance_q: "这会影响我孩子购买商业保险吗？",
+    edu_faq_insurance_a: "不会。新加坡人寿保险公会（LIA）实施了严格的基因检测暂缓执行令，从而保障自愿性临床基因检测绝不会影响任何保单投保。",
+    edu_faq_meds_q: "在进行基因检测期间，我可以停止服用胆固醇药物吗？",
+    edu_faq_meds_a: "不可以。除非您的主治医生明确指示，否则您不应自行停药或改变处方。您的基因（DNA）完全不会受到任何药物的影响。",
   },
   ta: {
+    ...taPersonalisation,
+    ...taChecklist,
     health: 'Health',
     hub: 'Hub',
     active_user: 'செயலில் உள்ள பயனர்',
@@ -1030,6 +1831,8 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     confirm_booking_btn: 'முன்பதிவை உறுதி செய்',
     appointment_confirmed_title: 'சந்திப்பு உறுதி செய்யப்பட்டது!',
     booking_success_desc: 'உங்கள் ஆலோசனை முன்பதிவு உறுதி செய்யப்பட்டது. உங்களுக்கு எஸ்.எம்.எஸ் மற்றும் புஷ் அறிவிப்பு நினைவூட்டல்கள் அனுப்பப்படும்.',
+    booking_success_details: 'உங்கள் ஆலோசனை {date} அன்று {time} மணிக்கு {clinic}-ல் திட்டமிடப்பட்டுள்ளது.',
+    booking_scheduled_upcoming: 'திட்டமிடப்பட்டது & வரவிருப்பது',
     add_to_calendar: 'நாட்காட்டியில் சேர்க்கவும்',
     reschedule_slot: 'முன்பதிவு மாற்றம்',
     back_to_home: 'முகப்புப் பக்கத்திற்குச் செல்',
@@ -1130,6 +1933,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     booking_nric_verified: 'தயார் & பதிவு செய்யப்பட்டது • மருத்துவ சேர்க்கைக்கு முன் NRIC/Singpass சரிபார்க்கப்பட்டது.',
     booking_unverified_alert: 'வருகை சரிபார்க்கப்படவில்லை. வருகையை உறுதிப்படுத்த பூட்டுத் திரை அறிவிப்பு அல்லது அமைப்புகளைத் தட்டவும்.',
     booking_session_desc: 'குடும்ப கவலைகளுக்கு பதிலளிக்கவும் சோதனையை இறுதி செய்யவும் 45 நிமிட அமர்வு.',
+    booking_setup_reminders: 'உங்கள் நினைவூட்டல் அறிவிப்புகள் & அதிர்வெண்ணை அமைக்கவும்',
     booking_review_details: 'முன்பதிவை சரிபார்க்கவும்',
     booking_confirm_slot_btn: 'முன்பதிவை உறுதி செய்',
     booking_add_calendar_success: 'ஆப்பிள் காலண்டர் .ics நிகழ்வு வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!',
@@ -1288,38 +2092,266 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     role_consultant_paediatric_geneticist: 'குழந்தை மருத்துவ மரபியல் ஆலோசகர்',
     role_lead_paediatric_counsellor: 'முதன்மை குழந்தை மருத்துவ ஆலோசகர்',
     role_consultant_geneticist: 'மரபியல் ஆலோசகர்',
+    chatbot_greeting: "வணக்கம்! நான் **HealthBuddy**, உங்கள் GovTech சிங்கப்பூர் FH உதவியாளர். **FH (Familial Hypercholesterolaemia)**, சோதனை கட்டணங்கள், காப்பீட்டு பாதுகாப்பு மற்றும் முன்பதிவு பற்றிய கேள்விகளுக்கு நான் உதவலாம். இன்று என்ன அறிய விரும்புகிறீர்கள்?",
+    chatbot_placeholder: 'மானியங்கள், காப்பீட்டு பாதுகாப்பு, தயாரிப்பு பற்றி கேளுங்கள்...',
+    chatbot_quick_insurance: 'இது என் காப்பீட்டை பாதிக்குமா?',
+    chatbot_quick_cost: 'FH சோதனைக்கு எவ்வளவு கட்டணம்?',
+    chatbot_quick_family: 'இது என் குடும்பத்தை பாதிக்குமா?',
+    chatbot_quick_prep: 'நான் என்ன தயார் செய்ய வேண்டும்?',
+    chatbot_footer: 'MOH சிங்கப்பூர் மற்றும் GovTech அலுவலக கொள்கை பதில்களை வழங்குகிறேன்.',
+    chatbot_online: 'GovTech ஆதரவு - ஆன்லைன்',
+    chatbot_title: 'HealthBuddy உதவியாளர்',
+    chatbot_reset: 'உரையாடலை மீட்டமை',
+    chatbot_banner_title: 'FH மரபணு சோதனை குறித்து கவலைகள் உள்ளதா?',
+    chatbot_banner_body: 'CHAS மானியங்கள், காப்பீட்டு பாதுகாப்பு மற்றும் கிளினிக் தயாரிப்பு குறித்து உடனடி, பாதுகாப்பான பதில்களைப் பெறுங்கள்.',
+    edu_hub_title: 'கல்வி மையம்',
+    edu_note: 'தயவுசெய்து கவனிக்கவும்: மரபணு சோதனைக்கு பரிந்துரைக்கப்படுவது உங்களுக்கு FH இருப்பதாக அர்த்தமில்லை. இது உங்கள் இயற்கையான அபாயத்தை மதிப்பிட ஒரு முன்னெச்சரிக்கை நடவடிக்கை மட்டுமே.',
+    edu_video_title: '▶ FH சோதனையின் போது என்ன நடக்கும்?',
+    edu_video_subtitle: 'உங்கள் சந்திப்பிற்கு முன் என்ன எதிர்பார்க்கலாம் என்று அறிந்துகொள்ளுங்கள்.',
+    edu_play_story: 'கதையை இயக்கு',
+    edu_pause_story: 'கதையை இடைநிறுத்து',
+    edu_view_transcript: 'படியெடுப்பைக் காண்க',
+    edu_hide_transcript: 'படியெடுப்பை மறை',
+    edu_video_story_label: 'நோயாளி அனுபவக் கதை (Chloe, 21)',
+    edu_video_frame_0: '"நான் ஆரோக்கியமாக உண்ணுகிறேன் மற்றும் சுறுசுறுப்பாக இருக்கிறேன். அதிக கொலஸ்ட்ரால் மூத்தவர்களுக்கு அல்லது ஆரோக்கியமற்ற வாழ்க்கை முறை கொண்டவர்களுக்கு மட்டுமே என நான் நினைத்தேன்."',
+    edu_video_frame_1: '"மரபணு ஆலோசகர் என்னை வற்புறுத்தவில்லை. அவர்கள் உண்மைகளை மட்டுமே முன்வைத்து முடிவெடுக்க எனக்கு விட்டுவிட்டார்கள்."',
+    edu_video_frame_2: '"இருக்கும் சுகாதார காப்பீடு முழுமையாக பாதுகாக்கப்பட்டுள்ளது, மேலும் MOH மானியங்கள் செலவின் 75% வரை ஈடுசெய்கிறது என நான் அறிந்தேன்."',
+    edu_video_frame_3: '"தெளிவான உண்மைகளை அறிந்துகொள்வது என் ஆரோக்கியத்தை கட்டுப்பாட்டில் வைக்கவும், ஆரோக்கியமாக இருக்க எனக்கு தெளிவைத் தந்ததால் சோதனை செய்ய முடிவு செய்தேன்."',
+    edu_video_transcript_title: 'வீடியோ படியெடுப்பு & வசனம்',
+    edu_video_transcript_1: '"அனைவருக்கும் வணக்கம், நான் Chloe. ஒரு பரிசோதனை என் LDL கொலஸ்ட்ரால் மிக அதிகமாக இருப்பதைக் காட்டியபோது, நான் முற்றிலும் குழப்பமடைந்தேன். நான் ஆரோக்கியமான வாழ்க்கை முறை, தொடர்ச்சியான உடற்பயிற்சி, மற்றும் சரியான உணவு கொண்டவனாக இருந்ததால், அதிக கொலஸ்ட்ரால் வயதானவர்களுக்கு மட்டுமே அல்லது ஆரோக்கியமற்ற வாழ்க்கை முறை கொண்டவர்களுக்கு மட்டுமே என நான் நினைத்தேன். என் மருத்துவர் FH பிறப்பிலிருந்தே மரபணு ரீதியாக பெறப்படுகிறது என விளக்கினார்—வாழ்க்கை முறை அல்லது வயதுடன் எந்த தொடர்பும் இல்லை."',
+    edu_video_transcript_2: '"மரபணு ஆலோசனை பற்றி நான் ஆரம்பத்தில் சந்தேகம் கொண்டிருந்தேன், ஆனால் ஆலோசகர் என்னை வற்புறுத்த முயற்சிக்கவில்லை. அவள் மரபணுக்கள் எப்படி வேலை செய்கின்றன என்பதை விளக்கினாள், தனியுரிமை பற்றிய என் கேள்விகளுக்கு பதிலளித்தாள், மேலும் முடிவை முழுமையாக எனக்கே விட்டுவிட்டாள்."',
+    edu_video_transcript_3: '"நாங்கள் நடைமுறை அம்சங்களையும் விவாதித்தோம். சிங்கப்பூர் வழிகாட்டுதல்களின் கீழ், இருக்கும் சுகாதார காப்பீட்டை மாற்ற முடியாது, மேலும் MOH செலவின் 75% வரை ஈடுசெய்கிறது என அவள் தெளிவுபடுத்தினாள். எந்த மறைக்கப்பட்ட சிக்கல்களும் இல்லை."',
+    edu_video_transcript_4: '"இறுதியில், இரத்த பரிசோதனை செய்ய முடிவு செய்தேன். உண்மைகளை அறிந்துகொள்வது நான் யார் என்பதை மாற்றவில்லை, ஆனால் ஆரோக்கியமாக இருக்க எனக்கு தெளிவைத் தந்தது. இது உங்கள் உடலை அறிந்துகொள்வதற்கானது, பயத்தில் வாழ்வதற்கல்ல."',
+    booking_header_title: 'சந்திப்பை பதிவு செய்',
+    faq_title: 'அடிக்கடி கேட்கப்படும் கேள்விகள்',
+    faq_category_all: 'அனைத்தும்',
+    faq_category_cost: 'கட்டணம்',
+    faq_category_insurance: 'காப்பீடு',
+    faq_category_testing: 'பரிசோதனை',
+    faq_category_medication: 'மருந்து',
+    edu_did_you_know: 'உங்களுக்கு தெரியுமா?',
+    edu_for_you_badge: 'உங்களுக்காக',
+    edu_stat_prevalence_val: '250இல் 1',
+    edu_stat_prevalence_lbl: 'சிங்கப்பூரர்களுக்கு FH உள்ளது',
+    edu_stat_undiagnosed_val: '~90%',
+    edu_stat_undiagnosed_lbl: 'கண்டறியப்படாமல் உள்ளனர்',
+    edu_stat_risk_val: '80% வரை',
+    edu_stat_risk_lbl: 'இதய அபாயம் குறையும்',
+    edu_stat_family_val: '50%',
+    edu_stat_family_lbl: 'குடும்ப உறுப்பினர்கள் அபாயம்',
+    edu_stat_subsidies_val: '75% வரை',
+    edu_stat_subsidies_lbl: 'MOH நேரடி அரசு மானியம்',
+    edu_stat_cost_val: '5–5',
+    edu_stat_cost_lbl: 'வழக்கமான ரொக்கச் செலவு',
+    edu_stat_insurance_val: '0%',
+    edu_stat_insurance_lbl: 'தற்போதுள்ள காப்பீட்டில் தாக்கம்',
+    edu_stat_meds_val: '30+ ஆண்டுகள்',
+    edu_stat_meds_lbl: 'ஸ்டாடின் பாதுகாப்பு சான்று',
+    edu_stat_testing_val: '4–6 வாரங்கள்',
+    edu_stat_testing_lbl: 'டிஎன்ஏ அறிக்கை காலம்',
+    edu_learning_hub: 'கற்றல் மையம்',
+    edu_modules_summary: '3 தொகுதிகள் • 6 தலைப்புகள்',
+    edu_group_basics_title: 'FH மற்றும் மருந்துகளை புரிந்துகொள்ளுங்கள்',
+    edu_group_basics_desc: 'மரபணு நிலை, உடல் அறிகுறிகள் மற்றும் நிலையான சிகிச்சைகளைப் பற்றி அறிந்துகொள்ளுங்கள்.',
+    edu_group_journey_title: 'உங்கள் மருத்துவ பயணம்',
+    edu_group_journey_desc: 'சோதனை மற்றும் உங்கள் குடும்பத்தை பாதுகாக்க படிப்படியான வழிகாட்டி.',
+    edu_group_costs_title: 'மானியங்கள் & பாதுகாப்புகள்',
+    edu_group_costs_desc: 'MOH மானியங்கள், MediSave காப்பீடு மற்றும் உங்கள் சட்ட காப்பீட்டு உரிமைகள்.',
+    booking_mins: 'நிமிடம்',
+    chatbot_fallback_insurance: "சிங்கப்பூர் **LIA இடைநிறுத்த உடன்படிக்கையின்** படி, காப்பீட்டு நிறுவனங்கள் உங்கள் மரபணு சோதனை முடிவுகளை வெளியிடுமாறு **கோரக்கூடாது**. **MediShield Life** போன்ற தற்போதைய திட்டங்கள் முற்றிலும் பாதிக்கப்படாது.",
+    chatbot_fallback_cost: "FH சோதனைக்கு தகுதியுள்ள சிங்கப்பூரியர்களுக்கு MOH **50–75%** மானியம் வழங்குகிறது. சொந்த செலவு பொதுவாக **S$50 முதல் S$120** வரை இருக்கும், **MediSave மூலம் முழுமையாக செலுத்தலாம்**.",
+    chatbot_fallback_family: "FH மரபுவழியில் பரவுகிறது — நெருங்கிய குடும்பத்தினருக்கு **50% வாய்ப்பு** உள்ளது. உங்கள் குழு **cascade screening** ஒருங்கிணைத்து குடும்பத்தை பாதுகாக்கும்.",
+    chatbot_fallback_prep: "உண்ணாவிரதம் தேவையில்லை! **குடும்ப மருத்துவ வரலாறு**, **தற்போதைய மருந்துகள்**, மற்றும் **Singpass** தயாராக வையுங்கள். 30 நிமிட ஆலோசனை முதலில் வழிகாட்டும்.",
+    chatbot_fallback_default: "FH சோதனை குறித்து உதவ நான் இங்கே இருக்கிறேன். உங்கள் பரிந்துரை ஒரு **மானியம் பெற்ற, பாதுகாக்கப்பட்ட தடுப்பு பரிசோதனை**. **கற்றல்** அல்லது **முன்பதிவு** தாவலை பாருங்கள்.",
+    chatbot_close: 'அரட்டையை மூடு',
+    // Home quick links
+    link_ask_ai: 'AI கேள்',
+    link_help_desk: 'உதவி மையம்',
+    link_medical_reports: 'மருத்துவ அறிக்கைகள்',
+    link_medication_refill: 'மருந்து நிரப்புதல்',
+    link_payment: 'கட்டணம்',
+    link_programmes: 'திட்டங்கள்',
+    // Notifications popup
+    notif_header: 'அறிவிப்புகள்',
+    notif_close: 'மூடு',
+    notif_referral_title: 'FH மரபணு பரிந்துரை செயலில் உள்ளது',
+    notif_referral_desc: 'உங்கள் மருத்துவ பரிந்துரை செயலில் உள்ளது. மருத்துவர் சோதனையை ஏன் பரிந்துரைத்தார் என படியுங்கள்.',
+    notif_referral_time: '2 மணி நேரம் முன்',
+    notif_booking_booked: 'ஆலோசனை முன்பதிவு உறுதி செய்யப்பட்டது',
+    notif_booking_unbooked: 'நடவடிக்கை தேவை: ஆலோசனை முன்பதிவு செய்யவும்',
+    notif_booking_confirmed_msg: 'சோதனைக்கு முந்தைய மரபணு ஆலோசனை {date} @ {time} அன்று உறுதி செய்யப்பட்டது.',
+    notif_booking_pending_msg: 'உங்கள் சோதனைக்கு முந்தைய மரபணு ஆலோசனை நேரத்தை முன்பதிவு செய்யவும்.',
+    notif_time_just_now: 'இப்போதே',
+    notif_time_1d_ago: '1 நாள் முன்',
+    // Cancel flow
+    cancel_worries_text: 'கட்டணம், பாதுகாப்பு அல்லது செயல்முறை பற்றி கவலைகளா?',
+    cancel_address_concerns: 'எங்கள் பிரிவில் உங்கள் கவலைகளை தீர்க்கவும்',
+    cancel_faq_link: 'கேள்வி பதில் பிரிவு',
+    cancel_if_need_diff_time: 'வேறு நேரம் தேவைப்பட்டால், திட்டத்தில் உங்கள் இடத்தை இழக்காமல் மீட்டமைக்கலாம்.',
+    cancel_reschedule_btn: 'மாறாக மீண்டும் திட்டமிடுங்கள்',
+    cancel_continue_btn: 'ரத்து செய்யத் தொடரவும்',
+    cancel_confirm_title: 'ரத்தை உறுதி செய்யவும்',
+    cancel_confirm_desc: 'ரத்து செய்வதால் இந்த முன்பதிவு நேரம் விடுவிக்கப்படும். எப்போது வேண்டுமானாலும் மீண்டும் முன்பதிவு செய்யலாம், ஆனால் கிடைக்கும் தன்மை மாறலாம்.',
+    cancel_yes_btn: 'ஆம், இந்த சந்திப்பை ரத்து செய்',
+    cancel_keep_btn: 'என் சந்திப்பை வைத்திரு',
+    cancel_success_title: 'உங்கள் சந்திப்பு ரத்து செய்யப்பட்டது.',
+    cancel_success_desc: 'நீங்கள் தயாராக இருக்கும்போது புதிய நேரத்தை முன்பதிவு செய்யலாம்.',
+    cancel_book_new_btn: 'புதிய சந்திப்பை முன்பதிவு செய்',
+    cancel_return_home: 'முகப்புக்கு திரும்பு',
+    // Reschedule flow
+    reschedule_select_title: 'புதிய நேரத்தைத் தேர்வு செய்யவும்',
+    reschedule_current_appt: 'தற்போதைய சந்திப்பு',
+    reschedule_choose_desc: 'மாற்று கிளினிக், தேதி மற்றும் நேரத்தை தேர்வு செய்யவும். மீட்டமைக்கும் வரை தற்போதைய சந்திப்பு செல்லுபடியாகும்.',
+    reschedule_select_clinic: 'கிளினிக்கை தேர்வு செய்யவும்',
+    reschedule_nearest: 'அருகில்',
+    reschedule_no_slots: 'இந்த நாளில் கிடைக்கும் நேரங்கள் இல்லை.',
+    reschedule_keep_current: 'தற்போதைய சந்திப்பை வைத்திரு',
+    reschedule_review_title: 'மாற்றத்தை சரிபார்க்கவும்',
+    reschedule_review_desc: 'உறுதி செய்வதற்கு முன் மாற்றத்தை சரிபார்க்கவும். மீட்டமைப்பை உறுதிப்படுத்தும் வரை தற்போதைய சந்திப்பு செயலில் இருக்கும்.',
+    reschedule_new_appt: 'புதிய சந்திப்பு',
+    reschedule_confirm_btn: 'மீட்டமைப்பை உறுதி செய்',
+    reschedule_different_slot: 'வேறு நேரத்தை தேர்வு செய்யவும்',
+    reschedule_success_title: 'சந்திப்பு மீட்டமைக்கப்பட்டது.',
+    reschedule_success_desc: 'உங்கள் சந்திப்பு புதுப்பிக்கப்பட்டது.',
+    reschedule_done_btn: 'முடிந்தது',
+    // Profile screen
+    profile_my_profile: 'என் சுயவிவரம்',
+    profile_section_personal: 'தனிப்பட்ட தகவல்',
+    profile_section_contact: 'தொடர்பு தகவல்',
+    profile_section_emergency: 'அவசர தொடர்பு',
+    profile_section_healthcare: 'சுகாதார விருப்பங்கள்',
+    profile_section_medical: 'மருத்துவ தகவல்',
+    profile_section_account: 'கணக்கு',
+    profile_label_full_name: 'முழு பெயர்',
+    profile_label_dob: 'பிறந்த தேதி',
+    profile_label_gender: 'பாலினம்',
+    profile_label_nric: 'அடையாள அட்டை / சுகாதார ID',
+    profile_label_preferred_lang: 'விரும்பிய மொழி',
+    profile_label_mobile: 'கைபேசி எண்',
+    profile_label_email: 'மின்னஞ்சல் முகவரி',
+    profile_label_address: 'குடியிருப்பு முகவரி',
+    profile_label_contact_name: 'தொடர்பு பெயர்',
+    profile_label_relationship: 'உறவு',
+    profile_label_phone: 'தொலைபேசி எண்',
+    profile_label_preferred_clinic: 'விரும்பிய கிளினிக்',
+    profile_label_ldl: 'LDL கொழுப்பு',
+    profile_label_active_referrals: 'செயலில் உள்ள பரிந்துரைகள்',
+    profile_label_upcoming_appts: 'வரவிருக்கும் சந்திப்புகள்',
+    profile_fh_testing_badge: 'FH மரபணு சோதனை (MOH மானியம்)',
+    profile_no_appointments: 'திட்டமிடப்பட்ட சந்திப்புகள் இல்லை',
+    profile_book_session_now: 'ஆலோசனை அமர்வை இப்போதே முன்பதிவு செய்',
+    profile_view_reminder_settings: 'நினைவூட்டல் & அறிவிப்பு அமைப்புகளைக் காண்க',
+    profile_label_linked_account: 'இணைக்கப்பட்ட HealthHub கணக்கு',
+    profile_label_privacy: 'தனியுரிமை அமைப்புகள்',
+    profile_verified_singpass: 'Singpass மூலம் சரிபார்க்கப்பட்டது',
+    profile_privacy_registry: 'தேசிய மரபணு பதிவேட்டில் பாதுகாப்பானது',
+    profile_logout: 'HealthHub இலிருந்து வெளியேறு',
+    profile_yrs: 'வயது',
+    gender_male: 'ஆண்',
+    gender_female: 'பெண்',
+    // Booking screen – location / calendar
+    booking_location_label: 'இடம்:',
+    booking_change_location: 'இடத்தை மாற்று',
+    booking_default_address: 'இயல்புநிலை முகவரி',
+    booking_search_location: 'இடத்தை தேடு:',
+    booking_detecting: 'கண்டறிகிறது...',
+    booking_live_location: 'நேரடி இடம்',
+    booking_search_results: 'தேடல் முடிவுகள்:',
+    booking_suggestions: 'பரிந்துரைகள்:',
+    booking_no_matches: 'பொருத்தம் இல்லை. கீழே கிளிக் செய்யவும்:',
+    booking_distance: 'தூரம்:',
+    booking_nearest_clinic: 'அருகிலுள்ள கிளினிக்',
+    booking_legend_today: 'இன்று',
+    booking_legend_selected: 'தேர்ந்த நாள்',
+    booking_km_away: 'கி.மீ தொலைவு',
+    // Learn FH screen
+    edu_learning_guide_title: 'உங்கள் FH கற்றல் வழிகாட்டி',
+    edu_learning_guide_subtitle: 'FH மரபணு சோதனைக்கு பரிந்துரைக்கப்பட்ட பின், ஏன் மற்றும் எவ்வாறு தயார் செய்வது என்பதற்கான தனிப்பட்ட வழிகாட்டி.',
+    edu_tab_guides: 'வழிகாட்டிகள்',
+    edu_tab_checklist: 'சரிபார்ப்பு பட்டியல்',
+    edu_tab_faqs: 'கேள்வி-பதில் & இணைப்புகள்',
+    edu_topics: 'தலைப்புகள்',
+    edu_helpful_resources: 'பயனுள்ள வளங்கள்',
+    edu_view_resource: 'வளத்தை காண்க',
+    edu_checklist_progress_title: 'தயாரிப்பு முன்னேற்றம்',
+    edu_checklist_progress_detail: '{completed}-ல் {total} நிறைவுற்றது ({percent}%)',
+    edu_checklist_progress_success: 'அருமை! உங்கள் ஆலோசனைக்கு நீங்கள் முழுமையாக தயாராகிவிட்டீர்கள்.',
+    edu_checklist_progress_desc: 'மரபணு ஆலோசகருடனான உங்கள் சந்திப்பை மிகவும் பயனுள்ளதாக்க, இந்த எளிய படிகளைச் சந்திப்பிற்கு முன் முடிக்கவும்.',
+    edu_checklist_card_title: 'ஆலோசனைக்கு முந்தைய சரிபார்ப்புப் பட்டியல்',
+    edu_checklist_card_desc: 'இந்த எளிய பணிகளை முடிப்பது சந்திப்பு குறித்த கவலையைக் குறைக்கிறது மற்றும் மிகவும் தனிப்பயனாக்கப்பட்ட கவனிப்பை உறுதி செய்கிறது:',
+    edu_checklist_essential_prep: 'முக்கிய தயாரிப்புகள்',
+    patient_label: 'நோயாளி',
+    edu_hi_greeting: 'வணக்கம் {name},',
+    edu_cta_title: 'உங்கள் GAC ஆலோசனை நேரத்தை முன்பதிவு செய்ய தயாரா?',
+    edu_cta_subtitle: 'இன்றே செயலில் ஈடுபடுங்கள். HealthHub-ல் முன்பதிவு 20 வினாடிகளுக்கும் குறைவாக ஆகும்.',
+    edu_cta_btn: 'பாதுகாப்பான முன்பதிவுக்கு செல்க',
+    edu_key_takeaway: 'முக்கிய கருத்து',
+    edu_doc_page_of: 'பக்கம் {current} / {total}',
+    edu_website_btn: 'இணையதளம்',
+    edu_print_btn: 'அச்சிடுக',
+    edu_page_label: 'பக்கம்',
+    edu_prev_btn: 'முந்தைய',
+    edu_next_btn: 'அடுத்த பக்கம்',
+    edu_finish_btn: 'வாசித்து முடிந்தது',
+    not_on_file: 'பதிவேட்டில் இல்லை',
+    not_yet_assigned: 'இன்னும் ஒதுக்கப்படவில்லை',
+    sms_today: 'இன்று',
+    concern_test_desc: 'மரபணு சோதனைக்கு முன், அதன் போது மற்றும் அதற்குப் பிறகு என்ன நடக்கும் என்பதை அறிந்து கொள்ளுங்கள்.',
+    
+    // New Illustration/Comparison Card Keys
+    illus_clinical_testing_flow: 'மருத்துவ பரிசோதனை ஓட்டம்',
+    illus_step_booked: '1. பதிவு செய்யப்பட்டது',
+    illus_step_consult: '2. ஆலோசனை',
+    illus_step_blood_draw: '3. இரத்த மாதிரி',
+    illus_step_results: '4. முடிவுகள்',
+    illus_singapore_financing_model: 'சிங்கப்பூர் நிதி மாதிரி',
+    illus_government_subsidy: 'அரசு மானியம்',
+    illus_up_to_75_covered: '75% வரை மறைக்கப்படும்',
+    illus_consumer_safeguard_grid: 'நுகர்வோர் பாதுகாப்பு கட்டம்',
+    illus_active_policies_note: 'செயலில் உள்ள காப்பீடுகளை மாற்றவோ, ரத்து செய்யவோ அல்லது பிரீமியத்தை உயர்த்தவோ முடியாது.',
+    illus_liver_ldl_clearance: 'கல்லீரல் LDL சுத்திகரிப்பு',
+    illus_statins_boost_note: 'ஸ்டேடின்கள் கல்லீரல் உயிரணுக்களில் உள்ள ஏற்பிகளை அதிகரித்து, இரத்தத்திலிருந்து கொழுப்பை ஈர்க்கின்றன.',
+    illus_family_cascade_tree: 'குடும்பப் பரிசோதனை மரம்',
+    illus_index_patient: 'குறியீட்டு நோயாளி (நீங்கள்)',
+    illus_inheritance_prob: '│ (50% பரம்பரை சாத்தியம்)',
+    illus_parents: 'பெற்றோர்',
+    illus_siblings: 'உடன்பிறந்தோர்',
+    illus_children: 'குழந்தைகள்',
+    illus_standard_high_cholesterol: 'வழக்கமான அதிக கொழுப்பு',
+    illus_standard_desc: 'வாழ்க்கை முறை மற்றும் உணவுமுறையால் ஏற்படுகிறது. பழக்கவழக்கங்களால் மாற்றக்கூடியது.',
+    illus_fh_familial: 'FH (குடும்ப வழி)',
+    illus_fh_desc: 'பிறப்பிலிருந்தே மரபணு சார்ந்தது. ஆயுள் முழுவதும், மருத்துவ பராமரிப்பு தேவை.',
+    illus_lipids_over_time: '⏳ காலப்போக்கில் கொழுப்பு (இரத்த நாளம் அடைப்பு)',
+    illus_birth_clear: 'பிறப்பு (சுத்தமானது)',
+    illus_adulthood_plaque: 'முதிர்வயது (அடைப்பு)',
+    illus_early_treatment_safe: 'ஆரம்ப சிகிச்சை (பாங்கானது)',
+    illus_fiber: 'நார்ச்சத்து',
+    illus_fiber_desc: 'ஓட்ஸ், பருப்பு, காய்கறிகள்',
+    illus_limits: 'கட்டுப்பாடுகள்',
+    illus_limits_desc: 'வெண்ணெய், பனை எண்ணெய் தவிர்க்கவும்',
+    illus_active: 'சுறுசுறுப்பு',
+    illus_active_desc: 'தினமும் 30 நிமிடம் நடைபயிற்சி',
+    
+    // Additional Keys
+    edu_selected_for_you: 'உங்களுக்காக தேர்ந்தெடுக்கப்பட்டது',
+    edu_personalised_badge: 'தனிப்பயனாக்கப்பட்டது',
+    edu_testing_guide_summary: 'உங்கள் மரபணு சோதனை பயணம் முழுமையாக வடிவமைக்கப்பட்டுள்ளது, இது ஆலோசனை மற்றும் இரத்த பரிசோதனையை உள்ளடக்கியது.',
+    edu_personalized_support_prefix: 'தனிப்பயனாக்கப்பட்ட ஆதரவு:',
+    edu_note_cascade: 'குடும்ப ஆரோக்கியமே உங்களின் முக்கிய முன்னுரிமை என்பதை நாங்கள் புரிந்துகொள்கிறோம். குடும்பப் பரிசோதனை என்பது முன்கூட்டியே பாதுகாக்கும் ஒரு பாதுகாப்பு நடவடிக்கையாகும், இது நோய் கண்டறிதல் அல்ல. இது உங்கள் குடும்பத்தின் இதய ஆரோக்கியத்தை முன்கூட்டியே பாதுகாக்க உதவும்.',
+    edu_note_costs: 'சிங்கப்பூர் MOH மானியங்கள் மற்றும் CHAS பலன்கள் இந்தச் சோதனையை மிகவும் மலிவாக வைத்திருக்கும் வகையில் வடிவமைக்கப்பட்டுள்ளன, மேலும் மீதமுள்ள தொகையை MediSave மூலம் முழுமையாகச் செலுத்தலாம்.',
+    edu_note_insurance: 'LIA உடன்படிக்கை உங்களின் மரபணு சோதனை முடிவுகள் உங்கள் வழக்கமான ஆயுள் மற்றும் மருத்துவ காப்பீடுகளைப் பாதிக்காது என்பதை உறுதி செய்கிறது.',
+    edu_note_meds: 'மருந்துகளைத் தொடங்க தயங்குவது இயல்பானது. ஸ்டேடின்கள் மிகவும் பாதுகாப்பானவை, விரிவாக ஆய்வு செய்யப்பட்டவை மற்றும் இதய நோய் ஆபத்தைக் குறைப்பதில் மிகவும் பயனுள்ளவை.',
+    
+    // Localized Guide FAQs
+    edu_faq_testing_q: "சோதனை முடிவு சாதகமாக இருந்தால் எனக்கு இதய நோய் உள்ளது என்று அர்த்தமா?",
+    edu_faq_testing_a: "இல்லை. சாதகமான மரபணு சோதனை என்பது இதய நோய் கண்டறிதல் அல்ல. இது மரபுவழி ஆபத்தை மட்டுமே கண்டறிகிறது. உங்கள் இதயத்தை ஆரோக்கியமாக வைத்திருக்க உங்கள் மருத்துவக் குழு மிகவும் பயனுள்ள தடுப்பு நடவடிக்கைகளை எடுக்க முடியும்.",
+    edu_faq_costs_q: "நான் எவ்வளவு பணம் செலுத்த வேண்டும்?",
+    edu_faq_costs_a: "MOH மானியங்களுக்குப் பிறகு S$15 முதல் S$45 வரை மட்டுமே இருக்கும். மீதமுள்ள தொகையை நாள்பட்ட நோய் மேலாண்மை திட்டத்தின் கீழ் MediSave மூலம் 100% செலுத்தலாம்.",
+    edu_faq_insurance_q: "இது எனது குழந்தைகளுக்கு காப்பீடு கிடைப்பதைப் பாதிக்குமா?",
+    edu_faq_insurance_a: "பாதிக்காது. சிங்கப்பூரின் காப்பீட்டு சங்கம் (LIA) கடுமையான விதிகளைப் பேணுகிறது, இது மரபணு சோதனைகள் காப்பீட்டுப் பாலிசிகளைப் பாதிப்பதைத் தடுக்கிறது.",
+    edu_faq_meds_q: "சோதனையின் போது நான் கொலஸ்ட்ரால் மருந்து உட்கொள்வதை நிறுத்தலாமா?",
+    edu_faq_meds_a: "இல்லை, உங்கள் மருத்துவர் அறிவுறுத்தாத வரை நீங்கள் பரிந்துரைக்கப்பட்ட மருந்தை உட்கொள்வதை நிறுத்தவோ மாற்றவோ கூடாது. டிஎன்ஏ எந்த மருந்தினாலும் மாறாது.",
   },
-};
-
-// Localized preCounsellingChecklist
-export const getLocalizedChecklist = (lang: Language) => {
-  switch (lang) {
-    case 'ms':
-      return [
-        { id: 'prep-2', text: 'Ubat-ubatan semasa dan suplemen yang anda sedang ambil.', checked: false },
-        { id: 'prep-3', text: 'Soalan yang ingin anda tanyakan kepada kaunselor genetik anda.', checked: false },
-        { id: 'prep-4', text: 'NRIC atau Singpass untuk pendaftaran masuk.', checked: false },
-      ];
-    case 'zh':
-      return [
-        { id: 'prep-2', text: '您目前正在服用的药物和膳食补充剂。', checked: false },
-        { id: 'prep-3', text: '您想向基因咨询师咨询的具体问题。', checked: false },
-        { id: 'prep-4', text: '携带登记入场所需的身份证 (NRIC) 或使用 Singpass。', checked: false },
-      ];
-    case 'ta':
-      return [
-        { id: 'prep-2', text: 'நீங்கள் தற்போது உட்கொள்ளும் மருந்துகள் மற்றும் சப்ளிமெண்ட்ஸ்.', checked: false },
-        { id: 'prep-3', text: 'உங்கள் மரபணு ஆலோசகரிடம் நீங்கள் கேட்க விரும்பும் கேள்விகள்.', checked: false },
-        { id: 'prep-4', text: 'பதிவு செய்ய உங்கள் அடையாள அட்டை (NRIC) அல்லது Singpass.', checked: false },
-      ];
-    case 'en':
-    default:
-      return [
-        { id: 'prep-2', text: 'Prepare a list of your current medications & supplement', checked: false },
-        { id: 'prep-3', text: 'Review Learn section for resources and common questions', checked: false },
-        { id: 'prep-4', text: 'Bring your NRIC or Singpass for identity verification', checked: false },
-      ];
-  }
 };
 
 // Localized educationalSections
@@ -1428,6 +2460,26 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
               text: 'Syarikat insurans dilarang meminta anda mengambil ujian genetik, atau daripada meminta keputusan genetik untuk polisi hayat/kesihatan standard di bawah ambang yang tinggi.'
             }
           ]
+        },
+        {
+          id: 'medication-fh',
+          title: 'Ubat-ubatan & FH',
+          shortSummary: 'Bagaimana statin berfungsi dan apa yang dijangkakan.',
+          readingTime: 'Masa membaca: 2 minit',
+          content: "Oleh kerana FH adalah keadaan genetik sejak lahir, perubahan gaya hidup sahaja biasanya tidak mencukupi untuk menurunkan kolesterol ke tahap selamat. Ubat-ubatan harian memainkan peranan penting dalam mengukuhkan risiko anda.",
+          keyTakeaway: 'Memulakan rawatan awal boleh mengurangkan risiko kardiovaskular anda kembali ke tahap populasi umum.',
+          iconName: 'Pill',
+          tags: ['statin', 'ubat-ubatan', 'rawatan'],
+          subsections: [
+            {
+              title: 'PERANAN STATIN',
+              text: 'Statin adalah ubat yang sangat selamat dan telah dikaji dengan teliti untuk membantu hati anda membersihkan kolesterol dari darah.'
+            },
+            {
+              title: 'RAWATAN AWAL MENYELAMATKAN NYAWA',
+              text: 'Memulakan rawatan awal boleh mengurangkan risiko kardiovaskular anda kembali ke tahap populasi umum.'
+            }
+          ]
         }
       ];
     case 'zh':
@@ -1531,6 +2583,26 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
             {
               title: '严苛的 LIA 暂缓执行令',
               text: '保险公司严禁强制要求您进行基因检测；在申请常规人寿或健康保险时（只要保额不超过法定高额限度），保险商也严禁向您索取基因检测结果。'
+            }
+          ]
+        },
+        {
+          id: 'medication-fh',
+          title: '药物与 FH',
+          shortSummary: '他汀类药物的作用原理及诊疗预期。',
+          readingTime: '2分钟阅读',
+          content: "由于 FH 是一种自出生起就存在的遗传性疾病，单靠改善生活方式通常无法将胆固醇降至安全水平。每日药物治疗在降低您的健康风险中起着至关重要的作用。",
+          keyTakeaway: '尽早开始治疗可以将您的心血管风险降低至普通人群的正常水平。',
+          iconName: 'Pill',
+          tags: ['他汀类药物', '药物治疗', '医疗方案'],
+          subsections: [
+            {
+              title: '他汀类药物的作用',
+              text: '他汀类药物是非常安全且经过广泛研究的药物，能有效协助您的肝脏清除血液中的胆固醇。'
+            },
+            {
+              title: '及早治疗，挽救生命',
+              text: '尽早开始治疗可以将您的心血管风险降低至普通人群的正常水平。'
             }
           ]
         }
@@ -1638,6 +2710,26 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
               text: 'உங்களை மரபணு சோதனை செய்ய காப்பீட்டு நிறுவனங்கள் கட்டாயப்படுத்தக் கூடாது, அல்லது சாதாரண காப்பீடுகளுக்கு அதன் முடிவுகளைக் கேட்கக் கூடாது.'
             }
           ]
+        },
+        {
+          id: 'medication-fh',
+          title: 'மருந்து & FH',
+          shortSummary: 'ஸ்டேடின்கள் எவ்வாறு செயல்படுகின்றன மற்றும் எதை எதிர்பார்ப்பது.',
+          readingTime: '2 நிமிட வாசிப்பு',
+          content: "FH என்பது பிறப்பிலிருந்தே இருக்கும் ஒரு மரபணு நிலை என்பதால், கொலஸ்ட்ராலைக் குறைக்க வாழ்க்கை முறை மாற்றங்கள் மட்டுமே போதுமானதாக இருக்காது. தினசரி மருந்துகள் உங்கள் ஆபத்தைக் குறைப்பதில் முக்கிய பங்கு வகிக்கின்றன.",
+          keyTakeaway: 'ஆரம்பத்திலேயே சிகிச்சையைத் தொடங்குவது உங்கள் இருதய ஆபத்தை பொதுவான மக்களின் அளவிற்கு குறைக்கலாம்.',
+          iconName: 'Pill',
+          tags: ['ஸ்டேடின்கள்', 'மருந்துகள்', 'சிகிச்சை'],
+          subsections: [
+            {
+              title: 'ஸ்டேடின்களின் பங்கு',
+              text: 'ஸ்டேடின்கள் மிகவும் பாதுகாப்பான மற்றும் நன்கு ஆய்வு செய்யப்பட்ட மருந்துகள் ஆகும், இவை உங்கள் கல்லீரல் இரத்தத்தில் உள்ள கொழுப்பை அகற்ற உதவுகின்றன.'
+            },
+            {
+              title: 'ஆரம்ப சிகிச்சை உயிரைக் காக்கும்',
+              text: 'ஆரம்பத்திலேயே சிகிச்சையைத் தொடங்குவது உங்கள் இருதய ஆபத்தை பொதுவான மக்களின் அளவிற்கு குறைக்கலாம்.'
+            }
+          ]
         }
       ];
     case 'en':
@@ -1675,6 +2767,11 @@ export const getLocalizedFaqs = (lang: Language): FAQItem[] => {
           question: 'Berapa lamakah masa yang diambil untuk mendapatkan keputusan ujian darah genetik?',
           answer: 'Sampel dihantar ke makmal khusus genetik klinikal. Keputusan penuh biasanya tersedia dalam tempoh 4 hingga 6 minggu. Anda akan dipanggil untuk sesi susulan bagi menerangkan hasil keputusan secara terperinci.',
           category: 'testing'
+        },
+        {
+          question: 'Bolehkah saya menghentikan ubat kolesterol saya semasa ujian dijalankan?',
+          answer: 'Tidak, anda tidak boleh menghentikan atau mengubah ubat yang ditetapkan melainkan diarahkan secara eksplisit oleh doktor anda. Ujian genetik menganalisis DNA anda, yang kekal tidak berubah oleh sebarang ubat yang anda ambil.',
+          category: 'medication'
         }
       ];
     case 'zh':
@@ -1703,6 +2800,11 @@ export const getLocalizedFaqs = (lang: Language): FAQItem[] => {
           question: '采血化验后需要多久才能拿到基因报告？',
           answer: '采血样本会被送往国家临床基因专科实验室进行精密的定序分析。完整的基因检测报告通常需要 4 至 6 周的时间出炉。报告出来后，主治专科医生会为您安排复诊，为您进行通俗且详实的面对面解读。',
           category: 'testing'
+        },
+        {
+          question: '在进行基因检测期间，我可以停止服用胆固醇药物吗？',
+          answer: '不可以。除非您的主治医生明确指示，否则您绝不应停止或更改您已配给的处方药。基因检测分析的是您的 DNA，它完全不会因您服用的任何药物而改变。',
+          category: 'medication'
         }
       ];
     case 'ta':
@@ -1731,6 +2833,11 @@ export const getLocalizedFaqs = (lang: Language): FAQItem[] => {
           question: 'மரபணு சோதனை முடிவுகள் கிடைக்க எவ்வளவு காலம் ஆகும்?',
           answer: 'மரபணு சோதனை முடிவுகள் கிடைக்க பொதுவாக 4 முதல் 6 வாரங்கள் வரை ஆகும். முடிவுகள் வந்தவுடன், விரிவான விளக்கத்தைப் பெற உங்களை மீண்டும் சந்திப்பிற்கு அழைப்போம்.',
           category: 'testing'
+        },
+        {
+          question: 'சோதனையின் போது நான் கொலஸ்ட்ரால் மருந்து உட்கொள்வதை நிறுத்தலாமா?',
+          answer: 'இல்லை, உங்கள் மருத்துவர் அறிவுறுத்தாத வரை நீங்கள் பரிந்துரைக்கப்பட்ட மருந்தை உட்கொள்வதை நிறுத்தவோ மாற்றவோ கூடாது. மரபணு சோதனை உங்கள் டிஎன்ஏவை பகுப்பாய்வு செய்கிறது, இது நீங்கள் உட்கொள்ளும் எந்த மருந்தினாலும் மாறாது.',
+          category: 'medication'
         }
       ];
     case 'en':
@@ -1760,7 +2867,561 @@ export const getLocalizedFaqs = (lang: Language): FAQItem[] => {
           question: 'How long does it take to receive the clinical genetic testing results?',
           answer: 'Samples are processed in a clinical genetics lab. Complete results are typically returned in 4 to 6 weeks. You will be scheduled for a follow-up consultation where your clinician will explain the findings in detail.',
           category: 'testing'
+        },
+        {
+          question: 'Can I stop my cholesterol medication during testing?',
+          answer: 'No, you should never stop or change your prescribed medication unless explicitly directed by your physician. The genetic test analyzes your DNA, which remains completely unchanged by any medications you are taking.',
+          category: 'medication'
         }
       ];
   }
 };
+
+// Localized helper to convert "D Month YYYY" strings into selected languages
+export const getLocalizedDate = (dateStr: string, lang: Language): string => {
+  if (!dateStr) return dateStr;
+  const parts = dateStr.split(' ');
+  if (parts.length !== 3) return dateStr;
+  const day = parts[0];
+  const monthName = parts[1];
+  const year = parts[2];
+
+  const msMonths: Record<string, string> = {
+    'January': 'Januari', 'February': 'Februari', 'March': 'Mac', 'April': 'April', 'May': 'Mei', 'June': 'Jun',
+    'July': 'Julai', 'August': 'Ogos', 'September': 'September', 'October': 'Oktober', 'November': 'November', 'December': 'Disember'
+  };
+  const zhMonths: Record<string, string> = {
+    'January': '1月', 'February': '2月', 'March': '3月', 'April': '4月', 'May': '5月', 'June': '6月',
+    'July': '7月', 'August': '8月', 'September': '9月', 'October': '10月', 'November': '11月', 'December': '12月'
+  };
+  const taMonths: Record<string, string> = {
+    'January': 'ஜனவரி', 'February': 'பிப்ரவரி', 'March': 'மார்ச்', 'April': 'ஏப்ரல்', 'May': 'மே', 'June': 'ஜூன்',
+    'July': 'ஜூலை', 'August': 'ஆகஸ்ட்', 'September': 'செப்டம்பர்', 'October': 'அக்டோபர்', 'November': 'நவம்பர்', 'December': 'டிசம்பர்'
+  };
+
+  if (lang === 'ms') {
+    return `${day} ${msMonths[monthName] || monthName} ${year}`;
+  }
+  if (lang === 'zh') {
+    return `${year}年${zhMonths[monthName] || monthName}${day}日`;
+  }
+  if (lang === 'ta') {
+    return `${day} ${taMonths[monthName] || monthName} ${year}`;
+  }
+  return dateStr;
+};
+
+// Localized helper to convert English month and year "Month YYYY" to localized forms
+export const getLocalizedMonthOnly = (monthStr: string, lang: Language): string => {
+  const parts = monthStr.split(' ');
+  const monthName = parts[0];
+  
+  const msMap: Record<string, string> = {
+    'January': 'Jan', 'February': 'Feb', 'March': 'Mac', 'April': 'Apr', 'May': 'Mei', 'June': 'Jun',
+    'July': 'Jul', 'August': 'Ogos', 'September': 'Sept', 'October': 'Okt', 'November': 'Nov', 'December': 'Dis'
+  };
+  const zhMap: Record<string, string> = {
+    'January': '1月', 'February': '2月', 'March': '3月', 'April': '4月', 'May': '5月', 'June': '6月',
+    'July': '7月', 'August': '8月', 'September': '9月', 'October': '10月', 'November': '11月', 'December': '12月'
+  };
+  const taMap: Record<string, string> = {
+    'January': 'ஜன', 'February': 'பிப்', 'March': 'மார்', 'April': 'ஏப்', 'May': 'மே', 'June': 'ஜூன்',
+    'July': 'ஜூலை', 'August': 'ஆக', 'September': 'செப்', 'October': 'அக்', 'November': 'நவ', 'December': 'டிச'
+  };
+  const enMap: Record<string, string> = {
+    'January': 'Jan', 'February': 'Feb', 'March': 'Mar', 'April': 'Apr', 'May': 'May', 'June': 'Jun',
+    'July': 'Jul', 'August': 'Aug', 'September': 'Sept', 'October': 'Oct', 'November': 'Nov', 'December': 'Dec'
+  };
+
+  const map = lang === 'ms' ? msMap : lang === 'zh' ? zhMap : lang === 'ta' ? taMap : enMap;
+  return map[monthName] || monthName;
+};
+
+// Localized helper for helpful resources translation
+export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang: Language): HelpfulResource[] => {
+  if (lang === 'en') return resources;
+
+  const msResources: Record<string, Partial<HelpfulResource>> = {
+    'res-7': {
+      title: "Kisah Pesakit: Perjuangan Ibu untuk Anak-Anaknya",
+      summary: "Kisah seorang ibu tentang kehidupan dengan FH dan kepentingan saringan awal untuk anak-anaknya.",
+      type: "Kisah Video",
+      keywords: ['kisah-pesakit', 'video', 'ibu', 'saringan-pediatrik', 'harapan-keluarga'],
+      readingTime: 'Video 6-min',
+      pages: [
+        {
+          title: "Perjalanan Seorang Ibu: Hidup dengan FH Diwarisi",
+          paragraphs: [
+            "Sarah, seorang ibu penyayang kepada dua anak kecil, didiagnosis dengan Hiperkolesterolemia Keluarga (FH) selepas bapanya sendiri mengalami serangan jantung pramatang.",
+            "Membesar dengan pengetahuan tentang betapa buruknya penyakit jantung jika tidak diuruskan, dia telah mengikuti pelan rawatan klinikal yang ketat selama bertahun-tahun.",
+            "\"Mempunyai FH bukanlah pilihan, tetapi mengambil kawalan aktif terhadapnya adalah satu pilihan,\" kongsinya. \"Rawatan saya membolehkan saya menjalani kehidupan yang penuh dan aktif demi keluarga saya.\""
+          ]
+        },
+        {
+          title: "Harapan untuk Dua Anak Kecilnya",
+          paragraphs: [
+            "Oleh kerana FH diwarisi dalam corak dominan autosom, setiap anak Sarah mempunyai peluang 50% untuk mewarisi mutasi genetik yang sama.",
+            "Sarah bercakap tentang naluri keibuan yang mendalam untuk melindungi anak-anaknya daripada pengumpulan plak senyap awal yang disaksikannya dalam kalangan saudara-maranya.",
+            "\"Harapan saya adalah untuk mendapatkan anak-anak saya disaring awal,\" jelasnya. \"Menjalani saringan pediatrik bermakna kami akan mengetahui status mereka dan boleh mengambil tindakan pencegahan segera jika perlu, lama sebelum sebarang risiko berkembang.\""
+          ]
+        },
+        {
+          title: "Kuasa Intervensi Awal dalam Pediatrik",
+          paragraphs: [
+            "Garis panduan klinikal menyokong saringan kanak-kanak daripada ibu bapa FH seawal usia 2 hingga 10 tahun. Pengurusan pemakanan awal dan sokongan perubatan akhirnya boleh memastikan kanak-kanak ini mempunyai jangka hayat yang normal.",
+            "Sarah ingin menyebarkan kesedaran kepada keluarga lain supaya mereka tidak takut dengan ujian genetik, sebaliknya melihatnya sebagai hadiah berharga untuk perlindungan kesihatan.",
+            "\"Saya mahu anak-anak saya membesar dengan mengetahui mereka selamat dan dilindungi. Saringan awal memberi kami ketenangan minda dan alat untuk melindungi masa depan mereka.\""
+          ]
+        }
+      ]
+    },
+    'res-6': {
+      title: "Kisah Pesakit: Hidup dengan FH (Perjalanan Seorang Pemuda)",
+      summary: "Pengalaman seorang pemuda dengan diagnosis FH, saringan genetik, dan memulakan rawatan awal.",
+      type: "Kisah Video",
+      keywords: ['kisah-pesakit', 'video', 'dewasa-muda', 'pengalaman-hidup'],
+      readingTime: 'Video 5-min',
+      pages: [
+        {
+          title: "Kenali Joshua: Didiagnosis dengan FH pada Usia 22 Tahun",
+          paragraphs: [
+            "Joshua ialah seorang dewasa muda yang aktif dan sihat yang memulakan kerjayanya apabila pemeriksaan kesihatan insurans rutin mendedahkan tahap kolesterol yang sangat tinggi.",
+            "Walaupun makan dengan baik dan bersenam secara teratur, tahap LDL beliau melebihi 7.5 mmol/L. \"Saya tidak percaya,\" kongsi Joshua. \"Saya fikir kolesterol hanya menjadi masalah bagi orang yang lebih tua dan tidak aktif.\"",
+            "Rujukan kepada kaunseling genetik mengesahkan beliau mempunyai Hiperkolesterolemia Keluarga (FH), yang diwarisi daripada sebelah bapanya."
+          ]
+        },
+        {
+          title: "Memulakan Hidup & Kerjaya dengan Diagnosis Genetik",
+          paragraphs: [
+            "Menerima keadaan genetik seumur hidup pada awal usia 20-an boleh mencabar emosi. Joshua bercakap tentang mengatasi penafian awal dan belajar untuk menjaga kesihatannya.",
+            "\"Mengetahui lebih awal sebenarnya adalah satu rahmat,\" jelasnya. \"Ini bermakna saya boleh memulakan terapi statin awal, sebelum sebarang pengumpulan plak senyap boleh menyebabkan serangan jantung pada usia 30-an atau 40-an.\"",
+            "Joshua menekankan betapa kritikalnya bagi lelaki dan wanita muda lain untuk tidak mengabaikan sejarah keluarga mereka yang mempunyai penyakit jantung awal."
+          ]
+        }
+      ]
+    },
+    'res-9': {
+      title: "Panduan Pengguna: Moratorium Ujian Genetik dan Insurans",
+      summary: "Panduan MOH mengenai moratorium ujian genetik Singapura dan perlindungan insurans.",
+      type: "Panduan Klinikal",
+      keywords: ['insurans', 'moratorium', 'ujian-genetik', 'hak-pengguna'],
+      readingTime: 'Slaid 3-min',
+      pages: [
+        {
+          title: "Memahami Moratorium Ujian Genetik",
+          paragraphs: [
+            "Singapura mengekalkan moratorium genetik kebangsaan yang dipersetujui antara Kementerian Kesihatan (MOH) dan Persatuan Insurans Hayat (LIA) Singapura.",
+            "Di bawah perjanjian ini, syarikat insurans dilarang sama sekali daripada meminta atau menggunakan keputusan ujian genetik sukarela untuk menafikan perlindungan insurans asas atau menaikkan premium.",
+            "Ini memastikan rakyat Singapura boleh menjalani ujian genetik yang diperlukan secara klinikal tanpa rasa takut kehilangan akses kepada keselamatan kewangan asas."
+          ]
+        }
+      ]
+    },
+    'res-5': {
+      title: "Panduan FH Yayasan Jantung Singapura",
+      summary: "Panduan Yayasan Jantung Singapura mengenai risiko FH, kesihatan jantung, dan pengurusan gaya hidup.",
+      type: "Panduan Klinikal",
+      keywords: ['yjs', 'faktor-risiko', 'kesihatan-jantung', 'pencegahan'],
+      readingTime: 'Slaid 4-min',
+      pages: [
+        {
+          title: "Memahami Faktor Risiko FH & Kesihatan Jantung",
+          paragraphs: [
+            "Yayasan Jantung Singapura (SHF) menekankan bahawa FH adalah keadaan senyap di mana kolesterol LDL tinggi sejak lahir perlahan-lahan menyumbat arteri.",
+            "Tanpa diagnosis awal, individu yang mempunyai FH mempunyai risiko penyakit jantung pramatang sehingga 20 kali ganda lebih tinggi berbanding populasi umum.",
+            "Walau bagaimanapun, pengesanan awal dan terapi perubatan yang sesuai boleh mengurangkan risiko ini kembali ke tahap normal."
+          ]
+        }
+      ]
+    },
+    'res-4': {
+      title: "Risalah FH Rangkaian Penjagaan Utama",
+      summary: "Panduan Rangkaian Penjagaan Utama mengenai pengesanan FH, risiko genetik, dan pilihan rawatan.",
+      type: "Risalah PDF",
+      keywords: ['penjagaan-utama', 'risalah', 'panduan-pesakit'],
+      readingTime: 'PDF 5-min',
+      pages: [
+        {
+          title: "Apakah Itu Hiperkolesterolemia Keluarga?",
+          paragraphs: [
+            "Risalah ini menerangkan asas-asas genetik FH sebagai gangguan gen tunggal yang menjejaskan keupayaan hati untuk membersihkan kolesterol LDL.",
+            "Ia menggariskan kepentingan saringan lata keluarga untuk mengenal pasti ahli keluarga lain yang mungkin tidak menyedari bahawa mereka juga berisiko tinggi."
+          ]
+        }
+      ]
+    },
+    'res-8': {
+      title: "Risalah Klinik Penilaian Genomik NHG (GAC)",
+      summary: "Panduan NHG mengenai kaunseling genetik, penilaian risiko, dan ujian DNA.",
+      type: "Risalah PDF",
+      keywords: ['nhg', 'gac', 'kaunseling-genetik', 'ujian-dna', 'genomik-klinikal'],
+      readingTime: 'PDF 4-min',
+      pages: [
+        {
+          title: "Pengenalan kepada Klinik Penilaian Genomik NHG",
+          paragraphs: [
+            "Panduan ini memperkenalkan perkhidmatan khusus yang disediakan oleh Klinik Penilaian Genomik NHG, termasuk kaunseling genetik pakar dan ujian DNA.",
+            "Ia memperincikan proses langkah demi langkah untuk pesakit yang dirujuk, memastikan perjalanan klinikal yang lancar dan disokong sepenuhnya."
+          ]
+        }
+      ]
+    },
+    'res-1': {
+      title: "Pamflet Pesakit FH Klinikal NUHS",
+      summary: "Panduan NUHS menerangkan ujian DNA, risiko jantung, dan pengurusan lipid.",
+      type: "Risalah PDF",
+      keywords: ['nuhs', 'panduan-pesakit', 'pamflet-klinikal'],
+      readingTime: 'PDF 3-min',
+      pages: [
+        {
+          title: "Memahami Rujukan & Kaunseling Genetik Anda",
+          paragraphs: [
+            "NUHS menyediakan risalah bermaklumat ini untuk membantu pesakit memahami peranan kaunselor genetik dalam menganalisis sejarah kesihatan keluarga.",
+            "Ia membincangkan gen khusus yang dikaitkan dengan FH, kepentingan ujian lipid biasa, dan pilihan terapi pencegahan yang disubsidi."
+          ]
+        }
+      ]
+    },
+    'res-2': {
+      title: "Program Ujian Genetik FH Kebangsaan MOH",
+      summary: "Panduan MOH mengenai ujian genetik bersubsidi kebangsaan dan saringan lata.",
+      type: "Panduan Klinikal",
+      keywords: ['moh', 'garis-panduan', 'standard-klinikal'],
+      readingTime: 'Slaid 5-min',
+      pages: [
+        {
+          title: "Pelancaran Inisiatif Saringan FH Kebangsaan",
+          paragraphs: [
+            "Kementerian Kesihatan (MOH) Singapura telah melancarkan program kebangsaan untuk mensubsidi ujian genetik FH, menjadikannya sangat mampu milik untuk semua rakyat Singapura yang layak.",
+            "Inisiatif ini bertujuan untuk mengurangkan beban penyakit kardiovaskular pramatang di Singapura melalui pengesanan awal dan pencegahan yang proaktif."
+          ]
+        }
+      ]
+    }
+  };
+
+  const zhResources: Record<string, Partial<HelpfulResource>> = {
+    'res-7': {
+      title: "患者故事：一位母亲为孩子们的奋斗",
+      summary: "一位母亲分享她与 FH 共处的历程，以及为孩子进行早期筛查的重要性。",
+      type: "视频故事",
+      keywords: ['患者故事', '视频', '母亲', '儿童筛查', '家庭希望'],
+      readingTime: '6分钟视频',
+      pages: [
+        {
+          title: "母亲的旅程：伴随遗传性 FH 生活",
+          paragraphs: [
+            "莎拉 (Sarah) 是两个年幼孩子的母亲，在她自己的父亲突发早发性心脏病后，她被诊断出患有家族性高胆固醇血症 (FH)。",
+            "深知心脏病在不加管理的情况下会带来多么毁灭性的后果，她多年来一直坚持严格的临床治疗计划。",
+            "“患有 FH 不是一种选择，但主动控制它是可以自主决定的，”她分享道。“我的药物治疗让我能够为了家庭过上充实、充满活力的生活。”"
+          ]
+        },
+        {
+          title: "对两个年幼孩子的期望",
+          paragraphs: [
+            "由于 FH 是以常染色体显性遗传方式遗传的，莎拉的每个孩子都有 50% 的几率遗传相同的基因突变。",
+            "莎拉讲述了她保护孩子免受她在亲属身上目睹的早期无声斑块积聚的深层母性本能。",
+            "“我的希望是让我的孩子们尽早接受筛查，”她解释道。“接受儿童期筛查意味着我们将知道他们的状况，并可以在需要时立即采取预防行动，远远在任何风险形成之前。”"
+          ]
+        },
+        {
+          title: "儿科早期干预的力量",
+          paragraphs: [
+            "临床指南支持最早在 2 至 10 岁之间对有 FH 父母的孩子进行筛查。早期的饮食管理和随后的医疗支持可以确保这些孩子拥有与常人无异的预期寿命。",
+            "莎拉希望向其他家庭传播这种意识，让他们不要害怕基因检测，而是将其视为一份关于健康守护的珍贵礼物。",
+            "“我希望我的孩子们在成长过程中感到安全和受到保护。早期筛查给了我们这种内心的平静和保护他们未来的工具。”"
+          ]
+        }
+      ]
+    },
+    'res-6': {
+      title: "患者故事：伴随 FH 生活（一个年轻人的旅程）",
+      summary: "一位年轻人确诊 FH、进行基因筛查以及早期接受治疗的亲身经历。",
+      type: "视频故事",
+      keywords: ['患者故事', '视频', '年轻成人', '亲身经历'],
+      readingTime: '5分钟视频',
+      pages: [
+        {
+          title: "认识祖舒亚：在 22 岁时确诊 FH",
+          paragraphs: [
+            "祖舒亚 (Joshua) 是一名积极、健康的年轻上班族，当时一次例行的保险体检揭示了他的胆固醇水平异常偏高。",
+            "尽管饮食健康且规律锻炼，他的 LDL 水平依然超过了 7.5 mmol/L。“我简直不敢相信，”祖舒亚分享道。“我以为胆固醇只是老年人或生活方式不健康的人才需要担心的问题。”",
+            "转诊进行基因咨询证实他患有家族性高胆固醇血症 (FH)，遗传自他的父亲一方。"
+          ]
+        },
+        {
+          title: "带着基因诊断开启人生与职业生涯",
+          paragraphs: [
+            "在 20 多岁出头接受一种终身遗传性疾病在情感上具有挑战性。祖舒亚谈到他如何克服初期的否认态度并学会为自己的健康负责。",
+            "“及早发现其实是一种恩赐，”他解释道。“这意味着我可以在三十多岁或四十多岁时因无声斑块积聚导致心脏病发作之前，及早开始他汀类药物治疗。”",
+            "祖舒亚强调，其他年轻男女绝对不要忽视早发性心脏病的家族历史。"
+          ]
+        }
+      ]
+    },
+    'res-9': {
+      title: "消费者指南：基因检测与保险暂行停征令",
+      summary: "新加坡卫生部关于基因检测暂停禁令及保险权益保障的官方指南。",
+      type: "临床指南",
+      keywords: ['保险', '停征令', '基因检测', '消费者权益'],
+      readingTime: '3分钟阅读',
+      pages: [
+        {
+          title: "理解基因检测暂行停征令",
+          paragraphs: [
+            "新加坡目前实施一项由新加坡卫生部 (MOH) 与新加坡人寿保险公会 (LIA) 共同达成的国家基因检测暂行停征令协议。",
+            "根据该协议，保险公司被严格禁止要求您提供或利用您的自愿性基因检测结果来拒绝最基础的保险承保或以此提高保费。",
+            "这确保了新加坡人可以安心地接受临床必需的基因检测，而无需担心失去获取基本财务安全保障的权利。"
+          ]
+        }
+      ]
+    },
+    'res-5': {
+      title: "新加坡心脏基金会 FH 指南",
+      summary: "新加坡心脏基金会关于 FH 风险、心脏健康及生活方式管理的指南。",
+      type: "临床指南",
+      keywords: ['心脏基金会', '危险因素', '心脏健康', '预防措施'],
+      readingTime: '4分钟阅读',
+      pages: [
+        {
+          title: "认识 FH 危险因素与心脏健康",
+          paragraphs: [
+            "新加坡心脏基金会 (SHF) 强调，FH 是一种静悄悄的疾病，自出生起就偏高的 LDL 胆固醇会逐渐阻塞动脉血管。",
+            "如果不进行早期诊断，FH 患者发生早发性心脏病的风险比普通人群高出多达 20 倍。",
+            "然而，早期发现和科学合理的药物治疗可以将这种心脏病风险完全降低至正常人水平。"
+          ]
+        }
+      ]
+    },
+    'res-4': {
+      title: "基层医疗 FH 教育手册",
+      summary: "基层医疗网络关于 FH 检测、基因风险及治疗方案的教育指南。",
+      type: "PDF 宣传册",
+      keywords: ['基层医疗', '宣传册', '患者手册'],
+      readingTime: '5分钟阅读',
+      pages: [
+        {
+          title: "什么是家族性高胆固醇血症？",
+          paragraphs: [
+            "本手册通俗易懂地解释了 FH 的基因机制，指出其作为单基因遗传病，影响了肝脏清除血液中 LDL 胆固醇的能力。",
+            "手册强调了进行家庭级联筛查的重要性，以帮助找出其他可能同样面临高风险但至今依然毫无察觉的家庭成员。"
+          ]
+        }
+      ]
+    },
+    'res-8': {
+      title: "NHG 基因组评估诊所 (GAC) 宣传册",
+      summary: "国立健康集团关于基因咨询、风险评估及 DNA 检测的指南。",
+      type: "PDF 宣传册",
+      keywords: ['国家健康集团', '基因咨询诊所', '基因咨询', 'DNA检测', '临床基因组学'],
+      readingTime: '4分钟阅读',
+      pages: [
+        {
+          title: "NHG 基因组评估诊所简介",
+          paragraphs: [
+            "本手册详细介绍了 NHG 基因组评估诊所提供的专业化医疗服务，包括专家级基因咨询和精密的 DNA 测序分析。",
+            "手册还为被转诊推荐的患者清晰阐述了每一步的门诊流程，确保患者在整个临床诊疗旅程中得到充分支持与守护。"
+          ]
+        }
+      ]
+    },
+    'res-1': {
+      title: "NUHS 临床 FH 患者手册",
+      summary: "新加坡国立大学医学组织关于 DNA 检测、心脏风险及血脂管理的指南。",
+      type: "PDF 宣传册",
+      keywords: ['国立大学医学组织', '患者手册', '临床手册'],
+      readingTime: '3分钟阅读',
+      pages: [
+        {
+          title: "读懂您的转诊推荐与基因咨询",
+          paragraphs: [
+            "新加坡国立大学医学组织 (NUHS) 精心编制了本教育手册，帮助患者理解基因咨询师在分析家族遗传健康史中的重要作用。",
+            "手册介绍了与 FH 密切相关的特定基因，开展常规血脂测试的必要性，以及享受高额政府补贴的预防性治疗方案。"
+          ]
+        }
+      ]
+    },
+    'res-2': {
+      title: "新加坡卫生部 (MOH) 国家 FH 基因检测计划",
+      summary: "新加坡卫生部关于国家基因检测及家族级联筛查指南。",
+      type: "临床指南",
+      keywords: ['卫生部', '指南规范', '临床标准'],
+      readingTime: '5分钟阅读',
+      pages: [
+        {
+          title: "启动国家 FH 筛查战略计划",
+          paragraphs: [
+            "新加坡卫生部 (MOH) 已正式启动了资助 FH 基因检测的国家健康专项计划，使所有符合条件的本地公民都能以极低的、可负担的价格参与筛查。",
+            "这一极具前瞻性的公共卫生计划旨在通过主动的早期筛查与预防，极大地降低新加坡本地早发性心血管疾病的发生率和家庭社会负担。"
+          ]
+        }
+      ]
+    }
+  };
+
+  const taResources: Record<string, Partial<HelpfulResource>> = {
+    'res-7': {
+      title: "நோயாளி கதை: தன் குழந்தைகளுக்காக ஒரு தாயின் போராட்டம்",
+      summary: "FH உடன் வாழும் அனுபவம் மற்றும் தன் குழந்தைகளுக்கு ஆரம்பத்திலேயே பரிசோதனை செய்வதன் முக்கியத்துவத்தை ஒரு தாய் பகிர்ந்து கொள்கிறார்.",
+      type: "வீடியோ கதை",
+      keywords: ['நோயாளி-கதை', 'வீடியோ', 'தாய்', 'குழந்தைகள்-பரிசோதனை', 'குடும்ப-நம்பிக்கை'],
+      readingTime: '6-நிமிடம் வீடியோ',
+      pages: [
+        {
+          title: "ஒரு தாயின் பயணம்: பரம்பரை FH உடன் வாழ்வது",
+          paragraphs: [
+            "இரண்டு இளம் குழந்தைகளின் அன்பான தாயான சாரா (Sarah), அவரது சொந்த தந்தை இளம் வயதிலேயே மாரடைப்பால் பாதிக்கப்பட்டதைத் தொடர்ந்து, ஃபாமிலியல் ஹைபர்கொலஸ்டிரோலீமியா (FH) நோயால் பாதிக்கப்பட்டது கண்டறியப்பட்டது.",
+            "சரியான முறையில் நிர்வகிக்கப்படாத போது இதய நோய் எவ்வளவு கடுமையான பாதிப்பை ஏற்படுத்தும் என்ற பயத்துடன் வளர்ந்த அவர், பல ஆண்டுகளாக கண்டிப்பான மருத்துவ சிகிச்சை திட்டத்தில் இருந்து வருகிறார்.",
+            "\"FH இருப்பது என்பது நமது தேர்வல்ல, ஆனால் அதை தீவிரமாக கட்டுப்படுத்துவது நமது கையில் உள்ளது,\" என்று அவர் பகிர்ந்து கொள்கிறார். \"எனது மருந்து முறை எனது குடும்பத்திற்காக முழுமையான, சுறுசுறுப்பான வாழ்க்கையை வாழ எனக்கு உதவுகிறது.\""
+          ]
+        },
+        {
+          title: "தனது இரு இளம் குழந்தைகள் மீதான அவரது நம்பிக்கை",
+          paragraphs: [
+            "FH ஒரு ஆட்டோசோமால் மேலாதிக்க முறையில் பரவுவதால், சாராவின் ஒவ்வொரு குழந்தைக்கும் அதே மரபணு மாற்றத்தைப் பெறுவதற்கான 50% வாய்ப்பு உள்ளது.",
+            "சாரா தனது உறவினர்களிடம் கண்ட மாரடைப்பு மற்றும் தமனி அடைப்பு ஆகியவற்றிலிருந்து தனது குழந்தைகளைப் பாதுகாக்க விரும்பும் ஆழமான தாய்மை உணர்வு குறித்து பேசுகிறார்.",
+            "\"எனது நம்பிக்கை எனது குழந்தைகளை ஆரம்பத்திலேயே பரிசோதிக்க வேண்டும்,\" என்று அவர் விளக்குகிறார். \"குழந்தை பருவத்திலேயே சல்லடை பரிசோதனை செய்வது அவர்களின் நிலையை அறியவும், ஏதேனும் ஆபத்து ஏற்படும் முன்பே தடுப்பு நடவடிக்கைகளை உடனடியாக எடுக்கவும் உதவும்.\""
+          ]
+        }
+      ]
+    },
+    'res-6': {
+      title: "நோயாளி கதை: FH உடன் வாழ்வது (ஒரு இளைஞனின் பயணம்)",
+      summary: "FH கண்டறிதல், மரபணு பரிசோதனை மற்றும் ஆரம்பக்கால சிகிச்சை பற்றிய ஒரு இளைஞனின் அனுபவம்.",
+      type: "வீடியோ கதை",
+      keywords: ['நோயாளி-கதை', 'வீடியோ', 'இளைஞர்', 'வாழ்நாள்-அனுபவம்'],
+      readingTime: '5-நிமிடம் வீடியோ',
+      pages: [
+        {
+          title: "ஜோஷுவாவைச் சந்திக்கவும்: 22 வயதில் FH கண்டறியப்பட்டது",
+          paragraphs: [
+            "ஜோஷுவா (Joshua) தனது வாழ்க்கையைத் தொடங்கிய ஆரோக்கியமான இளைஞனாக இருந்தார், அப்போது ஒரு வழக்கமான காப்பீட்டு சுகாதார பரிசோதனை அவருக்கு கொழுப்பின் அளவு மிக அதிகமாக இருப்பதைக் காட்டியது.",
+            "சரியான உணவு முறை மற்றும் தொடர்ந்து உடற்பயிற்சி செய்த போதிலும், அவரது LDL அளவு 7.5 mmol/L-க்கு மேல் இருந்தது. \"என்னால் நம்ப முடியவில்லை,\" என்று ஜோஷுவா பகிர்ந்து கொள்கிறார். \"கொழுப்பு என்பது வயதானவர்கள் அல்லது ஆரோக்கியமற்ற வாழ்க்கை முறையைக் கொண்டவர்களுக்கு மட்டுமே ஏற்படும் பிரச்சனை என்று நான் நினைத்தேன்.\"",
+            "மரபணு ஆலோசனைக்கான பரிந்துரை, அவருக்கு தந்தையின் வழியிலிருந்து வந்த ஃபாமிலியல் ஹைபர்கொலஸ்டிரோலீமியா (FH) இருப்பதை உறுதிப்படுத்தியது."
+          ]
+        },
+        {
+          title: "மரபணு கண்டறிதலுடன் வாழ்க்கை மற்றும் தொழில் தொடங்குதல்",
+          paragraphs: [
+            "20களின் ஆரம்பத்தில் வாழ்நாள் முழுவதற்குமான மரபணு நிலையை ஏற்றுக்கொள்வது உணர்வுப்பூர்வமாக சவாலானது. ஜோஷுவா ஆரம்பக்கால மறுப்பை வென்று தனது ஆரோக்கியத்தைக் கவனித்துக் கொள்ளக் கற்றுக்கொண்டதை விளக்குகிறார்.",
+            "\"ஆரம்பத்திலேயே கண்டறிந்தது உண்மையில் ஒரு ஆசீர்வாதம்,\" என்று அவர் விளக்குகிறார். \"இதன் பொருள், 30 அல்லது 40களில் மாரடைப்பு ஏற்படும் முன் நான் ஆரம்பத்திலேயே ஸ்டேடின் சிகிச்சையைத் தொடங்க முடிந்தது.\"",
+            "இளம் வயதிலேயே இதய நோய் கண்டறியப்பட்ட குடும்ப வரலாற்றை மற்ற இளம் ஆண்களும் பெண்களும் புறக்கணிக்கக் கூடாது என்று ஜோஷுவா வலியுறுத்துகிறார்."
+          ]
+        }
+      ]
+    },
+    'res-9': {
+      title: "நுகர்வோர் வழிகாட்டி: மரபணு சோதனை மற்றும் காப்பீடு மீதான தற்காலிகத் தடை",
+      summary: "சிங்கப்பூரின் மரபணு பரிசோதனை தற்காலிகத் தடை மற்றும் காப்பீட்டு பாதுகாப்புகள் பற்றிய MOH வழிகாட்டி.",
+      type: "மருத்துவ வழிகாட்டி",
+      keywords: ['காப்பீடு', 'தற்காலிக-தடை', 'மரபணு-சோதனை', 'நுகர்வோர்-உரிமைகள்'],
+      readingTime: '3-நிமிடம் வாசிப்பு',
+      pages: [
+        {
+          title: "மரபணு சோதனை தற்காலிகத் தடையைப் புரிந்துகொள்வது",
+          paragraphs: [
+            "சிங்கப்பூர் சுகாதார அமைச்சகம் (MOH) மற்றும் சிங்கப்பூர் ஆயுள் காப்பீட்டாளர்கள் சங்கம் (LIA) ஆகியவற்றிற்கு இடையே ஒப்புக்கொள்ளப்பட்ட தேசிய மரபணு சோதனை தற்காலிகத் தடையை சிங்கப்பூர் பராமரிக்கிறது.",
+            "இந்த ஒப்பந்தத்தின் கீழ், காப்பீட்டு நிறுவனங்கள் அடிப்படை காப்பீட்டை மறுக்கவோ அல்லது பிரீமியத்தை அதிகரிக்கவோ உங்களின் தன்னார்வ மரபணு சோதனை முடிவுகளைக் கேட்கவோ அல்லது பயன்படுத்தவோ கண்டிப்பாக தடைசெய்யப்பட்டுள்ளது."
+          ]
+        }
+      ]
+    },
+    'res-5': {
+      title: "சிங்கப்பூர் இதய அறக்கட்டளை FH வழிகாட்டி",
+      summary: "FH ஆபத்துகள், இதய ஆரோக்கியம் மற்றும் வாழ்க்கை முறை நிர்வாகம் பற்றிய சிங்கப்பூர் இதய அறக்கட்டளை வழிகாட்டி.",
+      type: "மருத்துவ வழிகாட்டி",
+      keywords: ['இதய-அறக்கட்டளை', 'ஆபத்து-காரணிகள்', 'இதய-ஆரோக்கியம்', 'தடுப்பு'],
+      readingTime: '4-நிமிடம் வாசிப்பு',
+      pages: [
+        {
+          title: "FH ஆபத்து காரணிகள் மற்றும் இதய ஆரோக்கியத்தைப் புரிந்துகொள்வது",
+          paragraphs: [
+            "சிங்கப்பூர் இதய அறக்கட்டளை (SHF) வலியுறுத்துகிறது, பிறப்பிலிருந்தே அதிக LDL கொழுப்பு தமனிகளை மெதுவாக அடைக்கும் ஒரு அமைதியான நிலை தான் FH ஆகும்.",
+            "ஆரம்பக்கால கண்டறிதல் மற்றும் தகுந்த மருத்துவ சிகிச்சை ஆகியவை இந்த இதய நோய் அபாயத்தை சாதாரண நிலைக்குக் குறைக்கலாம்."
+          ]
+        }
+      ]
+    },
+    'res-4': {
+      title: "ஆரம்ப சுகாதார FH கையேடு",
+      summary: "FH கண்டறிதல், மரபணு ஆபத்துகள் மற்றும் சிகிச்சை முறைகள் பற்றிய முதன்மை பராமரிப்பு வழிகாட்டி.",
+      type: "PDF கையேடு",
+      keywords: ['ஆரம்ப-சுகாதாரம்', 'கையேடு', 'நோயாளி-கைநூல்'],
+      readingTime: '5-நிமிடம் வாசிப்பு',
+      pages: [
+        {
+          title: "ஃபாமிலியல் ஹைபர்கொலஸ்டிரோலீமியா என்றால் என்ன?",
+          paragraphs: [
+            "இந்த கையேடு கொழுப்பை அகற்றும் கல்லீரலின் திறனைப் பாதிக்கும் ஒரு மரபணு கோளாறாக FH-ன் அடிப்படைகளை விளக்குகிறது.",
+            "இது ஆபத்தில் இருக்கும் மற்ற குடும்ப உறுப்பினர்களைக் கண்டறிய குடும்ப அடுக்கு சல்லடை பரிசோதனையின் முக்கியத்துவத்தை கோடிட்டுக் காட்டுகிறது."
+          ]
+        }
+      ]
+    },
+    'res-8': {
+      title: "NHG மரபணு மதிப்பீட்டு மருத்துவமனை (GAC) கையேடு",
+      summary: "மரபணு ஆலோசனை, ஆபத்து மதிப்பீடு மற்றும் டிஎன்ஏ பரிசோதனை பற்றிய NHG வழிகாட்டி.",
+      type: "PDF கையேடு",
+      keywords: ['nhg', 'gac', 'மரபணு-ஆலோசனை', 'DNA-பரிசோதனை', 'மருத்துவ-மரபணுவியல்'],
+      readingTime: '4-நிமிடம் வாசிப்பு',
+      pages: [
+        {
+          title: "NHG மரபணு மதிப்பீட்டு மருத்துவமனை அறிமுகம்",
+          paragraphs: [
+            "இந்த வழிகாட்டி நிபுணர் மரபணு ஆலோசனை மற்றும் DNA பரிசோதனை உட்பட NHG மரபணு மதிப்பீட்டு மருத்துவமனை வழங்கும் சிறப்பு சேவைகளை அறிமுகப்படுத்துகிறது."
+          ]
+        }
+      ]
+    },
+    'res-1': {
+      title: "NUHS மருத்துவ FH நோயாளி துண்டுப்பிரசுரம்",
+      summary: "டிஎன்ஏ பரிசோதனை, இதய ஆபத்து மற்றும் கொழுப்பு நிர்வாகம் பற்றிய NUHS வழிகாட்டி.",
+      type: "PDF கையேடு",
+      keywords: ['nuhs', 'நோயாளி-கைநூல்', 'மருத்துவ-துண்டுப்பிரசுரம்'],
+      readingTime: '3-நிமிடம் வாசிப்பு',
+      pages: [
+        {
+          title: "உங்கள் பரிந்துரை மற்றும் மரபணு ஆலோசனையைப் புரிந்துகொள்வது",
+          paragraphs: [
+            "குடும்ப சுகாதார வரலாற்றை பகுப்பாய்வு செய்வதில் மரபணு ஆலோசகர்களின் பங்கைப் புரிந்துகொள்ள நோயாளிகளுக்கு உதவ NUHS இந்த தகவல் கையேட்டை வழங்குகிறது."
+          ]
+        }
+      ]
+    },
+    'res-2': {
+      title: "MOH தேசிய FH மரபணு சோதனை திட்டம்",
+      summary: "மானியம்பெற்ற தேசிய மரபணு பரிசோதனை மற்றும் கேஸ்கேட் பரிசோதனை பற்றிய MOH வழிகாட்டி.",
+      type: "மருத்துவ வழிகாட்டி",
+      keywords: ['moh', 'வழிகாட்டுதல்கள்', 'மருத்துவ-தரநிலه‌ها'],
+      readingTime: '5-நிமிடம் வாசிப்பு',
+      pages: [
+        {
+          title: "தேசிய FH சல்லடை பரிசோதனை முயற்சியின் தொடக்கம்",
+          paragraphs: [
+            "சிங்கப்பூர் சுகாதார அமைச்சகம் (MOH) FH மரபணு சோதனைகளுக்கு மானியம் வழங்குவதற்கான தேசிய திட்டத்தைத் தொடங்கியுள்ளது, இது அனைத்து தகுதியான சிங்கப்பூரர்களுக்கும் மிகவும் மலிவானதாக மாற்றுகிறது."
+          ]
+        }
+      ]
+    }
+  };
+
+  const lookup = lang === 'ms' ? msResources : lang === 'zh' ? zhResources : taResources;
+
+  return resources.map(res => {
+    const loc = lookup[res.id];
+    if (!loc) return res;
+    return {
+      ...res,
+      title: loc.title || res.title,
+      summary: loc.summary || res.summary,
+      type: loc.type || res.type,
+      keywords: loc.keywords || res.keywords,
+      readingTime: loc.readingTime || res.readingTime,
+      pages: loc.pages ? loc.pages.map((p, idx) => ({
+        ...p,
+        paragraphs: p.paragraphs || res.pages[idx]?.paragraphs || []
+      })) : res.pages
+    };
+  });
+};
+

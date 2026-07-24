@@ -25,15 +25,13 @@ import {
 import PhoneSimulator from './components/PhoneSimulator';
 import AnnotationsPanel from './components/AnnotationsPanel';
 import DatabaseViewer from './components/DatabaseViewer';
-import Chatbot from './components/Chatbot';
-import { HeartPulse, Compass, Settings, Layers, Users, BookOpen, Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, Calendar, Check, ArrowRight, Circle as HelpCircle, Database, MessageSquare, X } from 'lucide-react';
+import { HeartPulse, Compass, Settings, Layers, Users, BookOpen, Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, Calendar, Check, ArrowRight, CircleHelp as HelpCircle, Database, MessageSquare, X } from 'lucide-react';
 
 export default function App() {
   // Global Shared States for the Figma Prototype
   const [activeScreen, setActiveScreen] = useState<ScreenId>(ScreenId.Home);
   const [isFHReferred, setIsFHReferred] = useState<boolean>(false);
   const [rightPanelTab, setRightPanelTab] = useState<'annotations' | 'database'>('database');
-  const [isFloatingChatOpen, setIsFloatingChatOpen] = useState<boolean>(false);
   
   // Feature 6: Relational Database Tables State
   // Starts empty — real values are loaded from Supabase in the
@@ -47,6 +45,7 @@ export default function App() {
   const [resultsTable, setResultsTable] = useState<ResultsRecord[]>([]);
   const [selectedPatientId, setSelectedPatientId] = useState<string>('SL001');
   const [isLoadingDb, setIsLoadingDb] = useState<boolean>(true);
+  const [emilyWongRefreshTrigger, setEmilyWongRefreshTrigger] = useState<number>(0);
 
   // SQL rolling log stream (Feature 6)
   const [queryLogs, setQueryLogs] = useState<DBQueryLog[]>([]);
@@ -104,6 +103,9 @@ export default function App() {
         setReferralTable(referrals);
         setEducationProgressTable(education);
         setResultsTable(results);
+
+        const hasActiveReferral = referrals.some(r => r.patient_id === selectedPatientId && r.status === 'active');
+        setIsFHReferred(hasActiveReferral);
 
         // Async upsert to Supabase to keep remote and local in perfect harmony
         finalPatients.forEach(async (p) => {
@@ -249,7 +251,7 @@ export default function App() {
     );
   };
 
-  const handleReminderPrefsTransaction = async (enabled: boolean, channel: 'sms' | 'push' | 'both', frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => {
+  const handleReminderPrefsTransaction = async (enabled: boolean, channel: string, frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => {
     const pref = reminderPrefTable.find(r => r.patient_id === selectedPatientId);
     const reminderId = pref?.reminder_id || `REM${Math.floor(100 + Math.random() * 900)}`;
 
@@ -472,6 +474,10 @@ export default function App() {
     let eduPercent = 0;
     let refType: 'clinical_referral' | 'cascade_screening' | 'clinical_suspicion' = 'clinical_referral';
 
+    if (patientId === 'EW003') {
+      setEmilyWongRefreshTrigger(prev => prev + 1);
+    }
+
     if (patientId === 'SL001') {
       referred = false;
       apptStatus = 'pending';
@@ -494,9 +500,6 @@ export default function App() {
     }
 
     setIsFHReferred(referred);
-    if (!referred) {
-      setIsFloatingChatOpen(false);
-    }
 
     // Update appointment state locally
     setAppointmentTable(prev => {
@@ -753,74 +756,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Box 2: HealthBuddy Interactive Chatbot Hub Controller */}
-          {isFHReferred ? (
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl text-left">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
-                    <span className="p-1.5 bg-emerald-950/40 text-emerald-400 rounded-lg border border-emerald-900/50">
-                      <Sparkles className="w-4 h-4" />
-                    </span>
-                    HealthBuddy AI Assistant
-                  </h3>
-                  <p className="text-[10px] text-slate-400 font-medium">GovTech Singapore Patient Companion</p>
-                </div>
-                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-900 select-none">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE SIMULATOR
-                </span>
-              </div>
-
-              <p className="text-slate-300 text-xs leading-relaxed">
-                This advanced AI assistant is now fully integrated into the live mobile device simulator! It is programmed with official Ministry of Health Singapore guidelines.
-              </p>
-
-              <div className="space-y-2.5 text-[11px] text-slate-300">
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-0.5 text-emerald-500 font-bold">✓</div>
-                  <div>
-                    <strong className="text-slate-200 font-semibold">CHAS Subsidy Calculations:</strong> Answers patient cost concerns dynamically using Lisa Ho's CHAS profile.
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-0.5 text-emerald-500 font-bold">✓</div>
-                  <div>
-                    <strong className="text-slate-200 font-semibold">LIA Moratorium Guardrails:</strong> Reassures patient privacy by clarifying genetic testing insurance policies.
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-0.5 text-[#00a859] font-bold">✓</div>
-                  <div>
-                    <strong className="text-slate-200 font-semibold">Direct Navigation:</strong> Prompts the user to book or modify appointments within the app itself.
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsFloatingChatOpen(true)}
-                className="w-full mt-2 py-3 px-4 bg-[#00a859] hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-emerald-900/10 cursor-pointer active:scale-98 transition-all"
-              >
-                <MessageSquare className="w-4 h-4 text-white" />
-                Open Floating AI Assistant
-              </button>
-            </div>
-          ) : (
-            <div className="bg-slate-900/40 rounded-2xl border border-slate-800/80 p-5 space-y-3 text-left">
-              <h3 className="font-display font-bold text-xs text-slate-300 flex items-center gap-2">
-                <span className="p-1.5 bg-slate-950 text-slate-400 rounded-lg border border-slate-800">
-                  <MessageSquare className="w-3.5 h-3.5" />
-                </span>
-                FH AI Assistant Locked
-              </h3>
-              <p className="text-slate-400 text-xs leading-normal">
-                Patients without an active FH Genetic Referral (like <strong className="text-slate-300">Sarah Lim</strong>) do not have clinical access to the Genetically-focused HealthBuddy AI assistant, as they are on standard primary care pathways.
-              </p>
-              <p className="text-[10px] text-slate-500 font-medium">
-                💡 <span className="italic">Select a referred persona (e.g., Emily Wong) to unlock.</span>
-              </p>
-            </div>
-          )}
-
         </div>
 
         {/* MIDDLE COLUMN (Lg: 4/12) - High Fidelity Mobile Device Simulator */}
@@ -846,8 +781,7 @@ export default function App() {
             patientRecord={activePatient}
             percentComplete={percentComplete}
             onUpdateEducationProgress={handleUpdateEducationProgress}
-            isChatOpen={isFloatingChatOpen}
-            onToggleChat={setIsFloatingChatOpen}
+            emilyWongRefreshTrigger={emilyWongRefreshTrigger}
           />
 
         </div>

@@ -1,0 +1,15 @@
+{
+  "mandatory_nric": "Bring NRIC / Singpass for identity verification",
+  "mandatory_meds": "Prepare a list of your current medications and supplements",
+  "knowledge_new": "Read the 'Understanding FH' guide to learn how inherited cholesterol differs from standard cholesterol.",
+  "knowledge_little_research": "Watch Lisa Ho's pre-test counselling walkthrough video to see what happens during genetic counselling.",
+  "knowledge_advanced": "Note down any highly specific technical or inheritance questions to discuss with your genetic counsellor.",
+  "topic_costs": "Verify your CHAS/PG/MG status to confirm your exact genetic testing subsidy rate.",
+  "topic_insurance": "Review the Life Insurance Association (LIA) Moratorium fact sheet inside HealthHub.",
+  "topic_family": "Draft a list of close blood relatives (parents, siblings, children) to discuss for cascade screening.",
+  "topic_treatment": "Write down any questions about the long-term safety, side effects, or cost of lipid-lowering medications.",
+  "concern_test": "Prepare questions about how DNA sample collection works and the expected timeline for results.",
+  "concern_family": "List family members who have had early heart attacks or high cholesterol before age 50.",
+  "concern_cost": "Review the MOH subvention options and MediSave limits for genetic testing fees.",
+  "concern_insurance": "Locate your current active life and health insurance policy documents for reassurance."
+}
