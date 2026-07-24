@@ -130,14 +130,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Dna", label: "Inherited", text: "Passed down through family genes, not diet or lifestyle." },
-          { icon: "TrendingUp", label: "High LDL", text: "Extremely elevated 'bad' cholesterol levels from day one." },
-          { icon: "ShieldCheck", label: "Treatable", text: "Highly manageable with early medical support and care." }
+          { icon: "🧬", label: "Inherited", text: "Passed down through family genes, not diet or lifestyle." },
+          { icon: "📈", label: "High LDL", text: "Extremely elevated 'bad' cholesterol levels from day one." },
+          { icon: "🛡️", label: "Treatable", text: "Highly manageable with early medical support and care." }
         ],
         advanced: [
-          { icon: "Dna", label: "Genetic Mutation", text: "Autosomal dominant variant in LDLR, APOB, or PCSK9 genes." },
-          { icon: "TrendingUp", label: "Reduced Clearance", text: "Impaired hepatic clearance severely elevates circulating LDL-C." },
-          { icon: "ShieldCheck", label: "Pharmacotherapy", text: "Targeted clinical treatments can fully normalize cardiovascular risk." }
+          { icon: "🧬", label: "Genetic Mutation", text: "Autosomal dominant variant in LDLR, APOB, or PCSK9 genes." },
+          { icon: "📈", label: "Reduced Clearance", text: "Impaired hepatic clearance severely elevates circulating LDL-C." },
+          { icon: "🛡️", label: "Pharmacotherapy", text: "Targeted clinical treatments can fully normalize cardiovascular risk." }
         ]
       }
     },
@@ -148,14 +148,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Clock", label: "Silent Plaque", text: "Cholesterol forms hard deposits in arteries without symptoms." },
-          { icon: "AlertTriangle", label: "Narrowing", text: "Over time, plaque buildup restricts vital blood flow." },
-          { icon: "HeartPulse", label: "Prevention", text: "Early treatment keeps blood vessels flexible and healthy." }
+          { icon: "⏳", label: "Silent Plaque", text: "Cholesterol forms hard deposits in arteries without symptoms." },
+          { icon: "⚠️", label: "Narrowing", text: "Over time, plaque buildup restricts vital blood flow." },
+          { icon: "❤️", label: "Prevention", text: "Early treatment keeps blood vessels flexible and healthy." }
         ],
         advanced: [
-          { icon: "Clock", label: "Atherogenesis", text: "Lifelong ApoB-containing lipoprotein accumulation in arterial walls." },
-          { icon: "AlertTriangle", label: "Lumen Reduction", text: "Fibrous plaques narrow arteries, increasing premature coronary risk." },
-          { icon: "HeartPulse", label: "Risk Management", text: "Aggressive lipid lowering resets the lifetime cardiovascular curve." }
+          { icon: "⏳", label: "Atherogenesis", text: "Lifelong ApoB-containing lipoprotein accumulation in arterial walls." },
+          { icon: "⚠️", label: "Lumen Reduction", text: "Fibrous plaques narrow arteries, increasing premature coronary risk." },
+          { icon: "❤️", label: "Risk Management", text: "Aggressive lipid lowering resets the lifetime cardiovascular curve." }
         ]
       }
     },
@@ -166,14 +166,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Activity", label: "Simple Test", text: "A quick, safe outpatient blood draw or saliva sample." },
-          { icon: "Search", label: "Precise DNA", text: "Scans LDLR, APOB, or PCSK9 genes to find the exact variant." },
-          { icon: "ClipboardList", label: "Clear Guidance", text: "Results help your doctor design a personalized care plan." }
+          { icon: "🩸", label: "Simple Test", text: "A quick, safe outpatient blood draw or saliva sample." },
+          { icon: "🔍", label: "Precise DNA", text: "Scans LDLR, APOB, or PCSK9 genes to find the exact variant." },
+          { icon: "📋", label: "Clear Guidance", text: "Results help your doctor design a personalized care plan." }
         ],
         advanced: [
-          { icon: "Activity", label: "Molecular Screening", text: "Targeted next-generation sequencing (NGS) of FH-linked genes." },
-          { icon: "Search", label: "Confirm Genotype", text: "Pinpoints pathogenic variants to resolve clinical ambiguity." },
-          { icon: "ClipboardList", label: "Cascade Marker", text: "Identifies the specific mutation needed for family-wide screening." }
+          { icon: "🩸", label: "Molecular Screening", text: "Targeted next-generation sequencing (NGS) of FH-linked genes." },
+          { icon: "🔍", label: "Confirm Genotype", text: "Pinpoints pathogenic variants to resolve clinical ambiguity." },
+          { icon: "📋", label: "Cascade Marker", text: "Identifies the specific mutation needed for family-wide screening." }
         ]
       }
     },
@@ -184,14 +184,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Users", label: "50% Risk", text: "First-degree relatives share a 50% chance of inheriting FH." },
-          { icon: "GitFork", label: "Family Tree", text: "Finding your variant serves as a marker to test loved ones." },
-          { icon: "ShieldCheck", label: "Early Action", text: "Helps family access life-saving preventive care early." }
+          { icon: "👥", label: "50% Risk", text: "First-degree relatives share a 50% chance of inheriting FH." },
+          { icon: "🌳", label: "Family Tree", text: "Finding your variant serves as a marker to test loved ones." },
+          { icon: "🛡️", label: "Early Action", text: "Helps family access life-saving preventive care early." }
         ],
         advanced: [
-          { icon: "Users", label: "Prior Probability", text: "First-degree relatives have a 50% prior probability of inheritance." },
-          { icon: "GitFork", label: "Targeted Testing", text: "Utilizes the index patient's variant as an exact genetic marker." },
-          { icon: "ShieldCheck", label: "Cost-Effective", text: "Globally recognized as a highly cost-effective preventive model." }
+          { icon: "👥", label: "Prior Probability", text: "First-degree relatives have a 50% prior probability of inheritance." },
+          { icon: "🌳", label: "Targeted Testing", text: "Utilizes the index patient's variant as an exact genetic marker." },
+          { icon: "🛡️", label: "Cost-Effective", text: "Globally recognized as a highly cost-effective preventive model." }
         ]
       }
     },
@@ -202,14 +202,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Pill", label: "Safe Statins", text: "Well-studied daily pills that help the liver clear bad cholesterol." },
-          { icon: "RefreshCw", label: "LDL Clearance", text: "Boosts natural receptors to pull LDL out of your bloodstream." },
-          { icon: "TrendingDown", label: "Risk Reset", text: "Brings cardiovascular risks back down to standard, healthy levels." }
+          { icon: "💊", label: "Safe Statins", text: "Well-studied daily pills that help the liver clear bad cholesterol." },
+          { icon: "🔄", label: "LDL Clearance", text: "Boosts natural receptors to pull LDL out of your bloodstream." },
+          { icon: "📉", label: "Risk Reset", text: "Brings cardiovascular risks back down to standard, healthy levels." }
         ],
         advanced: [
-          { icon: "Pill", label: "HMG-CoA Blockers", text: "High-intensity statins (e.g. Rosuvastatin) inhibit cholesterol synthesis." },
-          { icon: "RefreshCw", label: "Up-regulate LDLR", text: "Upregulates liver LDL receptors to clear circulating LDL-C." },
-          { icon: "TrendingDown", label: "Combination Care", text: "Frequently combined with Ezetimibe or PCSK9 inhibitors for targets." }
+          { icon: "💊", label: "HMG-CoA Blockers", text: "High-intensity statins (e.g. Rosuvastatin) inhibit cholesterol synthesis." },
+          { icon: "🔄", label: "Up-regulate LDLR", text: "Upregulates liver LDL receptors to clear circulating LDL-C." },
+          { icon: "📉", label: "Combination Care", text: "Frequently combined with Ezetimibe or PCSK9 inhibitors for targets." }
         ]
       }
     },
@@ -220,14 +220,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Apple", label: "More Fibre", text: "Choose oats, barley, and beans to block cholesterol absorption." },
-          { icon: "Ban", label: "Limit Fats", text: "Reduce saturated fats like butter, palm oil, and fatty meats." },
-          { icon: "Activity", label: "Stay Active", text: "Aim for 30 minutes of brisk walking daily to strengthen your heart." }
+          { icon: "🍎", label: "More Fibre", text: "Choose oats, barley, and beans to block cholesterol absorption." },
+          { icon: "🚫", label: "Limit Fats", text: "Reduce saturated fats like butter, palm oil, and fatty meats." },
+          { icon: "🏃‍♂️", label: "Stay Active", text: "Aim for 30 minutes of brisk walking daily to strengthen your heart." }
         ],
         advanced: [
-          { icon: "Apple", label: "Fibre & sterols", text: "Water-soluble fibre actively blocks intestinal absorption." },
-          { icon: "Ban", label: "Saturated Fats", text: "Saturated fatty acids downregulate hepatic LDL receptor activity." },
-          { icon: "Activity", label: "Endothelial Health", text: "Regular aerobic exercise optimizes endothelial nitric oxide activity." }
+          { icon: "🍎", label: "Fibre & sterols", text: "Water-soluble fibre actively blocks intestinal absorption." },
+          { icon: "🚫", label: "Saturated Fats", text: "Saturated fatty acids downregulate hepatic LDL receptor activity." },
+          { icon: "🏃‍♂️", label: "Endothelial Health", text: "Regular aerobic exercise optimizes endothelial nitric oxide activity." }
         ]
       }
     },
@@ -238,14 +238,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "MessageSquare", label: "Counselling", text: "A 30-minute friendly talk to map history and protect privacy." },
-          { icon: "FlaskConical", label: "Blood Draw", text: "A quick 10-minute outpatient blood sample with no fasting required." },
-          { icon: "Calendar", label: "Results Visit", text: "Meet your care team in 4 to 6 weeks to discuss customized steps." }
+          { icon: "🗣️", label: "Counselling", text: "A 30-minute friendly talk to map history and protect privacy." },
+          { icon: "💉", label: "Blood Draw", text: "A quick 10-minute outpatient blood sample with no fasting required." },
+          { icon: "📅", label: "Results Visit", text: "Meet your care team in 4 to 6 weeks to discuss customized steps." }
         ],
         advanced: [
-          { icon: "MessageSquare", label: "Pre-Test Consultation", text: "Detailed genetic counseling to construct a 3-generation pedigree." },
-          { icon: "FlaskConical", label: "Outpatient Sample", text: "No-fasting blood or saliva draw for high-fidelity molecular NGS." },
-          { icon: "Calendar", label: "Post-Test Review", text: "Comprehensive variant interpretation and clinical risk stratification." }
+          { icon: "🗣️", label: "Pre-Test Consultation", text: "Detailed genetic counseling to construct a 3-generation pedigree." },
+          { icon: "💉", label: "Outpatient Sample", text: "No-fasting blood or saliva draw for high-fidelity molecular NGS." },
+          { icon: "📅", label: "Post-Test Review", text: "Comprehensive variant interpretation and clinical risk stratification." }
         ]
       }
     },
@@ -256,14 +256,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Building2", label: "MOH Subsidy", text: "Eligible citizens receive up to 75% subsidy for genetic tests." },
-          { icon: "Building2", label: "MediSave Use", text: "Remaining out-of-pocket balance is fully coverable by MediSave." },
-          { icon: "Coins", label: "Zero Cash", text: "Most patients pay little to no cash out-of-pocket." }
+          { icon: "🇸🇬", label: "MOH Subsidy", text: "Eligible citizens receive up to 75% subsidy for genetic tests." },
+          { icon: "🏦", label: "MediSave Use", text: "Remaining out-of-pocket balance is fully coverable by MediSave." },
+          { icon: "💵", label: "Zero Cash", text: "Most patients pay little to no cash out-of-pocket." }
         ],
         advanced: [
-          { icon: "Building2", label: "Public Subvention", text: "MOH provides 50% to 75% subvention for eligible citizens." },
-          { icon: "Building2", label: "CDMS MediSave", text: "Residual balance is claimable under Chronic Disease Management Scheme." },
-          { icon: "Coins", label: "Financial Safeguards", text: "CHAS Blue and Medifund provide extra protection for low-income patients." }
+          { icon: "🇸🇬", label: "Public Subvention", text: "MOH provides 50% to 75% subvention for eligible citizens." },
+          { icon: "🏦", label: "CDMS MediSave", text: "Residual balance is claimable under Chronic Disease Management Scheme." },
+          { icon: "💵", label: "Financial Safeguards", text: "CHAS Blue and Medifund provide extra protection for low-income patients." }
         ]
       }
     },
@@ -274,14 +274,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "ShieldCheck", label: "Moratorium", text: "LIA rules forbid insurers from asking for voluntary genetic tests." },
-          { icon: "Lock", label: "Active Policies", text: "Existing life and health policies cannot be canceled or modified." },
-          { icon: "CheckCircle", label: "Standard Cover", text: "You remain fully eligible for standard coverage under standard terms." }
+          { icon: "🛡️", label: "Moratorium", text: "LIA rules forbid insurers from asking for voluntary genetic tests." },
+          { icon: "🔒", label: "Active Policies", text: "Existing life and health policies cannot be canceled or modified." },
+          { icon: "✅", label: "Standard Cover", text: "You remain fully eligible for standard coverage under standard terms." }
         ],
         advanced: [
-          { icon: "ShieldCheck", label: "LIA Agreement", text: "Moratorium restricts use of voluntary predictive genetic tests in underwriting." },
-          { icon: "Lock", label: "Inforce Protections", text: "Active standard policies cannot be re-priced or cancelled based on tests." },
-          { icon: "CheckCircle", label: "Underwriting Limits", text: "Guarantees full access to standard insurance up to specified coverage caps." }
+          { icon: "🛡️", label: "LIA Agreement", text: "Moratorium restricts use of voluntary predictive genetic tests in underwriting." },
+          { icon: "🔒", label: "Inforce Protections", text: "Active standard policies cannot be re-priced or cancelled based on tests." },
+          { icon: "✅", label: "Underwriting Limits", text: "Guarantees full access to standard insurance up to specified coverage caps." }
         ]
       }
     }
@@ -294,14 +294,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Dna", label: "Diwarisi", text: "Diwarisi melalui genetik keluarga, bukan disebabkan oleh diet atau gaya hidup." },
-          { icon: "TrendingUp", label: "LDL Tinggi", text: "Tahap kolesterol 'buruk' yang sangat tinggi sejak hari pertama." },
-          { icon: "ShieldCheck", label: "Boleh Dirawat", text: "Sangat mudah diuruskan dengan sokongan dan rawatan perubatan awal." }
+          { icon: "🧬", label: "Diwarisi", text: "Diwarisi melalui genetik keluarga, bukan disebabkan oleh diet atau gaya hidup." },
+          { icon: "📈", label: "LDL Tinggi", text: "Tahap kolesterol 'buruk' yang sangat tinggi sejak hari pertama." },
+          { icon: "🛡️", label: "Boleh Dirawat", text: "Sangat mudah diuruskan dengan sokongan dan rawatan perubatan awal." }
         ],
         advanced: [
-          { icon: "Dna", label: "Mutasi Genetik", text: "Varian dominan autosomal pada gen LDLR, APOB, atau PCSK9." },
-          { icon: "TrendingUp", label: "Kurang Pembersihan", text: "Pembersihan hepatik terjejas teruk meningkatkan LDL-C dalam darah." },
-          { icon: "ShieldCheck", label: "Farmakoterapi", text: "Rawatan klinikal khusus boleh menormalkan sepenuhnya risiko jantung." }
+          { icon: "🧬", label: "Mutasi Genetik", text: "Varian dominan autosomal pada gen LDLR, APOB, atau PCSK9." },
+          { icon: "📈", label: "Kurang Pembersihan", text: "Pembersihan hepatik terjejas teruk meningkatkan LDL-C dalam darah." },
+          { icon: "🛡️", label: "Farmakoterapi", text: "Rawatan klinikal khusus boleh menormalkan sepenuhnya risiko jantung." }
         ]
       }
     },
@@ -312,14 +312,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Clock", label: "Plak Senyap", text: "Kolesterol membentuk mendapan keras dalam arteri tanpa sebarang gejala." },
-          { icon: "AlertTriangle", label: "Penyempitan", text: "Lama kelamaan, plak mengehadkan aliran darah penting ke jantung." },
-          { icon: "HeartPulse", label: "Pencegahan", text: "Rawatan awal memastikan saluran darah kekal fleksibel dan sihat." }
+          { icon: "⏳", label: "Plak Senyap", text: "Kolesterol membentuk mendapan keras dalam arteri tanpa sebarang gejala." },
+          { icon: "⚠️", label: "Penyempitan", text: "Lama kelamaan, plak mengehadkan aliran darah penting ke jantung." },
+          { icon: "❤️", label: "Pencegahan", text: "Rawatan awal memastikan saluran darah kekal fleksibel dan sihat." }
         ],
         advanced: [
-          { icon: "Clock", label: "Aterogenesis", text: "Pengumpulan lipoprotein ApoB seumur hidup di dinding arteri." },
-          { icon: "AlertTriangle", label: "Kurang Lumen", text: "Plak fibros menyempitkan arteri, meningkatkan risiko koronari awal." },
-          { icon: "HeartPulse", label: "Urus Risiko", text: "Terapi agresif menurunkan pendedahan kolesterol seumur hidup." }
+          { icon: "⏳", label: "Aterogenesis", text: "Pengumpulan lipoprotein ApoB seumur hidup di dinding arteri." },
+          { icon: "⚠️", label: "Kurang Lumen", text: "Plak fibros menyempitkan arteri, meningkatkan risiko koronari awal." },
+          { icon: "❤️", label: "Urus Risiko", text: "Terapi agresif menurunkan pendedahan kolesterol seumur hidup." }
         ]
       }
     },
@@ -330,14 +330,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Activity", label: "Ujian Mudah", text: "Pengambilan sampel darah atau air liur pesakit luar yang cepat dan selamat." },
-          { icon: "Search", label: "DNA Tepat", text: "Mengimbas gen LDLR, APOB, atau PCSK9 untuk mencari variasi gen." },
-          { icon: "ClipboardList", label: "Panduan Jelas", text: "Keputusan membantu doktor merancang pelan rawatan diperibadikan." }
+          { icon: "🩸", label: "Ujian Mudah", text: "Pengambilan sampel darah atau air liur pesakit luar yang cepat dan selamat." },
+          { icon: "🔍", label: "DNA Tepat", text: "Mengimbas gen LDLR, APOB, atau PCSK9 untuk mencari variasi gen." },
+          { icon: "📋", label: "Panduan Jelas", text: "Keputusan membantu doktor merancang pelan rawatan diperibadikan." }
         ],
         advanced: [
-          { icon: "Activity", label: "Saringan Molekul", text: "Penjenisan generasi seterusnya (NGS) sasaran gen berkait FH." },
-          { icon: "Search", label: "Sahkan Genotip", text: "Mengenal pasti varian patogenik untuk menyelesaikan keraguan klinikal." },
-          { icon: "ClipboardList", label: "Penanda Lata", text: "Mengenal pasti mutasi khusus yang diperlukan untuk saringan keluarga." }
+          { icon: "🩸", label: "Saringan Molekul", text: "Penjenisan generasi seterusnya (NGS) sasaran gen berkait FH." },
+          { icon: "🔍", label: "Sahkan Genotip", text: "Mengenal pasti varian patogenik untuk menyelesaikan keraguan klinikal." },
+          { icon: "📋", label: "Penanda Lata", text: "Mengenal pasti mutasi khusus yang diperlukan untuk saringan keluarga." }
         ]
       }
     },
@@ -348,14 +348,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Users", label: "Risiko 50%", text: "Ahli keluarga darjah pertama mempunyai peluang 50% mewarisi FH." },
-          { icon: "GitFork", label: "Salasilah Keluarga", text: "Menemui gen anda membantu menyaring orang tersayang dengan mudah." },
-          { icon: "ShieldCheck", label: "Tindakan Awal", text: "Membantu keluarga mendapatkan rawatan pencegahan awal." }
+          { icon: "👥", label: "Risiko 50%", text: "Ahli keluarga darjah pertama mempunyai peluang 50% mewarisi FH." },
+          { icon: "🌳", label: "Salasilah Keluarga", text: "Menemui gen anda membantu menyaring orang tersayang dengan mudah." },
+          { icon: "🛡️", label: "Tindakan Awal", text: "Membantu keluarga mendapatkan rawatan pencegahan awal." }
         ],
         advanced: [
-          { icon: "Users", label: "Kebarangkalian", text: "Ahli keluarga darjah pertama mempunyai risiko 50% mewarisi gen." },
-          { icon: "GitFork", label: "Ujian Sasaran", text: "Menggunakan varian pesakit indeks sebagai penanda genetik tepat." },
-          { icon: "ShieldCheck", label: "Kos Efektif", text: "Diiktiraf di seluruh dunia sebagai model pencegahan kos-efektif." }
+          { icon: "👥", label: "Kebarangkalian", text: "Ahli keluarga darjah pertama mempunyai risiko 50% mewarisi gen." },
+          { icon: "🌳", label: "Ujian Sasaran", text: "Menggunakan varian pesakit indeks sebagai penanda genetik tepat." },
+          { icon: "🛡️", label: "Kos Efektif", text: "Diiktiraf di seluruh dunia sebagai model pencegahan kos-efektif." }
         ]
       }
     },
@@ -366,14 +366,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Pill", label: "Statin Selamat", text: "Pil harian yang dikaji luas untuk membantu hati membuang kolesterol." },
-          { icon: "RefreshCw", label: "Pembersihan LDL", text: "Meningkatkan reseptor semula jadi untuk menyerap LDL daripada darah." },
-          { icon: "TrendingDown", label: "Risiko Normal", text: "Mengembalikan risiko serangan jantung ke tahap biasa yang sihat." }
+          { icon: "💊", label: "Statin Selamat", text: "Pil harian yang dikaji luas untuk membantu hati membuang kolesterol." },
+          { icon: "🔄", label: "Pembersihan LDL", text: "Meningkatkan reseptor semula jadi untuk menyerap LDL daripada darah." },
+          { icon: "📉", label: "Risiko Normal", text: "Mengembalikan risiko serangan jantung ke tahap biasa yang sihat." }
         ],
         advanced: [
-          { icon: "Pill", label: "Penghalang HMG-CoA", text: "Statin berintensiti tinggi menghalang sintesis kolesterol dalam hati." },
-          { icon: "RefreshCw", label: "Upregulasi LDLR", text: "Meningkatkan reseptor LDL hepatik untuk menapis kolesterol LDL-C." },
-          { icon: "TrendingDown", label: "Terapi Kombinasi", text: "Sering digabungkan dengan Ezetimibe atau perencat PCSK9." }
+          { icon: "💊", label: "Penghalang HMG-CoA", text: "Statin berintensiti tinggi menghalang sintesis kolesterol dalam hati." },
+          { icon: "🔄", label: "Upregulasi LDLR", text: "Meningkatkan reseptor LDL hepatik untuk menapis kolesterol LDL-C." },
+          { icon: "📉", label: "Terapi Kombinasi", text: "Sering digabungkan dengan Ezetimibe atau perencat PCSK9." }
         ]
       }
     },
@@ -384,14 +384,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Apple", label: "Lebih Serat", text: "Pilih oat, barli, dan kekacang untuk menyekat penyerapan kolesterol." },
-          { icon: "Ban", label: "Had Lemak", text: "Kurangkan lemak tepu seperti mentega, minyak sawit, dan daging berlemak." },
-          { icon: "Activity", label: "Kekal Aktif", text: "Jalan laju selama 30 minit setiap hari untuk menguatkan jantung." }
+          { icon: "🍎", label: "Lebih Serat", text: "Pilih oat, barli, dan kekacang untuk menyekat penyerapan kolesterol." },
+          { icon: "🚫", label: "Had Lemak", text: "Kurangkan lemak tepu seperti mentega, minyak sawit, dan daging berlemak." },
+          { icon: "🏃‍♂️", label: "Kekal Aktif", text: "Jalan laju selama 30 minit setiap hari untuk menguatkan jantung." }
         ],
         advanced: [
-          { icon: "Apple", label: "Serat Larut", text: "Serat larut air menyekat penyerapan kolesterol dalam usus." },
-          { icon: "Ban", label: "Lemak Tepu", text: "Asid lemak tepu mengurangkan aktiviti reseptor LDL hati." },
-          { icon: "Activity", label: "Kesihatan Endotelial", text: "Senaman aerobik kerap mengoptimumkan aktiviti nitrik oksida endotelial." }
+          { icon: "🍎", label: "Serat Larut", text: "Serat larut air menyekat penyerapan kolesterol dalam usus." },
+          { icon: "🚫", label: "Lemak Tepu", text: "Asid lemak tepu mengurangkan aktiviti reseptor LDL hati." },
+          { icon: "🏃‍♂️", label: "Kesihatan Endotelial", text: "Senaman aerobik kerap mengoptimumkan aktiviti nitrik oksida endotelial." }
         ]
       }
     },
@@ -402,14 +402,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "MessageSquare", label: "Kaunseling", text: "Sesi mesra 30 minit untuk menilai sejarah keluarga dan privasi." },
-          { icon: "FlaskConical", label: "Ambil Darah", text: "Sampel darah pesakit luar cepat 10 minit tanpa perlu berpuasa." },
-          { icon: "Calendar", label: "Sesi Keputusan", text: "Bincang langkah rawatan selepas 4-6 minggu dengan doktor." }
+          { icon: "🗣️", label: "Kaunseling", text: "Sesi mesra 30 minit untuk menilai sejarah keluarga dan privasi." },
+          { icon: "💉", label: "Ambil Darah", text: "Sampel darah pesakit luar cepat 10 minit tanpa perlu berpuasa." },
+          { icon: "📅", label: "Sesi Keputusan", text: "Bincang langkah rawatan selepas 4-6 minggu dengan doktor." }
         ],
         advanced: [
-          { icon: "MessageSquare", label: "Rundingan Pra-Ujian", text: "Kaunseling genetik terperinci membina silsilah keluarga 3 generasi." },
-          { icon: "FlaskConical", label: "Sampel Darah", text: "Sampel darah tanpa puasa diambil untuk ujian NGS molekul." },
-          { icon: "Calendar", label: "Tinjauan Susulan", text: "Tafsiran keputusan varian dan stratifikasi risiko klinikal penuh." }
+          { icon: "🗣️", label: "Rundingan Pra-Ujian", text: "Kaunseling genetik terperinci membina silsilah keluarga 3 generasi." },
+          { icon: "💉", label: "Sampel Darah", text: "Sampel darah tanpa puasa diambil untuk ujian NGS molekul." },
+          { icon: "📅", label: "Tinjauan Susulan", text: "Tafsiran keputusan varian dan stratifikasi risiko klinikal penuh." }
         ]
       }
     },
@@ -420,14 +420,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Building2", label: "Subsidi MOH", text: "Warganegara layak menerima subsidi sehingga 75% untuk ujian genetik." },
-          { icon: "Building2", label: "Guna MediSave", text: "Baki kos rawatan boleh dibayar sepenuhnya menggunakan MediSave." },
-          { icon: "Coins", label: "Tunai Minimum", text: "Kebanyakan pesakit membayar sedikit atau sifar wang tunai." }
+          { icon: "🇸🇬", label: "Subsidi MOH", text: "Warganegara layak menerima subsidi sehingga 75% untuk ujian genetik." },
+          { icon: "🏦", label: "Guna MediSave", text: "Baki kos rawatan boleh dibayar sepenuhnya menggunakan MediSave." },
+          { icon: "💵", label: "Tunai Minimum", text: "Kebanyakan pesakit membayar sedikit atau sifar wang tunai." }
         ],
         advanced: [
-          { icon: "Building2", label: "Subsidi Awam", text: "MOH menyediakan subsidi 50% hingga 75% bagi pesakit yang layak." },
-          { icon: "Building2", label: "CDMS MediSave", text: "Baki boleh dituntut di bawah skim pengurusan penyakit kronik." },
-          { icon: "Coins", label: "Bantuan Finansial", text: "CHAS Blue dan Medifund menjamin perlindungan kewangan tambahan." }
+          { icon: "🇸🇬", label: "Subsidi Awam", text: "MOH menyediakan subsidi 50% hingga 75% bagi pesakit yang layak." },
+          { icon: "🏦", label: "CDMS MediSave", text: "Baki boleh dituntut di bawah skim pengurusan penyakit kronik." },
+          { icon: "💵", label: "Bantuan Finansial", text: "CHAS Blue dan Medifund menjamin perlindungan kewangan tambahan." }
         ]
       }
     },
@@ -438,14 +438,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "ShieldCheck", label: "Moratorium", text: "Peraturan LIA melarang syarikat insurans meminta keputusan ujian sukarela." },
-          { icon: "Lock", label: "Polisi Aktif", text: "Insurans hayat dan kesihatan sedia ada tidak boleh dibatalkan atau diubah." },
-          { icon: "CheckCircle", label: "Saringan Standard", text: "Anda kekal layak sepenuhnya mendapat perlindungan insurans biasa." }
+          { icon: "🛡️", label: "Moratorium", text: "Peraturan LIA melarang syarikat insurans meminta keputusan ujian sukarela." },
+          { icon: "🔒", label: "Polisi Aktif", text: "Insurans hayat dan kesihatan sedia ada tidak boleh dibatalkan atau diubah." },
+          { icon: "✅", label: "Saringan Standard", text: "Anda kekal layak sepenuhnya mendapat perlindungan insurans biasa." }
         ],
         advanced: [
-          { icon: "ShieldCheck", label: "Persetujuan LIA", text: "Moratorium mengehadkan ujian genetik sukarela daripada digunakan untuk dinilai." },
-          { icon: "Lock", label: "Polisi Sedia Ada", text: "Polisi inforce standard tidak boleh dinilai semula atau dinaikkan premium." },
-          { icon: "CheckCircle", label: "Had Perlindungan", text: "Menjamin akses perlindungan standard sehingga had polisi tertentu." }
+          { icon: "🛡️", label: "Persetujuan LIA", text: "Moratorium mengehadkan ujian genetik sukarela daripada digunakan untuk dinilai." },
+          { icon: "🔒", label: "Polisi Sedia Ada", text: "Polisi inforce standard tidak boleh dinilai semula atau dinaikkan premium." },
+          { icon: "✅", label: "Had Perlindungan", text: "Menjamin akses perlindungan standard sehingga had polisi tertentu." }
         ]
       }
     }
@@ -458,14 +458,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Dna", label: "家族遗传", text: "由家族基因引起，而非饮食或生活方式造成。" },
-          { icon: "TrendingUp", label: "超高 LDL", text: "自出生起，血液中的“坏”胆固醇水平便异常升高。" },
-          { icon: "ShieldCheck", label: "高度可控", text: "及早通过科学的医学干优可安全、有效地控制指标。" }
+          { icon: "🧬", label: "家族遗传", text: "由家族基因引起，而非饮食或生活方式造成。" },
+          { icon: "📈", label: "超高 LDL", text: "自出生起，血液中的“坏”胆固醇水平便异常升高。" },
+          { icon: "🛡️", label: "高度可控", text: "及早通过科学的医学干优可安全、有效地控制指标。" }
         ],
         advanced: [
-          { icon: "Dna", label: "致病突变", text: "LDLR、APOB 或 PCSK9 基因的常染色体显性突变。" },
-          { icon: "TrendingUp", label: "清除受损", text: "肝脏清除循环低密度脂蛋白胆固醇（LDL-C）的能力严重受阻。" },
-          { icon: "ShieldCheck", label: "靶向降脂", text: "通过强化药物干预可以使终身心血管风险回归标准水平。" }
+          { icon: "🧬", label: "致病突变", text: "LDLR、APOB 或 PCSK9 基因的常染色体显性突变。" },
+          { icon: "📈", label: "清除受损", text: "肝脏清除循环低密度脂蛋白胆固醇（LDL-C）的能力严重受阻。" },
+          { icon: "🛡️", label: "靶向降脂", text: "通过强化药物干预可以使终身心血管风险回归标准水平。" }
         ]
       }
     },
@@ -476,14 +476,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Clock", label: "无声斑块", text: "胆固醇在动脉内壁默默沉积，起初并无任何明显症状。" },
-          { icon: "AlertTriangle", label: "血管变窄", text: "随时间推移，斑块积聚会限制血液顺畅流动。" },
-          { icon: "HeartPulse", label: "主动预防", text: "及早治疗可保持血管弹性，从根本上保护心脏健康。" }
+          { icon: "⏳", label: "无声斑块", text: "胆固醇在动脉内壁默默沉积，起初并无任何明显症状。" },
+          { icon: "⚠️", label: "血管变窄", text: "随时间推移，斑块积聚会限制血液顺畅流动。" },
+          { icon: "❤️", label: "主动预防", text: "及早治疗可保持血管弹性，从根本上保护心脏健康。" }
         ],
         advanced: [
-          { icon: "Clock", label: "内皮下沉积", text: "终身暴露于高脂血症导致含有 ApoB 的脂蛋白大量浸润沉积。" },
-          { icon: "AlertTriangle", label: "内膜炎症", text: "巨噬细胞转化为泡沫细胞，加速形成不稳定的冠脉斑块。" },
-          { icon: "HeartPulse", label: "风险对齐", text: "及早降脂可最大程度降低累积脂质暴露（“LDL-胆固醇年”）。" }
+          { icon: "⏳", label: "内皮下沉积", text: "终身暴露于高脂血症导致含有 ApoB 的脂蛋白大量浸润沉积。" },
+          { icon: "⚠️", label: "内膜炎症", text: "巨噬细胞转化为泡沫细胞，加速形成不稳定的冠脉斑块。" },
+          { icon: "❤️", label: "风险对齐", text: "及早降脂可最大程度降低累积脂质暴露（“LDL-胆固醇年”）。" }
         ]
       }
     },
@@ -494,14 +494,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Activity", label: "检测简便", text: "门诊性质的快速抽血或唾液采样，10分钟内即可完成。" },
-          { icon: "Search", label: "精准 DNA", text: "深度筛查 LDLR、APOB 或 PCSK9 基因以找出致病变异。" },
-          { icon: "ClipboardList", label: "明确指导", text: "检测报告能协助医疗团队为您量身定制个人保护方案。" }
+          { icon: "🩸", label: "检测简便", text: "门诊性质的快速抽血或唾液采样，10分钟内即可完成。" },
+          { icon: "🔍", label: "精准 DNA", text: "深度筛查 LDLR、APOB 或 PCSK9 基因以找出致病变异。" },
+          { icon: "📋", label: "明确指导", text: "检测报告能协助医疗团队为您量身定制个人保护方案。" }
         ],
         advanced: [
-          { icon: "Activity", label: "分子筛查", text: "主要采用二代测序 (NGS) 技术进行多基因靶向深度测序。" },
-          { icon: "Search", label: "确证基因型", text: "厘清临床拟诊中存在的灰色地带，获取确定性的基因确诊。" },
-          { icon: "ClipboardList", label: "家系标记", text: "为后续亲属开展家系筛查 (Cascade Screening) 奠定先证者标记。" }
+          { icon: "🩸", label: "分子筛查", text: "主要采用二代测序 (NGS) 技术进行多基因靶向深度测序。" },
+          { icon: "🔍", label: "确证基因型", text: "厘清临床拟诊中存在的灰色地带，获取确定性的基因确诊。" },
+          { icon: "📋", label: "家系标记", text: "为后续亲属开展家系筛查 (Cascade Screening) 奠定先证者标记。" }
         ]
       }
     },
@@ -512,14 +512,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Users", label: "50% 遗传概率", text: "您的父母、兄弟姐妹和子女均有 50% 的几率遗传该基因。" },
-          { icon: "GitFork", label: "家系传递", text: "确立您的基因变异后，即可作为家族成员的专属定位标记。" },
-          { icon: "ShieldCheck", label: "及早行动", text: "协助家人在血管受到伤害前获得高额补贴的早期干预。" }
+          { icon: "👥", label: "50% 遗传概率", text: "您的父母、兄弟姐妹和子女均有 50% 的几率遗传该基因。" },
+          { icon: "🌳", label: "家系传递", text: "确立您的基因变异后，即可作为家族成员的专属定位标记。" },
+          { icon: "🛡️", label: "及早行动", text: "协助家人在血管受到伤害前获得高额补贴的早期干预。" }
         ],
         advanced: [
-          { icon: "Users", label: "先验概率", text: "依托常染色体显性遗传规律，一级亲属先验遗传概率高达 50%。" },
-          { icon: "GitFork", label: "靶向突变验证", text: "以先证者为中心，快速并顺畅地引导家属完成基因验证。" },
-          { icon: "ShieldCheck", label: "卫生经济学", text: "在卫生经济学上被全球公认为是最具成本效益的预防医学范式。" }
+          { icon: "👥", label: "先验概率", text: "依托常染色体显性遗传规律，一级亲属先验遗传概率高达 50%。" },
+          { icon: "🌳", label: "靶向突变验证", text: "以先证者为中心，快速并顺畅地引导家属完成基因验证。" },
+          { icon: "🛡️", label: "卫生经济学", text: "在卫生经济学上被全球公认为是最具成本效益的预防医学范式。" }
         ]
       }
     },
@@ -530,14 +530,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Pill", label: "安全他汀", text: "经历数十年广泛研究的日服药物，可有效辅助肝脏清脂。" },
-          { icon: "RefreshCw", label: "清除 LDL", text: "激发肝脏表面受体数量，拉网式清除循环 LDL。" },
-          { icon: "TrendingDown", label: "阻断风险", text: "显著削减累积的血管脂质暴露总量，使心脏风险回归正常。" }
+          { icon: "💊", label: "安全他汀", text: "经历数十年广泛研究的日服药物，可有效辅助肝脏清脂。" },
+          { icon: "🔄", label: "清除 LDL", text: "激发肝脏表面受体数量，拉网式清除循环 LDL。" },
+          { icon: "📉", label: "阻断风险", text: "显著削减累积的血管脂质暴露总量，使心脏风险回归正常。" }
         ],
         advanced: [
-          { icon: "Pill", label: "强化他汀", text: "一线方案为高强度他汀（如瑞舒伐他汀）抑制胆固醇合成。" },
-          { icon: "RefreshCw", label: "上调受体", text: "代偿性地诱导 LDLR 大量表达，加速血浆中 LDL-C 的抓取清除。" },
-          { icon: "TrendingDown", label: "联合疗法", text: "常联合依折麦贝或 PCSK9 抑制剂，阻断 LDLR 降解路径达标。" }
+          { icon: "💊", label: "强化他汀", text: "一线方案为高强度他汀（如瑞舒伐他汀）抑制胆固醇合成。" },
+          { icon: "🔄", label: "上调受体", text: "代偿性地诱导 LDLR 大量表达，加速血浆中 LDL-C 的抓取清除。" },
+          { icon: "📉", label: "联合疗法", text: "常联合依折麦贝或 PCSK9 抑制剂，阻断 LDLR 降解路径达标。" }
         ]
       }
     },
@@ -548,14 +548,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Apple", label: "高纤维膳食", text: "首选燕麦、大麦和豆类，以减少肠道对胆固醇的吸收。" },
-          { icon: "Ban", label: "限制饱和脂肪", text: "少吃椰浆、黄油、棕榈油和各类肥肉。" },
-          { icon: "Activity", label: "规律运动", text: "每天坚持 30 分钟快步走等有氧运动以强健心肌。" }
+          { icon: "🍎", label: "高纤维膳食", text: "首选燕麦、大麦和豆类，以减少肠道对胆固醇的吸收。" },
+          { icon: "🚫", label: "限制饱和脂肪", text: "少吃椰浆、黄油、棕榈油和各类肥肉。" },
+          { icon: "🏃‍♂️", label: "规律运动", text: "每天坚持 30 分钟快步走等有氧运动以强健心肌。" }
         ],
         advanced: [
-          { icon: "Apple", label: "可溶性纤维", text: "水溶性膳食纤维减少胆固醇吸收，并促进胆汁酸排泄。" },
-          { icon: "Ban", label: "受体活性", text: "膳食饱和脂肪直接导致肝细胞表面 LDL 受体活性下调。" },
-          { icon: "Activity", label: "血管内皮", text: "规律有氧运动能提高 eNOS 活性，改善和优化内皮细胞功能。" }
+          { icon: "🍎", label: "可溶性纤维", text: "水溶性膳食纤维减少胆固醇吸收，并促进胆汁酸排泄。" },
+          { icon: "🚫", label: "受体活性", text: "膳食饱和脂肪直接导致肝细胞表面 LDL 受体活性下调。" },
+          { icon: "🏃‍♂️", label: "血管内皮", text: "规律有氧运动能提高 eNOS 活性，改善和优化内皮细胞功能。" }
         ]
       }
     },
@@ -602,14 +602,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "ShieldCheck", label: "停征协定", text: "LIA 协定严禁保险公司强求或使用自愿基因测试结果来调整保费。" },
-          { icon: "Lock", label: "既有保单", text: "您已经生效人寿与健康保单完全受法律保护，不可取消或变更。" },
-          { icon: "CheckCircle", label: "标体承保", text: "您拥有完全平等的权利，按标准条款与费率申请标准保险。" }
+          { icon: "🛡️", label: "停征协定", text: "LIA 协定严禁保险公司强求或使用自愿基因测试结果来调整保费。" },
+          { icon: "🔒", label: "既有保单", text: "您已经生效人寿与健康保单完全受法律保护，不可取消或变更。" },
+          { icon: "✅", label: "标体承保", text: "您拥有完全平等的权利，按标准条款与费率申请标准保险。" }
         ],
         advanced: [
-          { icon: "ShieldCheck", label: "Moratorium 防火墙", text: "限制核保人员调取或评估自愿性预测性基因检测报告的权利。" },
-          { icon: "Lock", label: "生效保单豁免", text: "凡已在保的标准保单绝无查验或根据后续检测重新定价的风险。" },
-          { icon: "CheckCircle", label: "承保额度上限", text: "在特定保额（如人寿50万新币）内，完全豁免测试结果申报。" }
+          { icon: "🛡️", label: "Moratorium 防火墙", text: "限制核保人员调取或评估自愿性预测性基因检测报告的权利。" },
+          { icon: "🔒", label: "生效保单豁免", text: "凡已在保的标准保单绝无查验或根据后续检测重新定价的风险。" },
+          { icon: "✅", label: "承保额度上限", text: "在特定保额（如人寿50万新币）内，完全豁免测试结果申报。" }
         ]
       }
     }
@@ -640,14 +640,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Clock", label: "அமைதியான அடைப்பு", text: "அறிகுறிகள் இன்றி தமனிகளில் கொழுப்பு படிவங்களை உருவாக்குகிறது." },
-          { icon: "AlertTriangle", label: "இரத்தக்குழாய் சுருங்குதல்", text: "காலப்போக்கில், கொழுப்பு படிவுகள் இரத்த ஓட்டத்தை தடுத்து விடுகின்றன." },
-          { icon: "HeartPulse", label: "இதயப் பாதுகாப்பு", text: "ஆரம்பகால சிகிச்சை இரத்த நாளங்களை ஆரோக்கியமாக வைத்திருக்கும்." }
+          { icon: "⏳", label: "அமைதியான அடைப்பு", text: "அறிகுறிகள் இன்றி தமனிகளில் கொழுப்பு படிவங்களை உருவாக்குகிறது." },
+          { icon: "⚠️", label: "இரத்தக்குழாய் சுருங்குதல்", text: "காலப்போக்கில், கொழுப்பு படிவுகள் இரத்த ஓட்டத்தை தடுத்து விடுகின்றன." },
+          { icon: "❤️", label: "இதயப் பாதுகாப்பு", text: "ஆரம்பகால சிகிச்சை இரத்த நாளங்களை ஆரோக்கியமாக வைத்திருக்கும்." }
         ],
         advanced: [
-          { icon: "Clock", label: "இரத்தநாளப் பாதிப்பு", text: "தமனிச் சுவர்களில் ApoB லிப்போபுரோட்டீன் படிதல்." },
-          { icon: "AlertTriangle", label: "லூமன் சுருக்கம்", text: "திசுக்களில் கொழுப்பு படிவத்தால் தமனிகள் குறுகலாகி மாரடைப்பு நேரிடுகிறது." },
-          { icon: "HeartPulse", label: "ஆபத்து தடுப்பு", text: "அங்கீகரிக்கப்பட்ட சிகிச்சை வாழ்நாள் கொழுப்பு அபாயத்தை நீக்கும்." }
+          { icon: "⏳", label: "இரத்தநாளப் பாதிப்பு", text: "தமனிச் சுவர்களில் ApoB லிப்போபுரோட்டீன் படிதல்." },
+          { icon: "⚠️", label: "லூமன் சுருக்கம்", text: "திசுக்களில் கொழுப்பு படிவத்தால் தமனிகள் குறுகலாகி மாரடைப்பு நேரிடுகிறது." },
+          { icon: "❤️", label: "ஆபத்து தடுப்பு", text: "அங்கீகரிக்கப்பட்ட சிகிச்சை வாழ்நாள் கொழுப்பு அபாயத்தை நீக்கும்." }
         ]
       }
     },

@@ -781,7 +781,6 @@ export default function App() {
             patientRecord={activePatient}
             percentComplete={percentComplete}
             onUpdateEducationProgress={handleUpdateEducationProgress}
-            emilyWongRefreshTrigger={emilyWongRefreshTrigger}
           />
 
         </div>

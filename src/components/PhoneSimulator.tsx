@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail, Lightbulb, Handshake, Heart, FlaskConical, Apple, Ban, Activity, Building2, Home, AlertTriangle, Brain } from 'lucide-react';
-import { educationalSections, faqs, HelpfulResource, helpfulResources } from '../data/education';
-import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
+import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
+import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
 import { getPersonalizedStory } from '../data/personalizedStories';
 
@@ -22,7 +22,6 @@ interface PhoneSimulatorProps {
   patientRecord?: PatientRecord;
   percentComplete?: number;
   onUpdateEducationProgress?: (patientId: string, percent: number) => void;
-  emilyWongRefreshTrigger?: number;
 }
 
 export const PERSONA_DETAILS: Record<string, { fullName: string; nric: string; dob: string; gender: string; email: string; age: number; address: string }> = {
@@ -894,7 +893,6 @@ export default function PhoneSimulator({
   patientRecord,
   percentComplete,
   onUpdateEducationProgress,
-  emilyWongRefreshTrigger,
 }: PhoneSimulatorProps) {
 
   // Local state for interactive elements
@@ -1048,14 +1046,43 @@ export default function PhoneSimulator({
     }
   });
 
+  // Keep checklist synced with language, onboarding status, and database percentComplete
+  useEffect(() => {
+    const rawItems = getLocalizedChecklist(
+      language,
+      onboardingCompleted ? onboardingFamiliarity : null,
+      onboardingTopics,
+      onboardingConcerns
+    );
+
+    setChecklist((currentList) => {
+      const isFirstInit = !currentList || currentList.length === 0;
+      
+      if (isFirstInit && percentComplete !== undefined) {
+        const itemsToCheckCount = Math.round((percentComplete / 100) * rawItems.length);
+        return rawItems.map((item, idx) => ({
+          ...item,
+          checked: idx < itemsToCheckCount,
+        }));
+      }
+
+      return rawItems.map((item) => {
+        const existing = currentList.find((c) => c.id === item.id);
+        return {
+          ...item,
+          checked: existing ? existing.checked : false,
+        };
+      });
+    });
+  }, [language, onboardingCompleted, onboardingFamiliarity, onboardingTopics, onboardingConcerns, percentComplete]);
+
   const [eduExpanded, setEduExpanded] = useState<Record<string, boolean>>({});
   const [forceFullExpand, setForceFullExpand] = useState<Record<string, boolean>>({});
   const [activeFaqCategory, setActiveFaqCategory] = useState<string>('all');
   const [faqExpanded, setFaqExpanded] = useState<Record<number, boolean>>({});
-  const [eduSubTab, setEduSubTab] = useState<'guides' | 'faq'>('guides');
-  const [brochureSlideIndex, setBrochureSlideIndex] = useState(0);
-  const [clinicalSlideIndex, setClinicalSlideIndex] = useState(0);
-  const [videoSlideIndex, setVideoSlideIndex] = useState(0);
+  const [checklist, setChecklist] = useState<any[]>([]);
+  const [viewingChecklist, setViewingChecklist] = useState<boolean>(false);
+  const [eduSubTab, setEduSubTab] = useState<'guides' | 'checklist' | 'faq'>('guides');
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [videoFrame, setVideoFrame] = useState(0);
   const [showTranscript, setShowTranscript] = useState(false);
@@ -1090,25 +1117,12 @@ export default function PhoneSimulator({
     setShowOtherTopics(false);
     setExpandedOtherTopicId(null);
     setQuestionnaireStatus(null);
-    setOnboardingFamiliarity(null);
-    setOnboardingTopics([]);
-    setOnboardingConcerns([]);
     try {
       localStorage.removeItem('fh-questionnaire-status');
-      localStorage.removeItem('fh-onboarding-completed');
-      localStorage.removeItem('fh-onboarding-familiarity');
-      localStorage.removeItem('fh-onboarding-topics');
-      localStorage.removeItem('fh-onboarding-concerns');
     } catch (e) {
       console.error(e);
     }
   };
-
-  useEffect(() => {
-    if (emilyWongRefreshTrigger && emilyWongRefreshTrigger > 0) {
-      handleRetakeOnboarding();
-    }
-  }, [emilyWongRefreshTrigger]);
 
   const scaleText = (defaultClass: string) => {
     if (textSize === 'md') return defaultClass;
@@ -1259,6 +1273,91 @@ export default function PhoneSimulator({
       const beginnerTopics = ['what-is-fh', 'heart-health', 'testing-process'];
       const combined = Array.from(new Set([...mapped, ...beginnerTopics]));
       return combined;
+    }
+
+    return mapped;
+  }, [onboardingTopics]);
+
+  const selectedGuideTopics = useMemo(() => {
+    if (!onboardingCompleted) return [];
+    return allGuideTopics.filter(topic => selectedTopicsList.includes(topic.id));
+  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
+
+  const unselectedGuideTopics = useMemo(() => {
+    if (!onboardingCompleted) return allGuideTopics;
+    return allGuideTopics.filter(topic => !selectedTopicsList.includes(topic.id));
+  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
+
+  // Auto-expand recommended groups and sections when onboarding completes
+  useEffect(() => {
+    if (onboardingCompleted) {
+      // Expand all main groups so sections inside are visible immediately
+      setExpandedGroups({
+        basics: true,
+        journey: true,
+        costs: true,
+      });
+
+      // Expand core sections and recommended/selected sections by default
+      const initialEduExpanded: Record<string, boolean> = {};
+      const sections = ['what-is-fh', 'why-testing-matters', 'testing-guide', 'costs-subsidies', 'insurance-rights', 'medication-fh'];
+      sections.forEach(secId => {
+        const isCore = secId === 'what-is-fh' || secId === 'why-testing-matters';
+        const isRec = isSectionRecommended(secId);
+        initialEduExpanded[secId] = isCore || isRec;
+      });
+      setEduExpanded(initialEduExpanded);
+    }
+  }, [onboardingCompleted, onboardingFamiliarity, onboardingTopics.length, onboardingConcerns.length]);
+
+  // 3. Personalized Onboarding - Sort FAQs based on Concerns
+  const sortedFaqs = [...getLocalizedFaqs(language)].sort((a, b) => {
+    if (!onboardingCompleted) return 0;
+    
+    // Determine if a category is prioritized
+    const isAPrioritized = 
+      (a.category === 'cost' && onboardingConcerns.includes('concern-cost')) ||
+      (a.category === 'insurance' && onboardingConcerns.includes('concern-insurance')) ||
+      (a.category === 'testing' && onboardingConcerns.includes('concern-test')) ||
+      (a.category === 'medication' && onboardingConcerns.includes('concern-meds')) ||
+      (a.category === 'family' && onboardingConcerns.includes('concern-family'));
+      
+    const isBPrioritized = 
+      (b.category === 'cost' && onboardingConcerns.includes('concern-cost')) ||
+      (b.category === 'insurance' && onboardingConcerns.includes('concern-insurance')) ||
+      (b.category === 'testing' && onboardingConcerns.includes('concern-test')) ||
+      (b.category === 'medication' && onboardingConcerns.includes('concern-meds')) ||
+      (b.category === 'family' && onboardingConcerns.includes('concern-family'));
+
+    if (isAPrioritized && !isBPrioritized) return -1;
+    if (!isAPrioritized && isBPrioritized) return 1;
+    return 0;
+  });
+
+  // 4. Personalized Onboarding - Sort Helpful Resources based on Concerns
+  const sortedHelpfulResources = [...getLocalizedHelpfulResources(helpfulResources, language)].sort((a, b) => {
+    if (!onboardingCompleted) return 0;
+    
+    // Compute score for resource a
+    let scoreA = 0;
+    if (onboardingConcerns.includes('concern-insurance') && (a.id === 'res-9')) scoreA += 5; // Moratorium clinical guide
+    if (onboardingConcerns.includes('concern-family') && (a.id === 'res-7')) scoreA += 5; // Patient Story: A mother's fight
+    if (onboardingConcerns.includes('concern-cost') && (a.id === 'res-1' || a.id === 'res-4' || a.id === 'res-8')) scoreA += 5; // Brochures/Subsidies
+    if (onboardingConcerns.includes('concern-test') && (a.id === 'res-2')) scoreA += 5; // Clinical Guide
+
+    // Compute score for resource b
+    let scoreB = 0;
+    if (onboardingConcerns.includes('concern-insurance') && (b.id === 'res-9')) scoreB += 5;
+    if (onboardingConcerns.includes('concern-family') && (b.id === 'res-7')) scoreB += 5;
+    if (onboardingConcerns.includes('concern-cost') && (b.id === 'res-1' || b.id === 'res-4' || b.id === 'res-8')) scoreB += 5;
+    if (onboardingConcerns.includes('concern-test') && (b.id === 'res-2')) scoreB += 5;
+
+    return scoreB - scoreA;
+  });
+
+  useEffect(() => {
+    if (activeScreen !== ScreenId.Education) {
+      setViewingChecklist(false);
     }
 
     return mapped;
@@ -1513,13 +1612,11 @@ export default function PhoneSimulator({
   // Knowledge Check State inside PhoneSimulator
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
-  const [quizSlideIndex, setQuizSlideIndex] = useState<number>(0);
 
   // Reset quiz when onboarding status or persona changes
   useEffect(() => {
     setQuizAnswers({});
     setQuizSubmitted(false);
-    setQuizSlideIndex(0);
   }, [onboardingCompleted, questionnaireStatus, onboardingFamiliarity, onboardingTopics, currentPatientId]);
 
   // Dynamic Knowledge Check Questions based on Onboarding Status & Preferences
@@ -1894,6 +1991,19 @@ export default function PhoneSimulator({
   // Expand helper
   const toggleEdu = (id: string) => {
     setEduExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleChecklist = (id: string) => {
+    setChecklist((prev) => {
+      const next = prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item));
+      const checkedCount = next.filter(item => item.checked).length;
+      const totalCount = next.length;
+      const newPercent = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
+      if (patientRecord?.patient_id && onUpdateEducationProgress) {
+        onUpdateEducationProgress(patientRecord.patient_id, newPercent);
+      }
+      return next;
+    });
   };
 
   const handleBookSubmit = (slotIdx: number) => {
@@ -2678,7 +2788,7 @@ export default function PhoneSimulator({
                         >
                           {label}
                           {language === code && (
-                            <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white"><Check className="w-2.5 h-2.5 stroke-[3]" /></span>
+                            <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[9px] font-black">✓</span>
                           )}
                         </button>
                       ))}
@@ -2851,8 +2961,8 @@ export default function PhoneSimulator({
 
                           {/* Step 1: Referral */}
                           <div className="flex flex-col items-center relative z-10 w-[64px]">
-                            <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center shadow-xs ring-4 ring-emerald-50">
-                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
+                              ✓
                             </div>
                             <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
                               {t('step_referral')}
@@ -2863,8 +2973,8 @@ export default function PhoneSimulator({
                           <div className="flex flex-col items-center relative z-10 w-[96px]">
                             {appointment.status === 'booked' ? (
                               <>
-                                <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center shadow-xs ring-4 ring-emerald-50">
-                                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
+                                  ✓
                                 </div>
                                 <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
                                   {t('step_counselling')}
@@ -2894,9 +3004,45 @@ export default function PhoneSimulator({
                         </div>
                       </div>
                     )}
+
+
+
                   </div>
                 </div>
               )}
+
+              {/* Ask HealthBuddy AI Assistant Promo Banner */}
+              <div className="px-4">
+                <button
+                  onClick={() => setChatOpen(true)}
+                  className="w-full text-left bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-800/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-md hover:border-emerald-700 transition cursor-pointer"
+                >
+                  <div className="space-y-1 flex-1">
+                    <span className="bg-emerald-500/20 text-emerald-400 text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-500/30 font-sans inline-flex items-center gap-1 select-none">
+                      <Sparkles className="w-2.5 h-2.5" /> GovTech AI Companion
+                    </span>
+                    <h4 className="font-bold text-xs text-white tracking-tight leading-tight">
+                      {isFHReferred ? t('chatbot_banner_title') : (
+                        language === 'ms' ? 'Tanya Pembantu AI HealthBuddy' :
+                        language === 'zh' ? '咨询 HealthBuddy AI 智能助理' :
+                        language === 'ta' ? 'HealthBuddy AI உதவியாளரிடம் கேளுங்கள்' :
+                        'Ask HealthBuddy AI Assistant'
+                      )}
+                    </h4>
+                    <p className="text-[10px] text-slate-300 leading-normal">
+                      {isFHReferred ? t('chatbot_banner_body') : (
+                        language === 'ms' ? 'Ketahui lebih lanjut tentang subsidi, persediaan, dan penjagaan kesihatan am anda.' :
+                        language === 'zh' ? '了解您的普通门诊补贴津贴、就诊准备和基本健康建议。' :
+                        language === 'ta' ? 'மானியங்கள், தயாரிப்பு மற்றும் உங்கள் பொதுவான மருத்துவக் கேள்விகள் பற்றி மேலும் அறியவும்.' :
+                        'Learn about subsidies, clinic preparation, and general health advice instantly.'
+                      )}
+                    </p>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                    <MessageSquare className="w-4.5 h-4.5 text-emerald-400" />
+                  </div>
+                </button>
+              </div>
 
               {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
               <div className="space-y-2">
@@ -3386,16 +3532,16 @@ export default function PhoneSimulator({
                           language === 'ta' || language === 'ms' ? 'grid-cols-1' : 'grid-cols-2'
                         }`}>
                           {[
-                            { id: 'topic-basics', iconName: 'Dna', label: t('step2_opt_basics') },
-                            { id: 'topic-risk', iconName: 'HeartPulse', label: t('step2_opt_risk') },
-                            { id: 'topic-testing', iconName: 'FlaskConical', label: t('step2_opt_testing') },
-                            { id: 'topic-family', iconName: 'Users', label: t('step2_opt_family') },
-                            { id: 'topic-treatment', iconName: 'Pill', label: t('step2_opt_treatment') },
-                            { id: 'topic-lifestyle', iconName: 'Apple', label: t('step2_opt_lifestyle') },
-                            { id: 'topic-costs', iconName: 'Coins', label: t('step2_opt_costs') },
-                            { id: 'topic-insurance', iconName: 'ShieldCheck', label: t('step2_opt_insurance') },
-                            { id: 'topic-next', iconName: 'ClipboardList', label: t('step2_opt_testing_process') },
-                            { id: 'topic-notsure', iconName: 'HelpCircle', label: t('step2_opt_not_sure') },
+                            { id: 'topic-basics', icon: '🧬', label: t('step2_opt_basics') },
+                            { id: 'topic-risk', icon: '❤️', label: t('step2_opt_risk') },
+                            { id: 'topic-testing', icon: '🧪', label: t('step2_opt_testing') },
+                            { id: 'topic-family', icon: '👨‍👩‍👧', label: t('step2_opt_family') },
+                            { id: 'topic-treatment', icon: '💊', label: t('step2_opt_treatment') },
+                            { id: 'topic-lifestyle', icon: '🥗', label: t('step2_opt_lifestyle') },
+                            { id: 'topic-costs', icon: '💰', label: t('step2_opt_costs') },
+                            { id: 'topic-insurance', icon: '🛡️', label: t('step2_opt_insurance') },
+                            { id: 'topic-next', icon: '📋', label: t('step2_opt_testing_process') },
+                            { id: 'topic-notsure', icon: '🤔', label: t('step2_opt_not_sure') },
                           ].map((opt) => {
                             const isSelected = onboardingTopics.includes(opt.id);
                             return (
@@ -3420,7 +3566,7 @@ export default function PhoneSimulator({
                                   }`}
                               >
                                 <div className="flex items-center gap-2 min-w-0 flex-1 pr-1.5">
-                                  <span className="text-[13px] shrink-0">{getIcon(opt.iconName || 'HelpCircle', "text-[#00a859]")}</span>
+                                  <span className="text-[13px] shrink-0">{opt.icon}</span>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center flex-wrap gap-1">
                                       <span className={`font-semibold text-slate-800 leading-tight ${
@@ -3455,14 +3601,14 @@ export default function PhoneSimulator({
 
                         <div className="space-y-2 pt-1 overflow-y-auto max-h-[340px] pr-1">
                           {[
-                            { id: 'concern-diagnosis', iconName: 'HelpCircle', label: t('concern_diagnosis_title'), desc: t('concern_diagnosis_desc') },
-                            { id: 'concern-family', iconName: 'Users', label: t('concern_family_title'), desc: t('concern_family_desc') },
-                            { id: 'concern-cost', iconName: 'Coins', label: t('concern_cost_title'), desc: t('concern_cost_desc') },
-                            { id: 'concern-test', iconName: 'FlaskConical', label: t('concern_test_title'), desc: t('concern_test_desc') },
-                            { id: 'concern-meds', iconName: 'Pill', label: t('concern_meds_title'), desc: t('concern_meds_desc') },
-                            { id: 'concern-heart', iconName: 'HeartPulse', label: t('concern_heart_title'), desc: t('concern_heart_desc') },
-                            { id: 'concern-insurance', iconName: 'ShieldCheck', label: t('concern_insurance_title'), desc: t('concern_insurance_desc') },
-                            { id: 'concern-curious', iconName: 'Sparkles', label: t('concern_curious_title'), desc: t('concern_curious_desc') },
+                            { id: 'concern-diagnosis', label: '😟 ' + t('concern_diagnosis_title'), desc: t('concern_diagnosis_desc') },
+                            { id: 'concern-family', label: '👨‍👩‍👧 ' + t('concern_family_title'), desc: t('concern_family_desc') },
+                            { id: 'concern-cost', label: '💰 ' + t('concern_cost_title'), desc: t('concern_cost_desc') },
+                            { id: 'concern-test', label: '🧪 ' + t('concern_test_title'), desc: t('concern_test_desc') },
+                            { id: 'concern-meds', label: '💊 ' + t('concern_meds_title'), desc: t('concern_meds_desc') },
+                            { id: 'concern-[#00a859]', label: '❤️ ' + t('concern_heart_title'), desc: t('concern_heart_desc') },
+                            { id: 'concern-insurance', label: '🛡️ ' + t('concern_insurance_title'), desc: t('concern_insurance_desc') },
+                            { id: 'concern-curious', label: '😊 ' + t('concern_curious_title'), desc: t('concern_curious_desc') },
                           ].map((opt) => {
                             const isSelected = onboardingConcerns.includes(opt.id);
                             return (
@@ -3669,7 +3815,10 @@ export default function PhoneSimulator({
                   <div className="bg-slate-200/50 p-1 rounded-xl flex gap-1 border border-slate-200/30">
                     <button
                       id="edu-tab-guides"
-                      onClick={() => setEduSubTab('guides')}
+                      onClick={() => {
+                        setEduSubTab('guides');
+                        setViewingChecklist(false);
+                      }}
                       className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
                         language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
                       } ${
@@ -3682,8 +3831,28 @@ export default function PhoneSimulator({
                       <span>{t('edu_tab_guides')}</span>
                     </button>
                     <button
+                      id="edu-tab-checklist"
+                      onClick={() => {
+                        setEduSubTab('checklist');
+                        setViewingChecklist(true);
+                      }}
+                      className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
+                        language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
+                      } ${
+                        eduSubTab === 'checklist'
+                          ? 'bg-[#00a859] text-white shadow-sm'
+                          : 'text-slate-600 hover:text-slate-800 bg-transparent hover:bg-slate-200/30'
+                      }`}
+                    >
+                      <CheckSquare className="w-3.5 h-3.5 shrink-0" />
+                      <span>{t('edu_tab_checklist')}</span>
+                    </button>
+                    <button
                       id="edu-tab-faq"
-                      onClick={() => setEduSubTab('faq')}
+                      onClick={() => {
+                        setEduSubTab('faq');
+                        setViewingChecklist(false);
+                      }}
                       className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
                         language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
                       } ${
@@ -3778,7 +3947,7 @@ export default function PhoneSimulator({
                                       <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
                                         <div className="animate-fade-in space-y-1">
                                           <span className="text-2xl">
-                                            {videoFrame === 0 ? <Lightbulb className="w-8 h-8 text-amber-400 mx-auto" /> : videoFrame === 1 ? <Handshake className="w-8 h-8 text-emerald-400 mx-auto" /> : videoFrame === 2 ? <ShieldCheck className="w-8 h-8 text-blue-400 mx-auto" /> : <HeartPulse className="w-8 h-8 text-rose-400 mx-auto" />}
+                                            {videoFrame === 0 ? '💡' : videoFrame === 1 ? '🤝' : videoFrame === 2 ? '🛡️' : '❤️'}
                                           </span>
                                           <p className="text-[11px] font-semibold leading-normal">
                                             {activeStory.frames[videoFrame]}
@@ -3838,142 +4007,62 @@ export default function PhoneSimulator({
                         );
                       })()}
 
-                      {/* Spec 4: Statistics 2x2 Grid 'Did You Know?' (Personalised & Concise) */}
-                      {(() => {
-                        const isQuestionnaireActive = onboardingCompleted && questionnaireStatus === 'completed';
-
-                        const allCandidateStats = [
-                          {
-                            id: 'prevalence',
-                            value: t('edu_stat_prevalence_val'),
-                            label: t('edu_stat_prevalence_lbl'),
-                            Icon: Building2,
-                            baseScore: 10,
-                            match: () => onboardingTopics.includes('topic-basics') || onboardingConcerns.includes('concern-diagnosis') || onboardingFamiliarity === 'new',
-                          },
-                          {
-                            id: 'undiagnosed',
-                            value: t('edu_stat_undiagnosed_val'),
-                            label: t('edu_stat_undiagnosed_lbl'),
-                            Icon: Search,
-                            baseScore: 9,
-                            match: () => onboardingTopics.includes('topic-basics') || onboardingTopics.includes('topic-testing') || onboardingConcerns.includes('concern-test') || onboardingConcerns.includes('concern-diagnosis'),
-                          },
-                          {
-                            id: 'risk',
-                            value: t('edu_stat_risk_val'),
-                            label: t('edu_stat_risk_lbl'),
-                            Icon: HeartPulse,
-                            baseScore: 8,
-                            match: () => onboardingTopics.includes('topic-risk') || onboardingTopics.includes('topic-lifestyle') || onboardingConcerns.includes('concern-heart') || onboardingConcerns.includes('concern-[#00a859]') || onboardingConcerns.includes('concern-curious'),
-                          },
-                          {
-                            id: 'family',
-                            value: t('edu_stat_family_val'),
-                            label: t('edu_stat_family_lbl'),
-                            Icon: Users,
-                            baseScore: 7,
-                            match: () => onboardingTopics.includes('topic-family') || onboardingConcerns.includes('concern-family'),
-                          },
-                          {
-                            id: 'subsidies',
-                            value: t('edu_stat_subsidies_val'),
-                            label: t('edu_stat_subsidies_lbl'),
-                            Icon: Coins,
-                            baseScore: 6,
-                            match: () => onboardingTopics.includes('topic-costs') || onboardingConcerns.includes('concern-cost'),
-                          },
-                          {
-                            id: 'cost',
-                            value: t('edu_stat_cost_val'),
-                            label: t('edu_stat_cost_lbl'),
-                            Icon: Coins,
-                            baseScore: 5,
-                            match: () => onboardingTopics.includes('topic-costs') || onboardingConcerns.includes('concern-cost'),
-                          },
-                          {
-                            id: 'insurance',
-                            value: t('edu_stat_insurance_val'),
-                            label: t('edu_stat_insurance_lbl'),
-                            Icon: ShieldCheck,
-                            baseScore: 4,
-                            match: () => onboardingTopics.includes('topic-insurance') || onboardingConcerns.includes('concern-insurance'),
-                          },
-                          {
-                            id: 'meds',
-                            value: t('edu_stat_meds_val'),
-                            label: t('edu_stat_meds_lbl'),
-                            Icon: Pill,
-                            baseScore: 3,
-                            match: () => onboardingTopics.includes('topic-treatment') || onboardingConcerns.includes('concern-meds'),
-                          },
-                          {
-                            id: 'testing',
-                            value: t('edu_stat_testing_val'),
-                            label: t('edu_stat_testing_lbl'),
-                            Icon: FlaskConical,
-                            baseScore: 2,
-                            match: () => onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next') || onboardingConcerns.includes('concern-test'),
-                          },
-                        ];
-
-                        const scoredStats = allCandidateStats.map(stat => {
-                          let matched = false;
-                          let score = stat.baseScore;
-                          if (isQuestionnaireActive && stat.match()) {
-                            matched = true;
-                            score += 50;
-                          }
-                          return { ...stat, score, isPersonalized: matched };
-                        });
-
-                        scoredStats.sort((a, b) => b.score - a.score);
-                        const displayedStats = scoredStats.slice(0, 4);
-
-                        return (
-                          <div className="space-y-2.5">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5">
-                                <Lightbulb className="w-3.5 h-3.5 text-[#00a859]" />
-                                <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#00a859] font-mono">{t('edu_did_you_know')}</h4>
-                              </div>
-                              {isQuestionnaireActive && (
-                                <span className="text-[8.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50 flex items-center gap-1">
-                                  <Sparkles className="w-2.5 h-2.5" />
-                                  {t('edu_personalised_badge')}
-                                </span>
-                              )}
+                      {/* Spec 4: Statistics 2x2 Grid 'Did You Know?' */}
+                      <div className="space-y-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs">💡</span>
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#00a859] font-mono">{t('edu_did_you_know')}</h4>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {/* Stat 1 */}
+                          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
+                            <div className="text-xl">🇸🇬</div>
+                            <div>
+                              <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">1 in 250</h5>
+                              <p className="font-bold text-[10px] text-slate-800 leading-snug">{t('edu_stat1_label')}</p>
                             </div>
-                            <div className="grid grid-cols-2 gap-2.5">
-                              {displayedStats.map((stat) => {
-                                const StatIcon = stat.Icon;
-                                return (
-                                  <div key={stat.id} className="bg-white border border-slate-200/90 rounded-xl p-3 flex flex-col justify-between shadow-3xs space-y-1.5 hover:border-emerald-300 transition-colors">
-                                    <div className="flex items-center justify-between">
-                                      <div className="w-6 h-6 rounded-lg bg-emerald-50 text-[#00a859] flex items-center justify-center">
-                                        <StatIcon className="w-3.5 h-3.5 text-[#00a859]" />
-                                      </div>
-                                      {stat.isPersonalized && (
-                                        <span className="text-[8px] bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-emerald-100/80">
-                                          {t('edu_for_you_badge')}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <h5 className="font-display font-extrabold text-[#00a859] text-[16px] leading-tight tracking-tight">
-                                        {stat.value}
-                                      </h5>
-                                      <p className="font-bold text-[10px] text-slate-800 leading-snug mt-0.5">
-                                        {stat.label}
-                                      </p>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
+                            <p className="text-[9.5px] text-slate-500 leading-relaxed">
+                              {t('edu_stat1_body')}
+                            </p>
                           </div>
-                        );
-                      })()}
+
+                          {/* Stat 2 */}
+                          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
+                            <div className="text-xl">🔍</div>
+                            <div>
+                              <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">~90%</h5>
+                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat2_label')}</p>
+                            </div>
+                            <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
+                              {t('edu_stat2_body')}
+                            </p>
+                          </div>
+
+                          {/* Stat 3 */}
+                          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
+                            <div className="text-xl">❤️</div>
+                            <div>
+                              <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">Up to 80%</h5>
+                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat3_label')}</p>
+                            </div>
+                            <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
+                              {t('edu_stat3_body')}
+                            </p>
+                          </div>
+
+                          {/* Stat 4 */}
+                          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
+                            <div className="text-xl">👥</div>
+                            <div>
+                              <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">1 in 2</h5>
+                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat4_label')}</p>
+                            </div>
+                            <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
+                              {t('edu_stat4_body')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
 
                       {/* Learning Hub Accordions - Grouped */}
                       {(() => {
@@ -4057,17 +4146,17 @@ export default function PhoneSimulator({
                            if (id === 'healthy-lifestyle' || id === 'lifestyle') return (
                              <div className="grid grid-cols-3 gap-1.5 my-2">
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
-                                 <Apple className="w-4 h-4 text-emerald-600 mx-auto mb-0.5" />
+                                 <span className="text-xs">🍎</span>
                                  <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_fiber')}</div>
                                  <div className="text-[7px] text-slate-400 leading-tight">{t('illus_fiber_desc')}</div>
                                </div>
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
-                                 <Ban className="w-4 h-4 text-rose-500 mx-auto mb-0.5" />
+                                 <span className="text-xs">🚫</span>
                                  <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_limits')}</div>
                                  <div className="text-[7px] text-slate-400 leading-tight">{t('illus_limits_desc')}</div>
                                </div>
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
-                                 <Activity className="w-4 h-4 text-sky-600 mx-auto mb-0.5" />
+                                 <span className="text-xs">🏃‍♂️</span>
                                  <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_active')}</div>
                                  <div className="text-[7px] text-slate-400 leading-tight">{t('illus_active_desc')}</div>
                                </div>
@@ -4109,7 +4198,7 @@ export default function PhoneSimulator({
                           if (!note) return null;
                           return (
                             <div className="bg-emerald-50 border border-emerald-100/50 p-2.5 rounded-lg text-emerald-800 text-[9px] font-medium leading-relaxed">
-                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 inline mr-1 -mt-0.5" /><span className="font-bold">{t('edu_personalized_support_prefix')}</span> {note}
+                              🛡️ <span className="font-bold">{t('edu_personalized_support_prefix')}</span> {note}
                             </div>
                           );
                         };
@@ -4172,7 +4261,7 @@ export default function PhoneSimulator({
                                       {topic.visualItems.map((item: any, itemIdx: number) => (
                                         <div key={itemIdx} className="bg-white border border-slate-200/50 rounded-xl p-2.5 flex items-start gap-3 shadow-3xs transition hover:border-emerald-200/50">
                                           <div className="text-sm shrink-0 leading-none mt-0.5 select-none bg-slate-50 border border-slate-100 p-1 rounded-lg w-7 h-7 flex items-center justify-center">
-                                            {getIcon(item.icon, "text-[#00a859]")}
+                                            {item.icon}
                                           </div>
                                           <div className="space-y-0.5 flex-1 min-w-0 text-left">
                                             <h6 className="font-bold text-[10px] text-slate-900 leading-tight">
@@ -4440,13 +4529,75 @@ export default function PhoneSimulator({
                             {selectedGuideTopics.length > 0 && (
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                  <h4 className="text-[12px] font-extrabold text-slate-900 font-display tracking-tight flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#00a859]" /> {t('edu_selected_for_you')}</h4>
+                                  <h4 className="text-[12px] font-extrabold text-slate-900 font-display tracking-tight flex items-center gap-1.5">✨ {t('edu_selected_for_you')}</h4>
                                   <span className="text-[9.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50">{t('edu_personalised_badge')}</span>
                                 </div>
                                 <div className="space-y-3">
                                   {selectedGuideTopics.map(topic => renderGuideCard(topic, true))}
                                 </div>
                               </div>
+                            )}
+
+                             {/* Section 2: Other Topics You Can Explore */}
+                             {unselectedGuideTopics.length > 0 && (
+                               <div className="pt-2 border-t border-slate-100/60">
+                                 <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 transition-all duration-200 text-left">
+                                   <div className="flex items-center justify-between gap-2">
+                                     <div className="space-y-0.5">
+                                       <h4 className="text-[11.5px] font-extrabold text-slate-800 font-display tracking-tight flex items-center gap-1.5">
+                                         📚 {t('step2_opt_other_topics') || 'Other Topics You Can Explore'}
+                                       </h4>
+                                       <p className="text-[9.5px] text-slate-500 leading-relaxed font-medium">
+                                         {t('step2_opt_other_topics_desc') || 'More FH topics are available whenever you are ready.'}
+                                       </p>
+                                     </div>
+                                     <button
+                                       onClick={() => setShowOtherTopics(!showOtherTopics)}
+                                       aria-expanded={showOtherTopics}
+                                       className="flex items-center gap-1 text-[10px] font-extrabold text-[#00a859] hover:text-[#008f4c] transition cursor-pointer shrink-0 py-1 px-2 border border-emerald-100/50 hover:bg-emerald-50/30 rounded-lg"
+                                     >
+                                       <span>{showOtherTopics ? (t('step2_opt_minimise') || 'Minimise') : (t('step2_opt_view_other_topics') || 'View Other Topics')}</span>
+                                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showOtherTopics ? 'rotate-180' : ''}`} />
+                                     </button>
+                                   </div>
+
+                                   {showOtherTopics && (
+                                     <div className="space-y-3 pt-3 mt-3 border-t border-slate-100 animate-fade-in">
+                                       {unselectedGuideTopics.map(topic => renderGuideCard(topic, false))}
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                        // Personalized Layout
+                        return (
+                          <div className="bg-emerald-50/40 border border-emerald-100/60 rounded-xl p-3.5 space-y-2">
+                            <div className="flex justify-between text-[11px] text-slate-700 font-bold">
+                              <span>{t('edu_checklist_progress_title')}</span>
+                              <span className="text-emerald-700">
+                                {t('edu_checklist_progress_detail')
+                                  .replace('{completed}', String(completedCount))
+                                  .replace('{total}', String(totalCount))
+                                  .replace('{percent}', String(percent))}
+                              </span>
+                            </div>
+                            <div className="w-full h-2 bg-slate-200/75 rounded-full overflow-hidden">
+                              <div className="bg-[#00a859] h-full transition-all duration-300" style={{ width: `${percent}%` }} />
+                            </div>
+                            {percent === 100 ? (
+                              <p className="text-[10px] text-emerald-800 font-medium flex items-center gap-1">
+                                <span className="text-emerald-600 font-bold">✓</span> {t('edu_checklist_progress_success')}
+                              </p>
+                            ) : (
+                              <p className="text-[10px] text-slate-500 leading-normal">
+                                {t('edu_checklist_progress_desc')}
+                              </p>
                             )}
 
                              {/* Section 2: Other Topics You Can Explore */}
@@ -4484,288 +4635,76 @@ export default function PhoneSimulator({
                         );
                       })()}
 
-                      {/* Knowledge Check Section (Carousel) - Strictly under Guides tab only */}
-                      <div className="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-3xs text-left space-y-4">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                          <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-[#00a859] flex items-center justify-center font-bold text-xs">
-                              <CheckSquare className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <h4 className="font-display font-extrabold text-xs text-slate-900">Knowledge Check</h4>
-                              <p className="text-[10px] text-slate-500 font-medium">{quizQuestions.length} questions • &lt; 1 minute</p>
-                            </div>
+                      {/* Pre-counselling Preparation Checklist Card */}
+                      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
+                        <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                          <div className="flex items-center gap-1.5">
+                            <CheckSquare className="w-4 h-4 text-[#00a859]" />
+                            <h4 className="font-bold text-xs text-slate-800 font-sans">{t('edu_checklist_card_title')}</h4>
                           </div>
                           <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-extrabold border border-emerald-100">
                             Optional
                           </span>
                         </div>
-
-                        {!quizSubmitted ? (
-                          <div className="space-y-3.5">
-                            {/* Carousel Stepper / Progress Header */}
-                            <div className="flex items-center justify-between text-[10.5px] font-bold text-slate-600 bg-slate-50/80 px-3 py-2 rounded-xl border border-slate-150">
-                              <span className="font-mono text-[10px] text-emerald-800 font-bold">
-                                Question {quizSlideIndex + 1} of {quizQuestions.length}
-                              </span>
-                              {/* Dot indicators */}
-                              <div className="flex items-center gap-1.5">
-                                {quizQuestions.map((q, idx) => {
-                                  const isAnswered = quizAnswers[q.id] !== undefined;
-                                  const isActive = idx === quizSlideIndex;
-                                  return (
-                                    <button
-                                      key={q.id}
-                                      onClick={() => setQuizSlideIndex(idx)}
-                                      title={`Go to Question ${idx + 1}`}
-                                      className={`transition-all rounded-full cursor-pointer ${
-                                        isActive
-                                          ? 'w-5 h-2 bg-[#00a859]'
-                                          : isAnswered
-                                          ? 'w-2 h-2 bg-emerald-400 hover:bg-emerald-500'
-                                          : 'w-2 h-2 bg-slate-200 hover:bg-slate-300'
-                                      }`}
-                                    />
-                                  );
-                                })}
+                        <p className="text-[10px] text-slate-500 leading-relaxed font-sans">
+                          {t('edu_checklist_card_desc')}
+                        </p>
+                        <div className="space-y-4">
+                          {/* 1. Selected for You (Personalised Items) */}
+                          {onboardingCompleted && checklist.some(item => item.isPersonalized) && (
+                            <div className="space-y-2.5">
+                              <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                                <span className="text-[10px] font-extrabold text-slate-950 flex items-center gap-1">✨ {t('edu_selected_for_you')}</span>
+                                <span className="text-[8px] font-bold bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded border border-emerald-100/40">{t('edu_personalised_badge') || 'Personalised'}</span>
                               </div>
-                            </div>
-
-                            {/* Active Question Carousel Card */}
-                            {(() => {
-                              const currentQ = quizQuestions[quizSlideIndex] || quizQuestions[0];
-                              const selectedOpt = quizAnswers[currentQ.id];
-                              const totalAnswered = Object.keys(quizAnswers).length;
-                              const allAnswered = totalAnswered >= quizQuestions.length;
-
-                              return (
-                                <div className="space-y-3 bg-slate-50/70 border border-slate-150 p-3.5 rounded-xl animate-fade-in min-h-[190px] flex flex-col justify-between">
-                                  <div className="space-y-2.5">
-                                    <p className="text-[11.5px] font-bold text-slate-800 leading-snug">
-                                      {quizSlideIndex + 1}. {currentQ.question}
-                                    </p>
-                                    <div className="space-y-1.5">
-                                      {currentQ.options.map((opt, optIdx) => {
-                                        const isSelected = selectedOpt === optIdx;
-                                        return (
-                                          <button
-                                            key={optIdx}
-                                            onClick={() => setQuizAnswers(prev => ({ ...prev, [currentQ.id]: optIdx }))}
-                                            className={`w-full text-left p-2.5 rounded-lg text-[10.5px] font-medium transition flex items-center gap-2.5 cursor-pointer border ${
-                                              isSelected
-                                                ? 'bg-emerald-50 border-[#00a859] text-emerald-900 font-bold'
-                                                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100/60'
-                                            }`}
-                                          >
-                                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                                              isSelected ? 'border-[#00a859] bg-[#00a859] text-white' : 'border-slate-300'
-                                            }`}>
-                                              {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                                            </div>
-                                            <span className="leading-tight">{opt}</span>
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-
-                                  {/* Carousel Navigation Controls */}
-                                  <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-200/60 mt-2">
-                                    <button
-                                      onClick={() => setQuizSlideIndex(prev => Math.max(0, prev - 1))}
-                                      disabled={quizSlideIndex === 0}
-                                      className={`px-3 py-1.5 rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 ${
-                                        quizSlideIndex === 0
-                                          ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
-                                          : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer'
-                                      }`}
-                                    >
-                                      <ChevronLeft className="w-3.5 h-3.5" />
-                                      <span>Prev</span>
-                                    </button>
-
-                                    {quizSlideIndex < quizQuestions.length - 1 ? (
-                                      <button
-                                        onClick={() => setQuizSlideIndex(prev => Math.min(quizQuestions.length - 1, prev + 1))}
-                                        className="px-3.5 py-1.5 bg-[#00a859] hover:bg-emerald-700 text-white rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
-                                      >
-                                        <span>Next</span>
-                                        <ChevronRight className="w-3.5 h-3.5" />
-                                      </button>
+                              <div className="space-y-2">
+                                {checklist.filter(item => item.isPersonalized).map((item) => (
+                                  <button
+                                    key={item.id}
+                                    onClick={() => toggleChecklist(item.id)}
+                                    className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition cursor-pointer"
+                                  >
+                                    {item.checked ? (
+                                      <CheckSquare className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
                                     ) : (
-                                      <button
-                                        onClick={() => setQuizSubmitted(true)}
-                                        disabled={!allAnswered}
-                                        className={`px-3.5 py-1.5 rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer ${
-                                          allAnswered
-                                            ? 'bg-[#00a859] hover:bg-emerald-700 text-white shadow-xs'
-                                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                        }`}
-                                      >
-                                        <span>Submit Answers</span>
-                                        <Check className="w-3.5 h-3.5" />
-                                      </button>
+                                      <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0 bg-white" />
                                     )}
-                                  </div>
-                                </div>
-                              );
-                            })()}
-
-                            {/* Overall Submit Button shortcut if all answered before reaching last slide */}
-                            {Object.keys(quizAnswers).length >= quizQuestions.length && quizSlideIndex < quizQuestions.length - 1 && (
-                              <button
-                                onClick={() => setQuizSubmitted(true)}
-                                className="w-full py-2 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] border border-emerald-200 rounded-xl text-[10.5px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                                <span>All questions answered — Submit Quiz Now</span>
-                              </button>
-                            )}
-                          </div>
-                        ) : (
-                          /* Quiz Results View with Carousel review */
-                          <div className="space-y-4 animate-fade-in">
-                            {/* Score summary banner */}
-                            {(() => {
-                              const correctCount = quizQuestions.filter(q => quizAnswers[q.id] === q.correctAnswer).length;
-                              const total = quizQuestions.length;
-                              const percentage = Math.round((correctCount / total) * 100);
-                              return (
-                                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-2 text-left">
-                                  <div className="flex items-center justify-between">
-                                    <h5 className="font-extrabold text-xs text-emerald-900">Knowledge Check Complete</h5>
-                                    <span className="font-display font-extrabold text-lg text-[#00a859]">
-                                      {percentage}%
+                                    <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-700 font-medium'}`}>
+                                      {item.text}
                                     </span>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="font-bold text-xs text-emerald-950">Great work!</p>
-                                    <p className="text-[10.5px] text-emerald-800 leading-relaxed font-sans">
-                                      You've completed the Knowledge Check and reinforced the key information to help prepare for your counselling appointment.
-                                    </p>
-                                  </div>
-                                </div>
-                              );
-                            })()}
-
-                            {/* Carousel Review for Results */}
-                            <div className="space-y-3">
-                              <div className="flex items-center justify-between text-[10.5px] font-bold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-150">
-                                <span className="font-mono text-[10px] text-emerald-800 font-bold">
-                                  Review Question {quizSlideIndex + 1} of {quizQuestions.length}
-                                </span>
-                                <div className="flex items-center gap-1.5">
-                                  {quizQuestions.map((q, idx) => {
-                                    const isCorrect = quizAnswers[q.id] === q.correctAnswer;
-                                    const isActive = idx === quizSlideIndex;
-                                    return (
-                                      <button
-                                        key={q.id}
-                                        onClick={() => setQuizSlideIndex(idx)}
-                                        title={`Review Question ${idx + 1}`}
-                                        className={`transition-all rounded-full cursor-pointer ${
-                                          isActive
-                                            ? 'w-5 h-2 bg-[#00a859]'
-                                            : isCorrect
-                                            ? 'w-2 h-2 bg-emerald-400'
-                                            : 'w-2 h-2 bg-rose-400'
-                                        }`}
-                                      />
-                                    );
-                                  })}
-                                </div>
+                                  </button>
+                                ))}
                               </div>
-
-                              {(() => {
-                                const q = quizQuestions[quizSlideIndex] || quizQuestions[0];
-                                const userAns = quizAnswers[q.id];
-                                const isCorrect = userAns === q.correctAnswer;
-                                return (
-                                  <div className={`p-3.5 rounded-xl border space-y-2.5 animate-fade-in ${
-                                    isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/30 border-rose-200'
-                                  }`}>
-                                    <div className="flex items-start justify-between gap-2">
-                                      <p className="text-[11px] font-bold text-slate-800 leading-snug">
-                                        {quizSlideIndex + 1}. {q.question}
-                                      </p>
-                                      <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ${
-                                        isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                                      }`}>
-                                        {isCorrect ? 'Correct' : 'Incorrect'}
-                                      </span>
-                                    </div>
-
-                                    <div className="space-y-1.5 pt-1">
-                                      {q.options.map((opt, optIdx) => {
-                                        const isUserChoice = userAns === optIdx;
-                                        const isCorrectChoice = q.correctAnswer === optIdx;
-                                        let badgeStyle = 'bg-white border-slate-200 text-slate-600';
-                                        if (isCorrectChoice) {
-                                          badgeStyle = 'bg-emerald-100/80 border-emerald-300 text-emerald-900 font-bold';
-                                        } else if (isUserChoice && !isCorrect) {
-                                          badgeStyle = 'bg-rose-100/80 border-rose-300 text-rose-900 font-medium';
-                                        }
-
-                                        return (
-                                          <div key={optIdx} className={`p-2 rounded-lg text-[10px] border flex items-center justify-between ${badgeStyle}`}>
-                                            <span className="leading-tight">{opt}</span>
-                                            {isCorrectChoice && <span className="text-[9px] text-emerald-700 font-bold shrink-0 ml-2 flex items-center gap-0.5"><Check className="w-3 h-3 stroke-[3]" /> Correct Answer</span>}
-                                            {isUserChoice && !isCorrectChoice && <span className="text-[9px] text-rose-700 font-bold shrink-0 ml-2">Your Choice</span>}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-
-                                    <div className="bg-white/80 p-2.5 rounded-lg border border-slate-200/60 text-[10px] text-slate-600 leading-relaxed">
-                                      <span className="font-bold text-slate-800">Explanation: </span>
-                                      {q.explanation}
-                                    </div>
-
-                                    {/* Results Carousel Controls */}
-                                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/60 mt-1">
-                                      <button
-                                        onClick={() => setQuizSlideIndex(prev => Math.max(0, prev - 1))}
-                                        disabled={quizSlideIndex === 0}
-                                        className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
-                                          quizSlideIndex === 0
-                                            ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
-                                            : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer'
-                                        }`}
-                                      >
-                                        <ChevronLeft className="w-3 h-3" />
-                                        <span>Prev Question</span>
-                                      </button>
-
-                                      <button
-                                        onClick={() => setQuizSlideIndex(prev => Math.min(quizQuestions.length - 1, prev + 1))}
-                                        disabled={quizSlideIndex === quizQuestions.length - 1}
-                                        className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
-                                          quizSlideIndex === quizQuestions.length - 1
-                                            ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
-                                            : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer'
-                                        }`}
-                                      >
-                                        <span>Next Question</span>
-                                        <ChevronRight className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                  </div>
-                                );
-                              })()}
                             </div>
+                          )}
 
-                            <button
-                              onClick={() => {
-                                setQuizAnswers({});
-                                setQuizSubmitted(false);
-                                setQuizSlideIndex(0);
-                              }}
-                              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
-                            >
-                              Try Again
-                            </button>
+                          {/* 2. Essential Requirements / General */}
+                          <div className="space-y-2.5">
+                            {onboardingCompleted && checklist.some(item => item.isPersonalized) && (
+                              <div className="flex items-center border-b border-slate-100 pb-1.5 pt-1">
+                                <span className="text-[10px] font-extrabold text-slate-500">📋 {t('edu_checklist_essential_prep')}</span>
+                              </div>
+                            )}
+                            <div className="space-y-2">
+                              {checklist.filter(item => !item.isPersonalized).map((item) => (
+                                <button
+                                  key={item.id}
+                                  onClick={() => toggleChecklist(item.id)}
+                                  className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition cursor-pointer"
+                                >
+                                  {item.checked ? (
+                                    <CheckSquare className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
+                                  ) : (
+                                    <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0 bg-white" />
+                                  )}
+                                  <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-700 font-medium'}`}>
+                                    {item.text}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -4873,87 +4812,45 @@ export default function PhoneSimulator({
                       <div className="space-y-3 pt-1">
                         <div className="flex justify-between items-center">
                           <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono font-sans">{t('edu_helpful_resources')}</h4>
-                          <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50 font-mono">
-                            {sortedHelpfulResources.length} {language === 'ms' ? 'Sumber' : language === 'zh' ? '项资源' : language === 'ta' ? 'வளங்கள்' : 'Resources'}
-                          </span>
                         </div>
 
-                        {/* Personalized Resources Banner */}
-                        {onboardingCompleted && questionnaireStatus === 'completed' && (
-                          <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-2.5 flex items-center justify-between text-left">
-                            <div className="flex items-center gap-2">
-                              <Sparkles className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
-                              <span className="text-[10.5px] font-bold text-emerald-900 leading-tight">
-                                {language === 'ms' ? 'Risalah & Sumber Dipersonalisasi' :
-                                 language === 'zh' ? '针对性宣传册与资源' :
-                                 language === 'ta' ? 'தனிப்பயனாக்கப்பட்ட சிற்றேடுகள்' :
-                                 'Targeted Brochures & Educational Resources'}
-                              </span>
-                            </div>
-                            <span className="text-[8.5px] font-mono bg-white text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded font-extrabold shrink-0">
-                              {language === 'ms' ? 'Dipersonalisasi' : language === 'zh' ? '已个性化' : language === 'ta' ? 'தனிப்பயனாக்கப்பட்டது' : 'Personalized'}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Resource Groups in Slide / Carousel Format */}
-                        <div className="space-y-3">
-                          {[
-                            {
-                              id: 'videos',
-                              title: language === 'ms' ? 'Kisah Pesakit & Panduan Video' : language === 'zh' ? '患者故事与视频指南' : language === 'ta' ? 'நோயாளி கதைகள் & வீடியோ வழிகாட்டிகள்' : 'Patient Stories & Video Guides',
-                              iconName: 'Play',
-                              headerBg: 'bg-rose-50/80 text-rose-900',
-                              iconColor: 'text-rose-600',
-                              badgeBg: 'bg-rose-100/80 text-rose-800',
-                              items: sortedHelpfulResources.filter(r => r.id === 'res-7' || r.id === 'res-6'),
-                              slideIdx: videoSlideIndex,
-                              setSlideIdx: setVideoSlideIndex
-                            },
-                            {
-                              id: 'brochures',
-                              title: language === 'ms' ? 'Panduan Pesakit & Risalah' : language === 'zh' ? '患者指南与宣传册' : language === 'ta' ? 'நோயாளி வழிகாட்டிகள் & சிற்றேடுகள்' : 'Patient Guides & Brochures',
-                              iconName: 'FileText',
-                              headerBg: 'bg-sky-50/80 text-sky-900',
-                              iconColor: 'text-sky-600',
-                              badgeBg: 'bg-sky-100/80 text-sky-800',
-                              items: sortedHelpfulResources.filter(r => r.id === 'res-1' || r.id === 'res-4' || r.id === 'res-8'),
-                              slideIdx: brochureSlideIndex,
-                              setSlideIdx: setBrochureSlideIndex
-                            },
-                            {
-                              id: 'clinical',
-                              title: language === 'ms' ? 'Sumber Klinikal & Polisi' : language === 'zh' ? '临床与政策资源' : language === 'ta' ? 'மருத்துவ & கொள்கை வளங்கள்' : 'Clinical & Policy Resources',
-                              iconName: 'Shield',
-                              headerBg: 'bg-emerald-50/80 text-emerald-900',
-                              iconColor: 'text-emerald-700',
-                              badgeBg: 'bg-emerald-100/80 text-emerald-800',
-                              items: sortedHelpfulResources.filter(r => r.id === 'res-2' || r.id === 'res-9' || r.id === 'res-5'),
-                              slideIdx: clinicalSlideIndex,
-                              setSlideIdx: setClinicalSlideIndex
-                            }
-                          ].map((group) => {
-                            if (group.items.length === 0) return null;
-                            const currentIdx = Math.min(Math.max(0, group.slideIdx), group.items.length - 1);
-                            const activeRes = group.items[currentIdx];
-                            const matchReason = getResourceMatchReason(activeRes);
-
-                            let bgClass = "bg-slate-50 group-hover:bg-emerald-50";
-                            let itemIconColor = "text-[#00a859]";
-                            let typeTagClass = "bg-emerald-50 text-[#00a859]";
+                        <div className="space-y-2.5">
+                          {sortedHelpfulResources.map((res) => {
+                            // Dynamic color configurations for appealing & diverse icon cards based on immutable ID
+                            let bgClass = "bg-slate-50 group-hover:bg-emerald-50 border-slate-100 group-hover:border-emerald-200";
+                            let iconColor = "text-[#00a859]";
+                            let typeTagClass = "bg-emerald-50 text-[#00a859] border-emerald-100/55";
                             let viewLinkColor = "text-[#00a859] group-hover:text-emerald-700";
                             let hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
 
-                            if (group.id === 'videos') {
-                              bgClass = "bg-rose-50 group-hover:bg-rose-100/80";
-                              itemIconColor = "text-rose-600";
-                              typeTagClass = "bg-rose-50 text-rose-700";
+                            if (res.id === 'res-7' || res.id === 'res-6') { // Video Stories
+                              bgClass = "bg-rose-50 group-hover:bg-rose-100/80 border-rose-100 group-hover:border-rose-150";
+                              iconColor = "text-rose-600";
+                              typeTagClass = "bg-rose-50 text-rose-700 border-rose-100";
                               viewLinkColor = "text-rose-600 group-hover:text-rose-700";
                               hoverBorderClass = "hover:border-rose-200 hover:bg-rose-50/10";
-                            } else if (group.id === 'brochures') {
-                              bgClass = "bg-sky-50 group-hover:bg-sky-100/80";
-                              itemIconColor = "text-sky-600";
-                              typeTagClass = "bg-sky-50 text-sky-700";
+                            } else if (res.id === 'res-9') { // Insurance/Moratorium
+                              bgClass = "bg-indigo-50 group-hover:bg-indigo-100/80 border-indigo-100 group-hover:border-indigo-150";
+                              iconColor = "text-indigo-600";
+                              typeTagClass = "bg-indigo-50 text-indigo-700 border-indigo-100";
+                              viewLinkColor = "text-indigo-600 group-hover:text-indigo-700";
+                              hoverBorderClass = "hover:border-indigo-200 hover:bg-indigo-50/10";
+                            } else if (res.id === 'res-5') { // Singapore Heart Foundation
+                              bgClass = "bg-emerald-50 group-hover:bg-emerald-100/80 border-emerald-100 group-hover:border-emerald-150";
+                              iconColor = "text-emerald-600";
+                              typeTagClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
+                              viewLinkColor = "text-emerald-600 group-hover:text-emerald-700";
+                              hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
+                            } else if (res.id === 'res-2') { // Clinical Guide
+                              bgClass = "bg-amber-50 group-hover:bg-amber-100/80 border-amber-100 group-hover:border-amber-150";
+                              iconColor = "text-amber-600";
+                              typeTagClass = "bg-amber-50 text-amber-700 border-amber-100";
+                              viewLinkColor = "text-amber-600 group-hover:text-amber-700";
+                              hoverBorderClass = "hover:border-amber-200 hover:bg-amber-50/10";
+                            } else if (res.id === 'res-1' || res.id === 'res-4' || res.id === 'res-8') { // PDF Brochures
+                              bgClass = "bg-sky-50 group-hover:bg-sky-100/80 border-sky-100 group-hover:border-sky-150";
+                              iconColor = "text-sky-600";
+                              typeTagClass = "bg-sky-50 text-sky-700 border-sky-100";
                               viewLinkColor = "text-sky-600 group-hover:text-sky-700";
                               hoverBorderClass = "hover:border-sky-200 hover:bg-sky-50/10";
                             } else if (group.id === 'clinical') {
@@ -4965,12 +4862,22 @@ export default function PhoneSimulator({
                             }
 
                             return (
-                              <div key={group.id} className="space-y-2 bg-white border border-slate-200/70 rounded-2xl p-3 shadow-3xs">
-                                {/* Group Category Bar */}
-                                <div className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-extrabold ${group.headerBg}`}>
-                                  <div className="flex items-center gap-1.5">
-                                    <div className="p-1 bg-white rounded-md shadow-2xs">
-                                      {getIcon(group.iconName, group.iconColor)}
+                              <button
+                                key={res.id}
+                                onClick={() => {
+                                  setSelectedResource(res);
+                                  setResourcePage(0);
+                                }}
+                                className={`block w-full text-left bg-white border border-slate-200 rounded-xl p-3.5 space-y-2.5 shadow-3xs transition group cursor-pointer ${hoverBorderClass}`}
+                              >
+                                <div className="flex items-start gap-2.5">
+                                  <div className={`p-1.5 rounded-lg border shrink-0 mt-0.5 transition ${bgClass}`}>
+                                    {getIcon(res.iconName, iconColor)}
+                                  </div>
+                                  <div className="space-y-0.5 flex-1 min-w-0">
+                                    <div className="flex justify-between items-start gap-2">
+                                      <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#00a859] transition leading-tight">{res.title}</h5>
+                                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 border ${typeTagClass}`}>{res.type}</span>
                                     </div>
                                     <span>{group.title}</span>
                                   </div>
@@ -4997,50 +4904,9 @@ export default function PhoneSimulator({
                                       />
                                     ))}
                                   </div>
-                                  <span className="text-[9px] text-slate-400 font-mono font-medium">
-                                    {activeRes.type}
-                                  </span>
-                                </div>
-
-                                {/* Active Slide Resource Card (Flexible height so full video/brochure titles display clearly) */}
-                                <button
-                                  onClick={() => {
-                                    setSelectedResource(activeRes);
-                                    setResourcePage(0);
-                                  }}
-                                  className={`w-full min-h-[115px] text-left bg-slate-50/60 border border-slate-100 rounded-xl p-3 transition group cursor-pointer flex flex-col justify-between ${hoverBorderClass}`}
-                                >
-                                  <div className="flex items-start gap-2.5 min-w-0">
-                                    <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 transition ${bgClass}`}>
-                                      {getIcon(activeRes.iconName, itemIconColor)}
-                                    </div>
-                                    <div className="space-y-0.5 flex-1 min-w-0">
-                                      <div className="flex justify-between items-start gap-2">
-                                        <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#00a859] transition leading-snug line-clamp-2">{activeRes.title}</h5>
-                                        <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 micro-badge ${typeTagClass}`}>{activeRes.type}</span>
-                                      </div>
-                                      <p className="text-[10px] text-slate-500 leading-normal line-clamp-2 mt-0.5">{activeRes.summary}</p>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="flex justify-between items-center pl-9 pt-1.5">
-                                    <div className="flex flex-wrap items-center gap-1 min-w-0">
-                                      {matchReason && (
-                                        <span className="text-[8px] hashtag-tag micro-badge bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded font-mono font-extrabold border border-emerald-200/80 flex items-center gap-0.5 shrink-0">
-                                          <Sparkles className="w-2 h-2 text-[#00a859]" />
-                                          {matchReason}
-                                        </span>
-                                      )}
-                                      {activeRes.keywords.slice(0, 2).map((kw, i) => (
-                                        <span key={i} className="text-[8px] hashtag-tag micro-badge font-mono bg-white text-slate-500 px-1.5 py-0.5 rounded border border-slate-200/40 truncate max-w-[90px]">
-                                          #{kw}
-                                        </span>
-                                      ))}
-                                    </div>
-                                    <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor} shrink-0`}>
-                                      <span>{t('edu_view_resource')}</span>
-                                      <ExternalLink className="w-2.5 h-2.5 transition" />
-                                    </div>
+                                  <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor}`}>
+                                    <span>{t('edu_view_resource')}</span>
+                                    <ExternalLink className="w-2.5 h-2.5 transition" />
                                   </div>
                                 </button>
 
@@ -5072,13 +4938,167 @@ export default function PhoneSimulator({
                                     <ChevronRight className="w-3 h-3" />
                                   </button>
                                 </div>
-                              </div>
+                              </button>
                             );
                           })}
                         </div>
                       </div>
                     </div>
                   )}
+
+                  {/* Knowledge Check Section (Part 2) */}
+                  <div className="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-3xs text-left space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-100 text-[#00a859] flex items-center justify-center font-bold text-xs">
+                          <CheckSquare className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-display font-extrabold text-xs text-slate-900">Knowledge Check</h4>
+                          <p className="text-[10px] text-slate-500 font-medium">3 questions • &lt; 1 minute</p>
+                        </div>
+                      </div>
+                      <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-extrabold border border-emerald-100">
+                        Optional
+                      </span>
+                    </div>
+
+                    {!quizSubmitted ? (
+                      <div className="space-y-4">
+                        {quizQuestions.map((q, idx) => {
+                          const selectedOpt = quizAnswers[q.id];
+                          return (
+                            <div key={q.id} className="space-y-2 bg-slate-50/70 border border-slate-150 p-3 rounded-xl">
+                              <p className="text-[11px] font-bold text-slate-800 leading-snug">
+                                {idx + 1}. {q.question}
+                              </p>
+                              <div className="space-y-1.5 pt-1">
+                                {q.options.map((opt, optIdx) => {
+                                  const isSelected = selectedOpt === optIdx;
+                                  return (
+                                    <button
+                                      key={optIdx}
+                                      onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: optIdx }))}
+                                      className={`w-full text-left p-2.5 rounded-lg text-[10.5px] font-medium transition flex items-center gap-2.5 cursor-pointer border ${
+                                        isSelected
+                                          ? 'bg-emerald-50 border-[#00a859] text-emerald-900 font-bold'
+                                          : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100/60'
+                                      }`}
+                                    >
+                                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                                        isSelected ? 'border-[#00a859] bg-[#00a859] text-white' : 'border-slate-300'
+                                      }`}>
+                                        {isSelected && <span className="text-[9px] font-bold">✓</span>}
+                                      </div>
+                                      <span className="leading-tight">{opt}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        <button
+                          onClick={() => setQuizSubmitted(true)}
+                          disabled={Object.keys(quizAnswers).length < quizQuestions.length}
+                          className={`w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                            Object.keys(quizAnswers).length >= quizQuestions.length
+                              ? 'bg-[#00a859] hover:bg-emerald-700 text-white shadow-sm'
+                              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          }`}
+                        >
+                          Submit Answers
+                        </button>
+                      </div>
+                    ) : (
+                      /* Quiz Results View */
+                      <div className="space-y-4 animate-fade-in">
+                        {/* Score summary banner */}
+                        {(() => {
+                          const correctCount = quizQuestions.filter(q => quizAnswers[q.id] === q.correctAnswer).length;
+                          const total = quizQuestions.length;
+                          const percentage = Math.round((correctCount / total) * 100);
+                          return (
+                            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-2 text-left">
+                              <div className="flex items-center justify-between">
+                                <h5 className="font-extrabold text-xs text-emerald-900">Knowledge Check Complete</h5>
+                                <span className="font-display font-extrabold text-lg text-[#00a859]">
+                                  {percentage}%
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-bold text-xs text-emerald-950">Great work!</p>
+                                <p className="text-[10.5px] text-emerald-800 leading-relaxed font-sans">
+                                  You've completed the Knowledge Check and reinforced the key information to help prepare for your counselling appointment.
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Questions feedback */}
+                        <div className="space-y-3">
+                          {quizQuestions.map((q, idx) => {
+                            const userAns = quizAnswers[q.id];
+                            const isCorrect = userAns === q.correctAnswer;
+                            return (
+                              <div key={q.id} className={`p-3 rounded-xl border space-y-2 ${
+                                isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/30 border-rose-200'
+                              }`}>
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className="text-[11px] font-bold text-slate-800 leading-snug">
+                                    {idx + 1}. {q.question}
+                                  </p>
+                                  <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ${
+                                    isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                  }`}>
+                                    {isCorrect ? '✓ Correct' : '✕ Incorrect'}
+                                  </span>
+                                </div>
+
+                                <div className="space-y-1 pt-1">
+                                  {q.options.map((opt, optIdx) => {
+                                    const isUserChoice = userAns === optIdx;
+                                    const isCorrectChoice = q.correctAnswer === optIdx;
+                                    let badgeStyle = 'bg-white border-slate-200 text-slate-600';
+                                    if (isCorrectChoice) {
+                                      badgeStyle = 'bg-emerald-100/80 border-emerald-300 text-emerald-900 font-bold';
+                                    } else if (isUserChoice && !isCorrect) {
+                                      badgeStyle = 'bg-rose-100/80 border-rose-300 text-rose-900 font-medium';
+                                    }
+
+                                    return (
+                                      <div key={optIdx} className={`p-2 rounded-lg text-[10px] border flex items-center justify-between ${badgeStyle}`}>
+                                        <span>{opt}</span>
+                                        {isCorrectChoice && <span className="text-[9px] text-emerald-700 font-bold">✓ Correct Answer</span>}
+                                        {isUserChoice && !isCorrectChoice && <span className="text-[9px] text-rose-700 font-bold">Your Choice</span>}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+
+                                <div className="bg-white/80 p-2.5 rounded-lg border border-slate-200/60 text-[10px] text-slate-600 leading-relaxed">
+                                  <span className="font-bold text-slate-800">Explanation: </span>
+                                  {q.explanation}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setQuizAnswers({});
+                            setQuizSubmitted(false);
+                          }}
+                          className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
+                        >
+                          Try Again
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Contextual Booking Reinforcement Card */}
                   <div className="bg-[#00a859] rounded-2xl p-5 text-center space-y-3.5 shadow-sm">
@@ -5094,7 +5114,7 @@ export default function PhoneSimulator({
                       onClick={() => onChangeScreen(ScreenId.Booking)}
                       className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
                     >
-                      Go to Secure Booking
+                      {t('edu_cta_btn')}
                     </button>
                   </div>
                 </div>
@@ -5438,7 +5458,7 @@ export default function PhoneSimulator({
                                 disabled={isDetectingLoc}
                                 className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                               >
-                                <MapPin className="w-3.5 h-3.5 text-emerald-600 inline mr-1" />{isDetectingLoc ? t('booking_detecting') : t('booking_live_location')}
+                                📍 {isDetectingLoc ? t('booking_detecting') : t('booking_live_location')}
                               </button>
                               <button
                                 onClick={() => {
@@ -5450,7 +5470,7 @@ export default function PhoneSimulator({
                                 }}
                                 className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
                               >
-                                <Home className="w-3.5 h-3.5 text-[#00a859] inline mr-1" />{t('booking_default_address')}
+                                🏠 {t('booking_default_address')}
                               </button>
                             </div>
 
@@ -5537,7 +5557,7 @@ export default function PhoneSimulator({
                                   </span>
                                   {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance === minDistance && (
                                     <span className="text-[9px] font-sans font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 flex items-center gap-0.5">
-                                      <Sparkles className="w-3.5 h-3.5 text-amber-500 inline mr-1" />{t('booking_nearest_clinic')}
+                                      ⭐ {t('booking_nearest_clinic')}
                                     </span>
                                   )}
                                 </div>
@@ -6159,12 +6179,71 @@ export default function PhoneSimulator({
                         </label>
                         <div className="bg-[#e5ddd5] border border-slate-300 text-slate-800 rounded-xl p-4 shadow-2xs space-y-2 bg-[radial-gradient(#d5cdc5_1.2px,transparent_1.2px)] [background-size:16px_16px]">
                           <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-800 border-b border-slate-300/40 pb-2">
-                            <div className="w-4 h-4 bg-[#075e54] rounded-full flex items-center justify-center text-white"><Check className="w-2.5 h-2.5 stroke-[3]" /></div>
+                            <div className="w-4 h-4 bg-[#075e54] rounded-full flex items-center justify-center text-white text-[8px] font-black">✔</div>
                             <span>MOH HealthHub (Singapore)</span>
                             <span className="ml-auto text-[9px] font-normal text-slate-500">09:41 AM</span>
                           </div>
                           <div className="bg-[#e2f4c5] p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-[#d3eab0] relative shadow-3xs max-w-[280px]">
                             <h4 className="text-[11px] font-extrabold text-emerald-900 mb-1">MOH Appointment Alert</h4>
+                    {selectedChannels.includes('push') && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                          {t('settings_lockscreen_preview_title')}
+                        </label>
+                        <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
+                          <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
+                            <div className="w-4 h-4 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
+                            <span>{t('settings_lockscreen_header')}</span>
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-slate-100">
+                              {isFHReferred ? t('lock_counselling_reminder') : (
+                                language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
+                                language === 'zh' ? '普通门诊就诊提醒' :
+                                language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
+                                'Outpatient Appointment Reminder'
+                              )}
+                            </h4>
+                            <p className="text-[10.5px] text-slate-300 leading-snug">
+                              {(() => {
+                                const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
+                                const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
+                                if (isFHReferred) {
+                                  return t('lockscreen_push_msg')
+                                    .replace('{date}', dateStr)
+                                    .replace('{time}', timeStr);
+                                }
+                                if (language === 'ms') {
+                                  return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
+                                } else if (language === 'zh') {
+                                  return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
+                                } else if (language === 'ta') {
+                                  return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
+                                } else {
+                                  return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
+                                }
+                              })()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedChannels.includes('email') && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
+                          <span>{language === 'ms' ? 'Pratonton Makluman Emel' : language === 'zh' ? '电子邮件提醒预览' : language === 'ta' ? 'மின்னஞ்சல் விழிப்பூட்டல் முன்னோட்டம்' : 'Email Notification Preview'}</span>
+                          <span className="text-emerald-700">Official MOH Domain</span>
+                        </label>
+                        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
+                          <div className="text-[9.5px] font-bold text-slate-800 border-b border-slate-100 pb-2 flex justify-between">
+                            <span>From: appointment-reminders@healthhub.sg</span>
+                            <span className="text-slate-400 font-normal">{t('sms_today')}</span>
+                          </div>
+                          <div className="text-xs font-bold text-slate-800 font-sans mt-1">
+                            {isFHReferred ? 'Upcoming Outpatient Appointment: Genetic Counselling' : 'MOH HealthHub: Outpatient Appointment Confirmed'}
+                          </div>
+                          <p className="text-[10.5px] text-slate-600 leading-normal mt-1">
                             {(() => {
                               const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
                               const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
@@ -6174,9 +6253,9 @@ export default function PhoneSimulator({
                                 return <>
                                   Hi, janji temu rujukan pesakit luar anda telah disahkan.
                                   <br /><br />
-                                  <Building2 className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Klinik:</strong> {bookedClinicName}
-                                  <br /><Calendar className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Tarikh:</strong> {dateStr}
-                                  <br /><Clock className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Masa:</strong> {timeStr}
+                                  🏥 <strong>Klinik:</strong> {bookedClinicName}
+                                  <br />📅 <strong>Tarikh:</strong> {dateStr}
+                                  <br />🕙 <strong>Masa:</strong> {timeStr}
                                   <br /><br />
                                   Sila lengkapkan senarai semak rujukan pesakit luar anda dalam HealthHub.
                                 </>;
@@ -6184,9 +6263,9 @@ export default function PhoneSimulator({
                                 return <>
                                   您好，您的预约普通门诊转诊咨询已成功确认。
                                   <br /><br />
-                                  <Building2 className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>门诊:</strong> {bookedClinicName}
-                                  <br /><Calendar className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>日期:</strong> {dateStr}
-                                  <br /><Clock className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>时间:</strong> {timeStr}
+                                  🏥 <strong>门诊:</strong> {bookedClinicName}
+                                  <br />📅 <strong>日期:</strong> {dateStr}
+                                  <br />🕙 <strong>时间:</strong> {timeStr}
                                   <br /><br />
                                   请登录 HealthHub 应用完善您的准备信息。
                                 </>;
@@ -6194,9 +6273,9 @@ export default function PhoneSimulator({
                                 return <>
                                   வணக்கம், உங்களின் சந்திப்பு வெற்றிகரமாக உறுதிப்படுத்தப்பட்டுள்ளது.
                                   <br /><br />
-                                  <Building2 className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>சந்திப்பு:</strong> {bookedClinicName}
-                                  <br /><Calendar className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>தேதி:</strong> {dateStr}
-                                  <br /><Clock className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>நேரம்:</strong> {timeStr}
+                                  🏥 <strong>சந்திப்பு:</strong> {bookedClinicName}
+                                  <br />📅 <strong>தேதி:</strong> {dateStr}
+                                  <br />🕙 <strong>நேரம்:</strong> {timeStr}
                                   <br /><br />
                                   ஹெல்த்ஹப் செயலியில் உங்கள் சரிபார்ப்புப் பட்டியலை முடிக்கவும்.
                                 </>;
@@ -6204,9 +6283,9 @@ export default function PhoneSimulator({
                                 return <>
                                   Hi, your upcoming outpatient referral consultation is confirmed.
                                   <br /><br />
-                                  <Building2 className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Clinic:</strong> {bookedClinicName}
-                                  <br /><Calendar className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Date:</strong> {dateStr}
-                                  <br /><Clock className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Time:</strong> {timeStr}
+                                  🏥 <strong>Clinic:</strong> {bookedClinicName}
+                                  <br />📅 <strong>Date:</strong> {dateStr}
+                                  <br />🕙 <strong>Time:</strong> {timeStr}
                                   <br /><br />
                                   Please complete your pre-appointment checklist on the HealthHub app.
                                 </>;
@@ -6925,8 +7004,17 @@ export default function PhoneSimulator({
         {isFHReferred && activeScreen !== ScreenId.Booking && (
           <button
             onClick={() => onChangeScreen(ScreenId.Booking)}
-            className="absolute bottom-4 right-4 z-40 bg-[#00a859] hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-full flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 text-xs font-bold font-sans"
+            className="absolute bottom-4 right-4 z-40 bg-[#00a859] hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-full flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 text-xs font-bold font-sans animate-subtle-pulse"
             title={appointment.status === 'booked' ? 'View Booking' : 'Book Now'}
+          >
+            <Calendar className="w-4 h-4 text-white" />
+            <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
+        {/* Floating AI Assistant Chat Button inside Phone Simulator */}
+        {!chatOpen && isFHReferred && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="absolute bottom-4 right-4 z-40 w-12 h-12 bg-[#00a859] hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 group"
+            title={t('chatbot_title')}
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>

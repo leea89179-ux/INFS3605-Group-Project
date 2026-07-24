@@ -389,25 +389,14 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     faq_category_testing: 'TESTING',
     faq_category_medication: 'MEDICATION',
     edu_did_you_know: 'Did You Know?',
-    edu_for_you_badge: 'For You',
-    edu_stat_prevalence_val: '1 in 250',
-    edu_stat_prevalence_lbl: 'Singaporeans have FH',
-    edu_stat_undiagnosed_val: '~90%',
-    edu_stat_undiagnosed_lbl: 'Remain Undiagnosed in SG',
-    edu_stat_risk_val: 'Up to 80%',
-    edu_stat_risk_lbl: 'Lower Heart Attack Risk',
-    edu_stat_family_val: '50%',
-    edu_stat_family_lbl: 'First-Degree Family Risk',
-    edu_stat_subsidies_val: 'Up to 75%',
-    edu_stat_subsidies_lbl: 'MOH Direct Subsidies',
-    edu_stat_cost_val: '5–5',
-    edu_stat_cost_lbl: 'Typical Out-of-Pocket Cost',
-    edu_stat_insurance_val: '0%',
-    edu_stat_insurance_lbl: 'Impact on Existing Insurance',
-    edu_stat_meds_val: '30+ Yrs',
-    edu_stat_meds_lbl: 'Statin Safety Evidence',
-    edu_stat_testing_val: '4–6 Wks',
-    edu_stat_testing_lbl: 'DNA Report Turnaround',
+    edu_stat1_label: 'Singaporeans have FH',
+    edu_stat1_body: 'More common than most realize — over 22,000 Singaporeans are affected.',
+    edu_stat2_label: 'go undiagnosed',
+    edu_stat2_body: '9 out of 10 people with FH currently do not know they have it.',
+    edu_stat3_label: 'lower heart risk',
+    edu_stat3_body: 'Early diagnosis and simple treatment make a very big difference.',
+    edu_stat4_label: 'family risk',
+    edu_stat4_body: 'Each parent, sibling, or child has a 50% chance of inheritance.',
     edu_learning_hub: 'LEARNING HUB',
     edu_modules_summary: '3 Modules • 6 Topics',
     edu_group_basics_title: 'Understanding FH & Meds',
@@ -557,19 +546,19 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     concern_test_desc: 'Learn what happens before, during and after genetic testing.',
     
     // New Illustration/Comparison Card Keys
-    illus_clinical_testing_flow: 'Clinical Testing Flow',
+    illus_clinical_testing_flow: '📋 Clinical Testing Flow',
     illus_step_booked: '1. Booked',
     illus_step_consult: '2. Consult',
     illus_step_blood_draw: '3. Blood Draw',
     illus_step_results: '4. Results',
-    illus_singapore_financing_model: 'Singapore Financing Model',
+    illus_singapore_financing_model: '💰 Singapore Financing Model',
     illus_government_subsidy: 'Government Subsidy',
     illus_up_to_75_covered: 'Up to 75% Covered',
-    illus_consumer_safeguard_grid: 'Consumer Safeguard Grid',
+    illus_consumer_safeguard_grid: '🛡️ Consumer Safeguard Grid',
     illus_active_policies_note: 'Active policies cannot be changed, canceled, or re-priced at all.',
-    illus_liver_ldl_clearance: 'Liver LDL Clearance',
+    illus_liver_ldl_clearance: '🧪 Liver LDL Clearance',
     illus_statins_boost_note: 'Statins boost recycling receptors on liver cells, pulling cholesterol from blood.',
-    illus_family_cascade_tree: 'Family Cascade Screening Tree',
+    illus_family_cascade_tree: '🌳 Family Cascade Screening Tree',
     illus_index_patient: 'Index Patient (You)',
     illus_inheritance_prob: '│ (50% inheritance probability)',
     illus_parents: 'Parents',
@@ -969,25 +958,14 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     faq_category_testing: 'UJIAN',
     faq_category_medication: 'UBATAN',
     edu_did_you_know: 'Tahukah Anda?',
-    edu_for_you_badge: 'Untuk Anda',
-    edu_stat_prevalence_val: '1 dalam 250',
-    edu_stat_prevalence_lbl: 'Rakyat SG Menghidap FH',
-    edu_stat_undiagnosed_val: '~90%',
-    edu_stat_undiagnosed_lbl: 'Belum Didiagnosis di SG',
-    edu_stat_risk_val: 'Sehingga 80%',
-    edu_stat_risk_lbl: 'Risiko Jantung Lebih Rendah',
-    edu_stat_family_val: '50%',
-    edu_stat_family_lbl: 'Risiko Keturunan Keluarga',
-    edu_stat_subsidies_val: 'Sehingga 75%',
-    edu_stat_subsidies_lbl: 'Subsidi Langsung MOH',
-    edu_stat_cost_val: '5–5',
-    edu_stat_cost_lbl: 'Anggaran Kos Sendiri Biasa',
-    edu_stat_insurance_val: '0%',
-    edu_stat_insurance_lbl: 'Kesan pada Insurans Sedia Ada',
-    edu_stat_meds_val: '30+ Thn',
-    edu_stat_meds_lbl: 'Bukti Keselamatan Statin',
-    edu_stat_testing_val: '4–6 Mggu',
-    edu_stat_testing_lbl: 'Masa Laporan Ujian DNA',
+    edu_stat1_label: 'rakyat Singapura menghidap FH',
+    edu_stat1_body: 'Lebih biasa daripada yang disedari — lebih 22,000 rakyat Singapura terjejas.',
+    edu_stat2_label: 'tidak didiagnosis',
+    edu_stat2_body: '9 daripada 10 orang yang menghidap FH tidak tahu mereka menghidapnya.',
+    edu_stat3_label: 'risiko jantung lebih rendah',
+    edu_stat3_body: 'Diagnosis awal dan rawatan ringkas membuat perbezaan yang sangat besar.',
+    edu_stat4_label: 'risiko keluarga',
+    edu_stat4_body: 'Setiap ibu bapa, adik beradik, atau anak mempunyai peluang warisan 50%.',
     edu_learning_hub: 'HUB PEMBELAJARAN',
     edu_modules_summary: '3 Modul • 6 Topik',
     edu_group_basics_title: 'Memahami FH & Ubat',
@@ -1137,19 +1115,19 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     concern_test_desc: 'Ketahui apa yang berlaku sebelum, semasa dan selepas ujian genetik.',
     
     // New Illustration/Comparison Card Keys
-    illus_clinical_testing_flow: 'Aliran Ujian Klinikal',
+    illus_clinical_testing_flow: '📋 Aliran Ujian Klinikal',
     illus_step_booked: '1. Ditempah',
     illus_step_consult: '2. Rundingan',
     illus_step_blood_draw: '3. Ambil Darah',
     illus_step_results: '4. Keputusan',
-    illus_singapore_financing_model: 'Model Pembiayaan Singapura',
+    illus_singapore_financing_model: '💰 Model Pembiayaan Singapura',
     illus_government_subsidy: 'Subsidi Kerajaan',
     illus_up_to_75_covered: 'Sehingga 75% Ditanggung',
-    illus_consumer_safeguard_grid: 'Grid Perlindungan Pengguna',
+    illus_consumer_safeguard_grid: '🛡️ Grid Perlindungan Pengguna',
     illus_active_policies_note: 'Polisi aktif tidak boleh diubah, dibatalkan, atau dinaikkan harga sama sekali.',
-    illus_liver_ldl_clearance: 'Pembersihan LDL Hati',
+    illus_liver_ldl_clearance: '🧪 Pembersihan LDL Hati',
     illus_statins_boost_note: 'Statin meningkatkan reseptor kitar semula pada sel hati, menarik kolesterol daripada darah.',
-    illus_family_cascade_tree: 'Salasilah Saringan Lata Keluarga',
+    illus_family_cascade_tree: '🌳 Salasilah Saringan Lata Keluarga',
     illus_index_patient: 'Pesakit Indeks (Anda)',
     illus_inheritance_prob: '│ (50% kebarangkalian warisan)',
     illus_parents: 'Ibu Bapa',
@@ -1549,25 +1527,14 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     faq_category_testing: '检测',
     faq_category_medication: '药物',
     edu_did_you_know: '您知道吗？',
-    edu_for_you_badge: '为您推荐',
-    edu_stat_prevalence_val: '1 / 250',
-    edu_stat_prevalence_lbl: '新加坡本地人患有 FH',
-    edu_stat_undiagnosed_val: '~90%',
-    edu_stat_undiagnosed_lbl: '本地患者尚未被确诊',
-    edu_stat_risk_val: '高达 80%',
-    edu_stat_risk_lbl: '早期预防降低心血管风险',
-    edu_stat_family_val: '50%',
-    edu_stat_family_lbl: '直系亲属遗传概率',
-    edu_stat_subsidies_val: '高达 75%',
-    edu_stat_subsidies_lbl: '卫生部 MOH 直接医疗津贴',
-    edu_stat_cost_val: '5–5',
-    edu_stat_cost_lbl: '个人自付款项（可扣 MediSave）',
-    edu_stat_insurance_val: '0%',
-    edu_stat_insurance_lbl: '对已生效商业保单的影响',
-    edu_stat_meds_val: '30+ 年',
-    edu_stat_meds_lbl: '他汀类药物临床安全验证',
-    edu_stat_testing_val: '4–6 周',
-    edu_stat_testing_lbl: '临床专科 DNA 报告周期',
+    edu_stat1_label: '新加坡人患有FH',
+    edu_stat1_body: '比大多数人意识到的更常见——超过22,000名新加坡人受到影响。',
+    edu_stat2_label: '未被诊断',
+    edu_stat2_body: '10人中有9人患有FH却不知道自己有这种病。',
+    edu_stat3_label: '降低心脏风险',
+    edu_stat3_body: '早期诊断和简单治疗能产生很大的积极影响。',
+    edu_stat4_label: '家族风险',
+    edu_stat4_body: '每位父母、兄弟姐妹或子女都有50%的遗传概率。',
     edu_learning_hub: '学习中心',
     edu_modules_summary: '3 个模块 • 6 个主题',
     edu_group_basics_title: '了解FH与药物',
@@ -1718,19 +1685,19 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     concern_test_desc: '了解基因检测前、检测中和检测后会发生什么。',
     
     // New Illustration/Comparison Card Keys
-    illus_clinical_testing_flow: '临床检测流程',
+    illus_clinical_testing_flow: '📋 临床检测流程',
     illus_step_booked: '1. 已预约',
     illus_step_consult: '2. 咨询',
     illus_step_blood_draw: '3. 采血',
     illus_step_results: '4. 报告出炉',
-    illus_singapore_financing_model: '新加坡医疗融资模式',
+    illus_singapore_financing_model: '💰 新加坡医疗融资模式',
     illus_government_subsidy: '政府津贴',
     illus_up_to_75_covered: '最高涵盖 75%',
-    illus_consumer_safeguard_grid: '消费者保障网',
+    illus_consumer_safeguard_grid: '🛡️ 消费者保障网',
     illus_active_policies_note: '生效中的保单绝不能被修改、取消或重新定价。',
-    illus_liver_ldl_clearance: '肝脏 LDL 清除机制',
+    illus_liver_ldl_clearance: '🧪 肝脏 LDL 清除机制',
     illus_statins_boost_note: '他汀类药物可增加肝细胞表面的受体数量，从而加速从血液中清除胆固醇。',
-    illus_family_cascade_tree: '家族级联筛查树',
+    illus_family_cascade_tree: '🌳 家族级联筛查树',
     illus_index_patient: '索引患者（您）',
     illus_inheritance_prob: '│ (50% 遗传概率)',
     illus_parents: '父母',
@@ -2130,25 +2097,14 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     faq_category_testing: 'பரிசோதனை',
     faq_category_medication: 'மருந்து',
     edu_did_you_know: 'உங்களுக்கு தெரியுமா?',
-    edu_for_you_badge: 'உங்களுக்காக',
-    edu_stat_prevalence_val: '250இல் 1',
-    edu_stat_prevalence_lbl: 'சிங்கப்பூரர்களுக்கு FH உள்ளது',
-    edu_stat_undiagnosed_val: '~90%',
-    edu_stat_undiagnosed_lbl: 'கண்டறியப்படாமல் உள்ளனர்',
-    edu_stat_risk_val: '80% வரை',
-    edu_stat_risk_lbl: 'இதய அபாயம் குறையும்',
-    edu_stat_family_val: '50%',
-    edu_stat_family_lbl: 'குடும்ப உறுப்பினர்கள் அபாயம்',
-    edu_stat_subsidies_val: '75% வரை',
-    edu_stat_subsidies_lbl: 'MOH நேரடி அரசு மானியம்',
-    edu_stat_cost_val: '5–5',
-    edu_stat_cost_lbl: 'வழக்கமான ரொக்கச் செலவு',
-    edu_stat_insurance_val: '0%',
-    edu_stat_insurance_lbl: 'தற்போதுள்ள காப்பீட்டில் தாக்கம்',
-    edu_stat_meds_val: '30+ ஆண்டுகள்',
-    edu_stat_meds_lbl: 'ஸ்டாடின் பாதுகாப்பு சான்று',
-    edu_stat_testing_val: '4–6 வாரங்கள்',
-    edu_stat_testing_lbl: 'டிஎன்ஏ அறிக்கை காலம்',
+    edu_stat1_label: 'சிங்கப்பூரர்களுக்கு FH உள்ளது',
+    edu_stat1_body: 'பெரும்பாலானோர் நினைப்பதை விட அதிகம் — 22,000க்கும் மேற்பட்ட சிங்கப்பூரர்கள் பாதிக்கப்பட்டுள்ளனர்.',
+    edu_stat2_label: 'கண்டறியப்படவில்லை',
+    edu_stat2_body: 'FH உள்ள 10 பேரில் 9 பேருக்கு தங்களுக்கு இது இருப்பதாக தெரியாது.',
+    edu_stat3_label: 'இதய அபாயம் குறைவு',
+    edu_stat3_body: 'ஆரம்ப நோயறிதல் மற்றும் எளிய சிகிச்சை மிகவும் பெரிய மாற்றத்தை ஏற்படுத்துகின்றன.',
+    edu_stat4_label: 'குடும்ப அபாயம்',
+    edu_stat4_body: 'ஒவ்வொரு பெற்றோர், உடன்பிறந்தவர் அல்லது குழந்தைக்கும் 50% மரபு வாய்ப்பு உள்ளது.',
     edu_learning_hub: 'கற்றல் மையம்',
     edu_modules_summary: '3 தொகுதிகள் • 6 தலைப்புகள்',
     edu_group_basics_title: 'FH மற்றும் மருந்துகளை புரிந்துகொள்ளுங்கள்',
@@ -2299,19 +2255,19 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     concern_test_desc: 'மரபணு சோதனைக்கு முன், அதன் போது மற்றும் அதற்குப் பிறகு என்ன நடக்கும் என்பதை அறிந்து கொள்ளுங்கள்.',
     
     // New Illustration/Comparison Card Keys
-    illus_clinical_testing_flow: 'மருத்துவ பரிசோதனை ஓட்டம்',
+    illus_clinical_testing_flow: '📋 மருத்துவ பரிசோதனை ஓட்டம்',
     illus_step_booked: '1. பதிவு செய்யப்பட்டது',
     illus_step_consult: '2. ஆலோசனை',
     illus_step_blood_draw: '3. இரத்த மாதிரி',
     illus_step_results: '4. முடிவுகள்',
-    illus_singapore_financing_model: 'சிங்கப்பூர் நிதி மாதிரி',
+    illus_singapore_financing_model: '💰 சிங்கப்பூர் நிதி மாதிரி',
     illus_government_subsidy: 'அரசு மானியம்',
     illus_up_to_75_covered: '75% வரை மறைக்கப்படும்',
-    illus_consumer_safeguard_grid: 'நுகர்வோர் பாதுகாப்பு கட்டம்',
+    illus_consumer_safeguard_grid: '🛡️ நுகர்வோர் பாதுகாப்பு கட்டம்',
     illus_active_policies_note: 'செயலில் உள்ள காப்பீடுகளை மாற்றவோ, ரத்து செய்யவோ அல்லது பிரீமியத்தை உயர்த்தவோ முடியாது.',
-    illus_liver_ldl_clearance: 'கல்லீரல் LDL சுத்திகரிப்பு',
+    illus_liver_ldl_clearance: '🧪 கல்லீரல் LDL சுத்திகரிப்பு',
     illus_statins_boost_note: 'ஸ்டேடின்கள் கல்லீரல் உயிரணுக்களில் உள்ள ஏற்பிகளை அதிகரித்து, இரத்தத்திலிருந்து கொழுப்பை ஈர்க்கின்றன.',
-    illus_family_cascade_tree: 'குடும்பப் பரிசோதனை மரம்',
+    illus_family_cascade_tree: '🌳 குடும்பப் பரிசோதனை மரம்',
     illus_index_patient: 'குறியீட்டு நோயாளி (நீங்கள்)',
     illus_inheritance_prob: '│ (50% பரம்பரை சாத்தியம்)',
     illus_parents: 'பெற்றோர்',
@@ -2352,6 +2308,107 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_faq_meds_q: "சோதனையின் போது நான் கொலஸ்ட்ரால் மருந்து உட்கொள்வதை நிறுத்தலாமா?",
     edu_faq_meds_a: "இல்லை, உங்கள் மருத்துவர் அறிவுறுத்தாத வரை நீங்கள் பரிந்துரைக்கப்பட்ட மருந்தை உட்கொள்வதை நிறுத்தவோ மாற்றவோ கூடாது. டிஎன்ஏ எந்த மருந்தினாலும் மாறாது.",
   },
+};
+
+// Localized preCounsellingChecklist
+export const getLocalizedChecklist = (
+  lang: Language,
+  familiarity?: string | null,
+  topics: string[] = [],
+  concerns: string[] = []
+) => {
+  const t = (key: string): string => {
+    return UI_TRANSLATIONS[lang]?.[key] || UI_TRANSLATIONS['en']?.[key] || key;
+  };
+
+  // 1. Mandatory items (always shown)
+  const items = [
+    { id: 'mandatory_nric', text: t('mandatory_nric'), checked: false, isPersonalized: false },
+    { id: 'mandatory_meds', text: t('mandatory_meds'), checked: false, isPersonalized: false },
+  ];
+
+  // If onboarding is completed (or details are provided), add personalized tasks
+  if (familiarity) {
+    // 2. Knowledge-based preparation tasks
+    if (familiarity === 'new' || familiarity === 'beginner') {
+      items.push({ id: 'knowledge_new', text: t('knowledge_new'), checked: false, isPersonalized: true });
+    } else if (familiarity === 'little' || familiarity === 'research' || familiarity === 'intermediate') {
+      items.push({ id: 'knowledge_little_research', text: t('knowledge_little_research'), checked: false, isPersonalized: true });
+    } else if (familiarity === 'advanced') {
+      items.push({ id: 'knowledge_advanced', text: t('knowledge_advanced'), checked: false, isPersonalized: true });
+    }
+
+    // 3. Topic-based preparation tasks
+    if (
+      topics.includes('topic-costs') ||
+      topics.includes('topic-subsidies') ||
+      topics.includes('costs-subsidies') ||
+      topics.includes('costs')
+    ) {
+      items.push({ id: 'topic_costs', text: t('topic_costs'), checked: false, isPersonalized: true });
+    }
+    if (
+      topics.includes('topic-insurance') ||
+      topics.includes('insurance-rights') ||
+      topics.includes('insurance')
+    ) {
+      items.push({ id: 'topic_insurance', text: t('topic_insurance'), checked: false, isPersonalized: true });
+    }
+    if (
+      topics.includes('topic-family') ||
+      topics.includes('cascade-screening') ||
+      topics.includes('family')
+    ) {
+      items.push({ id: 'topic_family', text: t('topic_family'), checked: false, isPersonalized: true });
+    }
+    if (
+      topics.includes('topic-treatment') ||
+      topics.includes('topic-medication') ||
+      topics.includes('treatment-medication') ||
+      topics.includes('medication')
+    ) {
+      items.push({ id: 'topic_treatment', text: t('topic_treatment'), checked: false, isPersonalized: true });
+    }
+
+    // 4. Concern-based preparation tasks
+    if (
+      concerns.includes('concern-test') ||
+      concerns.includes('concern-testing') ||
+      concerns.includes('testing-process') ||
+      concerns.includes('test')
+    ) {
+      items.push({ id: 'concern_test', text: t('concern_test'), checked: false, isPersonalized: true });
+    }
+    if (
+      concerns.includes('concern-family') ||
+      concerns.includes('family')
+    ) {
+      items.push({ id: 'concern_family', text: t('concern_family'), checked: false, isPersonalized: true });
+    }
+    if (
+      concerns.includes('concern-cost') ||
+      concerns.includes('concern-costs') ||
+      concerns.includes('cost')
+    ) {
+      items.push({ id: 'concern_cost', text: t('concern_cost'), checked: false, isPersonalized: true });
+    }
+    if (
+      concerns.includes('concern-insurance') ||
+      concerns.includes('insurance')
+    ) {
+      items.push({ id: 'concern_insurance', text: t('concern_insurance'), checked: false, isPersonalized: true });
+    }
+  } else {
+    // Fallback/standard items when onboarding is skipped or not completed yet
+    items.push({
+      id: 'prep_review',
+      text: t('edu_checklist_progress_desc') || 'Review Learn section for resources and common questions',
+      checked: false,
+      isPersonalized: false,
+    });
+  }
+
+  return items;
 };
 
 // Localized educationalSections
@@ -2944,7 +3001,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
   const msResources: Record<string, Partial<HelpfulResource>> = {
     'res-7': {
       title: "Kisah Pesakit: Perjuangan Ibu untuk Anak-Anaknya",
-      summary: "Kisah seorang ibu tentang kehidupan dengan FH dan kepentingan saringan awal untuk anak-anaknya.",
+      summary: "Video kisah pesakit yang menyentuh hati berkongsi perspektif ibu tentang kehidupan dengan FH dan harapannya agar dua orang anaknya yang masih kecil disaring awal untuk melindungi masa depan mereka.",
       type: "Kisah Video",
       keywords: ['kisah-pesakit', 'video', 'ibu', 'saringan-pediatrik', 'harapan-keluarga'],
       readingTime: 'Video 6-min',
@@ -2977,7 +3034,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-6': {
       title: "Kisah Pesakit: Hidup dengan FH (Perjalanan Seorang Pemuda)",
-      summary: "Pengalaman seorang pemuda dengan diagnosis FH, saringan genetik, dan memulakan rawatan awal.",
+      summary: "Video pesakit yang memberi inspirasi berkongsi pengalaman seorang pemuda yang didiagnosis dengan FH, mengharungi pengesanan awal, saringan genetik dan memulakan hidup dengan kolesterol tinggi.",
       type: "Kisah Video",
       keywords: ['kisah-pesakit', 'video', 'dewasa-muda', 'pengalaman-hidup'],
       readingTime: 'Video 5-min',
@@ -3002,7 +3059,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-9': {
       title: "Panduan Pengguna: Moratorium Ujian Genetik dan Insurans",
-      summary: "Panduan MOH mengenai moratorium ujian genetik Singapura dan perlindungan insurans.",
+      summary: "Panduan pengguna rasmi Kementerian Kesihatan Singapura yang menerangkan moratorium kebangsaan, bagaimana keputusan ujian genetik mempengaruhi permohonan insurans anda dan hak anda sebagai pengguna.",
       type: "Panduan Klinikal",
       keywords: ['insurans', 'moratorium', 'ujian-genetik', 'hak-pengguna'],
       readingTime: 'Slaid 3-min',
@@ -3019,7 +3076,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-5': {
       title: "Panduan FH Yayasan Jantung Singapura",
-      summary: "Panduan Yayasan Jantung Singapura mengenai risiko FH, kesihatan jantung, dan pengurusan gaya hidup.",
+      summary: "Panduan bermaklumat Yayasan Jantung Singapura mengenai faktor risiko FH, implikasi kardiovaskular dan pengubahsuaian gaya hidup untuk menguruskan kolesterol tinggi genetik.",
       type: "Panduan Klinikal",
       keywords: ['yjs', 'faktor-risiko', 'kesihatan-jantung', 'pencegahan'],
       readingTime: 'Slaid 4-min',
@@ -3036,7 +3093,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-4': {
       title: "Risalah FH Rangkaian Penjagaan Utama",
-      summary: "Panduan Rangkaian Penjagaan Utama mengenai pengesanan FH, risiko genetik, dan pilihan rawatan.",
+      summary: "Risalah pendidikan komprehensif yang diedarkan oleh Rangkaian Penjagaan Utama Singapura untuk pesakit dan keluarga mengenai pengesanan FH, risiko genetik dan pilihan rawatan.",
       type: "Risalah PDF",
       keywords: ['penjagaan-utama', 'risalah', 'panduan-pesakit'],
       readingTime: 'PDF 5-min',
@@ -3052,7 +3109,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-8': {
       title: "Risalah Klinik Penilaian Genomik NHG (GAC)",
-      summary: "Panduan NHG mengenai kaunseling genetik, penilaian risiko, dan ujian DNA.",
+      summary: "Panduan pesakit rasmi Klinik Penilaian Genomik National Healthcare Group mengenai kaunseling genetik klinikal, penilaian risiko dan ujian DNA di Singapura.",
       type: "Risalah PDF",
       keywords: ['nhg', 'gac', 'kaunseling-genetik', 'ujian-dna', 'genomik-klinikal'],
       readingTime: 'PDF 4-min',
@@ -3068,7 +3125,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-1': {
       title: "Pamflet Pesakit FH Klinikal NUHS",
-      summary: "Panduan NUHS menerangkan ujian DNA, risiko jantung, dan pengurusan lipid.",
+      summary: "Pamflet klinikal rasmi National University Health System yang menerangkan mekanik ujian DNA, risiko kardiovaskular dan pengurusan lipid di Singapura.",
       type: "Risalah PDF",
       keywords: ['nuhs', 'panduan-pesakit', 'pamflet-klinikal'],
       readingTime: 'PDF 3-min',
@@ -3084,7 +3141,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-2': {
       title: "Program Ujian Genetik FH Kebangsaan MOH",
-      summary: "Panduan MOH mengenai ujian genetik bersubsidi kebangsaan dan saringan lata.",
+      summary: "Pengumuman akhbar rasmi Kementerian Kesihatan Singapura melancarkan inisiatif ujian DNA klinikal kebangsaan bersubsidi dan saringan lata.",
       type: "Panduan Klinikal",
       keywords: ['moh', 'garis-panduan', 'standard-klinikal'],
       readingTime: 'Slaid 5-min',
@@ -3103,7 +3160,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
   const zhResources: Record<string, Partial<HelpfulResource>> = {
     'res-7': {
       title: "患者故事：一位母亲为孩子们的奋斗",
-      summary: "一位母亲分享她与 FH 共处的历程，以及为孩子进行早期筛查的重要性。",
+      summary: "感人至深的患者视频，分享了一位母亲对于伴随 FH 生活的看法，以及她希望及早为两个幼儿进行筛查以守护他们未来的期望。",
       type: "视频故事",
       keywords: ['患者故事', '视频', '母亲', '儿童筛查', '家庭希望'],
       readingTime: '6分钟视频',
@@ -3136,7 +3193,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-6': {
       title: "患者故事：伴随 FH 生活（一个年轻人的旅程）",
-      summary: "一位年轻人确诊 FH、进行基因筛查以及早期接受治疗的亲身经历。",
+      summary: "具有启发性的患者视频，分享了一位被诊断患有 FH 的年轻人的经历，讲述了他如何应对早期发现、基因筛查以及如何在伴随高胆固醇的情况下开启人生。",
       type: "视频故事",
       keywords: ['患者故事', '视频', '年轻成人', '亲身经历'],
       readingTime: '5分钟视频',
@@ -3161,7 +3218,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-9': {
       title: "消费者指南：基因检测与保险暂行停征令",
-      summary: "新加坡卫生部关于基因检测暂停禁令及保险权益保障的官方指南。",
+      summary: "新加坡卫生部官方消费者指南，详细阐述了国家暂行停征令、基因检测结果如何影响您的保险申请，以及您作为消费者的合法权益。",
       type: "临床指南",
       keywords: ['保险', '停征令', '基因检测', '消费者权益'],
       readingTime: '3分钟阅读',
@@ -3178,7 +3235,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-5': {
       title: "新加坡心脏基金会 FH 指南",
-      summary: "新加坡心脏基金会关于 FH 风险、心脏健康及生活方式管理的指南。",
+      summary: "新加坡心脏基金会提供的信息指南，介绍 FH 的危险因素、心血管影响以及管理基因遗传性高胆固醇的生活方式改善方法。",
       type: "临床指南",
       keywords: ['心脏基金会', '危险因素', '心脏健康', '预防措施'],
       readingTime: '4分钟阅读',
@@ -3195,7 +3252,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-4': {
       title: "基层医疗 FH 教育手册",
-      summary: "基层医疗网络关于 FH 检测、基因风险及治疗方案的教育指南。",
+      summary: "新加坡基层医疗网络为患者和家属分发的综合教育手册，包含 FH 检测、基因风险和治疗方案选择。",
       type: "PDF 宣传册",
       keywords: ['基层医疗', '宣传册', '患者手册'],
       readingTime: '5分钟阅读',
@@ -3211,7 +3268,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-8': {
       title: "NHG 基因组评估诊所 (GAC) 宣传册",
-      summary: "国立健康集团关于基因咨询、风险评估及 DNA 检测的指南。",
+      summary: "国家健康集团 (NHG) 官方基因组评估诊所患者指南，内容涉及新加坡的临床基因咨询、风险评估和 DNA 检测。",
       type: "PDF 宣传册",
       keywords: ['国家健康集团', '基因咨询诊所', '基因咨询', 'DNA检测', '临床基因组学'],
       readingTime: '4分钟阅读',
@@ -3227,7 +3284,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-1': {
       title: "NUHS 临床 FH 患者手册",
-      summary: "新加坡国立大学医学组织关于 DNA 检测、心脏风险及血脂管理的指南。",
+      summary: "国立大学医学组织 (NUHS) 官方临床手册，解释了新加坡的 DNA 检测机制、心血管风险和血脂管理。",
       type: "PDF 宣传册",
       keywords: ['国立大学医学组织', '患者手册', '临床手册'],
       readingTime: '3分钟阅读',
@@ -3243,7 +3300,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-2': {
       title: "新加坡卫生部 (MOH) 国家 FH 基因检测计划",
-      summary: "新加坡卫生部关于国家基因检测及家族级联筛查指南。",
+      summary: "新加坡卫生部官方新闻公告，正式启动了享受政府补贴的国家临床 DNA 检测以及家族级联筛查计划。",
       type: "临床指南",
       keywords: ['卫生部', '指南规范', '临床标准'],
       readingTime: '5分钟阅读',
@@ -3262,7 +3319,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
   const taResources: Record<string, Partial<HelpfulResource>> = {
     'res-7': {
       title: "நோயாளி கதை: தன் குழந்தைகளுக்காக ஒரு தாயின் போராட்டம்",
-      summary: "FH உடன் வாழும் அனுபவம் மற்றும் தன் குழந்தைகளுக்கு ஆரம்பத்திலேயே பரிசோதனை செய்வதன் முக்கியத்துவத்தை ஒரு தாய் பகிர்ந்து கொள்கிறார்.",
+      summary: "FH உடன் வாழ்வது குறித்த தாயின் பார்வையை விவரிக்கும் ஒரு மனதைத் தொடும் வீடியோ கதை மற்றும் அவர்களின் எதிர்காலத்தைப் பாதுகாக்க தனது இரு குழந்தைகளையும் ஆரம்பத்திலேயே பரிசோதிக்க வேண்டும் என்ற அவரது நம்பிக்கை.",
       type: "வீடியோ கதை",
       keywords: ['நோயாளி-கதை', 'வீடியோ', 'தாய்', 'குழந்தைகள்-பரிசோதனை', 'குடும்ப-நம்பிக்கை'],
       readingTime: '6-நிமிடம் வீடியோ',
@@ -3287,7 +3344,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-6': {
       title: "நோயாளி கதை: FH உடன் வாழ்வது (ஒரு இளைஞனின் பயணம்)",
-      summary: "FH கண்டறிதல், மரபணு பரிசோதனை மற்றும் ஆரம்பக்கால சிகிச்சை பற்றிய ஒரு இளைஞனின் அனுபவம்.",
+      summary: "FH நோயால் பாதிக்கப்பட்ட ஒரு இளைஞனின் அனுபவம், ஆரம்பக்கால கண்டறிதல், மரபணு பரிசோதனை மற்றும் அதிக கொழுப்புடன் வாழ்க்கையைத் தொடங்குதல் ஆகியவற்றைப் பகிர்ந்து கொள்ளும் ஒரு சக்திவாய்ந்த வீடியோ.",
       type: "வீடியோ கதை",
       keywords: ['நோயாளி-கதை', 'வீடியோ', 'இளைஞர்', 'வாழ்நாள்-அனுபவம்'],
       readingTime: '5-நிமிடம் வீடியோ',
@@ -3312,7 +3369,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-9': {
       title: "நுகர்வோர் வழிகாட்டி: மரபணு சோதனை மற்றும் காப்பீடு மீதான தற்காலிகத் தடை",
-      summary: "சிங்கப்பூரின் மரபணு பரிசோதனை தற்காலிகத் தடை மற்றும் காப்பீட்டு பாதுகாப்புகள் பற்றிய MOH வழிகாட்டி.",
+      summary: "தேசிய தற்காலிகத் தடையை விளக்கும் சிங்கப்பூர் சுகாதார அமைச்சகத்தின் அதிகாரப்பூர்வ நுகர்வோர் வழிகாட்டி, மரபணு சோதனை முடிவுகள் உங்கள் காப்பீட்டு விண்ணப்பங்களை எவ்வாறு பாதிக்கின்றன மற்றும் ஒரு நுகர்வோராக உங்களுக்கான உரிமைகள்.",
       type: "மருத்துவ வழிகாட்டி",
       keywords: ['காப்பீடு', 'தற்காலிக-தடை', 'மரபணு-சோதனை', 'நுகர்வோர்-உரிமைகள்'],
       readingTime: '3-நிமிடம் வாசிப்பு',
@@ -3328,7 +3385,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-5': {
       title: "சிங்கப்பூர் இதய அறக்கட்டளை FH வழிகாட்டி",
-      summary: "FH ஆபத்துகள், இதய ஆரோக்கியம் மற்றும் வாழ்க்கை முறை நிர்வாகம் பற்றிய சிங்கப்பூர் இதய அறக்கட்டளை வழிகாட்டி.",
+      summary: "FH ஆபத்து காரணிகள், இருதய பாதிப்புகள் மற்றும் மரபணு சார்ந்த அதிக கொழுப்பை நிர்வகிப்பதற்கான வாழ்க்கை முறை மாற்றங்கள் குறித்த சிங்கப்பூர் இதய அறக்கட்டளையின் தகவல் வழிகாட்டி.",
       type: "மருத்துவ வழிகாட்டி",
       keywords: ['இதய-அறக்கட்டளை', 'ஆபத்து-காரணிகள்', 'இதய-ஆரோக்கியம்', 'தடுப்பு'],
       readingTime: '4-நிமிடம் வாசிப்பு',
@@ -3344,7 +3401,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-4': {
       title: "ஆரம்ப சுகாதார FH கையேடு",
-      summary: "FH கண்டறிதல், மரபணு ஆபத்துகள் மற்றும் சிகிச்சை முறைகள் பற்றிய முதன்மை பராமரிப்பு வழிகாட்டி.",
+      summary: "சிங்கப்பூர் ஆரம்ப சுகாதார வலையமைப்பால் விநியோகிக்கப்படும் விரிவான கல்வி கையேடு, நோயாளிகள் மற்றும் குடும்பங்களுக்கு FH கண்டறிதல், மரபணு அபாயங்கள் மற்றும் சிகிச்சை விருப்பங்கள் பற்றி விளக்குகிறது.",
       type: "PDF கையேடு",
       keywords: ['ஆரம்ப-சுகாதாரம்', 'கையேடு', 'நோயாளி-கைநூல்'],
       readingTime: '5-நிமிடம் வாசிப்பு',
@@ -3360,7 +3417,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-8': {
       title: "NHG மரபணு மதிப்பீட்டு மருத்துவமனை (GAC) கையேடு",
-      summary: "மரபணு ஆலோசனை, ஆபத்து மதிப்பீடு மற்றும் டிஎன்ஏ பரிசோதனை பற்றிய NHG வழிகாட்டி.",
+      summary: "சிங்கப்பூரில் உள்ள மருத்துவ மரபணு ஆலோசனை, ஆபத்து மதிப்பீடு மற்றும் DNA பரிசோதனை பற்றிய நேஷனல் ஹெல்த்கேர் குரூப்பின் (NHG) அதிகாரப்பூர்வ மரபணு மதிப்பீட்டு மருத்துவமனை நோயாளி வழிகாட்டி.",
       type: "PDF கையேடு",
       keywords: ['nhg', 'gac', 'மரபணு-ஆலோசனை', 'DNA-பரிசோதனை', 'மருத்துவ-மரபணுவியல்'],
       readingTime: '4-நிமிடம் வாசிப்பு',
@@ -3375,7 +3432,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-1': {
       title: "NUHS மருத்துவ FH நோயாளி துண்டுப்பிரசுரம்",
-      summary: "டிஎன்ஏ பரிசோதனை, இதய ஆபத்து மற்றும் கொழுப்பு நிர்வாகம் பற்றிய NUHS வழிகாட்டி.",
+      summary: "சிங்கப்பூரில் DNA சோதனை முறைகள், இருதய ஆபத்து மற்றும் கொழுப்பு மேலாண்மை ஆகியவற்றை விளக்கும் நேஷனல் யுனிவர்சிட்டி ஹெல்த் சிஸ்டத்தின் (NUHS) அதிகாரப்பூர்வ மருத்துவ துண்டுப்பிரசுரம்.",
       type: "PDF கையேடு",
       keywords: ['nuhs', 'நோயாளி-கைநூல்', 'மருத்துவ-துண்டுப்பிரசுரம்'],
       readingTime: '3-நிமிடம் வாசிப்பு',
@@ -3390,9 +3447,9 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-2': {
       title: "MOH தேசிய FH மரபணு சோதனை திட்டம்",
-      summary: "மானியம்பெற்ற தேசிய மரபணு பரிசோதனை மற்றும் கேஸ்கேட் பரிசோதனை பற்றிய MOH வழிகாட்டி.",
+      summary: "மானியம் வழங்கப்பட்ட தேசிய மருத்துவ DNA சோதனை மற்றும் அடுக்கு முறை சல்லடை பரிசோதனை முயற்சியைத் தொடங்கும் சிங்கப்பூர் சுகாதார அமைச்சகத்தின் அதிகாரப்பூர்வ செய்தி அறிவிப்பு.",
       type: "மருத்துவ வழிகாட்டி",
-      keywords: ['moh', 'வழிகாட்டுதல்கள்', 'மருத்துவ-தரநிலه‌ها'],
+      keywords: ['moh', 'வழிகாட்டுதல்கள்', 'மருத்துவ-தரநிலைகள்'],
       readingTime: '5-நிமிடம் வாசிப்பு',
       pages: [
         {

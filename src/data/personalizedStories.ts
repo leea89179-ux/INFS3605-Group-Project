@@ -19,8 +19,8 @@ export const STORIES: Record<string, LocalizedStory> = {
     en: {
       title: "A Family Screening Journey",
       videoLabel: "Patient Experience Story (Zack, 34)",
-      subtitle: "How one family protected their next generation.",
-      summary: "",
+      subtitle: "Learn how one family discovered FH and protected their next generation.",
+      summary: "", // Will be dynamically selected based on knowledgeLevel
       frames: [
         "After my diagnosis, I learned my siblings and kids each have a 50% chance of inheriting the FH gene variant.",
         "My counsellor provided supportive referral letters, making it easy to explain the condition to my relatives.",
@@ -37,7 +37,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     ms: {
       title: "Perjalanan Saringan Keluarga",
       videoLabel: "Kisah Pengalaman Pesakit (Zack, 34)",
-      subtitle: "Bagaimana satu keluarga melindungi generasi seterusnya.",
+      subtitle: "Bagaimana satu keluarga menemui FH dan melindungi generasi seterusnya.",
       summary: "",
       frames: [
         "Selepas diagnosis saya, adik-beradik dan anak-anak saya masing-masing mempunyai peluang 50% untuk mewarisi varian gen FH.",
@@ -55,7 +55,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     zh: {
       title: "家系筛查与关爱之旅",
       videoLabel: "患者体验故事 (Zack, 34)",
-      subtitle: "一个家庭如何共同守护下一代的心脏健康。",
+      subtitle: "了解一个家庭如何共同应对FH，守护下一代的心脏健康。",
       summary: "",
       frames: [
         "确诊后，我了解到我的兄弟姐妹和孩子们都有 50% 的概率遗传相同的 FH 基因变异。",
@@ -64,28 +64,28 @@ export const STORIES: Record<string, LocalizedStory> = {
         "现在我们共同管理。全家携手采取预防性措施，消除恐慌，让每个人都保持健康。"
       ],
       transcript: [
-        "大家好，我是 Zack。当我被确诊为 FH 时，我首先想到的是我的家人。遗传咨询师解释说，直系亲属都有 50% 的概率携带相同的致病基因。这听起来有些沉重，但团队鼓励我，这份知情权是保护他们的有力武器。",
-        "他们给了我简明易懂的家庭沟通指南和打印好的亲属告知信。这让对话变得简单得多，我不必亲自去解释那些复杂的医学名词。",
-        "我的姐姐和哥哥拿着告知信去了最近的诊所。得益于卫生部 (MOH) 对家系筛查的特别补贴，他们的自费金额极低。姐姐查出了相同变异，而哥哥很幸运指标正常。因为发现得早，姐姐立刻开始了早期保护性治疗。",
-        "现在，我们全家互相支持、共同关注心脏健康。基因筛查没有带来隔阂，反而让我们靠得更近。这不是为了去指责谁，而是给爱的人一个畅享长寿健康生活的机会。"
+        "大家好，我是 Zack。当我被确诊为 FH 时，我首先想到的是我的家人。咨询师解释说，FH 遵循显性遗传规律，这意味着我的父母、兄弟姐妹和孩子们各有 50% 的概率也携带这一基因。起初我感到很沉重，但医疗团队安慰我，这种遗传学认知其实是保护他们的一把保护伞。",
+        "他们给了我一份简明的家庭指南和专为亲属定制的转诊告知信。这让沟通变得容易得多，因为我不需要自己去解释那些复杂的医学术语。它被呈现为一项主动的预防性健康检查，而不是家庭的负担。",
+        "我的姐姐和弟弟拿着这些信去了最近的诊所。得益于卫生部 (MOH) 提供的家系筛查专项补贴，他们的实际自付费用非常低。结果姐姐被检测出携带变异，而弟弟则完全正常。因为发现得早，姐姐立即启动了温和的预防性治疗。",
+        "现在，我们每天都互相督促，共同保持心脏健康。全家人一起直面遗传特征，反倒让我们的纽带更加紧密。这绝不是为了怪罪任何人，而是为了给我们所爱的人一个健康、长寿的机会。"
       ]
     },
     ta: {
       title: "குடும்பப் பரிசோதனைப் பயணம்",
       videoLabel: "நோயாளி அனுபவக் கதை (Zack, 34)",
-      subtitle: "ஒரு குடும்பம் தங்களின் அடுத்த தலைமுறையை எவ்வாறு பாதுகாத்தது.",
+      subtitle: "ஒரு குடும்பம் எவ்வாறு FH-ஐக் கண்டறிந்து தங்களின் அடுத்த தலைமுறையைப் பாதுகாத்தது.",
       summary: "",
       frames: [
         "எனக்கு கண்டறியப்பட்ட பிறகு, என் உடன்பிறப்புகள் மற்றும் குழந்தைகளுக்கு FH மரபணு இருக்க 50% வாய்ப்பு உள்ளதை அறிந்தேன்.",
         "என் ஆலோசகர் பரிந்துரைக் கடிதங்களை வழங்கினார், இது என் உறவினர்களுக்கு விளக்குவதை எளிதாக்கியது.",
         "என் உடன்பிறப்புகள் பொது மருத்துவமனைகளில் மானியத்துடன் கூடிய பரிசோதனை செய்து, முன்கூட்டியே கண்டறிந்தனர்.",
-        "நாங்கள் இப்போது அதை இணைந்து நிர்வகிக்கிறோம். குடும்பமாக எடுக்கும் முன்முயற்சி பயத்தைப் போக்குகிறது."
+        "நாங்கள் இப்போது அதை இணைந்து நிர்வகிக்கிறோம். குடும்பமாக முன்னெச்சரிக்கை நடவடிக்கை எடுப்பது பயத்தைப் போக்குகிறது."
       ],
       transcript: [
-        "வணக்கம், நான் Zack. எனக்கு FH கண்டறியப்பட்டபோது, எனது முதல் எண்ணம் எனது குடும்பத்தைப் பற்றியது. என் குடும்பத்தினருக்கும் 50% வாய்ப்பு உள்ளது என்று ஆலோசகர் விளக்கிய போது, அது பாரமாக இருந்தது. ஆனால் இந்த அறிவு அவர்களைப் பாதுகாக்கும் சக்தி வாய்ந்தது என்பதை உணர்ந்தேன்.",
-        "அவர்கள் எனக்கு எளிய குடும்ப வழிகாட்டியையும் எனது உறவினர்களுக்கான பரிந்துரைக் கடிதங்களையும் வழங்கினர். இது சிக்கலான மருத்துவச் சொற்களை நானே விளக்க வேண்டிய அவசியமின்றி பேச உதவியது.",
-        "என் சகோதரியும் சகோதரரும் கடிதங்களை மருத்துவமனைக்கு எடுத்துச் சென்றனர். MOH இன் மானியங்களுக்கு நன்றி, அவர்களின் செலவு மிகக் குறைவாக இருந்தது. என் சகோதரிக்கு தொற்று இருப்பது உறுதிசெய்யப்பட்டு, சிகிச்சை உடனடியாகத் தொடங்கியது.",
-        "இன்று, நாங்கள் எங்கள் இதயங்களை ஆரோக்கியமாக வைத்திருக்க ஒருவருக்கொருவர் ஆதரவளிக்கிறோம். இது யாரையும் குற்றம் சாட்டுவது பற்றியது அல்ல; நீங்கள் நேசிக்கும் மக்களுக்கு நீண்ட, ஆரோக்கியமான வாழ்க்கையை வாழ்வதற்கான வாய்ப்பை வழங்குவது பற்றியது."
+        "வணக்கம், நான் Zack. எனக்கு FH இருப்பதாகக் கண்டறியப்பட்டபோது, என் முதல் எண்ணம் என் குடும்பத்தைப் பற்றியதுதான். FH என்பது ஒருவருக்கு இருந்தால் அவரது பெற்றோர், உடன்பிறப்புகள் மற்றும் குழந்தைகளுக்கு 50% வாய்ப்பு இருப்பதாக ஆலோசகர் விளக்கினார். ஆரம்பத்தில் கவலையாக இருந்தது, ஆனால் அவர்களைப் பாதுகாக்க இந்த அறிவு உதவும் என மருத்துவக் குழுவினர் கூறினர்.",
+        "அவர்கள் எனக்கு ஒரு எளிய குடும்ப வழிகாட்டியையும் உறவினர்களுக்கான பரிந்துரைக் கடிதங்களையும் வழங்கினர். இது உரையாடலை எளிதாக்கியது, ஏனெனில் நான் சிக்கலான மருத்துவ சொற்களை விளக்க வேண்டிய அவசியமில்லை. இது ஒரு எளிய முன்கூட்டிய பரிசோதனையாகக் காட்டப்பட்டது.",
+        "என் சகோதரியும் சகோதரனும் கடிதங்களை எடுத்துக்கொண்டு அருகில் உள்ள மருத்துவமனைக்குச் சென்றனர். MOH மானியங்கள் காரணமாக, அவர்களின் செலவு மிகவும் குறைவாகவே இருந்தது. என் சகோதரிக்கு மரபணு இருப்பது உறுதியானது, சகோதரனுக்கு இல்லை. முன்கூட்டியே கண்டறிந்ததால், அவள் உடனே சிகிச்சையைத் தொடங்கினாள்.",
+        "இன்று, நாங்கள் எங்கள் இதயங்களை ஆரோக்கியமாக வைத்திருக்க ஒருவருக்கொருவர் ஆதரவளிக்கிறோம். மரபணுக்களை ஒன்றாக ஆராய்ந்தது எங்களை நெருக்கமாக்கியுள்ளது. இது யாரையும் குற்றம் சாட்டுவதற்காக அல்ல; நாம் நேசிக்கும் நபர்களுக்கு ஆரோக்கியமான வாழ்வை வழங்குவதற்காகும்."
       ]
     }
   },
@@ -93,12 +93,12 @@ export const STORIES: Record<string, LocalizedStory> = {
     en: {
       title: "What to Expect During Genetic Testing",
       videoLabel: "Clinical Journey (May, 28)",
-      subtitle: "What happens before, during, and after testing.",
+      subtitle: "A step-by-step visual guide of what happens before, during, and after the test.",
       summary: "",
       frames: [
         "Before: A 30-minute counselling session to map your family history and answer any questions.",
-        "During: A quick, standard outpatient blood draw at the clinic.",
-        "After: Specialized lab analysis takes 4 to 6 weeks to map FH gene variants.",
+        "During: A standard, quick blood draw or saliva collection at the outpatient clinic.",
+        "After: Specialized laboratory analysis takes 4 to 6 weeks to map specific FH gene variants.",
         "Follow-up: A personalized consultation to discuss results and outline a tailored heart plan."
       ],
       transcript: [
@@ -111,7 +111,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     ms: {
       title: "Apa yang Dijangka Semasa Ujian Genetik",
       videoLabel: "Perjalanan Klinikal (May, 28)",
-      subtitle: "Alur proses sebelum, semasa, dan selepas ujian.",
+      subtitle: "Panduan visual langkah demi langkah sebelum, semasa, dan selepas ujian.",
       summary: "",
       frames: [
         "Sebelum: Sesi kaunseling 30 minit untuk memetakan sejarah keluarga dan menjawab soalan anda.",
@@ -129,7 +129,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     zh: {
       title: "基因检测流程与体验",
       videoLabel: "临床体验 (May, 28)",
-      subtitle: "检测前、检测中、检测后的简明指南。",
+      subtitle: "为您详细拆解检测前、检测中、检测后的全流程视觉指南。",
       summary: "",
       frames: [
         "检测前：大约 30 分钟的温馨咨询，绘制您的家族健康树并解答所有疑问。",
@@ -147,7 +147,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     ta: {
       title: "மரபணு சோதனையின் போது என்ன எதிர்பார்ப்பது",
       videoLabel: "மருத்துவப் பயணம் (May, 28)",
-      subtitle: "சோதனைக்கு முன், போது மற்றும் பின் என்ன நடக்கும்.",
+      subtitle: "சோதனைக்கு முன், போது மற்றும் பின் என்ன நடக்கும் என்பதற்கான படிப்படியான எளிய வழிகாட்டி.",
       summary: "",
       frames: [
         "முன்: குடும்ப வரலாற்றை வரையவும் சந்தேகங்களைத் தீர்க்கவும் 30 நிமிட ஆலோசனை அமர்வு.",
@@ -157,9 +157,9 @@ export const STORIES: Record<string, LocalizedStory> = {
       ],
       transcript: [
         "வணக்கம், நான் May. எனது மரபணு சோதனை அனுபவத்தை உங்களுடன் பகிர்ந்து கொள்ள விரும்புகிறேன், ஏனெனில் சோதனைக்கு முன் நான் மிகவும் கவலையாக இருந்தேன். இந்த செயல்முறை முற்றிலும் வெளிநோயாளியாக செய்யப்படுகிறது மற்றும் மூன்று எளிய படிகளைக் கொண்டது. முதலில் உங்கள் குடும்ப வரலாற்றை ஆராய்ந்து சந்தேகங்களுக்கு பதிலளிக்க ஆலோசகர் உதவுவார்.",
-        "பரிசோதனை மிகவும் எளிதானது—சாதாரண 10 நிமிட இரத்த பரிசோதனை மட்டுமே. உண்ணாவிரதம் இருக்க வேண்டிய அவசியமில்லை.",
-        "மாதிரி பெறப்பட்ட பிறகு 4 முதல் 6 வாரங்களில் முடிவுகள் கிடைக்கும்.",
-        "இறுதியாக மருத்துவர் முடிவுகளை விளக்கி உங்களுக்கான பாதுகாப்புத் திட்டத்தை வகுப்பார்."
+        "பரிசோதனை மிகவும் எளிதானது—சாதாரண 10 நிமிட இரத்த பரிசோதனை மட்டுமே. உண்ணாவிரதம் இருக்க வேண்டிய அவசியமில்லை, பரிசோதனைக்கு பின் நீங்கள் உடனடியாக உங்கள் பணிகளைத் தொடரலாம்.",
+        "அடுத்த 4 முதல் 6 வாரங்களில், ஆய்வக நிபுணர்கள் உங்கள் மாதிரியை பகுப்பாய்வு செய்து, முக்கிய மரபணுக்களில் ஏதேனும் மாற்றங்கள் உள்ளதா என ஆராய்வார்கள். காத்திருப்பு காலம் சற்று நீளமாகத் தோன்றினாலும், இது மிகவும் துல்லியமான மருத்துவ வரைபடத்திற்காக செய்யப்படுகிறது.",
+        "இறுதியாக, நீங்கள் முடிவுகளைப் பெற மருத்துவமனைக்கு வருவீர்கள். மருத்துவர் முடிவுகளைத் தெளிவாக விளக்குவார். மரபணு மாறுபாடு இருந்தால், உங்கள் இதயத்தைப் பாதுகாக்கும் மானிய விலையிலான சிகிச்சையை அவர்கள் பரிந்துரைப்பார்கள்."
       ]
     }
   },
@@ -167,73 +167,73 @@ export const STORIES: Record<string, LocalizedStory> = {
     en: {
       title: "Managing FH After Diagnosis",
       videoLabel: "Patient Experience Story (Kumar, 42)",
-      subtitle: "Managing risk with simple daily care.",
+      subtitle: "How monitoring, simple daily medication, and lifestyle keep risk at normal levels.",
       summary: "",
       frames: [
         "Acceptance: Understanding that FH is genetic and standard lifestyle changes alone aren't enough.",
-        "Simple Routine: Adding a daily statin pill keeps your liver from overproducing cholesterol.",
-        "Healthy Balance: Combining daily medication with fiber-rich foods and exercise keeps your heart protected.",
-        "Long-Term Health: Regular blood checks ensure your LDL levels stay safely within the healthy target zone."
+        "Medication: Safe, highly-studied daily therapies like statins help the liver clear bad cholesterol.",
+        "Lifestyle: Incorporating high-fiber foods and regular aerobic exercise builds a strong heart foundation.",
+        "Results: Regular follow-ups show my LDL levels are back in the safe zone, fully protecting my heart."
       ],
       transcript: [
-        "Hello, I'm Kumar. Being diagnosed with FH was a turning point for me. Before my test, I tried extreme diets and intense exercise to bring my cholesterol down, but nothing worked. Understanding that FH is genetic gave me immense clarity—it wasn't my fault, and diet alone couldn't fix it.",
-        "My doctor prescribed a daily statin medication. It works by blocking the enzyme in the liver that produces excess cholesterol. Taking one small pill every night quickly became as natural as brushing my teeth.",
-        "I still eat well and stay active, but now I know my medication is doing the heavy lifting. Together, they reduced my LDL cholesterol by over 50% within just a few months.",
-        "Now, I simply do an annual blood check to monitor my levels. My cholesterol is completely under control, and I live a full, active life without any restrictions."
+        "Hello, Kumar here. When I first got my FH diagnosis, I was worried about being on lifelong medication. I tried strict dieting for six months, but my LDL barely budged. My specialist explained that because FH is genetic, my liver lacks enough receptors to clear cholesterol naturally. It wasn't my fault.",
+        "I started taking a daily statin. It is a highly safe, affordable medication that is heavily subsidized. I had no side effects at all. What it does is simple—it helps my liver work the way it's supposed to, clearing the bad cholesterol from my blood.",
+        "I also focused on lifestyle, not as a replacement for medicine, but to support it. I eat more oats, vegetables, and fish, and walk 30 minutes daily. This combination keeps my blood vessels clean and flexible.",
+        "Now, my LDL is back to a completely normal level. Managing FH has just become a small, simple part of my daily routine, like brushing my teeth. I feel active, strong, and confident that my future is secure."
       ]
     },
     ms: {
       title: "Menguruskan FH Selepas Diagnosis",
       videoLabel: "Kisah Pengalaman Pesakit (Kumar, 42)",
-      subtitle: "Menguruskan risiko dengan penjagaan harian mudah.",
+      subtitle: "Bagaimana pemantauan, ubat harian mudah, dan gaya hidup mengekalkan risiko pada tahap normal.",
       summary: "",
       frames: [
         "Penerimaan: Memahami bahawa FH adalah keturunan dan perubahan gaya hidup biasa sahaja tidak mencukupi.",
-        "Rutin Mudah: Mengambil pil statin harian menghalang hati daripada menghasilkan kolesterol berlebihan.",
-        "Keseimbangan Sihat: Menggabungkan ubat harian dengan makanan berserat dan senaman melindungi jantung anda.",
-        "Kesihatan Jangka Panjang: Pemeriksaan darah berkala memastikan tahap LDL kekal dalam sasaran sihat."
+        "Ubat-ubatan: Terapi harian yang selamat seperti statin membantu hati membersihkan kolesterol buruk.",
+        "Gaya Hidup: Mengamalkan makanan tinggi serat dan senaman aerobik membina asas jantung yang kuat.",
+        "Keputusan: Pemeriksaan berkala menunjukkan tahap LDL kembali ke zon selamat, melindungi jantung sepenuhnya."
       ],
       transcript: [
-        "Helo, saya Kumar. Didiagnosis dengan FH adalah titik perubahan bagi saya. Sebelum ujian, saya mencuba diet ketat dan senaman untuk menurunkan kolesterol, tetapi tidak berkesan. Memahami bahawa FH adalah keturunan memberi kejelasan bahawa ia bukan salah saya.",
-        "Doktor menetapkan ubat statin harian. Ia menghalang enzim di dalam hati daripada menghasilkan kolesterol berlebihan. Mengambil satu pil setiap malam menjadi rutin harian yang mudah.",
-        "Saya kekal aktif dan makan dengan sihat, tetapi ubat adalah kunci utama. Gabungan ini menurunkan kolesterol LDL saya sebanyak lebih 50% dalam masa beberapa bulan sahaja.",
-        "Kini, saya hanya membuat ujian darah tahunan untuk memantau paras kolesterol. Kesihatan saya terkawal dan saya menjalani kehidupan yang aktif."
+        "Helo, Kumar di sini. Apabila pertama kali mendapat diagnosis FH, saya bimbang tentang keperluan mengambil ubat sepanjang hayat. Saya diet ketat selama enam bulan, tetapi LDL hampir tidak berubah. Pakar menerangkan bahawa kerana FH adalah genetik, ia bukan salah gaya hidup saya.",
+        "Saya mula mengambil statin harian. Ia selamat, berpatutan, dan disubsidi tinggi oleh kerajaan. Ia tiada kesan sampingan dan membantu hati membersihkan kolesterol buruk dari darah.",
+        "Saya juga menjaga gaya hidup untuk menyokong ubat. Saya makan oat, sayur, ikan, dan berjalan 30 minit sehari bagi mengekalkan saluran darah yang bersih.",
+        "Kini, LDL saya kembali ke paras normal. Menguruskan FH kini hanya sebahagian kecil rutin harian saya seperti menggosok gigi. Saya berasa cergas dan yakin dengan masa depan saya."
       ]
     },
     zh: {
       title: "确诊后的科学管理",
       videoLabel: "患者体验故事 (Kumar, 42)",
-      subtitle: "通过简单的日常护理稳妥管理风险。",
+      subtitle: "科学的指标监测、安全的每日药物与健康生活如何让心脏回归安全状态。",
       summary: "",
       frames: [
         "心理释怀：理解 FH 是遗传特征，坦然接受单纯靠饮食运动无法完全降脂的事实。",
-        "极简习惯：每晚服用一粒基础他汀药物，从源头上抑制肝脏过量合成胆固醇。",
-        "协同养护：将规范服药与高纤维饮食、适度运动相结合，全方位加固心脏安全防线。",
-        "长效达标：定期进行简单的门诊复查，确保坏胆固醇指标长期稳稳控制在理想范围内。"
+        "科学服药：每日服用经历数十年验证的安全药物（如他汀），协助肝脏高效清除血液垃圾。",
+        "健康生活：多吃高纤维食物（如燕麦），配合适度有氧运动，为心肌打下坚实基础。",
+        "指标正常：定期复查显示 LDL 指标已稳稳回归正常范围，动脉血管重获完备保护。"
       ],
       transcript: [
-        "大家好，我是 Kumar。确诊 FH 是我人生健康管理的重要转折点。在做基因检测之前，我曾极度严格地节食、疯狂运动，试图把胆固醇降下来，但收效甚微。得知 FH 是基因决定的特征后，我彻底释怀了——这不是我的错，也不是光靠不吃肉就能解决的。",
-        "我的医生为我开具了每日服用的基础他汀药物。它的作用原理非常明确，就是精准抑制肝脏中合成胆固醇的酶。每天晚上睡前服用一小粒药，就像刷牙一样简单自然。",
-        "我依然保持良好的饮食和运动习惯，但现在有了药物这项保驾护航的利器。短短几个月内，我的坏胆固醇 (LDL) 水平就下降了 50% 以上，顺利达标。",
-        "现在，我只需要每年做一次例行的常规抽血复查。我的胆固醇指标非常稳定，我也能没有任何顾虑地享受充满活力的健康生活。"
+        "大家好，我是 Kumar。当我第一次被确诊为 FH 时，一想到要终身服药，我感到非常抗拒。我坚持了六个月极其严苛的饮食和运动，但我的坏胆固醇指标几乎没有动静。医生耐心向我解释，因为 FH 是基因造成的，我的肝细胞表面缺少抓取胆固醇的受体，所以多余的胆固醇无法自然代谢。这根本不是我的错。",
+        "于是我开始每天服用一颗他汀类药物。这是世界上研究最透彻、安全性极高且获得新加坡政府高额补贴的药物。我服药后没有任何副作用。它的原理其实很简单——就是给肝脏提供助力，让它能够清除血液中的坏胆固醇。",
+        "同时我也坚持健康的生活习惯。这不是为了替代药物，而是为了支持药物发挥最大疗效。我现在每天吃燕麦、蔬菜和鱼类，并坚持快走 30 分钟。药疗加食疗的结合，能让我的血管保持年轻和弹性。",
+        "现在，我的坏胆固醇指标已经彻底降到了正常安全区。管理 FH 已经变成了我日常生活中极其微小、极其简单的一部分，就像每天刷牙一样自然。我现在精力充沛，对未来的健康充满了底气。"
       ]
     },
     ta: {
       title: "கண்டறிந்த பிறகு FH-ஐ நிர்வகித்தல்",
       videoLabel: "நோயாளி அனுபவக் கதை (Kumar, 42)",
-      subtitle: "எளிய தினசரி பராமரிப்பு மூலம் ஆபத்தைக் கட்டுப்படுத்துதல்.",
+      subtitle: "முறையான கண்காணிப்பு, எளிய தினசரி மருந்துகள் மற்றும் வாழ்க்கை முறை உங்கள் கொலஸ்ட்ரால் அளவை எவ்வாறு பாதுகாப்பாக வைத்திருக்கின்றன.",
       summary: "",
       frames: [
         "ஏற்றுக்கொள்ளுதல்: FH என்பது மரபணு சார்ந்தது மற்றும் வெறும் வாழ்க்கைமுறை மாற்றங்களால் மட்டும் இதைக் கட்டுப்படுத்த முடியாது என்பதை அறிதல்.",
-        "எளிய வழக்கம்: தினசரி ஸ்டாடின் மாத்திரை கல்லீரல் அதிக கொலஸ்ட்ராலை உருவாக்குவதைத் தடுக்கிறது.",
-        "ஆரோக்கியமான சமநிலை: தினசரி மருந்துகளுடன் நார்ச்சத்து உணவுகள் மற்றும் உடற்பயிற்சியை இணைப்பது இதயத்தைப் பாதுகாக்கிறது.",
-        "நீண்டகால ஆரோக்கியம்: வழக்கமான இரத்த பரிசோதனைகள் உங்கள் LDL அளவைப் பாதுகாப்பான இலக்கில் வைக்கின்றன."
+        "மருந்துகள்: ஸ்டாடின் போன்ற எளிய தினசரி மருந்துகள் கல்லீரல் கெட்ட கொழுப்பை அகற்ற உதவுகின்றன.",
+        "வாழ்க்கை முறை: நார்ச்சத்து அதிகம் உள்ள உணவுகள் மற்றும் உடற்பயிற்சி இதயத்தை ஆரோக்கியமாக வைத்திருக்க உதவும்.",
+        "முடிவு: முறையான கண்காணிப்பிற்குப் பிறகு, என் கொலஸ்ட்ரால் அளவு குறைந்து இதயம் பாதுகாப்பாக உள்ளது."
       ],
       transcript: [
-        "வணக்கம், நான் Kumar. FH கண்டறியப்பட்டது என் வாழ்க்கையில் ஒரு மாற்றத்தை ஏற்படுத்தியது. சோதனைக்கு முன், கொலஸ்ட்ராலைக் குறைக்க நான் தீவிர உணவு முறைகளையும் உடற்பயிற்சிகளையும் முயன்றேன், ஆனால் பலனில்லை. FH மரபணு சார்ந்தது என்பதைப் புரிந்துகொண்டது எனக்குத் தெளிவைத் தந்தது.",
-        "என் மருத்துவர் தினமும் எடுத்துக்கொள்ளக்கூடிய ஸ்டாடின் மாத்திரையைப் பரிந்துரைத்தார். இது கல்லீரலில் அதிக கொலஸ்ட்ரால் உருவாவதைத் தடுக்கிறது. தினமும் இரவில் ஒரு சிறிய மாத்திரை சாப்பிடுவது எளிதான பழக்கமாக மாறியது.",
-        "நான் இப்போதும் நல்ல உணவை உண்டு சுறுசுறுப்பாக இருக்கிறேன், ஆனால் மருந்துதான் முக்கியப் பங்காற்றுகிறது. சில மாதங்களிலேயே என் எல்டிஎல் கொலஸ்ட்ரால் 50%க்கும் மேல் குறைந்தது.",
-        "இப்போது, நிலையைத் தெரிந்துகொள்ள வருடத்திற்கு ஒருமுறை இரத்தப் பரிசோதனை செய்துகொள்கிறேன். என் கொலஸ்ட்ரால் முழுமையாகக் கட்டுப்பாட்டில் உள்ளது."
+        "வணக்கம், என் பெயர் Kumar. எனக்கு FH இருப்பது கண்டறியப்பட்டபோது, வாழ்நாள் முழுவதும் மருந்து உட்கொள்ள வேண்டுமா என்று கவலையாக இருந்தது. ஆறு மாதங்கள் கடுமையான உணவு முறையைப் பின்பற்றினேன், ஆனால் கொலஸ்ட்ரால் குறையவில்லை. இது மரபணு சார்ந்தது என்பதால் கல்லீரலால் தானாக கொழுப்பை அகற்ற முடியாது என்று மருத்துவர் விளக்கினார். இது என் தவறு அல்ல.",
+        "நான் தினமும் ஸ்டாடின் மாத்திரை எடுக்கத் தொடங்கினேன். இது மிகவும் பாதுகாப்பானது, எளிமையானது மற்றும் மானிய விலையிலானது. எனக்கு எந்த பக்கவிளைவுகளும் ஏற்படவில்லை. இது கல்லீரல் இயற்கையாக செயல்பட்டு இரத்தத்திலிருந்து கெட்ட கொழுப்பை அகற்ற உதவுகிறது.",
+        "உணவுக் கட்டுப்பாட்டையும் உடற்பயிற்சியையும் மருந்துகளுக்குப் பதிலாக அல்லாமல், அவற்றிற்கு ஆதரவாகப் பின்பற்றினேன். ஓட்ஸ், காய்கறிகள் மற்றும் மீன் சாப்பிடுகிறேன், தினமும் 30 நிமிடங்கள் நடக்கிறேன்.",
+        "இப்போது, என் LDL கொலஸ்ட்ரால் முற்றிலும் சாதாரண அளவிற்கு வந்துவிட்டது. FH-ஐ நிர்வகிப்பது பல் துலக்குவது போல என் தினசரி வழக்கத்தின் ஒரு எளிய பகுதியாக மாறிவிட்டது. நான் மிகவும் ஆரோக்கியமாக இருக்கிறேன்."
       ]
     }
   },
@@ -241,7 +241,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     en: {
       title: "Understanding Costs and Support",
       videoLabel: "Financial Guide (Siti, 45)",
-      subtitle: "MOH subsidies and MediSave support explained.",
+      subtitle: "How MOH subsidies and MediSave ensure testing is affordable for everyone.",
       summary: "",
       frames: [
         "MOH Subsidies: Eligible Singapore citizens receive up to 75% subsidies for counselling and testing.",
@@ -259,7 +259,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     ms: {
       title: "Memahami Kos dan Sokongan",
       videoLabel: "Panduan Kewangan (Siti, 45)",
-      subtitle: "Subsidi MOH dan sokongan MediSave.",
+      subtitle: "Bagaimana subsidi MOH dan MediSave memastikan ujian mampu milik untuk semua.",
       summary: "",
       frames: [
         "Subsidi MOH: Warganegara Singapura yang layak menerima subsidi sehingga 75% untuk kaunseling dan ujian.",
@@ -277,13 +277,13 @@ export const STORIES: Record<string, LocalizedStory> = {
     zh: {
       title: "费用与政府补贴说明",
       videoLabel: "财务指南 (Siti, 45)",
-      subtitle: "卫生部补贴与 MediSave 支持说明。",
+      subtitle: "了解政府高额补贴与 MediSave 如何共同保障新加坡公民轻松负担基因检测。",
       summary: "",
       frames: [
         "卫生部高额补贴：符合资格的新加坡公民在专家门诊和基因检测中可享受高达 75% 的政府补贴。",
         "MediSave 强力支持：个人共付部分完全属于 CDMS 慢性病可报销开支，可全额使用 MediSave 账户进行抵扣。",
         "几乎零现金开销：绝大多数患者通过补贴和公积金抵扣后，无需支付任何额外现金，毫无经济负担。",
-        "全方位兜底资助：针对中低收入家庭，CHAS 蓝卡、建国一代卡以及 Medifund 医疗救助基金确保医疗费绝对能够负担。"
+        "全方位兜底资助：针对中低收入家庭，CHAS 蓝卡、建国一代卡以及 Medifund 确保医疗费绝对能够负担。"
       ],
       transcript: [
         "大家好，我是 Siti。我想和大家聊聊 FH 基因检测的费用问题，因为这曾是我最担心的事情。在新加坡，卫生部 (MOH) 对临床遗传学咨询和基因检测提供了非常丰厚的补贴。作为符合条件的新加坡公民，我的咨询和检测当场享受了 75% 的补贴。",
@@ -295,7 +295,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     ta: {
       title: "செலவுகள் மற்றும் ஆதரவைப் புரிந்துகொள்ளுதல்",
       videoLabel: "நிதி வழிகாட்டி (Siti, 45)",
-      subtitle: "MOH மானியங்கள் மற்றும் MediSave ஆதரவு விளக்கம்.",
+      subtitle: "MOH மானியங்கள் மற்றும் MediSave எவ்வாறு அனைவரும் எளிதில் பரிசோதனை செய்ய உதவுகின்றன.",
       summary: "",
       frames: [
         "MOH மானியங்கள்: தகுதியுள்ள சிங்கப்பூர் குடிமக்களுக்கு ஆலோசனை மற்றும் பரிசோதனைக்கு 75% வரை மானியம் வழங்கப்படுகிறது.",
@@ -315,7 +315,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     en: {
       title: "Early Detection and Reducing Future Risk",
       videoLabel: "Preventive Care (Alex, 29)",
-      subtitle: "Preventing silent plaque buildup through early care.",
+      subtitle: "Why identifying FH early prevents silent plaque buildup and secures your future.",
       summary: "",
       frames: [
         "Silent Danger: High LDL cholesterol from birth slowly accumulates in blood vessels without any warning signs.",
@@ -333,7 +333,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     ms: {
       title: "Pengesanan Awal dan Mengurangkan Risiko Masa Depan",
       videoLabel: "Penjagaan Pencegahan (Alex, 29)",
-      subtitle: "Mencegah pembentukan plak melalui penjagaan awal.",
+      subtitle: "Mengapa mengesan FH awal menghalang pembentukan plak senyap dan menjamin masa depan.",
       summary: "",
       frames: [
         "Bahaya Senyap: Kolesterol LDL tinggi sejak lahir perlahan-lahan terkumpul di dalam saluran darah tanpa amaran.",
@@ -351,7 +351,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     zh: {
       title: "早期发现与防范未来风险",
       videoLabel: "预防医学 (Alex, 29)",
-      subtitle: "通过早期护理预防隐性血管堵塞。",
+      subtitle: "了解为什么及早发现并锁定 FH，能阻断血管中的无声病变，掌握健康主动权。",
       summary: "",
       frames: [
         "无声威胁：来自基因的高 LDL 胆固醇从出生起便在血管中缓慢积聚，在没有症状的情况下悄然伤害心血管。",
@@ -369,7 +369,7 @@ export const STORIES: Record<string, LocalizedStory> = {
     ta: {
       title: "முன்கூட்டியே கண்டறிதல் மற்றும் எதிர்கால ஆபத்தைக் குறைத்தல்",
       videoLabel: "முன்னெச்சரிக்கை பராமரிப்பு (Alex, 29)",
-      subtitle: "முன்கூட்டியே கண்டறிந்து இரத்த நாள அடைப்பைத் தடுத்தல்.",
+      subtitle: "முன்கூட்டியே FH-ஐக் கண்டறிவது இரத்த நாளங்களில் அடைப்பைத் தடுத்து உங்கள் எதிர்காலத்தை எவ்வாறு பாதுகாக்கிறது.",
       summary: "",
       frames: [
         "அமைதியான ஆபத்து: பிறப்பிலிருந்தே இருக்கும் அதிக LDL கொலஸ்ட்ரால் எந்த அறிகுறியும் இல்லாமல் இரத்த நாளங்களில் மெதுவாக வடிகிறது.",
@@ -389,8 +389,8 @@ export const STORIES: Record<string, LocalizedStory> = {
     en: {
       title: "What happens during FH testing?",
       videoLabel: "Patient Experience Story (Chloe, 21)",
-      subtitle: "What to expect before your appointment.",
-      summary: "FH is inherited from birth—unrelated to lifestyle or age.",
+      subtitle: "See what to expect before your appointment.",
+      summary: "I live a healthy lifestyle, exercise regularly, and eat well, so I assumed high cholesterol was something only older people get. My doctor explained that FH is inherited from birth—it has nothing to do with lifestyle or age.",
       frames: [
         "I eat healthy and stay active. I thought high cholesterol was only for elderly people or those who lead an unhealthy lifestyle.",
         "The genetic counsellor didn't push me at all. They just laid out the facts and let me make my own decision.",
@@ -407,8 +407,8 @@ export const STORIES: Record<string, LocalizedStory> = {
     ms: {
       title: "Apa yang berlaku semasa ujian FH?",
       videoLabel: "Kisah Pengalaman Pesakit (Chloe, 21)",
-      subtitle: "Perkara yang dijangka sebelum janji temu anda.",
-      summary: "FH diwarisi sejak lahir—tiada kaitan dengan gaya hidup atau umur.",
+      subtitle: "Lihat apa yang dijangka sebelum janji temu anda.",
+      summary: "Saya mengamalkan gaya hidup sihat tetapi doktor menjelaskan bahawa FH diwarisi sejak lahir—ia tiada kaitan dengan gaya hidup atau umur.",
       frames: [
         "Saya makan sihat dan aktif. Saya fikir kolesterol tinggi hanya untuk orang tua atau gaya hidup tidak sihat.",
         "Kaunselor genetik tidak mendesak saya. Mereka hanya membentangkan fakta dan membiarkan saya membuat keputusan sendiri.",
@@ -425,8 +425,8 @@ export const STORIES: Record<string, LocalizedStory> = {
     zh: {
       title: "FH检测期间会发生什么？",
       videoLabel: "患者体验故事 (Chloe, 21)",
-      subtitle: "预约前了解预期的流程。",
-      summary: "FH是自出生遗传的特征，与生活方式或年龄无关。",
+      subtitle: "在预约前了解您可以预期的内容。",
+      summary: "我保持着健康的生活方式，但医生解释说，FH 是自出生起就遗传的，与生活方式或年龄无关。",
       frames: [
         "我饮食健康并保持活跃。我以为高胆固醇只属于老年人或生活方式不健康的人。",
         "遗传咨询师完全没有强迫我。他们只是列出事实，让我自己做决定。",
@@ -443,12 +443,12 @@ export const STORIES: Record<string, LocalizedStory> = {
     ta: {
       title: "FH சோதனையின் போது என்ன நடக்கும்?",
       videoLabel: "நோயாளி அனுபவக் கதை (Chloe, 21)",
-      subtitle: "உங்கள் சந்திப்பிற்கு முன் என்ன எதிர்பார்க்கலாம்.",
-      summary: "FH பிறப்பிலிருந்தே மரபணு ரீதியாகப் பெறப்படுகிறது.",
+      subtitle: "உங்கள் சந்திப்பிற்கு முன் என்ன எதிர்பார்க்கலாம் என்று அறிந்துகொள்ளுங்கள்.",
+      summary: "நான் ஆரோக்கியமான வாழ்க்கை முறையைப் பின்பற்றினாலும், FH பிறப்பிலிருந்தே மரபணு ரீதியாகப் பெறப்படுகிறது என்று மருத்துவர் விளக்கினார்.",
       frames: [
         "நான் ஆரோக்கியமாக உண்ணுகிறேன் மற்றும் சுறுசுறுப்பாக இருக்கிறேன். அதிக கொலஸ்ட்ரால் மூத்தவர்களுக்கு அல்லது ஆரோக்கியமற்ற வாழ்க்கை முறை கொண்டவர்களுக்கு மட்டுமே என நான் நினைத்தேன்.",
         "மரபணு ஆலோசகர் என்னை வற்புறுத்தவில்லை. அவர்கள் உண்மைகளை மட்டுமே முன்வைத்து முடிவெடுக்க எனக்கு விட்டுவிட்டார்கள்.",
-        "இருக்கும் சுகாதார காப்பீடு முழுமையாக பாதுகாக்கப்பட்டுள்ளது, மேலும் MOH மானியங்கள் செலவின் 75% வரை ஈடுசெய்கிறது என நான் அறிந்தேன்.",
+        "இருக்கும் சுகாதார காப்பீடு முழுமையாக பாதுகாக்கப்பட்டுள்ளது, மேலும் MOH மானியங்கள் செலவின் 75% வரை ஈடுசெயksிறது என நான் அறிந்தேன்.",
         "தெளிவான உண்மைகளை அறிந்துகொள்வது என் ஆரோக்கியத்தை கட்டுப்பாட்டில் வைக்கவும், ஆரோக்கியமாக இருக்க எனக்கு தெளிவைத் தந்ததால் சோதனை செய்ய முடிவு செய்தேன்."
       ],
       transcript: [
@@ -465,72 +465,72 @@ export const STORIES: Record<string, LocalizedStory> = {
 export const ADAPTATIONS: Record<string, Record<'beginner' | 'advanced', Record<'en' | 'ms' | 'zh' | 'ta', string>>> = {
   family: {
     beginner: {
-      en: "How simple cascade screening protects your relatives.",
-      ms: "Cara saringan lata melindungi keluarga anda.",
-      zh: "家系筛查如何保护您的亲人。",
-      ta: "குடும்பப் பரிசோதனை உறவினர்களைப் பாதுகாக்கும் விதம்."
+      en: "A reassuring family story. Learn how simple cascade checks work and how they protect your brothers, sisters, and children without any scary medical terms.",
+      ms: "Kisah keluarga yang menenangkan. Ketahui cara pemeriksaan lata mudah berfungsi dan bagaimana ia melindungi adik-beradik serta anak-anak anda tanpa istilah perubatan yang menakutkan.",
+      zh: "一个温馨的家庭故事。带您了解轻松的家系筛查流程，在没有深奥医学术语的前提下，了解它如何守护您的兄弟姐妹和子女。",
+      ta: "குடும்பப் பரிசோதனை எவ்வாறு எளிய முறையில் செயல்படுகிறது மற்றும் அது உங்கள் உடன்பிறப்புகள், குழந்தைகளை எவ்வாறு பாதுகாக்கிறது என்பதைக் காட்டும் கதை."
     },
     advanced: {
-      en: "Clinical overview of cascade screening and relative subvention.",
-      ms: "Tinjauan klinikal saringan lata dan subsidi saudara.",
-      zh: "家系筛查与亲属补贴机制概述。",
-      ta: "மரபணு சல்லடை முறை மற்றும் மானியங்கள் பற்றிய விளக்கம்."
+      en: "A focused clinical walkthrough of autosomal dominant cascade screening. Understand clinical referral mechanisms and subvention policies for first-degree relatives.",
+      ms: "Panduan klinikal saringan lata dominan autosomal. Fahami mekanisma rujukan klinik dan polisi subvensi kerajaan untuk saudara darjah pertama.",
+      zh: "常染色体显性遗传家系筛查的临床路径解析。深入了解一级亲属的临床转诊机制、筛查比例和卫生部专项财政资助政策。",
+      ta: "நெருங்கிய உறவினர்களுக்கான மரபணு சல்லடை முறை, மருத்துவ பரிந்துரை வழிமுறைகள் மற்றும் நிதி மானியங்கள் பற்றிய விரிவான விளக்கம்."
     }
   },
   testing: {
     beginner: {
-      en: "A simple guide to counselling, blood draw, and results.",
-      ms: "Panduan ringkas kaunseling, ujian darah, dan keputusan.",
-      zh: "咨询、抽血与检测结果的简要指南。",
-      ta: "ஆலோசனை, இரத்த பரிசோதனை மற்றும் முடிவுகளுக்கான வழிகாட்டி."
+      en: "A warm step-by-step walkthrough. We explain what pre-test counselling is, the quick blood draw, and how the results give you safe, clear facts.",
+      ms: "Langkah demi langkah yang mesra. Kami menerangkan maksud kaunseling pra-ujian, pengambilan darah yang cepat, dan bagaimana keputusan memberikan fakta yang selamat.",
+      zh: "轻松温和的步骤指南。为您揭秘预检咨询、不超过10分钟的门诊抽血，以及检测报告如何为您提供安全确凿的健康依据。",
+      ta: "சோதனைக்கு முந்தைய ஆலோசனை, எளிய இரத்த பரிசோதனை மற்றும் அதன் முடிவுகள் உங்களுக்கு எவ்வாறு தெளிவான உண்மைகளைத் தருகின்றன என்பது பற்றிய எளிய விளக்கம்."
     },
     advanced: {
-      en: "Overview of DNA sequencing and variant analysis.",
-      ms: "Tinjauan penjujukan DNA dan analisis varian.",
-      zh: "DNA测序与致病基因变异位点分析概述。",
-      ta: "டிஎன்ஏ வரிசைமுறை மற்றும் மரபணு பகுப்பாய்வு விளக்கம்."
+      en: "A professional mapping of the DNA sequencing journey. Details pre-test pedigree mapping, PCR/Next-Generation Sequencing, and post-test genetic variant reviews.",
+      ms: "Pemetaan profesional perjalanan penjujukan DNA. Memperincikan pemetaan salasilah pra-ujian, Penjujukan Generasi Seterusnya (NGS), dan penilaian varian genetik.",
+      zh: "高通量测序的专业医学图谱。系统剖析预检家族谱系绘制、高通量测序 (NGS) 技术和后期致病性变异位点分析流程。",
+      ta: "டிஎன்ஏ வரிசைமுறை சோதனையின் முழு மருத்துவ வரைபடம். சோதனைக்கு முந்தைய குடும்ப வரைபடம், என்ஜிஎஸ் சோதனை மற்றும் மாறுபாடு பகுப்பாய்வு பற்றிய விளக்கம்."
     }
   },
   treatment: {
     beginner: {
-      en: "How daily medication and habits keep your heart safe.",
-      ms: "Bagaimana ubat harian dan tabiat melindungi jantung anda.",
-      zh: "每日药物与健康习惯如何守护心脏。",
-      ta: "தினசரி மருந்துகளும் பழக்கங்களும் இதயத்தைப் பாதுகாக்கும் விதம்."
+      en: "A positive story about daily heart care. See how standard daily medicines and high-fiber foods protect your blood vessels and keep you fully active.",
+      ms: "Kisah positif tentang penjagaan jantung harian. Lihat bagaimana ubat harian biasa dan makanan berserat tinggi melindungi saluran darah anda.",
+      zh: "有关心脏日常护理的积极故事。了解科学安全的每日药物搭配高纤维膳食如何保护您的血管，让您充满活力地畅享生活。",
+      ta: "தினசரி இதயப் பராமரிப்பு பற்றிய நேர்மறையான கதை. எளிய தினசரி மருந்துகளும் நார்ச்சத்து உணவுகளும் இரத்த நாளங்களைப் பாதுகாப்பதை விளக்குகிறது."
     },
     advanced: {
-      en: "Clinical overview of statin therapy and risk reduction.",
-      ms: "Tinjauan klinikal terapi statin dan pengurangan risiko.",
-      zh: "他汀疗法与心血管风险控制临床评估。",
-      ta: "ஸ்டாடின் சிகிச்சை மற்றும் ஆபத்தைக் குறைப்பது பற்றிய விளக்கம்."
+      en: "A clinical overview of LDL receptor upregulation therapies. Focuses on statin mechanisms, lifestyle integration, and reducing lifetime cumulative cardiovascular risk.",
+      ms: "Tinjauan klinikal mengenai terapi peningkatan reseptor LDL. Fokus kepada mekanisma statin dan pengurangan risiko kardiovaskular kumulatif.",
+      zh: "坏胆固醇 (LDL) 受体上调疗法的医学评估。侧重于他汀类药理作用机制、协同生活方式干预以及降低生存期累积心血管风险的目标。",
+      ta: "எல்டிஎல் ஏற்புத்திறனை அதிகரிக்கும் சிகிச்சைகள், மருந்துகள் செயல்படும் விதம் மற்றும் வாழ்நாள் இதய நோய் ஆபத்தைக் குறைப்பது பற்றிய விளக்கம்."
     }
   },
   costs: {
     beginner: {
-      en: "How MOH subsidies and MediSave make testing affordable.",
-      ms: "Bagaimana subsidi MOH dan MediSave meringankan kos.",
-      zh: "卫生部补贴与MediSave如何减免费用。",
-      ta: "MOH மானியங்கள் மற்றும் MediSave செலவைக் குறைக்கும் விதம்."
+      en: "Clear, simple answers to your financial questions. We show you how MOH subsidies make testing extremely cheap and how MediSave covers your clinic bills.",
+      ms: "Jawapan mudah untuk soalan kewangan anda. Kami tunjukkan bagaimana subsidi MOH menjadikan ujian sangat murah dan penggunaan MediSave.",
+      zh: "关于检测费用的通俗解读。了解卫生部高额补贴如何大幅减免账单，以及如何直接使用公积金 (MediSave) 抵扣个人自付部分。",
+      ta: "நிதி பற்றிய எளிய விளக்கங்கள். MOH மானியங்கள் சோதனையைக் குறைந்த செலவாக்குவதையும், MediSave மூலம் செலுத்துவதையும் விளக்குகிறது."
     },
     advanced: {
-      en: "Policy overview of MOH subvention and CDMS claims.",
-      ms: "Tinjauan subvensi MOH dan tuntutan CDMS.",
-      zh: "卫生部津贴与CDMS公积金支付政策指南。",
-      ta: "MOH நிதியுதவி மற்றும் CDMS வழிகாட்டி."
+      en: "A comprehensive policy overview of MOH subvention categories, Chronic Disease Management Scheme (CDMS) MediSave claim limits, and financial safety nets.",
+      ms: "Tinjauan menyeluruh polisi kategori subvensi MOH, had tuntutan MediSave Skim Pengurusan Penyakit Kronik (CDMS), dan jaring keselamatan bantuan kewangan.",
+      zh: "新加坡医疗财政资助政策总览。深度剖析卫生部津贴级比例、CDMS慢性病MediSave支付限额以及Medifund兜底财务援助方案。",
+      ta: "MOH நிதியுதவி பிரிவுகள், நாள்பட்ட நோய் மேலாண்மை திட்ட MediSave வரம்புகள் மற்றும் கூடுதல் நிதிப் பாதுகாப்பு வழிகள் பற்றிய விரிவான விளக்கம்."
     }
   },
   risk: {
     beginner: {
-      en: "Why early detection keeps blood vessels healthy.",
-      ms: "Mengapa pengesanan awal memastikan saluran darah sihat.",
-      zh: "早发现为何能保护血管健康。",
-      ta: "முன்கூட்டியே கண்டறிவது இரத்த நாளங்களைச் சுத்தமாக வைக்கும் விதம்."
+      en: "A supportive guide to keeping your heart safe. Understand why finding FH early keeps your blood vessels fully clean and gives you total peace of mind.",
+      ms: "Panduan mesra untuk menjaga keselamatan jantung. Fahami mengapa pengesanan awal FH memastikan saluran darah bersih dan memberi anda ketenangan fikiran.",
+      zh: "呵护您心脏健康的预防指南。了解为什么在无症状阶段及早锁定 FH 能够阻断血管垃圾积聚，让您收获长久的平和心态。",
+      ta: "இதயத்தைப் பாதுகாப்பாக வைப்பதற்கான எளிய வழிகாட்டி. முன்கூட்டியே கண்டறிவது இரத்த நாளங்களைச் சுத்தமாக வைத்து நிம்மதியைத் தருவதை விளக்குகிறது."
     },
     advanced: {
-      en: "Overview of cumulative LDL burden and early intervention.",
-      ms: "Tinjauan beban LDL kumulatif dan intervensi awal.",
-      zh: "累积性LDL胆固醇负荷与早期干预概述。",
-      ta: "கொலஸ்ட்ரால் சேர்வது மற்றும் முன்கூட்டியே தடுப்பது பற்றிய விளக்கம்."
+      en: "A diagnostic pathogenetic overview of cumulative LDL burden. Focuses on early intervention to preserve endothelial integrity and reduce cardiovascular events.",
+      ms: "Tinjauan patogenesis diagnostik beban LDL kumulatif. Fokus kepada intervensi awal untuk memelihara integriti endotelial dan mengelakkan strok/serangan jantung.",
+      zh: "累积性 LDL 胆固醇负荷的病理生化学原理。侧重于通过超早期医学干预维护血管内皮功能，从根本上降低终身心肌梗死等急性事件发生率。",
+      ta: "கொலஸ்ட்ரால் சேர்வதால் ஏற்படும் தமனி அடைப்பு, இரத்த நாளங்களின் சுவர்களைப் பாதுகாத்தல் மற்றும் முன்கூட்டியே தடுப்பது பற்றிய மருத்துவ கண்ணோட்டம்."
     }
   }
 };
