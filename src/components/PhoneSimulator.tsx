@@ -6402,7 +6402,7 @@ export default function PhoneSimulator({
             <div className="bg-white px-4 py-3.5 border-b border-slate-200 flex justify-between items-center sticky top-0 z-10 shrink-0">
               <div className="flex items-center gap-2">
                 <button 
-                  onClick={() => onChangeScreen(ScreenId.Home)} 
+                  onClick={() => onChangeScreen(ScreenId.ReminderSettings)} 
                   className="p-1 hover:bg-slate-100 rounded-full transition cursor-pointer"
                   id="profile-back-btn"
                 >
@@ -6414,14 +6414,6 @@ export default function PhoneSimulator({
                 <span className="text-[9px] bg-emerald-50 text-[#00a859] font-extrabold uppercase px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-[#00a859]" /> {t('profile_singpass_linked')}
                 </span>
-                <button
-                  onClick={() => onChangeScreen(ScreenId.ReminderSettings)}
-                  className="p-1.5 hover:bg-slate-100 rounded-full transition cursor-pointer text-slate-600 hover:text-[#00a859]"
-                  title={t('settings_title')}
-                  id="profile-settings-btn"
-                >
-                  <Settings className="w-5 h-5" />
-                </button>
               </div>
             </div>
 
