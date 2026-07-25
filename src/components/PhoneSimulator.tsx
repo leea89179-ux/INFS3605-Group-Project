@@ -2352,8 +2352,14 @@ export default function PhoneSimulator({
                                 onClick={() => {
                                   setRescheduleClinicId(clinic.id);
                                   setShowRescheduleClinicDropdown(false);
-                                  const availableDays = Object.keys(activeClinicSlotsDb[clinic.id]?.[rescheduleCalendarMonth] || {}).map(Number).filter(d => !isBeforeMinimumBookingDate(rescheduleCalendarMonth, d));
-                                  setRescheduleCalendarDay(availableDays[0] ?? null);
+                                  setProposedSlotObj(null);
+                                  const earliest = getEarliestAvailableFutureDate(clinic.id, activeClinicSlotsDb);
+                                  if (earliest) {
+                                    setRescheduleCalendarMonth(earliest.month);
+                                    setRescheduleCalendarDay(earliest.day);
+                                  } else {
+                                    setRescheduleCalendarDay(null);
+                                  }
                                 }}
                                 className={`w-full text-left p-3 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${isSelected ? 'bg-emerald-50/20' : 'bg-white'}`}
                               >
@@ -2480,6 +2486,13 @@ export default function PhoneSimulator({
                             </div>
                           </button>
                         ))
+                    ) : rescheduleCalendarDay === null ? (
+                      <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
+                        {language === 'ms' ? 'Tiada janji temu masa hadapan tersedia untuk klinik ini.' :
+                         language === 'zh' ? '该诊所没有可用的未来预约。' :
+                         language === 'ta' ? 'இந்த மருத்துவமனைக்கு எதிர்கால சந்திப்புகள் இல்லை.' :
+                         'No future appointments available for this clinic.'}
+                      </div>
                     ) : (
                       <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
                         {t('reschedule_no_slots')}
