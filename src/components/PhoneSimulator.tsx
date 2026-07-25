@@ -6476,7 +6476,7 @@ export default function PhoneSimulator({
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_mobile')}</span>
-                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">{patientRecord?.contact_details || '+65 9123 4567'}</span>
+                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">+65 9123 4567</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_email')}</span>
