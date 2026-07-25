@@ -2478,7 +2478,6 @@ export default function PhoneSimulator({
                               </div>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] font-bold text-[#00a859] font-mono bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">{slot.cost}</span>
                               <ChevronRight className="w-4 h-4 text-slate-400" />
                             </div>
                           </button>
@@ -2488,6 +2487,14 @@ export default function PhoneSimulator({
                         {t('reschedule_no_slots')}
                       </div>
                     )}
+                  </div>
+
+                  {/* Shared cost estimate */}
+                  <div className="bg-white border border-emerald-100 rounded-xl p-3 space-y-1">
+                    <div className="text-[9.5px] font-bold text-emerald-800 uppercase tracking-tight">Estimated Cash Payment</div>
+                    <div className="text-base font-extrabold text-[#00a859] font-mono">S$18–S$87</div>
+                    <p className="text-[10px] text-slate-500 leading-snug">For an index patient with S$500 available under MediSave500. Final payment depends on subsidy eligibility and available MediSave.</p>
+                    <p className="text-[10px] text-slate-500 leading-snug">The package includes pre-test counselling, genetic testing, blood drawing and post-test counselling.</p>
                   </div>
                 </div>
               </div>{/* end scrollable body */}
@@ -5579,9 +5586,6 @@ export default function PhoneSimulator({
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                  <span className="text-[10px] font-bold text-[#00a859] font-mono bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                                    {slot.cost}
-                                  </span>
                                   <ChevronRight className="w-4 h-4 text-slate-400" />
                                 </div>
                               </button>
@@ -5594,11 +5598,11 @@ export default function PhoneSimulator({
                         </div>
                       </div>
 
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-150 flex gap-2.5 items-center text-xs text-slate-600">
-                        <Coins className="w-4 h-4 text-[#00a859] shrink-0" />
-                        <p className="text-[11px] leading-snug">
-                          {t('booking_subsidies_computed')}
-                        </p>
+                      <div className="bg-white border border-emerald-100 rounded-xl p-3 space-y-1">
+                        <div className="text-[9.5px] font-bold text-emerald-800 uppercase tracking-tight">Estimated Cash Payment</div>
+                        <div className="text-base font-extrabold text-[#00a859] font-mono">S$18–S$87</div>
+                        <p className="text-[10px] text-slate-500 leading-snug">For an index patient with S$500 available under MediSave500. Final payment depends on subsidy eligibility and available MediSave.</p>
+                        <p className="text-[10px] text-slate-500 leading-snug">The package includes pre-test counselling, genetic testing, blood drawing and post-test counselling.</p>
                       </div>
                     </div>
                   );
@@ -5658,7 +5662,7 @@ export default function PhoneSimulator({
                             </div>
                             <div className="flex justify-between border-t border-slate-100 pt-2.5 mt-2.5">
                               <span className="text-slate-500 font-bold">{t('booking_out_of_pocket_label')}</span>
-                              <span className="text-[#00a859] font-extrabold font-mono">{slot.cost}</span>
+                              <span className="text-[#00a859] font-extrabold font-mono">S$18–S$87 <span className="text-[9px] font-sans font-medium text-slate-400">(est.)</span></span>
                             </div>
                           </div>
                         </div>
