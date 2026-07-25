@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail } from 'lucide-react';
-import { educationalSections, preCounsellingChecklist, faqs, HelpfulResource, helpfulResources } from '../data/education';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail, Brain, FlaskConical, Apple, Ban, Activity, Building2, TriangleAlert as AlertTriangle } from 'lucide-react';
+import { educationalSections, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
 import { getPersonalizedStory } from '../data/personalizedStories';
@@ -1179,7 +1179,7 @@ export default function PhoneSimulator({
   };
 
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    basics: true,
+    basics: false,
     journey: false,
     costs: false,
   });
@@ -1278,16 +1278,6 @@ export default function PhoneSimulator({
     return mapped;
   }, [onboardingTopics]);
 
-  const selectedGuideTopics = useMemo(() => {
-    if (!onboardingCompleted) return [];
-    return allGuideTopics.filter(topic => selectedTopicsList.includes(topic.id));
-  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
-
-  const unselectedGuideTopics = useMemo(() => {
-    if (!onboardingCompleted) return allGuideTopics;
-    return allGuideTopics.filter(topic => !selectedTopicsList.includes(topic.id));
-  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
-
   // Auto-expand recommended groups and sections when onboarding completes
   useEffect(() => {
     if (onboardingCompleted) {
@@ -1310,62 +1300,151 @@ export default function PhoneSimulator({
     }
   }, [onboardingCompleted, onboardingFamiliarity, onboardingTopics.length, onboardingConcerns.length]);
 
-  // 3. Personalized Onboarding - Sort FAQs based on Concerns
+  const selectedGuideTopics = useMemo(() => {
+    if (!onboardingCompleted) return [];
+    return allGuideTopics.filter(topic => selectedTopicsList.includes(topic.id));
+  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
+
+  const unselectedGuideTopics = useMemo(() => {
+    if (!onboardingCompleted) return allGuideTopics;
+    return allGuideTopics.filter(topic => !selectedTopicsList.includes(topic.id));
+  }, [allGuideTopics, selectedTopicsList, onboardingCompleted]);
+
+  // Ensure all Education Hub tabs and groups remain closed by default when viewing
+  useEffect(() => {
+    // Keep all topic cards closed by default unless user explicitly clicks them
+    setEduExpanded({});
+    setExpandedGroups({
+      basics: false,
+      journey: false,
+      costs: false,
+    });
+  }, [onboardingCompleted]);
+
+  // 3. Personalized Onboarding - FAQ & Resource Scoring based on Questionnaire Answers
+  const getFaqMatchScore = (faq: { category: string; question: string; answer: string }) => {
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') return 0;
+    let score = 0;
+    
+    // Check concerns
+    if (onboardingConcerns.includes('concern-cost') && faq.category === 'cost') score += 10;
+    if (onboardingConcerns.includes('concern-insurance') && faq.category === 'insurance') score += 10;
+    if (onboardingConcerns.includes('concern-test') && faq.category === 'testing') score += 10;
+    if (onboardingConcerns.includes('concern-meds') && faq.category === 'medication') score += 10;
+    if (onboardingConcerns.includes('concern-family') && faq.category === 'family') score += 10;
+    if (onboardingConcerns.includes('concern-diagnosis') && faq.category === 'testing') score += 8;
+
+    // Check topics
+    if ((onboardingTopics.includes('topic-costs') || onboardingTopics.includes('costs-subsidies')) && faq.category === 'cost') score += 6;
+    if ((onboardingTopics.includes('topic-insurance') || onboardingTopics.includes('insurance')) && faq.category === 'insurance') score += 6;
+    if ((onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next') || onboardingTopics.includes('genetic-testing') || onboardingTopics.includes('testing-process')) && faq.category === 'testing') score += 6;
+    if ((onboardingTopics.includes('topic-treatment') || onboardingTopics.includes('treatment-medication')) && faq.category === 'medication') score += 6;
+    if ((onboardingTopics.includes('topic-family') || onboardingTopics.includes('cascade-screening')) && faq.category === 'family') score += 6;
+    if ((onboardingTopics.includes('topic-basics') || onboardingTopics.includes('topic-risk')) && faq.category === 'testing') score += 4;
+
+    return score;
+  };
+
+  const getFaqMatchReason = (faq: { category: string }) => {
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') return null;
+    const score = getFaqMatchScore(faq as any);
+    if (score <= 0) return null;
+
+    if (faq.category === 'cost') return language === 'ms' ? 'Kos & Subsidi' : language === 'zh' ? '费用与津贴' : language === 'ta' ? 'செலவு' : 'Costs & Subsidies';
+    if (faq.category === 'insurance') return language === 'ms' ? 'Insurans' : language === 'zh' ? '保险权益' : language === 'ta' ? 'காப்பீடு' : 'Insurance';
+    if (faq.category === 'testing') return language === 'ms' ? 'Ujian Genetic' : language === 'zh' ? '基因检测' : language === 'ta' ? 'பரிசோதனை' : 'Testing';
+    if (faq.category === 'medication') return language === 'ms' ? 'Ubat-ubatan' : language === 'zh' ? '药物治疗' : language === 'ta' ? 'மருந்துகள்' : 'Medication';
+    if (faq.category === 'family') return language === 'ms' ? 'Pemeriksaan Keluarga' : language === 'zh' ? '家属筛查' : language === 'ta' ? 'குடும்ப பரிசோதனை' : 'Family Screening';
+
+    return null;
+  };
+
   const sortedFaqs = [...getLocalizedFaqs(language)].sort((a, b) => {
-    if (!onboardingCompleted) return 0;
-    
-    // Determine if a category is prioritized
-    const isAPrioritized = 
-      (a.category === 'cost' && onboardingConcerns.includes('concern-cost')) ||
-      (a.category === 'insurance' && onboardingConcerns.includes('concern-insurance')) ||
-      (a.category === 'testing' && onboardingConcerns.includes('concern-test')) ||
-      (a.category === 'medication' && onboardingConcerns.includes('concern-meds')) ||
-      (a.category === 'family' && onboardingConcerns.includes('concern-family'));
-      
-    const isBPrioritized = 
-      (b.category === 'cost' && onboardingConcerns.includes('concern-cost')) ||
-      (b.category === 'insurance' && onboardingConcerns.includes('concern-insurance')) ||
-      (b.category === 'testing' && onboardingConcerns.includes('concern-test')) ||
-      (b.category === 'medication' && onboardingConcerns.includes('concern-meds')) ||
-      (b.category === 'family' && onboardingConcerns.includes('concern-family'));
-
-    if (isAPrioritized && !isBPrioritized) return -1;
-    if (!isAPrioritized && isBPrioritized) return 1;
-    return 0;
+    return getFaqMatchScore(b) - getFaqMatchScore(a);
   });
 
-  // 4. Personalized Onboarding - Sort Helpful Resources based on Concerns
+  const getResourceMatchScore = (res: HelpfulResource) => {
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') return 0;
+    let score = 0;
+
+    // res-9: Consumer Guide: Moratorium on Genetic Testing and Insurance
+    if (res.id === 'res-9') {
+      if (onboardingConcerns.includes('concern-insurance')) score += 10;
+      if (onboardingTopics.includes('topic-insurance') || onboardingTopics.includes('insurance')) score += 6;
+    }
+
+    // res-7: Patient Story: A Mother's Fight for Her Children (Video)
+    if (res.id === 'res-7') {
+      if (onboardingConcerns.includes('concern-family')) score += 10;
+      if (onboardingTopics.includes('topic-family') || onboardingTopics.includes('cascade-screening')) score += 6;
+      if (onboardingConcerns.includes('concern-[#00a859]') || onboardingTopics.includes('topic-risk')) score += 3;
+    }
+
+    // res-6: Patient Story: Living with FH (Young Adult Video)
+    if (res.id === 'res-6') {
+      if (onboardingConcerns.includes('concern-diagnosis') || onboardingConcerns.includes('concern-curious')) score += 10;
+      if (onboardingTopics.includes('topic-basics') || onboardingTopics.includes('topic-testing')) score += 6;
+    }
+
+    // res-1: MOH Familial Hypercholesterolaemia Patient Information Leaflet
+    if (res.id === 'res-1') {
+      if (onboardingConcerns.includes('concern-cost')) score += 8;
+      if (onboardingTopics.includes('topic-basics') || onboardingTopics.includes('topic-costs')) score += 6;
+      if (onboardingConcerns.includes('concern-curious') || onboardingConcerns.includes('concern-diagnosis')) score += 6;
+    }
+
+    // res-4: Primary Care FH English Brochure
+    if (res.id === 'res-4') {
+      if (onboardingConcerns.includes('concern-meds') || onboardingConcerns.includes('concern-cost')) score += 10;
+      if (onboardingTopics.includes('topic-treatment') || onboardingTopics.includes('topic-costs') || onboardingTopics.includes('treatment-medication')) score += 6;
+    }
+
+    // res-8: Genetic Testing for FH: Patient Decision Aid
+    if (res.id === 'res-8') {
+      if (onboardingConcerns.includes('concern-test') || onboardingConcerns.includes('concern-cost')) score += 10;
+      if (onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next') || onboardingTopics.includes('genetic-testing')) score += 6;
+    }
+
+    // res-5: Singapore Heart Foundation FH Guide
+    if (res.id === 'res-5') {
+      if (onboardingConcerns.includes('concern-[#00a859]') || onboardingConcerns.includes('concern-curious')) score += 10;
+      if (onboardingTopics.includes('topic-risk') || onboardingTopics.includes('topic-lifestyle')) score += 6;
+    }
+
+    // res-2: Clinical Practice Guidelines for Familial Hypercholesterolaemia
+    if (res.id === 'res-2') {
+      if (onboardingConcerns.includes('concern-test')) score += 8;
+      if (onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next')) score += 6;
+      if (onboardingFamiliarity === 'research' || onboardingFamiliarity === 'advanced') score += 8;
+    }
+
+    return score;
+  };
+
+  const getResourceMatchReason = (res: HelpfulResource) => {
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') return null;
+    const score = getResourceMatchScore(res);
+    if (score <= 0) return null;
+
+    if (res.id === 'res-9') return language === 'ms' ? 'Insurans' : language === 'zh' ? '保险权益' : language === 'ta' ? 'காப்பீடு' : 'Insurance Protections';
+    if (res.id === 'res-7') return language === 'ms' ? 'Keluarga' : language === 'zh' ? '家庭故事' : language === 'ta' ? 'குடும்பம்' : 'Family & Children';
+    if (res.id === 'res-6') return language === 'ms' ? 'Pengalaman' : language === 'zh' ? '确诊经历' : language === 'ta' ? 'அனுபவம்' : 'Living with Diagnosis';
+    if (res.id === 'res-1' || res.id === 'res-4' || res.id === 'res-8') {
+      if (onboardingConcerns.includes('concern-cost') || onboardingTopics.includes('topic-costs')) {
+        return language === 'ms' ? 'Kos & Subsidi' : language === 'zh' ? '费用津贴' : language === 'ta' ? 'செலவு' : 'Costs & Subsidies';
+      }
+    }
+    if (res.id === 'res-8') return language === 'ms' ? 'Panduan Ujian' : language === 'zh' ? '检测指南' : language === 'ta' ? 'பரிசோதனை' : 'Testing Decision Aid';
+    if (res.id === 'res-4') return language === 'ms' ? 'Ubat-ubatan' : language === 'zh' ? '药物治疗' : language === 'ta' ? 'மருந்துகள்' : 'Treatment & Meds';
+    if (res.id === 'res-5') return language === 'ms' ? 'Kesihatan Jantung' : language === 'zh' ? '心脏健康' : language === 'ta' ? 'இதய ஆரோக்கியம்' : 'Heart Health';
+    if (res.id === 'res-2') return language === 'ms' ? 'Panduan Klinikal' : language === 'zh' ? '临床指南' : language === 'ta' ? 'மருத்துவ வழிகாட்டி' : 'Clinical Practice';
+
+    return language === 'ms' ? 'Padanan Relevan' : language === 'zh' ? '契合需求' : language === 'ta' ? 'பொருத்தமானது' : 'Personalized Match';
+  };
+
   const sortedHelpfulResources = [...getLocalizedHelpfulResources(helpfulResources, language)].sort((a, b) => {
-    if (!onboardingCompleted) return 0;
-    
-    // Compute score for resource a
-    let scoreA = 0;
-    if (onboardingConcerns.includes('concern-insurance') && (a.id === 'res-9')) scoreA += 5; // Moratorium clinical guide
-    if (onboardingConcerns.includes('concern-family') && (a.id === 'res-7')) scoreA += 5; // Patient Story: A mother's fight
-    if (onboardingConcerns.includes('concern-cost') && (a.id === 'res-1' || a.id === 'res-4' || a.id === 'res-8')) scoreA += 5; // Brochures/Subsidies
-    if (onboardingConcerns.includes('concern-test') && (a.id === 'res-2')) scoreA += 5; // Clinical Guide
-
-    // Compute score for resource b
-    let scoreB = 0;
-    if (onboardingConcerns.includes('concern-insurance') && (b.id === 'res-9')) scoreB += 5;
-    if (onboardingConcerns.includes('concern-family') && (b.id === 'res-7')) scoreB += 5;
-    if (onboardingConcerns.includes('concern-cost') && (b.id === 'res-1' || b.id === 'res-4' || b.id === 'res-8')) scoreB += 5;
-    if (onboardingConcerns.includes('concern-test') && (b.id === 'res-2')) scoreB += 5;
-
-    return scoreB - scoreA;
+    return getResourceMatchScore(b) - getResourceMatchScore(a);
   });
-
-  useEffect(() => {
-    if (activeScreen !== ScreenId.Education) {
-      setViewingChecklist(false);
-    }
-  }, [activeScreen]);
-
-  useEffect(() => {
-    if (viewingChecklist) {
-      setEduSubTab('checklist');
-    }
-  }, [viewingChecklist]);
 
   useEffect(() => {
     if (downloadToast) {
@@ -1653,10 +1732,10 @@ export default function PhoneSimulator({
              language === 'ta' ? 'FH-க்கான "குடும்ப அடுக்கு திரையிடல்" (Cascade Screening) என்றால் என்ன?' :
              'What is Cascade Screening for FH?'),
         options: onboardingTopics.includes('topic-costs') ? [
-          language === 'ms' ? 'Rakyat Singapore menerima subsidi MOH 50%–75% dan boleh menggunakan MediSave' :
-          language === 'zh' ? '符合资格的新加坡公民享有 50%–75% MOH 补贴，并可用 MediSave 支付' :
-          language === 'ta' ? 'சிங்கப்பூரியர்கள் 50%-75% MOH மானியத்தைப் பெறுகிறார்கள் மற்றும் MediSave ஐப் பயன்படுத்தலாம்' :
-          'Eligible Singapore Citizens receive 50%–75% MOH subsidies and can fully use MediSave',
+          language === 'ms' ? 'Rakyat Singapura dan Penduduk Tetap yang layak menerima subsidi berasaskan means sehingga 70% dan MediSave500/700 boleh digunakan selepas subsidi' :
+          language === 'zh' ? '符合资格的新加坡公民和永久居民可获得高达 70% 的按需补贴，MediSave500/700 可在补贴后使用' :
+          language === 'ta' ? 'தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தர குடிமக்கள் 70% வரை வருமான அடிப்படையிலான மானியம் பெறலாம், மானியத்திற்குப் பிறகு MediSave500/700 பயன்படுத்தலாம்' :
+          'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%, and MediSave500/700 may be used after subsidies',
 
           language === 'ms' ? 'Tiada subsidi diberikan untuk sebarang ujian genetik' :
           language === 'zh' ? '基因检测完全没有任何政府补贴' :
@@ -1685,7 +1764,7 @@ export default function PhoneSimulator({
         ],
         correctAnswer: 0,
         explanation: onboardingTopics.includes('topic-costs')
-          ? 'Singapore Citizens get 50-75% subsidies for FH counselling and genetic testing, with MediSave coverage.'
+          ? 'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70% for FH counselling and genetic testing, with MediSave500/700 available after subsidies.'
           : 'Cascade screening tests parents, siblings, and children of an index patient who have a 50% inheritance chance.'
       });
     }
@@ -1953,21 +2032,71 @@ export default function PhoneSimulator({
   const getIcon = (name: string, customColor?: string) => {
     const color = customColor || "text-[#00a859]";
     switch (name) {
-      case 'HeartPulse': return <HeartPulse className={`w-5 h-5 ${color}`} />;
-      case 'Dna': return <Dna className={`w-5 h-5 ${color}`} />;
-      case 'ClipboardList': return <ClipboardList className={`w-5 h-5 ${color}`} />;
-      case 'Coins': return <Coins className={`w-5 h-5 ${color}`} />;
+      case 'HeartPulse':
+      case '❤️':
+      case 'heart': return <HeartPulse className={`w-5 h-5 ${color}`} />;
+      case 'Dna':
+      case '🧬': return <Dna className={`w-5 h-5 ${color}`} />;
+      case 'ClipboardList':
+      case '📋': return <ClipboardList className={`w-5 h-5 ${color}`} />;
+      case 'Coins':
+      case '💰':
+      case '💵': return <Coins className={`w-5 h-5 ${color}`} />;
       case 'ShieldAlert': return <ShieldAlert className={`w-5 h-5 ${color}`} />;
-      case 'Pills': return <Pill className={`w-5 h-5 ${color}`} />;
-      case 'Pill': return <Pill className={`w-5 h-5 ${color}`} />;
-      case 'Heart': return <HeartPulse className={`w-5 h-5 ${color}`} />;
-      case 'HelpCircle': return <Info className={`w-5 h-5 ${color}`} />;
+      case 'Pills':
+      case 'Pill':
+      case '💊': return <Pill className={`w-5 h-5 ${color}`} />;
+      case 'HelpCircle':
+      case '🤔':
+      case '😟':
+      case '😊': return <Info className={`w-5 h-5 ${color}`} />;
       case 'FileText': return <FileText className={`w-5 h-5 ${color}`} />;
       case 'BookOpen': return <BookOpen className={`w-5 h-5 ${color}`} />;
-      case 'Users': return <Users className={`w-5 h-5 ${color}`} />;
-      case 'Shield': return <Shield className={`w-5 h-5 ${color}`} />;
-      case 'ShieldCheck': return <ShieldCheck className={`w-5 h-5 ${color}`} />;
+      case 'Users':
+      case '👥':
+      case '👨‍👩‍👧': return <Users className={`w-5 h-5 ${color}`} />;
+      case 'Shield':
+      case 'ShieldCheck':
+      case '🛡️':
+      case '🛡': return <ShieldCheck className={`w-5 h-5 ${color}`} />;
       case 'Play': return <Play className={`w-5 h-5 ${color} fill-current ml-0.5`} />;
+      case 'FlaskConical':
+      case '🧪':
+      case '💉': return <FlaskConical className={`w-5 h-5 ${color}`} />;
+      case 'Apple':
+      case '🥗':
+      case '🍎': return <Apple className={`w-5 h-5 ${color}`} />;
+      case 'Ban':
+      case '🚫': return <Ban className={`w-5 h-5 ${color}`} />;
+      case 'Activity':
+      case '🏃‍♂️':
+      case '🏃':
+      case '🩸':
+      case 'TrendingUp':
+      case '📈':
+      case 'TrendingDown':
+      case '📉': return <Activity className={`w-5 h-5 ${color}`} />;
+      case 'RefreshCw':
+      case '🔄': return <RefreshCw className={`w-5 h-5 ${color}`} />;
+      case 'Search':
+      case '🔍': return <Search className={`w-5 h-5 ${color}`} />;
+      case 'MessageSquare':
+      case '🗣️':
+      case '🗣': return <MessageSquare className={`w-5 h-5 ${color}`} />;
+      case 'Calendar':
+      case '📅': return <Calendar className={`w-5 h-5 ${color}`} />;
+      case 'Building2':
+      case '🇸🇬':
+      case '🏦': return <Building2 className={`w-5 h-5 ${color}`} />;
+      case 'Lock':
+      case '🔒': return <Shield className={`w-5 h-5 ${color}`} />;
+      case 'CheckCircle':
+      case '✅': return <CheckCircle className={`w-5 h-5 ${color}`} />;
+      case 'Clock':
+      case '⏳': return <Clock className={`w-5 h-5 ${color}`} />;
+      case 'Sparkles':
+      case '✨':
+      case '⭐': return <Sparkles className={`w-5 h-5 ${color}`} />;
       default: return <Info className={`w-5 h-5 ${color}`} />;
     }
   };
@@ -2348,7 +2477,6 @@ export default function PhoneSimulator({
                               </div>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] font-bold text-[#00a859] font-mono bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">{slot.cost}</span>
                               <ChevronRight className="w-4 h-4 text-slate-400" />
                             </div>
                           </button>
@@ -2358,6 +2486,14 @@ export default function PhoneSimulator({
                         {t('reschedule_no_slots')}
                       </div>
                     )}
+                  </div>
+
+                  {/* Shared cost estimate */}
+                  <div className="bg-white border border-emerald-100 rounded-xl p-3 space-y-1">
+                    <div className="text-[9.5px] font-bold text-emerald-800 uppercase tracking-tight">Estimated Cash Payment</div>
+                    <div className="text-base font-extrabold text-[#00a859] font-mono">S$18–S$87</div>
+                    <p className="text-[10px] text-slate-500 leading-snug">For an index patient with S$500 available under MediSave500. Final payment depends on subsidy eligibility and available MediSave.</p>
+                    <p className="text-[10px] text-slate-500 leading-snug">The package includes pre-test counselling, genetic testing, blood drawing and post-test counselling.</p>
                   </div>
                 </div>
               </div>{/* end scrollable body */}
@@ -2819,39 +2955,6 @@ export default function PhoneSimulator({
                 </div>
               )}
 
-              {/* Ask HealthBuddy AI Assistant Promo Banner */}
-              <div className="px-4">
-                <button
-                  onClick={() => setChatOpen(true)}
-                  className="w-full text-left bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-800/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-md hover:border-emerald-700 transition cursor-pointer"
-                >
-                  <div className="space-y-1 flex-1">
-                    <span className="bg-emerald-500/20 text-emerald-400 text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-500/30 font-sans inline-flex items-center gap-1 select-none">
-                      <Sparkles className="w-2.5 h-2.5" /> GovTech AI Companion
-                    </span>
-                    <h4 className="font-bold text-xs text-white tracking-tight leading-tight">
-                      {isFHReferred ? t('chatbot_banner_title') : (
-                        language === 'ms' ? 'Tanya Pembantu AI HealthBuddy' :
-                        language === 'zh' ? '咨询 HealthBuddy AI 智能助理' :
-                        language === 'ta' ? 'HealthBuddy AI உதவியாளரிடம் கேளுங்கள்' :
-                        'Ask HealthBuddy AI Assistant'
-                      )}
-                    </h4>
-                    <p className="text-[10px] text-slate-300 leading-normal">
-                      {isFHReferred ? t('chatbot_banner_body') : (
-                        language === 'ms' ? 'Ketahui lebih lanjut tentang subsidi, persediaan, dan penjagaan kesihatan am anda.' :
-                        language === 'zh' ? '了解您的普通门诊补贴津贴、就诊准备和基本健康建议。' :
-                        language === 'ta' ? 'மானியங்கள், தயாரிப்பு மற்றும் உங்கள் பொதுவான மருத்துவக் கேள்விகள் பற்றி மேலும் அறியவும்.' :
-                        'Learn about subsidies, clinic preparation, and general health advice instantly.'
-                      )}
-                    </p>
-                  </div>
-                  <div className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
-                    <MessageSquare className="w-4.5 h-4.5 text-emerald-400" />
-                  </div>
-                </button>
-              </div>
-
               {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-4">
@@ -2914,7 +3017,7 @@ export default function PhoneSimulator({
                 <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-none">
                   {/* Card 1: Diabetes Hub (Beautiful custom stylized graphic matching screenshot style) */}
                   <div className="bg-amber-100/90 border border-amber-200 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
-                    <div className="absolute right-2 bottom-2 text-5xl opacity-40 select-none">🩺</div>
+                    <HeartPulse className="absolute -right-1 -bottom-1 w-14 h-14 text-amber-500/20 stroke-[1.5]" />
                     <div>
                       <span className="bg-amber-500/20 text-amber-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">
                         {language === 'ms' ? 'Hab Aktif' :
@@ -2939,7 +3042,7 @@ export default function PhoneSimulator({
 
                   {/* Card 2: Mental Well-being */}
                   <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
-                    <div className="absolute right-2 bottom-2 text-5xl opacity-40 select-none">🧠</div>
+                    <Brain className="absolute -right-1 -bottom-1 w-14 h-14 text-emerald-500/20 stroke-[1.5]" />
                     <div>
                       <span className="bg-emerald-500/20 text-emerald-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">
                         {language === 'ms' ? 'Sumber' :
@@ -3041,33 +3144,30 @@ export default function PhoneSimulator({
                 <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-4">{t('why_this_matters')}</h4>
                 <div className="space-y-3">
                   {/* Card 1 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Check className="w-5 h-5 text-[#00a859]" />
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <Check className="w-4.5 h-4.5 text-[#00a859]" />
                     </div>
                     <div className="flex-1">
                       <h5 className="text-xs font-bold text-slate-800">{t('early_diagnosis')}</h5>
-                      <p className="text-xs text-slate-600 leading-relaxed mt-1">{t('early_diagnosis_desc')}</p>
                     </div>
                   </div>
                   {/* Card 2 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Users className="w-5 h-5 text-[#00a859]" />
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <Users className="w-4.5 h-4.5 text-[#00a859]" />
                     </div>
                     <div className="flex-1">
                       <h5 className="text-xs font-bold text-slate-800">{t('protect_family')}</h5>
-                      <p className="text-xs text-slate-600 leading-relaxed mt-1">{t('protect_family_desc')}</p>
                     </div>
                   </div>
                   {/* Card 3 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex gap-3 items-center shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Sparkles className="w-5 h-5 text-[#00a859]" />
+                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <Sparkles className="w-4.5 h-4.5 text-[#00a859]" />
                     </div>
                     <div className="flex-1">
                       <h5 className="text-xs font-bold text-slate-800">{t('personalized_care')}</h5>
-                      <p className="text-xs text-slate-600 leading-relaxed mt-1">{t('personalized_care_desc')}</p>
                     </div>
                   </div>
                 </div>
@@ -3890,9 +3990,8 @@ export default function PhoneSimulator({
                              </div>
                            );
                            if (id === 'costs-subsidies') return (
-                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 space-y-1 my-2">
-                               <div className="text-[9.5px] font-bold text-emerald-800">{t('illus_singapore_financing_model')}</div>
-                               <div className="flex justify-between text-[8.5px]"><span>{t('illus_government_subsidy')}</span><span className="text-[#00a859] font-bold">{t('illus_up_to_75_covered')}</span></div>
+                             <div className="text-[7.5px] text-slate-500 leading-relaxed my-2 pt-1 border-t border-emerald-100/40">
+                               Family members eligible for cascade screening may pay approximately S$8–S$38 after subsidies and MediSave.
                              </div>
                            );
                            if (id === 'insurance-rights' || id === 'insurance') return (
@@ -4040,13 +4139,10 @@ export default function PhoneSimulator({
                                     <h5 className="font-display font-extrabold text-[11px] text-slate-900 leading-tight tracking-tight">{topic.title}</h5>
                                     <p className="text-[10px] text-slate-500 leading-relaxed">{topic.shortSummary}</p>
                                     {!isExpanded && (
-                                      <div className="flex items-center justify-between pt-1 w-full">
-                                        <div className="flex items-center gap-1.5">
-                                          <span className="text-[8px] bg-slate-50 text-slate-400 font-medium px-1.5 py-0.5 rounded border border-slate-200/30">{topic.readingTime}</span>
-                                          {isSelected && (
-                                            <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">{t('edu_selected_for_you')}</span>
-                                          )}
-                                        </div>
+                                      <div className={`flex items-center pt-1 w-full ${isSelected ? 'justify-between' : 'justify-end'}`}>
+                                        {isSelected && (
+                                          <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">{t('edu_selected_for_you')}</span>
+                                        )}
                                         {!isSelected && (
                                           <span className="text-[9.5px] font-extrabold text-[#00a859] flex items-center gap-0.5">
                                             {t('step2_opt_learn_more') || 'Learn More'} <ChevronRight className="w-3 h-3" />
@@ -4209,7 +4305,7 @@ export default function PhoneSimulator({
                                             else if (sec.id === 'testing-guide') { displayTitle = 'Your Testing Guide'; displaySubtitle = isExpanded ? 'Six straightforward steps from referral to your personal care plan.' : 'Step by step from counselling to your results.'; }
                                             else if (sec.id === 'medication-fh') { displayTitle = 'Medication & FH'; displaySubtitle = isExpanded ? 'Highly effective, subsidized medical therapies.' : 'How statins work and what to expect.'; }
                                             else if (sec.id === 'why-testing-matters') { displayTitle = 'Protecting Your Family'; displaySubtitle = isExpanded ? 'Confirming FH unlocks personalised care.' : 'How cascade screening keeps your loved ones safe.'; }
-                                            else if (sec.id === 'costs-subsidies') { displayTitle = 'Costs and Subsidies'; displaySubtitle = isExpanded ? 'Up to 75% MOH subsidies.' : 'What you pay and how subsidies and MediSave help.'; }
+                                            else if (sec.id === 'costs-subsidies') { displayTitle = 'Costs and Subsidies'; displaySubtitle = isExpanded ? 'Up to 70% means-tested MOH subsidies.' : 'What you pay and how subsidies and MediSave help.'; }
                                             else if (sec.id === 'insurance-rights') { displayTitle = 'Insurance & Your Rights'; displaySubtitle = isExpanded ? 'National guidelines safeguard your right.' : 'How the LIA Moratorium protects you.'; }
                                           }
 
@@ -4240,12 +4336,10 @@ export default function PhoneSimulator({
 
                                                 if (!shouldShowFullDepth) {
                                                   let summaryText = sec.id === 'testing-guide' ? (t('edu_testing_guide_summary') || "Your journey is fully structured, covering counselling and blood draw.") : sec.shortSummary;
-                                                  let readingTimeLabel = sec.readingTime || "1-min read";
                                                   return (
                                                     <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-2.5 text-left">
                                                       <p className="text-slate-600 font-sans leading-relaxed text-[10.5px] font-medium">{summaryText}</p>
-                                                      <div className="flex items-center justify-between pt-1">
-                                                        <span className="text-[9px] text-slate-400 font-mono font-medium flex items-center gap-1"><Clock className="w-3 h-3" /> {readingTimeLabel}</span>
+                                                      <div className="flex items-center justify-end pt-1">
                                                         <button onClick={(e) => { e.stopPropagation(); setForceFullExpand(prev => ({ ...prev, [sec.id]: true })); }} className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] font-extrabold text-[9.5px] rounded-lg border border-emerald-100/40 cursor-pointer">{t('step2_opt_learn_more') || 'Learn More'}</button>
                                                       </div>
                                                     </div>
@@ -4383,43 +4477,6 @@ export default function PhoneSimulator({
                           </div>
                         );
                       })()}
-                    </div>
-                  )}
-
-                  {/* TAB 2: MY CHECKLIST */}
-                  {eduSubTab === 'checklist' && (
-                    <div className="space-y-4 animate-fade-in">
-                      {/* Checklist Progress Bar */}
-                      {(() => {
-                        const completedCount = checklist.filter(item => item.checked).length;
-                        const totalCount = checklist.length;
-                        const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-                        return (
-                          <div className="bg-emerald-50/40 border border-emerald-100/60 rounded-xl p-3.5 space-y-2">
-                            <div className="flex justify-between text-[11px] text-slate-700 font-bold">
-                              <span>{t('edu_checklist_progress_title')}</span>
-                              <span className="text-emerald-700">
-                                {t('edu_checklist_progress_detail')
-                                  .replace('{completed}', String(completedCount))
-                                  .replace('{total}', String(totalCount))
-                                  .replace('{percent}', String(percent))}
-                              </span>
-                            </div>
-                            <div className="w-full h-2 bg-slate-200/75 rounded-full overflow-hidden">
-                              <div className="bg-[#00a859] h-full transition-all duration-300" style={{ width: `${percent}%` }} />
-                            </div>
-                            {percent === 100 ? (
-                              <p className="text-[10px] text-emerald-800 font-medium flex items-center gap-1">
-                                <span className="text-emerald-600 font-bold">✓</span> {t('edu_checklist_progress_success')}
-                              </p>
-                            ) : (
-                              <p className="text-[10px] text-slate-500 leading-normal">
-                                {t('edu_checklist_progress_desc')}
-                              </p>
-                            )}
-                          </div>
-                        );
-                      })()}
 
                       {/* Pre-counselling Preparation Checklist Card */}
                       <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
@@ -4428,6 +4485,9 @@ export default function PhoneSimulator({
                             <CheckSquare className="w-4 h-4 text-[#00a859]" />
                             <h4 className="font-bold text-xs text-slate-800 font-sans">{t('edu_checklist_card_title')}</h4>
                           </div>
+                          <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-extrabold border border-emerald-100">
+                            Optional
+                          </span>
                         </div>
                         <p className="text-[10px] text-slate-500 leading-relaxed font-sans">
                           {t('edu_checklist_card_desc')}
@@ -4501,6 +4561,35 @@ export default function PhoneSimulator({
                           <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('faq_title').toUpperCase()}</h4>
                         </div>
 
+                        {/* Personalized FAQ Banner */}
+                        {onboardingCompleted && questionnaireStatus === 'completed' && (
+                          <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
+                            <Sparkles className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
+                            <div className="space-y-0.5 text-left min-w-0 flex-1">
+                              <div className="flex justify-between items-center gap-2">
+                                <span className="text-[9px] font-extrabold text-emerald-800 uppercase tracking-widest font-mono">
+                                  {language === 'ms' ? 'Soalan Lazim Dipersonalisasi' :
+                                   language === 'zh' ? '个性化常见问题' :
+                                   language === 'ta' ? 'தனிப்பயனாக்கப்பட்ட கேள்விகள்' :
+                                   'PERSONALIZED FAQS'}
+                                </span>
+                                <span className="text-[8px] bg-white text-emerald-800 font-extrabold px-1.5 py-0.5 rounded font-mono border border-emerald-200 shrink-0">
+                                  {language === 'ms' ? 'Mengikut Jawapan Soal Selidik' :
+                                   language === 'zh' ? '基于问卷回答' :
+                                   language === 'ta' ? 'கேள்வித்தாள் பதில்கள்' :
+                                   'Based on Questionnaire'}
+                                </span>
+                              </div>
+                              <p className="text-[10.5px] text-slate-700 leading-normal font-sans">
+                                {language === 'ms' ? 'Soalan yang paling relevan dengan pilihan topik dan kebimbangan anda telah diutamakan di atas.' :
+                                 language === 'zh' ? '根据您选择的主题和关注点，最相关的常见问题已优先置顶显示。' :
+                                 language === 'ta' ? 'நீங்கள் தேர்ந்தெடுத்த தலைப்புகள் மற்றும் கவலைகளுக்கு மிகவும் தொடர்புடைய கேள்விகள் மேலே வரிசைப்படுத்தப்பட்டுள்ளன.' :
+                                 'FAQs most relevant to your selected topics and concerns are prioritized at the top.'}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Category Filter Tabs */}
                         <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                           {[
@@ -4532,14 +4621,23 @@ export default function PhoneSimulator({
                             .filter(faq => activeFaqCategory === 'all' || faq.category === activeFaqCategory)
                             .map((faq, idx) => {
                               const isFaqExpanded = faqActiveIdx === idx;
+                              const matchReason = getFaqMatchReason(faq);
                               return (
-                                <div key={idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-3xs">
+                                <div key={idx} className={`bg-white border rounded-xl overflow-hidden shadow-3xs transition ${matchReason ? 'border-emerald-300/80 ring-1 ring-emerald-500/10' : 'border-slate-200'}`}>
                                   <button
                                     onClick={() => setFaqActiveIdx(isFaqExpanded ? null : idx)}
-                                    className="w-full text-left p-3.5 text-xs font-bold text-slate-800 flex justify-between items-center hover:bg-slate-50 transition cursor-pointer"
+                                    className="w-full text-left p-3.5 text-xs font-bold text-slate-800 flex justify-between items-start hover:bg-slate-50 transition cursor-pointer gap-2"
                                   >
-                                    <span className="leading-snug pr-3">{faq.question}</span>
-                                    <ChevronRight className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isFaqExpanded ? 'rotate-90' : ''}`} />
+                                    <div className="space-y-1 flex-1 pr-1 min-w-0">
+                                      {matchReason && (
+                                        <span className="inline-flex items-center gap-1 text-[8.5px] font-extrabold bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-md border border-emerald-200/60 font-mono tracking-tight">
+                                          <Sparkles className="w-2.5 h-2.5 text-[#00a859] shrink-0" />
+                                          {language === 'ms' ? 'Disyorkan' : language === 'zh' ? '推荐关注' : language === 'ta' ? 'பரிந்துரைக்கப்பட்டது' : 'Recommended'}: {matchReason}
+                                        </span>
+                                      )}
+                                      <span className="block font-bold text-slate-900 leading-snug">{faq.question}</span>
+                                    </div>
+                                    <ChevronRight className={`w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5 transition-transform ${isFaqExpanded ? 'rotate-90' : ''}`} />
                                   </button>
                                   
                                   {isFaqExpanded && (
@@ -4553,8 +4651,8 @@ export default function PhoneSimulator({
                         </div>
                       </div>
 
-                      {/* Helpful Resources Section */}
-                      <div className="space-y-3">
+                      {/* Helpful Resources Section (Grouped by Category) */}
+                      <div className="space-y-3 pt-1">
                         <div className="flex justify-between items-center">
                           <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono font-sans">{t('edu_helpful_resources')}</h4>
                         </div>
@@ -4618,19 +4716,10 @@ export default function PhoneSimulator({
                                       <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#00a859] transition leading-tight">{res.title}</h5>
                                       <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 border ${typeTagClass}`}>{res.type}</span>
                                     </div>
-                                    <p className="text-[10px] text-slate-500 leading-normal mt-1">{res.summary}</p>
                                   </div>
                                 </div>
-                                
-                                <div className="flex justify-between items-center pl-9 pt-0.5">
-                                  {/* Resource Keyword Tags */}
-                                  <div className="flex flex-wrap gap-1">
-                                    {res.keywords.map((kw, i) => (
-                                      <span key={i} className="text-[8px] bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded font-sans border border-slate-200/50">
-                                        #{kw}
-                                      </span>
-                                    ))}
-                                  </div>
+
+                                <div className="flex items-center justify-end px-1 text-[10px]">
                                   <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor}`}>
                                     <span>{t('edu_view_resource')}</span>
                                     <ExternalLink className="w-2.5 h-2.5 transition" />
@@ -4800,20 +4889,42 @@ export default function PhoneSimulator({
 
                   {/* Contextual Booking Reinforcement Card */}
                   <div className="bg-[#00a859] rounded-2xl p-5 text-center space-y-3.5 shadow-sm">
-                    <div className="space-y-1.5 px-1">
-                      <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
-                        Ready to book your GAC counselling slot?
-                      </h4>
-                      <p className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto">
-                        Take the active step today. Booking takes under 20 seconds within HealthHub.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onChangeScreen(ScreenId.Booking)}
-                      className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
-                    >
-                      {t('edu_cta_btn')}
-                    </button>
+                    {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
+                      <>
+                        <div className="space-y-1.5 px-1">
+                          <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
+                            {t('edu_cta_title_booked')}
+                          </h4>
+                          <div className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto space-y-1">
+                            <p>{t('edu_cta_subtitle_1_booked')}</p>
+                            <p>{t('edu_cta_subtitle_2_booked')}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => onChangeScreen(ScreenId.Booking)}
+                          className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
+                        >
+                          {t('edu_cta_btn_booked')}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="space-y-1.5 px-1">
+                          <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
+                            {t('edu_cta_title')}
+                          </h4>
+                          <p className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto">
+                            {t('edu_cta_subtitle')}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => onChangeScreen(ScreenId.Booking)}
+                          className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
+                        >
+                          {t('edu_cta_btn')}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -4914,7 +5025,7 @@ export default function PhoneSimulator({
                   <div>
                     <h3 className="font-extrabold text-base text-slate-850">{t('booking_confirmed_status')}</h3>
                     <p className="text-[10px] text-[#00a859] font-extrabold uppercase tracking-wide mt-1 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block border border-emerald-100">
-                      {t('booking_subsidized_slot')}
+                      MOH SUBSIDY ELIGIBLE
                     </p>
                   </div>
 
@@ -4962,10 +5073,12 @@ export default function PhoneSimulator({
                           <strong className="col-span-7 text-slate-800 text-right font-semibold">{details.duration.replace('mins', t('booking_mins'))}</strong>
                         </div>
                         <div className="grid grid-cols-12 gap-x-2 items-start pt-2 border-t border-slate-200">
-                          <span className="col-span-5 text-slate-500 font-bold">{t('booking_out_of_pocket')}</span>
-                          <strong className="col-span-7 text-emerald-700 text-right font-extrabold font-mono">
-                            {details.cost} <span className="text-[10px] text-slate-550 font-normal block">({t('booking_chas_subsidized')})</span>
-                          </strong>
+                          <span className="col-span-5 text-slate-500 font-bold">Estimated Cash Payment:</span>
+                          <div className="col-span-7 text-right space-y-0.5">
+                            <strong className="text-emerald-700 font-extrabold font-mono block">S$18–S$87</strong>
+                            <span className="text-[10px] text-slate-500 font-normal block">After applicable subsidies and MediSave</span>
+                            <span className="text-[10px] text-slate-400 font-normal block">Final payment depends on subsidy eligibility and available MediSave.</span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -5041,12 +5154,12 @@ export default function PhoneSimulator({
                   </ul>
                   <button 
                     onClick={() => {
-                      setViewingChecklist(true);
+                      setEduSubTab('guides');
                       onChangeScreen(ScreenId.Education);
                     }}
                     className="text-[#00a859] font-extrabold text-[11px] hover:underline flex items-center gap-0.5 text-left pt-1"
                   >
-                    {t('booking_view_checklist')} <ChevronRight className="w-3.5 h-3.5" />
+                    {t('edu_tab_guides')} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -5223,7 +5336,7 @@ export default function PhoneSimulator({
 
                             {gpsError && (
                               <p className="text-[9px] text-red-600 font-semibold leading-tight bg-red-50 border border-red-100 p-2 rounded">
-                                ⚠️ {gpsError}
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 inline mr-1" />{gpsError}
                               </p>
                             )}
                           </div>
@@ -5463,9 +5576,6 @@ export default function PhoneSimulator({
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                  <span className="text-[10px] font-bold text-[#00a859] font-mono bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                                    {slot.cost}
-                                  </span>
                                   <ChevronRight className="w-4 h-4 text-slate-400" />
                                 </div>
                               </button>
@@ -5478,11 +5588,11 @@ export default function PhoneSimulator({
                         </div>
                       </div>
 
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-150 flex gap-2.5 items-center text-xs text-slate-600">
-                        <Coins className="w-4 h-4 text-[#00a859] shrink-0" />
-                        <p className="text-[11px] leading-snug">
-                          {t('booking_subsidies_computed')}
-                        </p>
+                      <div className="bg-white border border-emerald-100 rounded-xl p-3 space-y-1">
+                        <div className="text-[9.5px] font-bold text-emerald-800 uppercase tracking-tight">Estimated Cash Payment</div>
+                        <div className="text-base font-extrabold text-[#00a859] font-mono">S$18–S$87</div>
+                        <p className="text-[10px] text-slate-500 leading-snug">For an index patient with S$500 available under MediSave500. Final payment depends on subsidy eligibility and available MediSave.</p>
+                        <p className="text-[10px] text-slate-500 leading-snug">The package includes pre-test counselling, genetic testing, blood drawing and post-test counselling.</p>
                       </div>
                     </div>
                   );
@@ -5542,7 +5652,7 @@ export default function PhoneSimulator({
                             </div>
                             <div className="flex justify-between border-t border-slate-100 pt-2.5 mt-2.5">
                               <span className="text-slate-500 font-bold">{t('booking_out_of_pocket_label')}</span>
-                              <span className="text-[#00a859] font-extrabold font-mono">{slot.cost}</span>
+                              <span className="text-[#00a859] font-extrabold font-mono">S$18–S$87 <span className="text-[9px] font-sans font-medium text-slate-400">(est.)</span></span>
                             </div>
                           </div>
                         </div>
@@ -5601,6 +5711,21 @@ export default function PhoneSimulator({
                     )}
                   </p>
                 </div>
+
+                {/* Account & Profile Navigation */}
+                <button
+                  onClick={() => onChangeScreen(ScreenId.Profile)}
+                  className="w-full bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex items-center gap-3 hover:bg-slate-50/60 hover:border-slate-300 active:scale-[0.99] transition cursor-pointer text-left"
+                >
+                  <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100 text-[#00a859] shrink-0">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-xs text-slate-800">Account &amp; Profile</h4>
+                    <p className="text-[10px] text-slate-500 mt-0.5">View your personal details and profile</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                </button>
 
                 {/* Master Toggle */}
                 <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex justify-between items-center">
@@ -5756,13 +5881,13 @@ export default function PhoneSimulator({
                               }
 
                               if (language === 'ms') {
-                                return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi sehingga 75% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi sehingga 70% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
                               } else if (language === 'zh') {
-                                return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 75% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 70% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
                               } else if (language === 'ta') {
-                                return `MOH HealthHub: ${dateStr} அன்று ${timeStr} மணிக்கு ${bookedClinicName}-இல் உங்கள் பொது வெளிநோயாளி ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 75% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: ${dateStr} அன்று ${timeStr} மணிக்கு ${bookedClinicName}-இல் உங்கள் பொது வெளிநோயாளி ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 70% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/gen-ref`;
                               } else {
-                                return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Subsidies up to 75% are cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Subsidies up to 70% are cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
                               }
                             })()}
                           </div>
@@ -5883,45 +6008,6 @@ export default function PhoneSimulator({
                           </div>
                           <div className="bg-[#e2f4c5] p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-[#d3eab0] relative shadow-3xs max-w-[280px]">
                             <h4 className="text-[11px] font-extrabold text-emerald-900 mb-1">MOH Appointment Alert</h4>
-                    {selectedChannels.includes('push') && (
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-                          {t('settings_lockscreen_preview_title')}
-                        </label>
-                        <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
-                          <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
-                            <div className="w-4 h-4 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
-                            <span>{t('settings_lockscreen_header')}</span>
-                          </div>
-                          <div className="space-y-1">
-                            <h4 className="text-xs font-bold text-slate-100">
-                              {isFHReferred ? t('lock_counselling_reminder') : (
-                                language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
-                                language === 'zh' ? '普通门诊就诊提醒' :
-                                language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
-                                'Outpatient Appointment Reminder'
-                              )}
-                            </h4>
-                            <p className="text-[10.5px] text-slate-300 leading-snug">
-                              {(() => {
-                                const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
-                                const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
-                                if (isFHReferred) {
-                                  return t('lockscreen_push_msg')
-                                    .replace('{date}', dateStr)
-                                    .replace('{time}', timeStr);
-                                }
-                                if (language === 'ms') {
-                                  return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
-                                } else if (language === 'zh') {
-                                  return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
-                                } else if (language === 'ta') {
-                                  return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
-                                } else {
-                                  return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
-                                }
-                              })()}
-                            </p>
                           </div>
                         </div>
                       </div>
@@ -5989,7 +6075,7 @@ export default function PhoneSimulator({
                                 </>;
                               }
                             })()}
-                          </div>
+                          </p>
                         </div>
                       </div>
                     )}
@@ -6079,8 +6165,8 @@ export default function PhoneSimulator({
 
                   {/* Step 1: Referral received */}
                   <div className="relative">
-                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs">
-                      ✓
+                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white shadow-xs">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_referral_received')}</h5>
@@ -6090,8 +6176,8 @@ export default function PhoneSimulator({
 
                   {/* Step 2: Education completed */}
                   <div className="relative">
-                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs">
-                      ✓
+                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white shadow-xs">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_edu_completed')}</h5>
@@ -6104,7 +6190,7 @@ export default function PhoneSimulator({
                     <div className={`absolute -left-[21px] w-5 h-5 rounded-full border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs ${
                       (appointment.status === 'booked' || appointment.status === 'confirmed') ? 'bg-emerald-500' : 'bg-amber-500'
                     }`}>
-                      {(appointment.status === 'booked' || appointment.status === 'confirmed') ? '✓' : '3'}
+                      {(appointment.status === 'booked' || appointment.status === 'confirmed') ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '3'}
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_slot_booked')}</h5>
@@ -6137,7 +6223,7 @@ export default function PhoneSimulator({
                           ? 'bg-amber-500' 
                           : 'bg-slate-300'
                     }`}>
-                      {appointment.status === 'confirmed' ? '✓' : '4'}
+                      {appointment.status === 'confirmed' ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '4'}
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_attend_counselling')}</h5>
@@ -6304,7 +6390,7 @@ export default function PhoneSimulator({
             <div className="bg-white px-4 py-3.5 border-b border-slate-200 flex justify-between items-center sticky top-0 z-10 shrink-0">
               <div className="flex items-center gap-2">
                 <button 
-                  onClick={() => onChangeScreen(ScreenId.Home)} 
+                  onClick={() => onChangeScreen(ScreenId.ReminderSettings)} 
                   className="p-1 hover:bg-slate-100 rounded-full transition cursor-pointer"
                   id="profile-back-btn"
                 >
@@ -6316,14 +6402,6 @@ export default function PhoneSimulator({
                 <span className="text-[9px] bg-emerald-50 text-[#00a859] font-extrabold uppercase px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-[#00a859]" /> {t('profile_singpass_linked')}
                 </span>
-                <button
-                  onClick={() => onChangeScreen(ScreenId.ReminderSettings)}
-                  className="p-1.5 hover:bg-slate-100 rounded-full transition cursor-pointer text-slate-600 hover:text-[#00a859]"
-                  title={t('settings_title')}
-                  id="profile-settings-btn"
-                >
-                  <Settings className="w-5 h-5" />
-                </button>
               </div>
             </div>
 
@@ -6386,7 +6464,7 @@ export default function PhoneSimulator({
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_mobile')}</span>
-                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">{patientRecord?.contact_details || '+65 9123 4567'}</span>
+                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">+65 9123 4567</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_email')}</span>
@@ -6707,14 +6785,6 @@ export default function PhoneSimulator({
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
-        {/* Floating AI Assistant Chat Button inside Phone Simulator */}
-        {!chatOpen && isFHReferred && (
-          <button
-            onClick={() => setChatOpen(true)}
-            className="absolute bottom-4 right-4 z-40 w-12 h-12 bg-[#00a859] hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 group"
-            title={t('chatbot_title')}
-          >
-            <MessageSquare className="w-5.5 h-5.5 text-white" />
           </button>
         )}
 
@@ -6724,9 +6794,7 @@ export default function PhoneSimulator({
         {[
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
           ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : []),
-          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
-          ...(isFHReferred ? [{ icon: <ClipboardList className="w-5 h-5" />, label: 'Journey', screen: ScreenId.ProgressTimeline }] : []),
-          { icon: <User className="w-5 h-5" />, label: 'Profile', screen: ScreenId.Profile }
+          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking }
         ].map((tab) => (
           <button
             key={tab.label}
