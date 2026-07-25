@@ -7,8 +7,8 @@
 This contains everything you need to run your app locally.
 
 ======
-Last updated: 25/07/2026 3:38pm
-https://ai.studio/apps/34e7a55b-db57-4070-86c3-190f2b56ed8a
+Last updated: 25/07/2026 6:05pm
+https://leea89179-ux-infs360-d4wa.bolt.host
 
 ## Run Locally
 
