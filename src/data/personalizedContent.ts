@@ -44,7 +44,7 @@ const LOCALIZED_STRINGS: Record<Language, Record<string, string>> = {
     treatment_takeaway: 'Safe, daily medications protect your heart and lower risk back to normal.',
     lifestyle_takeaway: 'A strong lifestyle foundation optimizes how well medical therapies work.',
     process_takeaway: 'The testing journey is simple, comfortable, and fully outpatient.',
-    costs_takeaway: 'Generous MOH subsidies and MediSave ensure minimal out-of-pocket cash cost.',
+    costs_takeaway: 'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%.',
     insurance_takeaway: 'The LIA Moratorium completely protects voluntary test results from underwriters.'
   },
   ms: {
@@ -64,7 +64,7 @@ const LOCALIZED_STRINGS: Record<Language, Record<string, string>> = {
     treatment_takeaway: 'Ubat harian yang selamat mengembalikan risiko sakit jantung ke tahap normal.',
     lifestyle_takeaway: 'Amalan gaya hidup sihat menyokong keberkesanan rawatan ubat-ubatan.',
     process_takeaway: 'Keseluruhan laluan ujian adalah pesakit luar yang ringkas dan mesra.',
-    costs_takeaway: 'Subsidi MOH sehingga 75% dan baki MediSave mengurangkan bayaran tunai.',
+    costs_takeaway: 'Warganegara dan Penduduk Tetap Singapura yang layak mungkin menerima subsidi berasaskan means sehingga 70%.',
     insurance_takeaway: 'Moratorium LIA melindungi ujian genetik sukarela daripada syarikat insurans.'
   },
   zh: {
@@ -84,7 +84,7 @@ const LOCALIZED_STRINGS: Record<Language, Record<string, string>> = {
     treatment_takeaway: '安全、长期的药物治疗可让您的心血管风险回归普通人水平。',
     lifestyle_takeaway: '健康的生活方式可以显著提高降脂药物的心脏保护功效。',
     process_takeaway: '整个基因检测流程为门诊性质，轻松、高效且饱含关怀。',
-    costs_takeaway: '新加坡政府提供高达 75% 的高额补贴，并支持 MediSave 支付。',
+    costs_takeaway: '符合资格的新加坡公民和永久居民可获得高达 70% 的按需补贴。',
     insurance_takeaway: '人寿保险协会 (LIA) 协定确保自愿检测不影响标准承保。'
   },
   ta: {
@@ -104,7 +104,7 @@ const LOCALIZED_STRINGS: Record<Language, Record<string, string>> = {
     treatment_takeaway: 'பாதுகாப்பான தினசரி மருந்துகள் உங்கள் இதய நோய் ஆபத்தைக் குறைக்கின்றன.',
     lifestyle_takeaway: 'ஆரோக்கியமான வாழ்க்கை முறை மருந்துகளின் செயல்திறனை அதிகரிக்கிறது.',
     process_takeaway: 'சோதனை செயல்முறை மிகவும் எளிதானது, வசதியானது மற்றும் வெளிநோயாளியானது.',
-    costs_takeaway: 'அரசின் 75% மானியம் மற்றும் MediSave உங்களுக்கு குறைந்த செலவை உறுதி செய்கிறது.',
+    costs_takeaway: 'தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தர குடிமக்கள் 70% வரை வருமான அடிப்படையிலான மானியங்களைப் பெறலாம்.',
     insurance_takeaway: 'LIA உடன்படிக்கை உங்களின் மரபணு பரிசோதனை முடிவுகளை பாதுகாக்கிறது.'
   }
 };
@@ -256,14 +256,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "🇸🇬", label: "MOH Subsidy", text: "Eligible citizens receive up to 75% subsidy for genetic tests." },
-          { icon: "🏦", label: "MediSave Use", text: "Remaining out-of-pocket balance is fully coverable by MediSave." },
-          { icon: "💵", label: "Zero Cash", text: "Most patients pay little to no cash out-of-pocket." }
+          { icon: "🇸🇬", label: "Up to 70% Subsidy", text: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies based on their circumstances." },
+          { icon: "🏦", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to your available balance and annual withdrawal limit." },
+          { icon: "💵", label: "S$18–S$87", text: "Estimated for an index patient with S$500 available under MediSave500. Your final payment depends on subsidy eligibility and available MediSave." }
         ],
         advanced: [
-          { icon: "🇸🇬", label: "Public Subvention", text: "MOH provides 50% to 75% subvention for eligible citizens." },
-          { icon: "🏦", label: "CDMS MediSave", text: "Residual balance is claimable under Chronic Disease Management Scheme." },
-          { icon: "💵", label: "Financial Safeguards", text: "CHAS Blue and Medifund provide extra protection for low-income patients." }
+          { icon: "🇸🇬", label: "Means-Tested Subsidy", text: "MOH provides means-tested subsidies of up to 70% for eligible Singapore Citizens and Permanent Residents." },
+          { icon: "🏦", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to available balance and annual withdrawal limits." },
+          { icon: "💵", label: "Cascade Screening", text: "Family members eligible for cascade screening may pay approximately S$8–S$38 after subsidies and MediSave." }
         ]
       }
     },
@@ -420,14 +420,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "🇸🇬", label: "Subsidi MOH", text: "Warganegara layak menerima subsidi sehingga 75% untuk ujian genetik." },
-          { icon: "🏦", label: "Guna MediSave", text: "Baki kos rawatan boleh dibayar sepenuhnya menggunakan MediSave." },
-          { icon: "💵", label: "Tunai Minimum", text: "Kebanyakan pesakit membayar sedikit atau sifar wang tunai." }
+          { icon: "🇸🇬", label: "Subsidi Sehingga 70%", text: "Warganegara dan Penduduk Tetap Singapura yang layak mungkin menerima subsidi berasaskan means berdasarkan keadaan mereka." },
+          { icon: "🏦", label: "MediSave500/700", text: "MediSave boleh digunakan selepas subsidi, tertakluk kepada baki tersedia dan had pengeluaran tahunan." },
+          { icon: "💵", label: "S$18–S$87", text: "Anggaran untuk pesakit indeks dengan S$500 tersedia di bawah MediSave500. Bayaran akhir bergantung kepada kelayakan subsidi dan MediSave tersedia." }
         ],
         advanced: [
-          { icon: "🇸🇬", label: "Subsidi Awam", text: "MOH menyediakan subsidi 50% hingga 75% bagi pesakit yang layak." },
-          { icon: "🏦", label: "CDMS MediSave", text: "Baki boleh dituntut di bawah skim pengurusan penyakit kronik." },
-          { icon: "💵", label: "Bantuan Finansial", text: "CHAS Blue dan Medifund menjamin perlindungan kewangan tambahan." }
+          { icon: "🇸🇬", label: "Subsidi Berasaskan Means", text: "MOH menyediakan subsidi berasaskan means sehingga 70% untuk warganegara dan penduduk tetap yang layak." },
+          { icon: "🏦", label: "MediSave500/700", text: "MediSave boleh digunakan selepas subsidi, tertakluk kepada baki tersedia dan had pengeluaran tahunan." },
+          { icon: "💵", label: "Saringan Lata", text: "Ahli keluarga yang layak untuk saringan lata mungkin membayar lebih kurang S$8–S$38 selepas subsidi dan MediSave." }
         ]
       }
     },
@@ -584,14 +584,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Building2", label: "政府资助", text: "合资格的新加坡公民可获得高达 75% 的 MOH 政府专项补贴。" },
-          { icon: "Building2", label: "保健储蓄", text: "补贴后的自付余额，支持 100% 通过个人 MediSave 支付。" },
-          { icon: "Coins", label: "零现金自付", text: "绝大多数患者在补贴与 MediSave 的支持下无需自掏腰包。" }
+          { icon: "Building2", label: "高达 70% 补贴", text: "符合资格的新加坡公民和永久居民可根据个人情况获得按需补贴。" },
+          { icon: "Building2", label: "MediSave500/700", text: "补贴后可使用 MediSave，但须视可用余额和年度提取限额而定。" },
+          { icon: "Coins", label: "S$18–S$87", text: "在 MediSave500 下有 S$500 可用时先证患者的估计现金支付。最终金额取决于补贴资格和可用 MediSave。" }
         ],
         advanced: [
-          { icon: "Building2", label: "政府专项补贴", text: "卫生部（MOH）为符合资质的公民提供 50% 至 75% 临床财政补贴。" },
-          { icon: "Building2", label: "慢性病 MediSave", text: "自付余额可在 CDMS 慢性病门诊机制内完全报销，减轻现金流负担。" },
-          { icon: "Coins", label: "多重兜底保障", text: "低收入居民可申请 CHAS Blue 或 Medifund 获得完全免费的补助。" }
+          { icon: "Building2", label: "按需补贴", text: "卫生部为符合资格的新加坡公民和永久居民提供高达 70% 的按需补贴。" },
+          { icon: "Building2", label: "MediSave500/700", text: "补贴后可使用 MediSave，但须视可用余额和年度提取限额而定。" },
+          { icon: "Coins", label: "家系筛查", text: "符合家系筛查资格的家属在补贴和 MediSave 后可能支付约 S$8–S$38。" }
         ]
       }
     },
@@ -748,14 +748,14 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
       },
       points: {
         beginner: [
-          { icon: "Building2", label: "அரசு மானியம்", text: "தகுதியுள்ள குடிமக்களுக்கு 75% வரை அரசு மானியம் வழங்கப்படுகிறது." },
-          { icon: "Building2", label: "MediSave", text: "மீதமுள்ள தொகையை உங்களது MediSave மூலம் முழுமையாகச் செலுத்தலாம்." },
-          { icon: "Coins", label: "பணச் செலவின்மை", text: "பெரும்பாலானோர் கையில் இருந்து பணம் செலுத்த வேண்டியதில்லை." }
+          { icon: "Building2", label: "70% வரை மானியம்", text: "தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தர குடிமக்கள் தங்கள் சூழ்நிலைக்கு ஏற்ப வருமான அடிப்படையிலான மானியங்களைப் பெறலாம்." },
+          { icon: "Building2", label: "MediSave500/700", text: "மானியங்களுக்குப் பிறகு MediSave பயன்படுத்தலாம், கிடைக்கும் இருப்பு மற்றும் ஆண்டு திரும்பப் பெறுதல் வரம்பிற்கு உட்பட்டது." },
+          { icon: "Coins", label: "S$18–S$87", text: "MediSave500 இல் S$500 கிடைக்கும்போது குறியீட்டு நோயாளிக்கான மதிப்பிடப்பட்ட பணம். இறுதித் தொகை மானியத் தகுதி மற்றும் கிடைக்கும் MediSave ஐப் பொறுத்தது." }
         ],
         advanced: [
-          { icon: "Building2", label: "அரசு மானியம்", text: "சுகாதார அமைச்சகம் (MOH) தகுதியுள்ளோருக்கு 50% முதல் 75% வரை மானியம் வழங்குகிறது." },
-          { icon: "Building2", label: "CDMS MediSave", text: "மீதமுள்ள தொகையை CDMS திட்டத்தின் கீழ் MediSave மூலம் செலுத்தலாம்." },
-          { icon: "Coins", label: "கூடுதல் உதவிகள்", text: "கூடுதல் நிதிப் பாதுகாப்பு CHAS மற்றும் Medifund மூலம் உறுதி செய்யப்படுகிறது." }
+          { icon: "Building2", label: "வருமான அடிப்படையிலான மானியம்", text: "MOH தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தர குடிமக்களுக்கு 70% வரை வருமான அடிப்படையிலான மானியங்களை வழங்குகிறது." },
+          { icon: "Building2", label: "MediSave500/700", text: "மானியங்களுக்குப் பிறகு MediSave பயன்படுத்தலாம், கிடைக்கும் இருப்பு மற்றும் ஆண்டு திரும்பப் பெறுதல் வரம்பிற்கு உட்பட்டது." },
+          { icon: "Coins", label: "குடும்பப் பரிசோதனை", text: "குடும்பப் பரிசோதனைக்கு தகுதியுள்ள குடும்ப உறுப்பினர்கள் மானியம் மற்றும் MediSave க்குப் பிறகு சுமார் S$8–S$38 செலுத்தலாம்." }
         ]
       }
     },
