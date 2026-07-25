@@ -4017,29 +4017,8 @@ export default function PhoneSimulator({
                              </div>
                            );
                            if (id === 'costs-subsidies') return (
-                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 space-y-2 my-2">
-                               <div className="text-[9.5px] font-bold text-emerald-800">{t('illus_singapore_financing_model')}</div>
-                               <div className="grid grid-cols-2 gap-1.5">
-                                 <div className="bg-white border border-emerald-100/60 rounded-lg p-1.5 text-center">
-                                   <div className="text-[8.5px] font-extrabold text-[#00a859] uppercase tracking-tight">Up to 70% Subsidy</div>
-                                   <div className="text-[7.5px] text-slate-500 mt-0.5 leading-tight">Eligible SCs and PRs may receive means-tested subsidies based on their circumstances.</div>
-                                 </div>
-                                 <div className="bg-white border border-emerald-100/60 rounded-lg p-1.5 text-center">
-                                   <div className="text-[8.5px] font-extrabold text-[#00a859] uppercase tracking-tight">MediSave500/700</div>
-                                   <div className="text-[7.5px] text-slate-500 mt-0.5 leading-tight">MediSave may be used after subsidies, subject to available balance and annual withdrawal limit.</div>
-                                 </div>
-                                 <div className="bg-white border border-emerald-100/60 rounded-lg p-1.5 text-center">
-                                   <div className="text-[8.5px] font-extrabold text-[#00a859] uppercase tracking-tight">S$18–S$87</div>
-                                   <div className="text-[7.5px] text-slate-500 mt-0.5 leading-tight">Estimated for an index patient with S$500 available under MediSave500.</div>
-                                 </div>
-                                 <div className="bg-white border border-emerald-100/60 rounded-lg p-1.5 text-center">
-                                   <div className="text-[8.5px] font-extrabold text-[#00a859] uppercase tracking-tight">Package Includes</div>
-                                   <div className="text-[7.5px] text-slate-500 mt-0.5 leading-tight">Pre-test counselling, genetic testing, blood drawing and post-test counselling.</div>
-                                 </div>
-                               </div>
-                               <div className="text-[7.5px] text-slate-500 leading-relaxed pt-1 border-t border-emerald-100/40">
-                                 Family members eligible for cascade screening may pay approximately S$8–S$38 after subsidies and MediSave.
-                               </div>
+                             <div className="text-[7.5px] text-slate-500 leading-relaxed my-2 pt-1 border-t border-emerald-100/40">
+                               Family members eligible for cascade screening may pay approximately S$8–S$38 after subsidies and MediSave.
                              </div>
                            );
                            if (id === 'insurance-rights' || id === 'insurance') return (
