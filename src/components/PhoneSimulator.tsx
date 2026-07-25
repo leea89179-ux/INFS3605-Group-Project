@@ -5037,7 +5037,7 @@ export default function PhoneSimulator({
                   <div>
                     <h3 className="font-extrabold text-base text-slate-850">{t('booking_confirmed_status')}</h3>
                     <p className="text-[10px] text-[#00a859] font-extrabold uppercase tracking-wide mt-1 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block border border-emerald-100">
-                      {t('booking_subsidized_slot')}
+                      MOH SUBSIDY ELIGIBLE
                     </p>
                   </div>
 
@@ -5085,10 +5085,12 @@ export default function PhoneSimulator({
                           <strong className="col-span-7 text-slate-800 text-right font-semibold">{details.duration.replace('mins', t('booking_mins'))}</strong>
                         </div>
                         <div className="grid grid-cols-12 gap-x-2 items-start pt-2 border-t border-slate-200">
-                          <span className="col-span-5 text-slate-500 font-bold">{t('booking_out_of_pocket')}</span>
-                          <strong className="col-span-7 text-emerald-700 text-right font-extrabold font-mono">
-                            {details.cost} <span className="text-[10px] text-slate-550 font-normal block">({t('booking_chas_subsidized')})</span>
-                          </strong>
+                          <span className="col-span-5 text-slate-500 font-bold">Estimated Cash Payment:</span>
+                          <div className="col-span-7 text-right space-y-0.5">
+                            <strong className="text-emerald-700 font-extrabold font-mono block">S$18–S$87</strong>
+                            <span className="text-[10px] text-slate-500 font-normal block">After applicable subsidies and MediSave</span>
+                            <span className="text-[10px] text-slate-400 font-normal block">Final payment depends on subsidy eligibility and available MediSave.</span>
+                          </div>
                         </div>
                       </div>
                     );
