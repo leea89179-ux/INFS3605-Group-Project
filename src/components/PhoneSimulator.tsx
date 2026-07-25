@@ -1733,10 +1733,10 @@ export default function PhoneSimulator({
              language === 'ta' ? 'FH-க்கான "குடும்ப அடுக்கு திரையிடல்" (Cascade Screening) என்றால் என்ன?' :
              'What is Cascade Screening for FH?'),
         options: onboardingTopics.includes('topic-costs') ? [
-          language === 'ms' ? 'Rakyat Singapore menerima subsidi MOH 50%–75% dan boleh menggunakan MediSave' :
-          language === 'zh' ? '符合资格的新加坡公民享有 50%–75% MOH 补贴，并可用 MediSave 支付' :
-          language === 'ta' ? 'சிங்கப்பூரியர்கள் 50%-75% MOH மானியத்தைப் பெறுகிறார்கள் மற்றும் MediSave ஐப் பயன்படுத்தலாம்' :
-          'Eligible Singapore Citizens receive 50%–75% MOH subsidies and can fully use MediSave',
+          language === 'ms' ? 'Rakyat Singapura dan Penduduk Tetap yang layak menerima subsidi berasaskan means sehingga 70% dan MediSave500/700 boleh digunakan selepas subsidi' :
+          language === 'zh' ? '符合资格的新加坡公民和永久居民可获得高达 70% 的按需补贴，MediSave500/700 可在补贴后使用' :
+          language === 'ta' ? 'தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தர குடிமக்கள் 70% வரை வருமான அடிப்படையிலான மானியம் பெறலாம், மானியத்திற்குப் பிறகு MediSave500/700 பயன்படுத்தலாம்' :
+          'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%, and MediSave500/700 may be used after subsidies',
 
           language === 'ms' ? 'Tiada subsidi diberikan untuk sebarang ujian genetik' :
           language === 'zh' ? '基因检测完全没有任何政府补贴' :
@@ -1765,7 +1765,7 @@ export default function PhoneSimulator({
         ],
         correctAnswer: 0,
         explanation: onboardingTopics.includes('topic-costs')
-          ? 'Singapore Citizens get 50-75% subsidies for FH counselling and genetic testing, with MediSave coverage.'
+          ? 'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70% for FH counselling and genetic testing, with MediSave500/700 available after subsidies.'
           : 'Cascade screening tests parents, siblings, and children of an index patient who have a 50% inheritance chance.'
       });
     }
@@ -4017,9 +4017,29 @@ export default function PhoneSimulator({
                              </div>
                            );
                            if (id === 'costs-subsidies') return (
-                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 space-y-1 my-2">
+                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 space-y-2 my-2">
                                <div className="text-[9.5px] font-bold text-emerald-800">{t('illus_singapore_financing_model')}</div>
-                               <div className="flex justify-between text-[8.5px]"><span>{t('illus_government_subsidy')}</span><span className="text-[#00a859] font-bold">{t('illus_up_to_75_covered')}</span></div>
+                               <div className="grid grid-cols-2 gap-1.5">
+                                 <div className="bg-white border border-emerald-100/60 rounded-lg p-1.5 text-center">
+                                   <div className="text-[8.5px] font-extrabold text-[#00a859] uppercase tracking-tight">Up to 70% Subsidy</div>
+                                   <div className="text-[7.5px] text-slate-500 mt-0.5 leading-tight">Eligible SCs and PRs may receive means-tested subsidies based on their circumstances.</div>
+                                 </div>
+                                 <div className="bg-white border border-emerald-100/60 rounded-lg p-1.5 text-center">
+                                   <div className="text-[8.5px] font-extrabold text-[#00a859] uppercase tracking-tight">MediSave500/700</div>
+                                   <div className="text-[7.5px] text-slate-500 mt-0.5 leading-tight">MediSave may be used after subsidies, subject to available balance and annual withdrawal limit.</div>
+                                 </div>
+                                 <div className="bg-white border border-emerald-100/60 rounded-lg p-1.5 text-center">
+                                   <div className="text-[8.5px] font-extrabold text-[#00a859] uppercase tracking-tight">S$18–S$87</div>
+                                   <div className="text-[7.5px] text-slate-500 mt-0.5 leading-tight">Estimated for an index patient with S$500 available under MediSave500.</div>
+                                 </div>
+                                 <div className="bg-white border border-emerald-100/60 rounded-lg p-1.5 text-center">
+                                   <div className="text-[8.5px] font-extrabold text-[#00a859] uppercase tracking-tight">Package Includes</div>
+                                   <div className="text-[7.5px] text-slate-500 mt-0.5 leading-tight">Pre-test counselling, genetic testing, blood drawing and post-test counselling.</div>
+                                 </div>
+                               </div>
+                               <div className="text-[7.5px] text-slate-500 leading-relaxed pt-1 border-t border-emerald-100/40">
+                                 Family members eligible for cascade screening may pay approximately S$8–S$38 after subsidies and MediSave.
+                               </div>
                              </div>
                            );
                            if (id === 'insurance-rights' || id === 'insurance') return (
@@ -4336,7 +4356,7 @@ export default function PhoneSimulator({
                                             else if (sec.id === 'testing-guide') { displayTitle = 'Your Testing Guide'; displaySubtitle = isExpanded ? 'Six straightforward steps from referral to your personal care plan.' : 'Step by step from counselling to your results.'; }
                                             else if (sec.id === 'medication-fh') { displayTitle = 'Medication & FH'; displaySubtitle = isExpanded ? 'Highly effective, subsidized medical therapies.' : 'How statins work and what to expect.'; }
                                             else if (sec.id === 'why-testing-matters') { displayTitle = 'Protecting Your Family'; displaySubtitle = isExpanded ? 'Confirming FH unlocks personalised care.' : 'How cascade screening keeps your loved ones safe.'; }
-                                            else if (sec.id === 'costs-subsidies') { displayTitle = 'Costs and Subsidies'; displaySubtitle = isExpanded ? 'Up to 75% MOH subsidies.' : 'What you pay and how subsidies and MediSave help.'; }
+                                            else if (sec.id === 'costs-subsidies') { displayTitle = 'Costs and Subsidies'; displaySubtitle = isExpanded ? 'Up to 70% means-tested MOH subsidies.' : 'What you pay and how subsidies and MediSave help.'; }
                                             else if (sec.id === 'insurance-rights') { displayTitle = 'Insurance & Your Rights'; displaySubtitle = isExpanded ? 'National guidelines safeguard your right.' : 'How the LIA Moratorium protects you.'; }
                                           }
 
@@ -5893,13 +5913,13 @@ export default function PhoneSimulator({
                               }
 
                               if (language === 'ms') {
-                                return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi sehingga 75% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi sehingga 70% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
                               } else if (language === 'zh') {
-                                return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 75% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 70% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
                               } else if (language === 'ta') {
-                                return `MOH HealthHub: ${dateStr} அன்று ${timeStr} மணிக்கு ${bookedClinicName}-இல் உங்கள் பொது வெளிநோயாளி ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 75% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: ${dateStr} அன்று ${timeStr} மணிக்கு ${bookedClinicName}-இல் உங்கள் பொது வெளிநோயாளி ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 70% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/gen-ref`;
                               } else {
-                                return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Subsidies up to 75% are cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Subsidies up to 70% are cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
                               }
                             })()}
                           </div>
