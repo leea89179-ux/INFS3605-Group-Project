@@ -700,25 +700,25 @@ const getMonthConfig = (monthStr: string) => {
   return { emptyCells, totalDays };
 };
 
-const isDateBeforeToday = (monthStr: string, dayNum: number) => {
+const isBeforeMinimumBookingDate = (monthStr: string, dayNum: number) => {
   const parts = monthStr.split(' ');
   const monthName = parts[0];
   const year = parts[1] ? parseInt(parts[1], 10) : 2026;
-  
+
   const monthIndex = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ].indexOf(monthName);
-  
+
   if (monthIndex === -1) return false;
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const targetDate = new Date(year, monthIndex, dayNum);
   targetDate.setHours(0, 0, 0, 0);
-  
-  return targetDate.getTime() < today.getTime();
+
+  return targetDate.getTime() <= today.getTime();
 };
 
 const isToday = (monthStr: string, dayNum: number) => {
@@ -750,8 +750,17 @@ const getFirstAvailableDay = (month: string, clinicId: string, customSlotsDb?: a
   const db = customSlotsDb || CLINIC_SLOTS_DB;
   const slots = db[clinicId]?.[month] || {};
   const daysWithSlots = Object.keys(slots).map(Number).sort((a, b) => a - b);
-  const validDay = daysWithSlots.find(day => !isDateBeforeToday(month, day));
-  return validDay || daysWithSlots[0] || 21;
+  const validDay = daysWithSlots.find(day => !isBeforeMinimumBookingDate(month, day));
+  return validDay || null;
+};
+
+const getEarliestAvailableFutureDate = (clinicId: string, customSlotsDb?: any): { month: string; day: number } | null => {
+  const db = customSlotsDb || CLINIC_SLOTS_DB;
+  for (const month of availableMonths) {
+    const day = getFirstAvailableDay(month, clinicId, db);
+    if (day !== null) return { month, day };
+  }
+  return null;
 };
 
 export const downloadICSFile = (slot: { date: string; time: string; clinic: string; address: string }) => {
@@ -1474,20 +1483,12 @@ export default function PhoneSimulator({
 
   // Calendar Booking States (User request 2)
   const [selectedCalendarMonth, setSelectedCalendarMonth] = useState<string>(() => {
-    const todayMonth = getTodayMonthStr();
-    const available = [
-      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
-      'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027', 'June 2027',
-      'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
-    ];
-    return available.includes(todayMonth) ? todayMonth : 'July 2026';
+    const earliest = getEarliestAvailableFutureDate('nuh', activeClinicSlotsDb);
+    return earliest ? earliest.month : availableMonths[0];
   });
-  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(() => {
-    const todayMonth = getTodayMonthStr();
-    const initialMonth = [
-      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
-    ].includes(todayMonth) ? todayMonth : 'July 2026';
-    return getFirstAvailableDay(initialMonth, 'nuh', activeClinicSlotsDb);
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number | null>(() => {
+    const earliest = getEarliestAvailableFutureDate('nuh', activeClinicSlotsDb);
+    return earliest ? earliest.day : null;
   });
   const [selectedSlotObj, setSelectedSlotObj] = useState<ClinicSlot | null>(null);
   const [showMonthPopup, setShowMonthPopup] = useState<boolean>(false);
@@ -1504,12 +1505,8 @@ export default function PhoneSimulator({
     setSelectedCalendarMonth(month);
     const availableDays = Object.keys(activeClinicSlotsDb[selectedClinicId]?.[month] || {})
       .map(Number)
-      .filter(day => !isDateBeforeToday(month, day));
-    if (availableDays.length > 0) {
-      setSelectedCalendarDay(availableDays[0]);
-    } else {
-      setSelectedCalendarDay(1);
-    }
+      .filter(day => !isBeforeMinimumBookingDate(month, day));
+    setSelectedCalendarDay(availableDays.length > 0 ? availableDays[0] : null);
   };
 
   // Custom non-blocking alert/confirm dialog states to bypass iframe restrictions
@@ -1528,20 +1525,12 @@ export default function PhoneSimulator({
   const [rescheduleClinicId, setRescheduleClinicId] = useState<string>('nuh');
   const [showRescheduleClinicDropdown, setShowRescheduleClinicDropdown] = useState<boolean>(false);
   const [rescheduleCalendarMonth, setRescheduleCalendarMonth] = useState<string>(() => {
-    const todayMonth = getTodayMonthStr();
-    const available = [
-      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
-      'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027', 'June 2027',
-      'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
-    ];
-    return available.includes(todayMonth) ? todayMonth : 'July 2026';
+    const earliest = getEarliestAvailableFutureDate('nuh', activeClinicSlotsDb);
+    return earliest ? earliest.month : availableMonths[0];
   });
-  const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number>(() => {
-    const todayMonth = getTodayMonthStr();
-    const initialMonth = [
-      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
-    ].includes(todayMonth) ? todayMonth : 'July 2026';
-    return getFirstAvailableDay(initialMonth, 'nuh', activeClinicSlotsDb);
+  const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number | null>(() => {
+    const earliest = getEarliestAvailableFutureDate('nuh', activeClinicSlotsDb);
+    return earliest ? earliest.day : null;
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showNotificationPopup, setShowNotificationPopup] = useState<boolean>(false);
@@ -1970,9 +1959,19 @@ export default function PhoneSimulator({
     setRescheduleCalendarMonth(derivedMonth);
     const availableDays = Object.keys(activeClinicSlotsDb[currentClinicId]?.[derivedMonth] || {})
       .map(Number)
-      .filter(d => !isDateBeforeToday(derivedMonth, d));
+      .filter(d => !isBeforeMinimumBookingDate(derivedMonth, d));
     const apptDayAvailable = !isNaN(apptDay) && availableDays.includes(apptDay);
-    setRescheduleCalendarDay(apptDayAvailable ? apptDay : (availableDays[0] ?? 22));
+    if (apptDayAvailable) {
+      setRescheduleCalendarDay(apptDay);
+    } else {
+      const earliest = getEarliestAvailableFutureDate(currentClinicId, activeClinicSlotsDb);
+      if (earliest) {
+        setRescheduleCalendarMonth(earliest.month);
+        setRescheduleCalendarDay(earliest.day);
+      } else {
+        setRescheduleCalendarDay(null);
+      }
+    }
 
     setShowRescheduleClinicDropdown(false);
     setBookingSubFlow('reschedule-select');
@@ -2353,8 +2352,14 @@ export default function PhoneSimulator({
                                 onClick={() => {
                                   setRescheduleClinicId(clinic.id);
                                   setShowRescheduleClinicDropdown(false);
-                                  const availableDays = Object.keys(activeClinicSlotsDb[clinic.id]?.[rescheduleCalendarMonth] || {}).map(Number).filter(d => !isDateBeforeToday(rescheduleCalendarMonth, d));
-                                  setRescheduleCalendarDay(availableDays[0] ?? 1);
+                                  setProposedSlotObj(null);
+                                  const earliest = getEarliestAvailableFutureDate(clinic.id, activeClinicSlotsDb);
+                                  if (earliest) {
+                                    setRescheduleCalendarMonth(earliest.month);
+                                    setRescheduleCalendarDay(earliest.day);
+                                  } else {
+                                    setRescheduleCalendarDay(null);
+                                  }
                                 }}
                                 className={`w-full text-left p-3 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${isSelected ? 'bg-emerald-50/20' : 'bg-white'}`}
                               >
@@ -2384,8 +2389,8 @@ export default function PhoneSimulator({
                         if (idx > 0) {
                           const m = availableMonths[idx - 1];
                           setRescheduleCalendarMonth(m);
-                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
-                          setRescheduleCalendarDay(days[0] ?? 1);
+                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isBeforeMinimumBookingDate(m, d));
+                          setRescheduleCalendarDay(days[0] ?? null);
                         }
                       }}
                       disabled={availableMonths.indexOf(rescheduleCalendarMonth) === 0}
@@ -2400,8 +2405,8 @@ export default function PhoneSimulator({
                         if (idx < availableMonths.length - 1) {
                           const m = availableMonths[idx + 1];
                           setRescheduleCalendarMonth(m);
-                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
-                          setRescheduleCalendarDay(days[0] ?? 1);
+                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isBeforeMinimumBookingDate(m, d));
+                          setRescheduleCalendarDay(days[0] ?? null);
                         }
                       }}
                       disabled={availableMonths.indexOf(rescheduleCalendarMonth) === availableMonths.length - 1}
@@ -2421,7 +2426,7 @@ export default function PhoneSimulator({
                     ))}
                     {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
                       const dayNum = i + 1;
-                      const hasSlots = !!activeClinicSlotsDb[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
+                      const hasSlots = !!activeClinicSlotsDb[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isBeforeMinimumBookingDate(rescheduleCalendarMonth, dayNum);
                       const isSelected = rescheduleCalendarDay === dayNum;
                       const isRescheduleCurrentDay = isToday(rescheduleCalendarMonth, dayNum);
                       return (
@@ -2481,6 +2486,13 @@ export default function PhoneSimulator({
                             </div>
                           </button>
                         ))
+                    ) : rescheduleCalendarDay === null ? (
+                      <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
+                        {language === 'ms' ? 'Tiada janji temu masa hadapan tersedia untuk klinik ini.' :
+                         language === 'zh' ? '该诊所没有可用的未来预约。' :
+                         language === 'ta' ? 'இந்த மருத்துவமனைக்கு எதிர்கால சந்திப்புகள் இல்லை.' :
+                         'No future appointments available for this clinic.'}
+                      </div>
                     ) : (
                       <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
                         {t('reschedule_no_slots')}
@@ -2640,7 +2652,7 @@ export default function PhoneSimulator({
                   setBookingStep('available');
                   setSelectedSlotIdx(null);
                   setSelectedSlotObj(null);
-                  setSelectedCalendarDay(22);
+                  setSelectedCalendarDay(getFirstAvailableDay(selectedCalendarMonth, selectedClinicId, activeClinicSlotsDb));
                 }}
                 className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
               >
@@ -5389,12 +5401,13 @@ export default function PhoneSimulator({
                                       setSelectedClinicId(clinic.id);
                                       setShowClinicDropdown(false);
                                       
-                                      // Auto-select first available day for the clinic
-                                      const availableDays = Object.keys(activeClinicSlotsDb[clinic.id]?.[selectedCalendarMonth] || {})
-                                        .map(Number)
-                                        .filter(day => !isDateBeforeToday(selectedCalendarMonth, day));
-                                      if (availableDays.length > 0) {
-                                        setSelectedCalendarDay(availableDays[0]);
+                                      // Auto-select earliest available future date for the new clinic
+                                      const earliest = getEarliestAvailableFutureDate(clinic.id, activeClinicSlotsDb);
+                                      if (earliest) {
+                                        setSelectedCalendarMonth(earliest.month);
+                                        setSelectedCalendarDay(earliest.day);
+                                      } else {
+                                        setSelectedCalendarDay(null);
                                       }
                                     }}
                                     className={`w-full text-left p-3.5 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${
@@ -5499,7 +5512,7 @@ export default function PhoneSimulator({
                             {/* Days 1 to totalDays */}
                             {Array.from({ length: getMonthConfig(selectedCalendarMonth).totalDays }).map((_, i) => {
                               const dayNum = i + 1;
-                              const hasSlots = !!activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isDateBeforeToday(selectedCalendarMonth, dayNum);
+                              const hasSlots = !!activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isBeforeMinimumBookingDate(selectedCalendarMonth, dayNum);
                               const isSelected = selectedCalendarDay === dayNum;
                               const isCurrentDay = isToday(selectedCalendarMonth, dayNum);
 
@@ -5580,6 +5593,13 @@ export default function PhoneSimulator({
                                 </div>
                               </button>
                             ))
+                          ) : selectedCalendarDay === null ? (
+                            <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
+                              {language === 'ms' ? 'Tiada janji temu masa hadapan tersedia untuk klinik ini.' :
+                               language === 'zh' ? '该诊所没有可用的未来预约。' :
+                               language === 'ta' ? 'இந்த மருத்துவமனைக்கு எதிர்கால சந்திப்புகள் இல்லை.' :
+                               'No future appointments available for this clinic.'}
+                            </div>
                           ) : (
                             <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
                               {t('booking_no_slots_alert')}
@@ -6793,8 +6813,8 @@ export default function PhoneSimulator({
       <div className="bg-white border-t border-slate-200 py-3 px-3 flex justify-around items-center z-40 select-none shrink-0">
         {[
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
-          ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : []),
-          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking }
+          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
+          ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : [])
         ].map((tab) => (
           <button
             key={tab.label}
