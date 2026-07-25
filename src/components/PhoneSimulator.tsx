@@ -6813,8 +6813,8 @@ export default function PhoneSimulator({
       <div className="bg-white border-t border-slate-200 py-3 px-3 flex justify-around items-center z-40 select-none shrink-0">
         {[
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
-          ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : []),
-          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking }
+          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
+          ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : [])
         ].map((tab) => (
           <button
             key={tab.label}
