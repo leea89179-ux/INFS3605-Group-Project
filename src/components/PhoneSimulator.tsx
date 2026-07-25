@@ -4889,20 +4889,42 @@ export default function PhoneSimulator({
 
                   {/* Contextual Booking Reinforcement Card */}
                   <div className="bg-[#00a859] rounded-2xl p-5 text-center space-y-3.5 shadow-sm">
-                    <div className="space-y-1.5 px-1">
-                      <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
-                        Ready to book your GAC counselling slot?
-                      </h4>
-                      <p className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto">
-                        Take the active step today. Booking takes under 20 seconds within HealthHub.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onChangeScreen(ScreenId.Booking)}
-                      className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
-                    >
-                      {t('edu_cta_btn')}
-                    </button>
+                    {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
+                      <>
+                        <div className="space-y-1.5 px-1">
+                          <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
+                            {t('edu_cta_title_booked')}
+                          </h4>
+                          <div className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto space-y-1">
+                            <p>{t('edu_cta_subtitle_1_booked')}</p>
+                            <p>{t('edu_cta_subtitle_2_booked')}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => onChangeScreen(ScreenId.Booking)}
+                          className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
+                        >
+                          {t('edu_cta_btn_booked')}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="space-y-1.5 px-1">
+                          <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
+                            {t('edu_cta_title')}
+                          </h4>
+                          <p className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto">
+                            {t('edu_cta_subtitle')}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => onChangeScreen(ScreenId.Booking)}
+                          className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
+                        >
+                          {t('edu_cta_btn')}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -54,7 +55,7 @@ async function startServer() {
         : `You are HealthBuddy, an official GovTech Singapore Patient Assistant. Answer patient questions about standard polyclinic or clinical appointments, general booking, consultation fees, CHAS subsidies, and general healthcare preparation. CRITICAL: Keep your answers extremely concise, direct, and reassurance-focused (maximum 2-3 short, friendly sentences). Do NOT use long paragraphs, and do NOT mention FH or genetic testing (since this patient has a standard primary care clinic referral). Always use standard double-asterisks around key terms **like this** for bolding so they can be parsed correctly. If they ask about scheduling, booking, or modifying appointments, mention that they can do it directly in the 'Book' tab of this app. IMPORTANT — Language instruction: ${langInstruction}`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-2.5-flash",
         contents: message,
         config: {
           systemInstruction: systemInstruction,
