@@ -4166,13 +4166,10 @@ export default function PhoneSimulator({
                                     <h5 className="font-display font-extrabold text-[11px] text-slate-900 leading-tight tracking-tight">{topic.title}</h5>
                                     <p className="text-[10px] text-slate-500 leading-relaxed">{topic.shortSummary}</p>
                                     {!isExpanded && (
-                                      <div className="flex items-center justify-between pt-1 w-full">
-                                        <div className="flex items-center gap-1.5">
-                                          <span className="text-[8px] bg-slate-50 text-slate-400 font-medium px-1.5 py-0.5 rounded border border-slate-200/30">{topic.readingTime}</span>
-                                          {isSelected && (
-                                            <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">{t('edu_selected_for_you')}</span>
-                                          )}
-                                        </div>
+                                      <div className={`flex items-center pt-1 w-full ${isSelected ? 'justify-between' : 'justify-end'}`}>
+                                        {isSelected && (
+                                          <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">{t('edu_selected_for_you')}</span>
+                                        )}
                                         {!isSelected && (
                                           <span className="text-[9.5px] font-extrabold text-[#00a859] flex items-center gap-0.5">
                                             {t('step2_opt_learn_more') || 'Learn More'} <ChevronRight className="w-3 h-3" />
@@ -4366,12 +4363,10 @@ export default function PhoneSimulator({
 
                                                 if (!shouldShowFullDepth) {
                                                   let summaryText = sec.id === 'testing-guide' ? (t('edu_testing_guide_summary') || "Your journey is fully structured, covering counselling and blood draw.") : sec.shortSummary;
-                                                  let readingTimeLabel = sec.readingTime || "1-min read";
                                                   return (
                                                     <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-2.5 text-left">
                                                       <p className="text-slate-600 font-sans leading-relaxed text-[10.5px] font-medium">{summaryText}</p>
-                                                      <div className="flex items-center justify-between pt-1">
-                                                        <span className="text-[9px] text-slate-400 font-mono font-medium flex items-center gap-1"><Clock className="w-3 h-3" /> {readingTimeLabel}</span>
+                                                      <div className="flex items-center justify-end pt-1">
                                                         <button onClick={(e) => { e.stopPropagation(); setForceFullExpand(prev => ({ ...prev, [sec.id]: true })); }} className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] font-extrabold text-[9.5px] rounded-lg border border-emerald-100/40 cursor-pointer">{t('step2_opt_learn_more') || 'Learn More'}</button>
                                                       </div>
                                                     </div>
