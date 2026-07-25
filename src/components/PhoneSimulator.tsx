@@ -1093,7 +1093,6 @@ export default function PhoneSimulator({
   const [showOtherTopics, setShowOtherTopics] = useState<boolean>(false);
   const [expandedOtherTopicId, setExpandedOtherTopicId] = useState<string | null>(null);
   const [showCascadeTooltip, setShowCascadeTooltip] = useState<boolean>(false);
-  const [chatOpen, setChatOpen] = useState(false);
 
   const handleCompleteOnboarding = (completed: boolean = true, status?: 'completed' | 'skipped') => {
     setOnboardingCompleted(completed);
@@ -2955,39 +2954,6 @@ export default function PhoneSimulator({
                   </div>
                 </div>
               )}
-
-              {/* Ask HealthBuddy AI Assistant Promo Banner */}
-              <div className="px-4">
-                <button
-                  onClick={() => setChatOpen(true)}
-                  className="w-full text-left bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-800/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-md hover:border-emerald-700 transition cursor-pointer"
-                >
-                  <div className="space-y-1 flex-1">
-                    <span className="bg-emerald-500/20 text-emerald-400 text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-500/30 font-sans inline-flex items-center gap-1 select-none">
-                      <Sparkles className="w-2.5 h-2.5" /> GovTech AI Companion
-                    </span>
-                    <h4 className="font-bold text-xs text-white tracking-tight leading-tight">
-                      {isFHReferred ? t('chatbot_banner_title') : (
-                        language === 'ms' ? 'Tanya Pembantu AI HealthBuddy' :
-                        language === 'zh' ? '咨询 HealthBuddy AI 智能助理' :
-                        language === 'ta' ? 'HealthBuddy AI உதவியாளரிடம் கேளுங்கள்' :
-                        'Ask HealthBuddy AI Assistant'
-                      )}
-                    </h4>
-                    <p className="text-[10px] text-slate-300 leading-normal">
-                      {isFHReferred ? t('chatbot_banner_body') : (
-                        language === 'ms' ? 'Ketahui lebih lanjut tentang subsidi, persediaan, dan penjagaan kesihatan am anda.' :
-                        language === 'zh' ? '了解您的普通门诊补贴津贴、就诊准备和基本健康建议。' :
-                        language === 'ta' ? 'மானியங்கள், தயாரிப்பு மற்றும் உங்கள் பொதுவான மருத்துவக் கேள்விகள் பற்றி மேலும் அறியவும்.' :
-                        'Learn about subsidies, clinic preparation, and general health advice instantly.'
-                      )}
-                    </p>
-                  </div>
-                  <div className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
-                    <MessageSquare className="w-4.5 h-4.5 text-emerald-400" />
-                  </div>
-                </button>
-              </div>
 
               {/* 4. Quick Links Grid (1:1 with reference screenshot) */}
               <div className="space-y-2">
@@ -6797,17 +6763,6 @@ export default function PhoneSimulator({
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
-          </button>
-        )}
-
-        {/* Floating AI Assistant Chat Button inside Phone Simulator */}
-        {!chatOpen && isFHReferred && (
-          <button
-            onClick={() => setChatOpen(true)}
-            className="absolute bottom-4 right-4 z-40 w-12 h-12 bg-[#00a859] hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 group"
-            title={t('chatbot_title')}
-          >
-            <MessageCircle className="w-5 h-5 text-white" />
           </button>
         )}
 
