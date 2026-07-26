@@ -291,149 +291,149 @@ export const CLINIC_SLOTS_DB: Record<string, Record<string, Record<number, Clini
   nuh: {
     'July 2026': {
       21: [
-        { date: '21 July 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '21 July 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       22: [
-        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       23: [
-        { date: '23 July 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '11:00 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '2:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '23 July 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '11:00 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '2:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       24: [
-        { date: '24 July 2026', time: '9:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '24 July 2026', time: '9:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     },
     'August 2026': {
       12: [
-        { date: '12 August 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '12 August 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       13: [
-        { date: '13 August 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '13 August 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '13 August 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '13 August 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       14: [
-        { date: '14 August 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '14 August 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '14 August 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '14 August 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       18: [
-        { date: '18 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '18 August 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '18 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '18 August 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     },
     'September 2026': {
       8: [
-        { date: '8 September 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '8 September 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       9: [
-        { date: '9 September 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '9 September 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '9 September 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '9 September 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       10: [
-        { date: '10 September 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '10 September 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '10 September 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '10 September 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       15: [
-        { date: '15 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '15 September 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '15 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '15 September 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     }
   },
   sgh: {
     'July 2026': {
       22: [
-        { date: '22 July 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '22 July 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       23: [
-        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '23 July 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '23 July 2026', time: '3:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '23 July 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '23 July 2026', time: '3:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       25: [
-        { date: '25 July 2026', time: '10:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '25 July 2026', time: '11:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '25 July 2026', time: '2:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '25 July 2026', time: '10:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '25 July 2026', time: '11:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '25 July 2026', time: '2:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     },
     'August 2026': {
       12: [
-        { date: '12 August 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '12 August 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '12 August 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '12 August 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       13: [
-        { date: '13 August 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '13 August 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '13 August 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '13 August 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       19: [
-        { date: '19 August 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '19 August 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '19 August 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '19 August 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     },
     'September 2026': {
       8: [
-        { date: '8 September 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '8 September 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '8 September 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '8 September 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       9: [
-        { date: '9 September 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '9 September 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '9 September 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '9 September 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       16: [
-        { date: '16 September 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '16 September 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '16 September 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '16 September 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     }
   },
   ttsh: {
     'July 2026': {
       21: [
-        { date: '21 July 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '21 July 2026', time: '3:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '21 July 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '21 July 2026', time: '3:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       23: [
-        { date: '23 July 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '23 July 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '23 July 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '23 July 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       24: [
-        { date: '24 July 2026', time: '9:00 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '24 July 2026', time: '2:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '24 July 2026', time: '9:00 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '24 July 2026', time: '2:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     },
     'August 2026': {
       14: [
-        { date: '14 August 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '14 August 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '14 August 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '14 August 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       20: [
-        { date: '20 August 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '20 August 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '20 August 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '20 August 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     },
     'September 2026': {
       10: [
-        { date: '10 September 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '10 September 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '10 September 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '10 September 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       17: [
-        { date: '17 September 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '17 September 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '17 September 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '17 September 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–S$87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     }
   },
@@ -2497,6 +2497,19 @@ export default function PhoneSimulator({
                       </div>
                     )}
                   </div>
+
+                  {/* Detailed Cost card */}
+                  <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left mt-4">
+                    <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
+                      {FH_COST_DATA.cardHeading}
+                    </div>
+                    <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
+                      {FH_COST_DATA.indexPatientEstimatedCash}
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-snug font-medium">
+                      {FH_COST_DATA.supportingText}
+                    </p>
+                  </div>
                 </div>
               </div>{/* end scrollable body */}
 
@@ -2570,6 +2583,19 @@ export default function PhoneSimulator({
                   <p className="text-[10.5px] text-slate-600">{proposedSlotObj.time}</p>
                   <p className="text-[10px] text-slate-500">{proposedSlotObj.clinic}</p>
                 </div>
+              </div>
+
+              {/* Cost card */}
+              <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left">
+                <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
+                  {FH_COST_DATA.cardHeading}
+                </div>
+                <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
+                  {FH_COST_DATA.indexPatientEstimatedCash}
+                </div>
+                <p className="text-[11px] text-slate-600 leading-snug font-medium">
+                  {FH_COST_DATA.supportingText}
+                </p>
               </div>
             </div>
 
@@ -5697,13 +5723,13 @@ export default function PhoneSimulator({
 
                       <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left">
                         <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
-                          ESTIMATED CASH PAYMENT
+                          {FH_COST_DATA.cardHeading}
                         </div>
                         <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
                           {FH_COST_DATA.indexPatientEstimatedCash}
                         </div>
                         <p className="text-[11px] text-slate-600 leading-snug font-medium">
-                          {FH_COST_DATA.bookingSlotSummaryNote}
+                          {FH_COST_DATA.supportingText}
                         </p>
                       </div>
                     </div>
@@ -5764,11 +5790,11 @@ export default function PhoneSimulator({
                             </div>
                             <div className="border-t border-slate-100 pt-3 mt-3 space-y-1">
                               <div className="flex justify-between items-center">
-                                <span className="text-slate-700 font-bold text-xs">Estimated Cash Payment</span>
+                                <span className="text-slate-700 font-bold text-xs">{FH_COST_DATA.cardHeading}</span>
                                 <span className="text-[#00a859] font-black font-mono text-base">{FH_COST_DATA.indexPatientEstimatedCash}</span>
                               </div>
                               <p className="text-[10.5px] text-slate-500 leading-snug font-medium">
-                                {FH_COST_DATA.reviewDetailsSupportingText}
+                                {FH_COST_DATA.supportingText}
                               </p>
                             </div>
                           </div>
@@ -6890,9 +6916,15 @@ export default function PhoneSimulator({
         ].map((tab) => (
           <button
             key={tab.label}
-            onClick={() => onChangeScreen(tab.screen)}
+            onClick={() => {
+              if (bookingSubFlow) {
+                handleExitReschedule();
+                handleExitCancelFlow();
+              }
+              onChangeScreen(tab.screen);
+            }}
             className={`flex flex-col items-center gap-0.5 transition cursor-pointer ${
-              activeScreen === tab.screen ? 'text-[#00a859]' : 'text-slate-400 hover:text-slate-600'
+              activeScreen === tab.screen && !bookingSubFlow ? 'text-[#00a859]' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             {tab.icon}

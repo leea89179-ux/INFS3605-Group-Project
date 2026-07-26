@@ -401,7 +401,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_stat_subsidies_val: 'Up to 70%',
     edu_stat_subsidies_lbl: 'MOH means-tested subsidies',
     edu_stat_cost_val: 'S$18–S$87',
-    edu_stat_cost_lbl: 'Estimated cash payment for an index patient',
+    edu_stat_cost_lbl: 'Estimated out-of-pocket cost for an index patient',
     edu_stat_insurance_val: '0%',
     edu_stat_insurance_lbl: 'Impact on Existing Insurance',
     edu_stat_meds_val: '30+ Yrs',

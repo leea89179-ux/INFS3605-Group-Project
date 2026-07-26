@@ -246,7 +246,7 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "MOH Subsidies: Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%.",
         "MediSave500/700: MediSave may be used after subsidies, subject to available balance and annual limits.",
-        "Estimated Cash Payment: An index patient may pay an estimated S$18–S$87 with S$500 available under MediSave500.",
+        "Estimated Out-of-Pocket Cost: An index patient may pay an estimated S$18–S$87 with S$500 available under MediSave500.",
         "Cascade Screening: Family members may pay approximately S$8–S$38 after subsidies and MediSave."
       ],
       transcript: [

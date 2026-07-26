@@ -258,12 +258,12 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
         beginner: [
           { icon: "Building2", label: "MOH Subsidy", text: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%." },
           { icon: "Building2", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to available balance and withdrawal limits." },
-          { icon: "Coins", label: "Estimated Cash Payment", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
+          { icon: "Coins", label: "Estimated Out-of-Pocket Cost", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
         ],
         advanced: [
           { icon: "Building2", label: "MOH Subsidy", text: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%." },
           { icon: "Building2", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to available balance and withdrawal limits." },
-          { icon: "Coins", label: "Estimated Cash Payment", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
+          { icon: "Coins", label: "Estimated Out-of-Pocket Cost", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
         ]
       }
     },

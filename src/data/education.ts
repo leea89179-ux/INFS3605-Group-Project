@@ -11,6 +11,7 @@ export interface EduSection {
   tags?: string[];
   subsections?: { title: string; text: string }[];
   steps?: { num: number; title: string; description: string }[];
+  visualItems?: { icon: string; label: string; text: string }[];
 }
 
 export interface HelpfulResource {
@@ -97,7 +98,7 @@ export const educationalSections: EduSection[] = [
     visualItems: [
       { icon: "Building2", label: "MOH Subsidy", text: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%." },
       { icon: "Building2", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to available balance and withdrawal limits." },
-      { icon: "Coins", label: "Estimated Cash Payment", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
+      { icon: "Coins", label: "Estimated Out-of-Pocket Cost", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
     ]
   },
   {
@@ -156,7 +157,7 @@ export const faqs: FAQItem[] = [
   {
     category: 'cost',
     question: 'How much will I pay out-of-pocket?',
-    answer: "Between S$18 and S$120 after MOH subsidies and CHAS benefits. Crucially, the remaining balance can be 100% paid using MediSave under the Chronic Disease Management Scheme, meaning many Singaporeans pay S$0 cash out-of-pocket."
+    answer: "Between S$18 and S$87 after MOH subsidies and CHAS benefits. Crucially, the remaining balance can be 100% paid using MediSave under the Chronic Disease Management Scheme, meaning many Singaporeans pay S$0 cash out-of-pocket."
   },
   {
     category: 'insurance',
