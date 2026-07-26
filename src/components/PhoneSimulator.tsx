@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, Circle as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail, Brain, FlaskConical, Apple, Ban, Activity, Building2, TriangleAlert as AlertTriangle } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail, Lightbulb, Handshake, Heart, FlaskConical, Apple, Ban, Activity, Building2, Home, AlertTriangle, Brain } from 'lucide-react';
 import { educationalSections, faqs, HelpfulResource, helpfulResources } from '../data/education';
-import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedChecklist, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
+import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
 import { getPersonalizedStory } from '../data/personalizedStories';
+import { FH_COST_DATA } from '../data/pricingConstants';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
@@ -22,6 +23,7 @@ interface PhoneSimulatorProps {
   patientRecord?: PatientRecord;
   percentComplete?: number;
   onUpdateEducationProgress?: (patientId: string, percent: number) => void;
+  emilyWongRefreshTrigger?: number;
 }
 
 export const PERSONA_DETAILS: Record<string, { fullName: string; nric: string; dob: string; gender: string; email: string; age: number; address: string }> = {
@@ -289,188 +291,188 @@ export const CLINIC_SLOTS_DB: Record<string, Record<string, Record<number, Clini
   nuh: {
     'July 2026': {
       21: [
-        { date: '21 July 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '21 July 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       22: [
-        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       23: [
-        { date: '23 July 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '11:00 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '2:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '23 July 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '11:00 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '2:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       24: [
-        { date: '24 July 2026', time: '9:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '24 July 2026', time: '9:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     },
     'August 2026': {
       12: [
-        { date: '12 August 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '12 August 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       13: [
-        { date: '13 August 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '13 August 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '13 August 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '13 August 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       14: [
-        { date: '14 August 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '14 August 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '14 August 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '14 August 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       18: [
-        { date: '18 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '18 August 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '18 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '18 August 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     },
     'September 2026': {
       8: [
-        { date: '8 September 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '8 September 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       9: [
-        { date: '9 September 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '9 September 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '9 September 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '9 September 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       10: [
-        { date: '10 September 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '10 September 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '10 September 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '10 September 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       15: [
-        { date: '15 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '15 September 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '15 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '15 September 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     }
   },
   sgh: {
     'July 2026': {
       22: [
-        { date: '22 July 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '22 July 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       23: [
-        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '23 July 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '23 July 2026', time: '3:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '23 July 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '23 July 2026', time: '3:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       25: [
-        { date: '25 July 2026', time: '10:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '25 July 2026', time: '11:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '25 July 2026', time: '2:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '25 July 2026', time: '10:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '25 July 2026', time: '11:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '25 July 2026', time: '2:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     },
     'August 2026': {
       12: [
-        { date: '12 August 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '12 August 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '12 August 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '12 August 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       13: [
-        { date: '13 August 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '13 August 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '13 August 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '13 August 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       19: [
-        { date: '19 August 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '19 August 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '19 August 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '19 August 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     },
     'September 2026': {
       8: [
-        { date: '8 September 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '8 September 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '8 September 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '8 September 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       9: [
-        { date: '9 September 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '9 September 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '9 September 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '9 September 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       16: [
-        { date: '16 September 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '16 September 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '16 September 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '16 September 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     }
   },
   ttsh: {
     'July 2026': {
       21: [
-        { date: '21 July 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '21 July 2026', time: '3:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '21 July 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '21 July 2026', time: '3:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       23: [
-        { date: '23 July 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '23 July 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '23 July 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '23 July 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       24: [
-        { date: '24 July 2026', time: '9:00 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '24 July 2026', time: '2:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '24 July 2026', time: '9:00 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '24 July 2026', time: '2:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     },
     'August 2026': {
       14: [
-        { date: '14 August 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '14 August 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '14 August 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '14 August 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       20: [
-        { date: '20 August 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '20 August 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '20 August 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '20 August 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     },
     'September 2026': {
       10: [
-        { date: '10 September 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '10 September 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '10 September 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '10 September 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       17: [
-        { date: '17 September 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '17 September 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '17 September 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '17 September 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     }
   },
   kkh: {
     'July 2026': {
       22: [
-        { date: '22 July 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '22 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '22 July 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '22 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ],
       24: [
-        { date: '24 July 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '24 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '24 July 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '24 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ],
       27: [
-        { date: '27 July 2026', time: '10:00 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '27 July 2026', time: '1:00 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '27 July 2026', time: '3:00 PM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '27 July 2026', time: '10:00 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '27 July 2026', time: '1:00 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '27 July 2026', time: '3:00 PM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ]
     },
     'August 2026': {
       12: [
-        { date: '12 August 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '12 August 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ],
       18: [
-        { date: '18 August 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '18 August 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '18 August 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '18 August 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ]
     },
     'September 2026': {
       8: [
-        { date: '8 September 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '8 September 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ],
       15: [
-        { date: '15 September 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '15 September 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '15 September 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '15 September 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ]
     }
   }
@@ -485,20 +487,20 @@ const extraOfferingsMonths = [
 
 const referenceClinicDetails: Record<string, { provider: string; role: string; cost: string; clinic: string; address: string }[]> = {
   nuh: [
-    { provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', cost: 'S$18.50', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-    { provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', cost: 'S$28.00', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+    { provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+    { provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
   ],
   sgh: [
-    { provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', cost: 'S$24.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-    { provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', cost: 'S$18.50', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+    { provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+    { provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
   ],
   ttsh: [
-    { provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', cost: 'S$28.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-    { provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', cost: 'S$32.00', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+    { provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+    { provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
   ],
   kkh: [
-    { provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', cost: 'S$30.00', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-    { provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', cost: 'S$22.50', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+    { provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+    { provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
   ]
 };
 
@@ -657,7 +659,7 @@ export const getAppointmentSlotDetails = (clinicName: string, date: string, time
   return {
     provider: getClinicSpecialist(clinicName).split(' (')[0],
     role: getClinicSpecialist(clinicName).includes('(') ? getClinicSpecialist(clinicName).split('(')[1].replace(')', '') : 'Specialist',
-    cost: isGeneral ? 'S$4.00' : 'S$18.50',
+    cost: isGeneral ? 'S$4.00' : FH_COST_DATA.indexPatientEstimatedCash,
     duration: isGeneral ? '15 mins' : '45 mins',
     clinic: clinicName,
     address: getClinicAddress(clinicName)
@@ -700,41 +702,104 @@ const getMonthConfig = (monthStr: string) => {
   return { emptyCells, totalDays };
 };
 
-const isBeforeMinimumBookingDate = (monthStr: string, dayNum: number) => {
-  const parts = monthStr.split(' ');
-  const monthName = parts[0];
-  const year = parts[1] ? parseInt(parts[1], 10) : 2026;
+const getTodayNormalized = (): Date => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+};
 
-  const monthIndex = [
+const parseCalendarDate = (monthStr: string, dayNum: number): Date | null => {
+  if (!monthStr) return null;
+  const parts = monthStr.trim().split(/\s+/);
+  if (parts.length < 2) return null;
+  const monthName = parts[0];
+  const year = parseInt(parts[1], 10);
+  if (isNaN(year)) return null;
+
+  const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
-  ].indexOf(monthName);
+  ];
+  const monthIndex = months.indexOf(monthName);
+  if (monthIndex === -1) return null;
 
-  if (monthIndex === -1) return false;
+  return new Date(year, monthIndex, dayNum);
+};
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const targetDate = new Date(year, monthIndex, dayNum);
-  targetDate.setHours(0, 0, 0, 0);
-
+// Returns true if target date is today or in the past (<= today)
+const isTodayOrPast = (monthStr: string, dayNum: number): boolean => {
+  const targetDate = parseCalendarDate(monthStr, dayNum);
+  if (!targetDate) return true;
+  const today = getTodayNormalized();
   return targetDate.getTime() <= today.getTime();
 };
 
-const isToday = (monthStr: string, dayNum: number) => {
-  const parts = monthStr.split(' ');
+const isDateBeforeToday = (monthStr: string, dayNum: number): boolean => {
+  return isTodayOrPast(monthStr, dayNum);
+};
+
+const isToday = (monthStr: string, dayNum: number): boolean => {
+  const targetDate = parseCalendarDate(monthStr, dayNum);
+  if (!targetDate) return false;
+  const today = getTodayNormalized();
+  return targetDate.getTime() === today.getTime();
+};
+
+const isMonthBeforeCurrent = (monthStr: string): boolean => {
+  if (!monthStr) return false;
+  const parts = monthStr.trim().split(/\s+/);
+  if (parts.length < 2) return false;
   const monthName = parts[0];
-  const year = parts[1] ? parseInt(parts[1], 10) : 2026;
-  
-  const monthIndex = [
+  const year = parseInt(parts[1], 10);
+  if (isNaN(year)) return false;
+
+  const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
-  ].indexOf(monthName);
-  
+  ];
+  const monthIndex = months.indexOf(monthName);
   if (monthIndex === -1) return false;
-  
-  const today = new Date();
-  return today.getDate() === dayNum && today.getMonth() === monthIndex && today.getFullYear() === year;
+
+  const today = getTodayNormalized();
+  const currentYear = today.getFullYear();
+  const currentMonthIndex = today.getMonth();
+
+  if (year < currentYear) return true;
+  if (year === currentYear && monthIndex < currentMonthIndex) return true;
+  return false;
+};
+
+const getEarliestFutureAppointment = (clinicId: string, customSlotsDb?: any) => {
+  const db = customSlotsDb || CLINIC_SLOTS_DB;
+  const clinicData = db[clinicId];
+  if (!clinicData) return null;
+
+  const today = getTodayNormalized();
+  const candidates: { monthStr: string; dayNum: number; dateObj: Date }[] = [];
+
+  for (const monthStr of Object.keys(clinicData)) {
+    const daysObj = clinicData[monthStr];
+    if (!daysObj) continue;
+
+    for (const dayStr of Object.keys(daysObj)) {
+      const dayNum = parseInt(dayStr, 10);
+      if (isNaN(dayNum)) continue;
+
+      const slots = daysObj[dayStr];
+      if (!Array.isArray(slots) || slots.length === 0) continue;
+
+      const dateObj = parseCalendarDate(monthStr, dayNum);
+      if (!dateObj) continue;
+
+      if (dateObj.getTime() > today.getTime()) {
+        candidates.push({ monthStr, dayNum, dateObj });
+      }
+    }
+  }
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+  return candidates[0];
 };
 
 const getTodayMonthStr = () => {
@@ -750,17 +815,8 @@ const getFirstAvailableDay = (month: string, clinicId: string, customSlotsDb?: a
   const db = customSlotsDb || CLINIC_SLOTS_DB;
   const slots = db[clinicId]?.[month] || {};
   const daysWithSlots = Object.keys(slots).map(Number).sort((a, b) => a - b);
-  const validDay = daysWithSlots.find(day => !isBeforeMinimumBookingDate(month, day));
-  return validDay || null;
-};
-
-const getEarliestAvailableFutureDate = (clinicId: string, customSlotsDb?: any): { month: string; day: number } | null => {
-  const db = customSlotsDb || CLINIC_SLOTS_DB;
-  for (const month of availableMonths) {
-    const day = getFirstAvailableDay(month, clinicId, db);
-    if (day !== null) return { month, day };
-  }
-  return null;
+  const validDay = daysWithSlots.find(day => !isTodayOrPast(month, day));
+  return validDay || 0;
 };
 
 export const downloadICSFile = (slot: { date: string; time: string; clinic: string; address: string }) => {
@@ -902,6 +958,7 @@ export default function PhoneSimulator({
   patientRecord,
   percentComplete,
   onUpdateEducationProgress,
+  emilyWongRefreshTrigger,
 }: PhoneSimulatorProps) {
 
   // Local state for interactive elements
@@ -955,6 +1012,17 @@ export default function PhoneSimulator({
   const patientAge = patientRecord?.age ?? patientDetails.age;
   const patientGender = patientRecord?.gender || patientDetails.gender;
   const patientEmail = patientRecord?.email || patientDetails.email;
+  const PERSONA_MOBILE: Record<string, string> = {
+    SL001: '+65 9123 4567',
+    DT002: '+65 9234 5678',
+    EW003: '+65 9345 6789',
+    ML004: '+65 9456 7890',
+    PN005: '+65 9567 8901',
+    LH321: '+65 9876 5432',
+  };
+  const patientMobile = (patientRecord?.contact_details && !patientRecord.contact_details.includes('@'))
+    ? patientRecord.contact_details
+    : (PERSONA_MOBILE[currentPatientId] || '+65 9123 4567');
   const patientAddress = patientRecord?.residential_address || patientDetails.address;
 
   const formatDob = (iso?: string | null): string => {
@@ -1055,43 +1123,14 @@ export default function PhoneSimulator({
     }
   });
 
-  // Keep checklist synced with language, onboarding status, and database percentComplete
-  useEffect(() => {
-    const rawItems = getLocalizedChecklist(
-      language,
-      onboardingCompleted ? onboardingFamiliarity : null,
-      onboardingTopics,
-      onboardingConcerns
-    );
-
-    setChecklist((currentList) => {
-      const isFirstInit = !currentList || currentList.length === 0;
-      
-      if (isFirstInit && percentComplete !== undefined) {
-        const itemsToCheckCount = Math.round((percentComplete / 100) * rawItems.length);
-        return rawItems.map((item, idx) => ({
-          ...item,
-          checked: idx < itemsToCheckCount,
-        }));
-      }
-
-      return rawItems.map((item) => {
-        const existing = currentList.find((c) => c.id === item.id);
-        return {
-          ...item,
-          checked: existing ? existing.checked : false,
-        };
-      });
-    });
-  }, [language, onboardingCompleted, onboardingFamiliarity, onboardingTopics, onboardingConcerns, percentComplete]);
-
   const [eduExpanded, setEduExpanded] = useState<Record<string, boolean>>({});
   const [forceFullExpand, setForceFullExpand] = useState<Record<string, boolean>>({});
   const [activeFaqCategory, setActiveFaqCategory] = useState<string>('all');
   const [faqExpanded, setFaqExpanded] = useState<Record<number, boolean>>({});
-  const [checklist, setChecklist] = useState<any[]>([]);
-  const [viewingChecklist, setViewingChecklist] = useState<boolean>(false);
-  const [eduSubTab, setEduSubTab] = useState<'guides' | 'checklist' | 'faq'>('guides');
+  const [eduSubTab, setEduSubTab] = useState<'guides' | 'faq'>('guides');
+  const [brochureSlideIndex, setBrochureSlideIndex] = useState(0);
+  const [clinicalSlideIndex, setClinicalSlideIndex] = useState(0);
+  const [videoSlideIndex, setVideoSlideIndex] = useState(0);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [videoFrame, setVideoFrame] = useState(0);
   const [showTranscript, setShowTranscript] = useState(false);
@@ -1126,12 +1165,25 @@ export default function PhoneSimulator({
     setShowOtherTopics(false);
     setExpandedOtherTopicId(null);
     setQuestionnaireStatus(null);
+    setOnboardingFamiliarity(null);
+    setOnboardingTopics([]);
+    setOnboardingConcerns([]);
     try {
       localStorage.removeItem('fh-questionnaire-status');
+      localStorage.removeItem('fh-onboarding-completed');
+      localStorage.removeItem('fh-onboarding-familiarity');
+      localStorage.removeItem('fh-onboarding-topics');
+      localStorage.removeItem('fh-onboarding-concerns');
     } catch (e) {
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    if (emilyWongRefreshTrigger && emilyWongRefreshTrigger > 0) {
+      handleRetakeOnboarding();
+    }
+  }, [emilyWongRefreshTrigger]);
 
   const scaleText = (defaultClass: string) => {
     if (textSize === 'md') return defaultClass;
@@ -1239,25 +1291,10 @@ export default function PhoneSimulator({
     },
   ];
 
-  // List of all 9 guide topics
+  // List of all 6 educational sections from localized sections source of truth
   const allGuideTopics = useMemo(() => {
-    const orderedIds = [
-      'what-is-fh',
-      'heart-health',
-      'genetic-testing',
-      'cascade-screening',
-      'treatment-medication',
-      'healthy-lifestyle',
-      'testing-process',
-      'costs-subsidies',
-      'insurance'
-    ];
-
-    const level = onboardingFamiliarity || 'new';
-    return orderedIds.map(id => {
-      return getPersonalisedGuideContent(id, level, onboardingConcerns || [], language);
-    });
-  }, [language, onboardingFamiliarity, onboardingConcerns]);
+    return getLocalizedEducationalSections(language);
+  }, [language]);
 
   const selectedTopicsList = useMemo(() => {
     const raw = onboardingTopics || [];
@@ -1265,49 +1302,24 @@ export default function PhoneSimulator({
     const mapped = raw
       .filter(t => t !== 'topic-resources' && t !== 'helpful-resources' && t !== 'topic-faqs' && t !== 'topic-stories')
       .map(t => {
-        if (t === 'topic-basics') return 'what-is-fh';
-        if (t === 'topic-family' || t === 'cascade-screening') return 'cascade-screening';
-        if (t === 'topic-testing' || t === 'genetic-testing') return 'genetic-testing';
-        if (t === 'topic-risk' || t === 'heart-health') return 'heart-health';
-        if (t === 'topic-treatment' || t === 'treatment-medication') return 'treatment-medication';
-        if (t === 'topic-lifestyle' || t === 'healthy-lifestyle') return 'healthy-lifestyle';
+        if (t === 'topic-basics' || t === 'what-is-fh' || t === 'topic-risk' || t === 'heart-health') return 'what-is-fh';
+        if (t === 'topic-family' || t === 'cascade-screening' || t === 'why-testing-matters') return 'why-testing-matters';
+        if (t === 'topic-testing' || t === 'genetic-testing' || t === 'topic-next' || t === 'testing-process' || t === 'testing-guide') return 'testing-guide';
         if (t === 'topic-costs' || t === 'costs-subsidies') return 'costs-subsidies';
-        if (t === 'topic-insurance' || t === 'insurance-rights') return 'insurance';
-        if (t === 'topic-next' || t === 'testing-process') return 'testing-process';
+        if (t === 'topic-insurance' || t === 'insurance-rights' || t === 'insurance') return 'insurance-rights';
+        if (t === 'topic-treatment' || t === 'topic-lifestyle' || t === 'treatment-medication' || t === 'healthy-lifestyle' || t === 'medication-fh') return 'medication-fh';
         return t;
       })
       .filter(t => t !== 'patient-experiences' && t !== 'topic-stories');
 
     if (hasNotSure) {
-      const beginnerTopics = ['what-is-fh', 'heart-health', 'testing-process'];
+      const beginnerTopics = ['what-is-fh', 'why-testing-matters', 'testing-guide'];
       const combined = Array.from(new Set([...mapped, ...beginnerTopics]));
       return combined;
     }
 
-    return mapped;
+    return Array.from(new Set(mapped));
   }, [onboardingTopics]);
-
-  // Auto-expand recommended groups and sections when onboarding completes
-  useEffect(() => {
-    if (onboardingCompleted) {
-      // Expand all main groups so sections inside are visible immediately
-      setExpandedGroups({
-        basics: true,
-        journey: true,
-        costs: true,
-      });
-
-      // Expand core sections and recommended/selected sections by default
-      const initialEduExpanded: Record<string, boolean> = {};
-      const sections = ['what-is-fh', 'why-testing-matters', 'testing-guide', 'costs-subsidies', 'insurance-rights', 'medication-fh'];
-      sections.forEach(secId => {
-        const isCore = secId === 'what-is-fh' || secId === 'why-testing-matters';
-        const isRec = isSectionRecommended(secId);
-        initialEduExpanded[secId] = isCore || isRec;
-      });
-      setEduExpanded(initialEduExpanded);
-    }
-  }, [onboardingCompleted, onboardingFamiliarity, onboardingTopics.length, onboardingConcerns.length]);
 
   const selectedGuideTopics = useMemo(() => {
     if (!onboardingCompleted) return [];
@@ -1482,13 +1494,17 @@ export default function PhoneSimulator({
   const [showClinicDropdown, setShowClinicDropdown] = useState<boolean>(false);
 
   // Calendar Booking States (User request 2)
-  const [selectedCalendarMonth, setSelectedCalendarMonth] = useState<string>(() => {
-    const earliest = getEarliestAvailableFutureDate('nuh', activeClinicSlotsDb);
-    return earliest ? earliest.month : availableMonths[0];
+  const [selectedSlotMonth, setSelectedSlotMonth] = useState<string>(() => {
+    const earliest = getEarliestFutureAppointment('nuh', CLINIC_SLOTS_DB);
+    return earliest?.monthStr || getTodayMonthStr();
   });
-  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number | null>(() => {
-    const earliest = getEarliestAvailableFutureDate('nuh', activeClinicSlotsDb);
-    return earliest ? earliest.day : null;
+  const [selectedCalendarMonth, setSelectedCalendarMonth] = useState<string>(() => {
+    const earliest = getEarliestFutureAppointment('nuh', CLINIC_SLOTS_DB);
+    return earliest?.monthStr || getTodayMonthStr();
+  });
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(() => {
+    const earliest = getEarliestFutureAppointment('nuh', CLINIC_SLOTS_DB);
+    return earliest?.dayNum || 0;
   });
   const [selectedSlotObj, setSelectedSlotObj] = useState<ClinicSlot | null>(null);
   const [showMonthPopup, setShowMonthPopup] = useState<boolean>(false);
@@ -1501,13 +1517,43 @@ export default function PhoneSimulator({
     }
   }, [currentPatientId, patientAddress]);
 
-  const selectMonth = (month: string) => {
-    setSelectedCalendarMonth(month);
-    const availableDays = Object.keys(activeClinicSlotsDb[selectedClinicId]?.[month] || {})
-      .map(Number)
-      .filter(day => !isBeforeMinimumBookingDate(month, day));
-    setSelectedCalendarDay(availableDays.length > 0 ? availableDays[0] : null);
+  const handleClinicChange = (clinicId: string) => {
+    setSelectedClinicId(clinicId);
+    setShowClinicDropdown(false);
+    setSelectedSlotObj(null);
+    setSelectedSlotIdx(null);
+
+    const earliest = getEarliestFutureAppointment(clinicId, activeClinicSlotsDb);
+    if (earliest) {
+      setSelectedCalendarMonth(earliest.monthStr);
+      setSelectedCalendarDay(earliest.dayNum);
+      setSelectedSlotMonth(earliest.monthStr);
+    } else {
+      setSelectedCalendarDay(0);
+      setSelectedSlotMonth('');
+    }
   };
+
+  const selectMonth = (month: string) => {
+    if (isMonthBeforeCurrent(month)) return;
+    setSelectedCalendarMonth(month);
+  };
+
+  useEffect(() => {
+    if (activeScreen === ScreenId.Booking) {
+      const earliest = getEarliestFutureAppointment(selectedClinicId, activeClinicSlotsDb);
+      if (earliest) {
+        if (!selectedSlotMonth || selectedCalendarDay === 0 || !activeClinicSlotsDb[selectedClinicId]?.[selectedSlotMonth]?.[selectedCalendarDay] || isTodayOrPast(selectedSlotMonth, selectedCalendarDay)) {
+          setSelectedCalendarMonth(earliest.monthStr);
+          setSelectedCalendarDay(earliest.dayNum);
+          setSelectedSlotMonth(earliest.monthStr);
+        }
+      } else {
+        setSelectedCalendarDay(0);
+        setSelectedSlotMonth('');
+      }
+    }
+  }, [activeScreen, selectedClinicId, isFHReferred]);
 
   // Custom non-blocking alert/confirm dialog states to bypass iframe restrictions
   const [bookingSubFlow, setBookingSubFlow] = useState<
@@ -1525,12 +1571,20 @@ export default function PhoneSimulator({
   const [rescheduleClinicId, setRescheduleClinicId] = useState<string>('nuh');
   const [showRescheduleClinicDropdown, setShowRescheduleClinicDropdown] = useState<boolean>(false);
   const [rescheduleCalendarMonth, setRescheduleCalendarMonth] = useState<string>(() => {
-    const earliest = getEarliestAvailableFutureDate('nuh', activeClinicSlotsDb);
-    return earliest ? earliest.month : availableMonths[0];
+    const todayMonth = getTodayMonthStr();
+    const available = [
+      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
+      'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027', 'June 2027',
+      'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
+    ];
+    return available.includes(todayMonth) ? todayMonth : 'July 2026';
   });
-  const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number | null>(() => {
-    const earliest = getEarliestAvailableFutureDate('nuh', activeClinicSlotsDb);
-    return earliest ? earliest.day : null;
+  const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number>(() => {
+    const todayMonth = getTodayMonthStr();
+    const initialMonth = [
+      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
+    ].includes(todayMonth) ? todayMonth : 'July 2026';
+    return getFirstAvailableDay(initialMonth, 'nuh', activeClinicSlotsDb);
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showNotificationPopup, setShowNotificationPopup] = useState<boolean>(false);
@@ -1538,11 +1592,13 @@ export default function PhoneSimulator({
   // Knowledge Check State inside PhoneSimulator
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
+  const [quizSlideIndex, setQuizSlideIndex] = useState<number>(0);
 
   // Reset quiz when onboarding status or persona changes
   useEffect(() => {
     setQuizAnswers({});
     setQuizSubmitted(false);
+    setQuizSlideIndex(0);
   }, [onboardingCompleted, questionnaireStatus, onboardingFamiliarity, onboardingTopics, currentPatientId]);
 
   // Dynamic Knowledge Check Questions based on Onboarding Status & Preferences
@@ -1576,81 +1632,53 @@ export default function PhoneSimulator({
           correctAnswer: 0,
           explanation: language === 'ms' ? 'FH adalah keadaan genetik yang mengurangkan keupayaan hati untuk membersihkan kolesterol LDL ("jahat").' :
                        language === 'zh' ? 'FH 是一种遗传性疾病，会削弱肝脏清除“坏”胆固醇 (LDL) 的能力。' :
-                       language === 'ta' ? 'FH என்பது கல்லீரலின் LDL கொழுப்பை அகற்றும் திறனைக் குறைக்கும் ஒரு மரபணு நிலை.' :
-                       'FH is a genetic condition present from birth that impairs the liver\'s ability to clear bad LDL cholesterol.'
+                       language === 'ta' ? 'FH என்பது கல்லீரலின் LDL கொழுப்பை அகற்றும் திறனைக் குறைக்கிறது.' :
+                       'FH is a genetic condition that reduces the liver\'s ability to clear "bad" LDL cholesterol.'
         },
         {
           id: 'q2',
-          question: language === 'ms' ? 'Mengapa ujian genetik untuk FH penting?' :
-                    language === 'zh' ? '为什么 FH 基因检测非常重要？' :
-                    language === 'ta' ? 'FH மரபணு சோதனை ஏன் முக்கியமானது?' :
-                    'Why is genetic testing for FH important?',
+          question: language === 'ms' ? 'Mengapakah diagnosis awal FH sangat penting?' :
+                    language === 'zh' ? '为什么早期诊断 FH 至关重要？' :
+                    language === 'ta' ? 'FH-ஐ ஆரம்பத்தில் கண்டறிவது ஏன் முக்கியம்?' :
+                    'Why is early diagnosis of FH critical?',
           options: [
-            language === 'ms' ? 'Ia mengesahkan genotip anda dan membolehkan rawatan awal yang disasarkan' :
-            language === 'zh' ? '它可以确诊您的基因型，从而支持早期针对性治疗' :
-            language === 'ta' ? 'இது உங்கள் மரபணு வகையை உறுதிசெய்து ஆரம்பகால சிகிச்சையை அனுமதிக்கிறது' :
-            'It confirms your genotype and enables early, targeted treatment',
+            language === 'ms' ? 'Diagnosis dan rawatan awal mengurangkan risiko kardiovaskular jangka panjang sehingga 80%' :
+            language === 'zh' ? '早期诊断与治疗可将长期心血管风险降低高达 80%' :
+            language === 'ta' ? 'ஆரம்பகால நோயறிதல் மற்றும் சிகிச்சை நீண்டகால இதய நோய் ஆபத்தை 80% வரை குறைக்கிறது' :
+            'Early diagnosis and treatment reduce long-term cardiovascular risk by up to 80%',
 
-            language === 'ms' ? 'Ia menggantikan keperluan untuk pemakanan sihat' :
-            language === 'zh' ? '它可以完全替代健康饮食' :
-            language === 'ta' ? 'இது ஆரோக்கியமான உணவின் தேவையை மாற்றுகிறது' :
-            'It replaces the need for healthy eating',
+            language === 'ms' ? 'Ia mengelakkan keperluan untuk senaman harian' :
+            language === 'zh' ? '它可以完全免除日常运动的需求' :
+            language === 'ta' ? 'இது உடற்பயிற்சி செய்ய வேண்டிய அவசியத்தைத் தவிர்க்கிறது' :
+            'It eliminates the need for daily exercise',
 
-            language === 'ms' ? 'Ia diwajibkan untuk semua kemasukan hospital' :
-            language === 'zh' ? '新加坡所有住院患者都必须强制进行此检测' :
-            language === 'ta' ? 'இது அனைத்து மருத்துவமனை சேர்க்கைகளுக்கும் கட்டாயமாகும்' :
-            'It is mandatory for all hospital admissions'
+            language === 'ms' ? 'Ia hanya penting jika seseorang ingin menjadi atlet' :
+            language === 'zh' ? '它仅对计划成为专业运动员的人重要' :
+            language === 'ta' ? 'விளையாட்டு வீரராக மாற விரும்புபவர்களுக்கு மட்டுமே இது முக்கியம்' :
+            'It is only relevant if one wants to become a professional athlete'
           ],
           correctAnswer: 0,
-          explanation: language === 'ms' ? 'Pengesahan genetik membantu doktor memilih rawatan yang tepat sebelum kolesterol membina plak.' :
-                       language === 'zh' ? '基因确诊有助于医生在胆固醇堆积前制定精准治疗方案。' :
-                       language === 'ta' ? 'மரபணு உறுதிப்படுத்தல் மருத்துவர்களுக்கு துல்லியமான சிகிச்சையைத் தேர்வுசெய்ய உதவுகிறது.' :
-                       'Genetic testing confirms diagnosis and enables early intervention before plaque builds up.'
+          explanation: language === 'ms' ? 'Diagnosis dan rawatan awal mengurangkan risiko kardiovaskular jangka panjang sehingga 80%.' :
+                       language === 'zh' ? '早期诊断与治疗可将长期心血管风险降低高达 80%。' :
+                       language === 'ta' ? 'ஆரம்பகால நோயறிதல் மற்றும் சிகிச்சை நீண்டகால இதய நோய் ஆபத்தை 80% வரை குறைக்கிறது.' :
+                       'Early diagnosis and treatment reduce long-term cardiovascular risk by up to 80%.'
         },
         {
           id: 'q3',
           question: language === 'ms' ? 'Berapakah peluang ahli keluarga darjah pertama mewarisi gen FH?' :
                     language === 'zh' ? '直系亲属（父母、兄弟姐妹、子女）遗传 FH 基因的概率是多少？' :
-                    language === 'ta' ? 'முதல் நிலை குடும்ப உறுப்பினர்களுக்கு FH மரபணுவை பரம்பரை பெற எவ்வளவு வாய்ப்பு உள்ளது?' :
-                    'What chance do first-degree family members have of inheriting the FH gene?',
+                    language === 'ta' ? 'முதல் நிலை குடும்ப உறுப்பினர்கள் FH மரபணுவைப் பெறுவதற்கான வாய்ப்பு என்ன?' :
+                    'What is the chance a first-degree family member inherits the FH gene?',
           options: [
-            '10%',
+            '50%',
             '25%',
-            '50%'
-          ],
-          correctAnswer: 2,
-          explanation: language === 'ms' ? 'FH diwarisi secara dominan autosomal, jadi ahli keluarga terdekat mempunyai peluang 50%.' :
-                       language === 'zh' ? 'FH 属于常染色体显性遗传，直系亲属有 50% 的概率携带相同基因。' :
-                       language === 'ta' ? 'FH ஆட்டோசோமால் ஆதிக்கம் செலுத்துகிறது, எனவே நெருங்கிய குடும்பத்தினருக்கு 50% வாய்ப்பு உள்ளது.' :
-                       'FH is autosomal dominant, meaning first-degree relatives have a 50% chance of carrying the gene.'
-        },
-        {
-          id: 'q4',
-          question: language === 'ms' ? 'Apakah faedah utama diagnosis dan rawatan awal FH?' :
-                    language === 'zh' ? '早期诊断和治疗 FH 的主要好处是什么？' :
-                    language === 'ta' ? 'FH ஆரம்பகால நோயறிதல் மற்றும் சிகிச்சையின் முக்கிய நன்மை என்ன?' :
-                    'What is a primary benefit of early diagnosis and treatment for FH?',
-          options: [
-            language === 'ms' ? 'Ia mengurangkan risiko penyakit jantung jangka panjang kembali ke paras normal' :
-            language === 'zh' ? '它可以将长期心血管疾病风险大幅降低至普通人群水平' :
-            language === 'ta' ? 'இது நீண்ட கால இதய நோய் அபாயத்தை சாதாரண நிலைக்குக் குறைக்கிறது' :
-            'It reduces long-term heart disease risk back down to normal levels',
-
-            language === 'ms' ? 'Ia menghapuskan keperluan untuk pemeriksaan kesihatan berterusan' :
-            language === 'zh' ? '它无需后续进行任何健康复查' :
-            language === 'ta' ? 'இது எதிர்கால மருத்துவ பரிசோதனைகளின் தேவையை நீக்குகிறது' :
-            'It eliminates the need for future health checkups',
-
-            language === 'ms' ? 'Ia menyembuhkan kolesterol sepenuhnya dalam 1 minggu' :
-            language === 'zh' ? '它可在 1 周内永久治愈高胆固醇' :
-            language === 'ta' ? 'இது 1 வாரத்தில் கொழுப்பை நிரந்தரமாக குணப்படுத்துகிறது' :
-            'It cures cholesterol permanently in 1 week'
+            '100%'
           ],
           correctAnswer: 0,
-          explanation: language === 'ms' ? 'Rawatan awal seperti statin mengurangkan risiko serangan jantung sehingga 80%.' :
-                       language === 'zh' ? '早期应用他汀类药物治疗可将心血管疾病风险降低高达 80%。' :
-                       language === 'ta' ? 'ஆரம்பகால சிகிச்சை இதய நோய் அபாயத்தை 80% வரை குறைக்கிறது.' :
-                       'Early diagnosis and treatment reduce long-term cardiovascular risk by up to 80%.'
+          explanation: language === 'ms' ? 'FH diwarisi secara dominan autosom, memberikan setiap anak peluang 50%.' :
+                       language === 'zh' ? 'FH 是常染色体显性遗传，因此每个直系亲属有 50% 的概率遗传。' :
+                       language === 'ta' ? 'FH என்பது ஆட்டோசோமால் ஆதிக்க முறையில் பரவுகிறது, எனவே 50% வாய்ப்பு உள்ளது.' :
+                       'FH is inherited in an autosomal dominant pattern, meaning each child/sibling has a 50% chance.'
         }
       ];
     }
@@ -1664,15 +1692,15 @@ export default function PhoneSimulator({
       question: isAdvanced
         ? (language === 'ms' ? 'Apakah mekanisme utama yang menyebabkan kolesterol LDL amat tinggi dalam pesakit FH?' :
            language === 'zh' ? '导致 FH 患者体内的 LDL 胆固醇极其高升的主要机制是什么？' :
-           language === 'ta' ? 'FH நோயாளிகளில் LDL கொழுப்பு மிக அதிகமாக இருப்பதற்கான முக்கிய காரணம் என்ன?' :
-           'What is the physiological mechanism responsible for elevated LDL cholesterol in FH?')
-        : (language === 'ms' ? 'Apakah sifat utama Familial Hypercholesterolaemia (FH)?' :
-           language === 'zh' ? '家族性高胆固醇血症 (FH) 的主要特征是什么？' :
-           language === 'ta' ? 'குடும்ப மிகை கொழுப்புத்தன்மையின் (FH) முக்கிய அம்சம் என்ன?' :
-           'What is the primary characteristic of Familial Hypercholesterolaemia (FH)?'),
+           language === 'ta' ? 'FH நோயாளிகளிடம் LDL கொலஸ்ட்ரால் மிகவும் அதிகமாக இருப்பதற்கான முக்கிய காரணம் என்ன?' :
+           'What is the primary mechanism causing severely elevated LDL cholesterol in FH patients?')
+        : (language === 'ms' ? 'Apakah itu Hiperkolesterolemia Familial (FH)?' :
+           language === 'zh' ? '什么是家族性高胆固醇血症 (FH)？' :
+           language === 'ta' ? 'குடும்பவழி ஹைபர்கொலஸ்டிரோலேமியா (FH) என்றால் என்ன?' :
+           'What is Familial Hypercholesterolaemia (FH)?'),
       options: isAdvanced ? [
-        language === 'ms' ? 'Kerosakan penerima LDLR genetik yang mengurangkan pembersihan LDL oleh hati' :
-        language === 'zh' ? 'LDLR 基因突变导致肝脏 LDL 受体清除能力下降' :
+        language === 'ms' ? 'Mutasi genetik (seperti LDLR) yang menjejaskan pembersihan zarah LDL oleh hati' :
+        language === 'zh' ? '导致肝脏 LDL 清除功能受损的基因突变 (例如 LDLR)' :
         language === 'ta' ? 'கல்லீரல் LDL அகற்றுதலைக் குறைக்கும் LDLR மரபணு குறைபாடு' :
         'Genetic mutations (e.g. LDLR) that impair hepatic clearance of LDL particles',
 
@@ -1721,10 +1749,10 @@ export default function PhoneSimulator({
              language === 'ta' ? 'FH-க்கான "குடும்ப அடுக்கு திரையிடல்" (Cascade Screening) என்றால் என்ன?' :
              'What is Cascade Screening for FH?'),
         options: onboardingTopics.includes('topic-costs') ? [
-          language === 'ms' ? 'Rakyat Singapura dan Penduduk Tetap yang layak menerima subsidi berasaskan means sehingga 70% dan MediSave500/700 boleh digunakan selepas subsidi' :
-          language === 'zh' ? '符合资格的新加坡公民和永久居民可获得高达 70% 的按需补贴，MediSave500/700 可在补贴后使用' :
-          language === 'ta' ? 'தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தர குடிமக்கள் 70% வரை வருமான அடிப்படையிலான மானியம் பெறலாம், மானியத்திற்குப் பிறகு MediSave500/700 பயன்படுத்தலாம்' :
-          'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%, and MediSave500/700 may be used after subsidies',
+          language === 'ms' ? 'Rakyat Singapore dan PR yang layak menerima subsidi berperingkat MOH sehingga 70% dan boleh menggunakan MediSave500/700' :
+          language === 'zh' ? '符合资格的新加坡公民与 PR 享有高达 70% MOH 审查津贴，并可用 MediSave500/700 支付' :
+          language === 'ta' ? 'தகுதியுள்ள குடிமக்கள் மற்றும் PR-கள் 70% வரை MOH மானியம் மற்றும் MediSave500/700 ஐப் பயன்படுத்தலாம்' :
+          'Eligible Singapore Citizens and Permanent Residents receive up to 70% means-tested MOH subsidies and can use MediSave500/700',
 
           language === 'ms' ? 'Tiada subsidi diberikan untuk sebarang ujian genetik' :
           language === 'zh' ? '基因检测完全没有任何政府补贴' :
@@ -1753,7 +1781,7 @@ export default function PhoneSimulator({
         ],
         correctAnswer: 0,
         explanation: onboardingTopics.includes('topic-costs')
-          ? 'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70% for FH counselling and genetic testing, with MediSave500/700 available after subsidies.'
+          ? 'Singapore Citizens and PRs receive up to 70% means-tested subsidies for FH counselling and genetic testing, with MediSave500/700 coverage.'
           : 'Cascade screening tests parents, siblings, and children of an index patient who have a 50% inheritance chance.'
       });
     }
@@ -1919,19 +1947,6 @@ export default function PhoneSimulator({
     setEduExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const toggleChecklist = (id: string) => {
-    setChecklist((prev) => {
-      const next = prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item));
-      const checkedCount = next.filter(item => item.checked).length;
-      const totalCount = next.length;
-      const newPercent = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
-      if (patientRecord?.patient_id && onUpdateEducationProgress) {
-        onUpdateEducationProgress(patientRecord.patient_id, newPercent);
-      }
-      return next;
-    });
-  };
-
   const handleBookSubmit = (slotIdx: number) => {
     const slot = selectedSlotObj || clinicalSlots[slotIdx] || clinicalSlots[0];
     onBookAppointment(slot.date, slot.time, slot.clinic);
@@ -1959,19 +1974,9 @@ export default function PhoneSimulator({
     setRescheduleCalendarMonth(derivedMonth);
     const availableDays = Object.keys(activeClinicSlotsDb[currentClinicId]?.[derivedMonth] || {})
       .map(Number)
-      .filter(d => !isBeforeMinimumBookingDate(derivedMonth, d));
+      .filter(d => !isDateBeforeToday(derivedMonth, d));
     const apptDayAvailable = !isNaN(apptDay) && availableDays.includes(apptDay);
-    if (apptDayAvailable) {
-      setRescheduleCalendarDay(apptDay);
-    } else {
-      const earliest = getEarliestAvailableFutureDate(currentClinicId, activeClinicSlotsDb);
-      if (earliest) {
-        setRescheduleCalendarMonth(earliest.month);
-        setRescheduleCalendarDay(earliest.day);
-      } else {
-        setRescheduleCalendarDay(null);
-      }
-    }
+    setRescheduleCalendarDay(apptDayAvailable ? apptDay : (availableDays[0] ?? 22));
 
     setShowRescheduleClinicDropdown(false);
     setBookingSubFlow('reschedule-select');
@@ -2353,12 +2358,12 @@ export default function PhoneSimulator({
                                   setRescheduleClinicId(clinic.id);
                                   setShowRescheduleClinicDropdown(false);
                                   setProposedSlotObj(null);
-                                  const earliest = getEarliestAvailableFutureDate(clinic.id, activeClinicSlotsDb);
+                                  const earliest = getEarliestFutureAppointment(clinic.id, activeClinicSlotsDb);
                                   if (earliest) {
-                                    setRescheduleCalendarMonth(earliest.month);
-                                    setRescheduleCalendarDay(earliest.day);
+                                    setRescheduleCalendarMonth(earliest.monthStr);
+                                    setRescheduleCalendarDay(earliest.dayNum);
                                   } else {
-                                    setRescheduleCalendarDay(null);
+                                    setRescheduleCalendarDay(0);
                                   }
                                 }}
                                 className={`w-full text-left p-3 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${isSelected ? 'bg-emerald-50/20' : 'bg-white'}`}
@@ -2389,8 +2394,8 @@ export default function PhoneSimulator({
                         if (idx > 0) {
                           const m = availableMonths[idx - 1];
                           setRescheduleCalendarMonth(m);
-                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isBeforeMinimumBookingDate(m, d));
-                          setRescheduleCalendarDay(days[0] ?? null);
+                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
+                          setRescheduleCalendarDay(days[0] ?? 1);
                         }
                       }}
                       disabled={availableMonths.indexOf(rescheduleCalendarMonth) === 0}
@@ -2405,8 +2410,8 @@ export default function PhoneSimulator({
                         if (idx < availableMonths.length - 1) {
                           const m = availableMonths[idx + 1];
                           setRescheduleCalendarMonth(m);
-                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isBeforeMinimumBookingDate(m, d));
-                          setRescheduleCalendarDay(days[0] ?? null);
+                          const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.[m] || {}).map(Number).filter(d => !isDateBeforeToday(m, d));
+                          setRescheduleCalendarDay(days[0] ?? 1);
                         }
                       }}
                       disabled={availableMonths.indexOf(rescheduleCalendarMonth) === availableMonths.length - 1}
@@ -2426,7 +2431,7 @@ export default function PhoneSimulator({
                     ))}
                     {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
                       const dayNum = i + 1;
-                      const hasSlots = !!activeClinicSlotsDb[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isBeforeMinimumBookingDate(rescheduleCalendarMonth, dayNum);
+                      const hasSlots = !!activeClinicSlotsDb[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
                       const isSelected = rescheduleCalendarDay === dayNum;
                       const isRescheduleCurrentDay = isToday(rescheduleCalendarMonth, dayNum);
                       return (
@@ -2486,13 +2491,6 @@ export default function PhoneSimulator({
                             </div>
                           </button>
                         ))
-                    ) : rescheduleCalendarDay === null ? (
-                      <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
-                        {language === 'ms' ? 'Tiada janji temu masa hadapan tersedia untuk klinik ini.' :
-                         language === 'zh' ? '该诊所没有可用的未来预约。' :
-                         language === 'ta' ? 'இந்த மருத்துவமனைக்கு எதிர்கால சந்திப்புகள் இல்லை.' :
-                         'No future appointments available for this clinic.'}
-                      </div>
                     ) : (
                       <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
                         {t('reschedule_no_slots')}
@@ -2500,12 +2498,17 @@ export default function PhoneSimulator({
                     )}
                   </div>
 
-                  {/* Shared cost estimate */}
-                  <div className="bg-white border border-emerald-100 rounded-xl p-3 space-y-1">
-                    <div className="text-[9.5px] font-bold text-emerald-800 uppercase tracking-tight">Estimated Cash Payment</div>
-                    <div className="text-base font-extrabold text-[#00a859] font-mono">S$18–S$87</div>
-                    <p className="text-[10px] text-slate-500 leading-snug">For an index patient with S$500 available under MediSave500. Final payment depends on subsidy eligibility and available MediSave.</p>
-                    <p className="text-[10px] text-slate-500 leading-snug">The package includes pre-test counselling, genetic testing, blood drawing and post-test counselling.</p>
+                  {/* Detailed Cost card */}
+                  <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left mt-4">
+                    <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
+                      {FH_COST_DATA.cardHeading}
+                    </div>
+                    <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
+                      {FH_COST_DATA.indexPatientEstimatedCash}
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-snug font-medium">
+                      {FH_COST_DATA.supportingText}
+                    </p>
                   </div>
                 </div>
               </div>{/* end scrollable body */}
@@ -2581,6 +2584,19 @@ export default function PhoneSimulator({
                   <p className="text-[10px] text-slate-500">{proposedSlotObj.clinic}</p>
                 </div>
               </div>
+
+              {/* Cost card */}
+              <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left">
+                <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
+                  {FH_COST_DATA.cardHeading}
+                </div>
+                <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
+                  {FH_COST_DATA.indexPatientEstimatedCash}
+                </div>
+                <p className="text-[11px] text-slate-600 leading-snug font-medium">
+                  {FH_COST_DATA.supportingText}
+                </p>
+              </div>
             </div>
 
             <div className="px-4 pb-6 space-y-2.5 bg-white border-t border-slate-100 pt-4 shrink-0">
@@ -2652,7 +2668,7 @@ export default function PhoneSimulator({
                   setBookingStep('available');
                   setSelectedSlotIdx(null);
                   setSelectedSlotObj(null);
-                  setSelectedCalendarDay(getFirstAvailableDay(selectedCalendarMonth, selectedClinicId, activeClinicSlotsDb));
+                  setSelectedCalendarDay(22);
                 }}
                 className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition cursor-pointer text-center flex items-center justify-center gap-1.5"
               >
@@ -2744,7 +2760,7 @@ export default function PhoneSimulator({
                         >
                           {label}
                           {language === code && (
-                            <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[9px] font-black">✓</span>
+                            <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white"><Check className="w-2.5 h-2.5 stroke-[3]" /></span>
                           )}
                         </button>
                       ))}
@@ -2917,8 +2933,8 @@ export default function PhoneSimulator({
 
                           {/* Step 1: Referral */}
                           <div className="flex flex-col items-center relative z-10 w-[64px]">
-                            <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
-                              ✓
+                            <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center shadow-xs ring-4 ring-emerald-50">
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
                             </div>
                             <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
                               {t('step_referral')}
@@ -2929,8 +2945,8 @@ export default function PhoneSimulator({
                           <div className="flex flex-col items-center relative z-10 w-[96px]">
                             {appointment.status === 'booked' ? (
                               <>
-                                <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[10px] font-bold shadow-xs ring-4 ring-emerald-50">
-                                  ✓
+                                <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center shadow-xs ring-4 ring-emerald-50">
+                                  <Check className="w-2.5 h-2.5 stroke-[3]" />
                                 </div>
                                 <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
                                   {t('step_counselling')}
@@ -2960,9 +2976,6 @@ export default function PhoneSimulator({
                         </div>
                       </div>
                     )}
-
-
-
                   </div>
                 </div>
               )}
@@ -3455,16 +3468,16 @@ export default function PhoneSimulator({
                           language === 'ta' || language === 'ms' ? 'grid-cols-1' : 'grid-cols-2'
                         }`}>
                           {[
-                            { id: 'topic-basics', icon: '🧬', label: t('step2_opt_basics') },
-                            { id: 'topic-risk', icon: '❤️', label: t('step2_opt_risk') },
-                            { id: 'topic-testing', icon: '🧪', label: t('step2_opt_testing') },
-                            { id: 'topic-family', icon: '👨‍👩‍👧', label: t('step2_opt_family') },
-                            { id: 'topic-treatment', icon: '💊', label: t('step2_opt_treatment') },
-                            { id: 'topic-lifestyle', icon: '🥗', label: t('step2_opt_lifestyle') },
-                            { id: 'topic-costs', icon: '💰', label: t('step2_opt_costs') },
-                            { id: 'topic-insurance', icon: '🛡️', label: t('step2_opt_insurance') },
-                            { id: 'topic-next', icon: '📋', label: t('step2_opt_testing_process') },
-                            { id: 'topic-notsure', icon: '🤔', label: t('step2_opt_not_sure') },
+                            { id: 'topic-basics', iconName: 'Dna', label: t('step2_opt_basics') },
+                            { id: 'topic-risk', iconName: 'HeartPulse', label: t('step2_opt_risk') },
+                            { id: 'topic-testing', iconName: 'FlaskConical', label: t('step2_opt_testing') },
+                            { id: 'topic-family', iconName: 'Users', label: t('step2_opt_family') },
+                            { id: 'topic-treatment', iconName: 'Pill', label: t('step2_opt_treatment') },
+                            { id: 'topic-lifestyle', iconName: 'Apple', label: t('step2_opt_lifestyle') },
+                            { id: 'topic-costs', iconName: 'Coins', label: t('step2_opt_costs') },
+                            { id: 'topic-insurance', iconName: 'ShieldCheck', label: t('step2_opt_insurance') },
+                            { id: 'topic-next', iconName: 'ClipboardList', label: t('step2_opt_testing_process') },
+                            { id: 'topic-notsure', iconName: 'HelpCircle', label: t('step2_opt_not_sure') },
                           ].map((opt) => {
                             const isSelected = onboardingTopics.includes(opt.id);
                             return (
@@ -3489,7 +3502,7 @@ export default function PhoneSimulator({
                                   }`}
                               >
                                 <div className="flex items-center gap-2 min-w-0 flex-1 pr-1.5">
-                                  <span className="text-[13px] shrink-0">{opt.icon}</span>
+                                  <span className="text-[13px] shrink-0">{getIcon(opt.iconName || 'HelpCircle', "text-[#00a859]")}</span>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center flex-wrap gap-1">
                                       <span className={`font-semibold text-slate-800 leading-tight ${
@@ -3524,14 +3537,14 @@ export default function PhoneSimulator({
 
                         <div className="space-y-2 pt-1 overflow-y-auto max-h-[340px] pr-1">
                           {[
-                            { id: 'concern-diagnosis', label: '😟 ' + t('concern_diagnosis_title'), desc: t('concern_diagnosis_desc') },
-                            { id: 'concern-family', label: '👨‍👩‍👧 ' + t('concern_family_title'), desc: t('concern_family_desc') },
-                            { id: 'concern-cost', label: '💰 ' + t('concern_cost_title'), desc: t('concern_cost_desc') },
-                            { id: 'concern-test', label: '🧪 ' + t('concern_test_title'), desc: t('concern_test_desc') },
-                            { id: 'concern-meds', label: '💊 ' + t('concern_meds_title'), desc: t('concern_meds_desc') },
-                            { id: 'concern-[#00a859]', label: '❤️ ' + t('concern_heart_title'), desc: t('concern_heart_desc') },
-                            { id: 'concern-insurance', label: '🛡️ ' + t('concern_insurance_title'), desc: t('concern_insurance_desc') },
-                            { id: 'concern-curious', label: '😊 ' + t('concern_curious_title'), desc: t('concern_curious_desc') },
+                            { id: 'concern-diagnosis', iconName: 'HelpCircle', label: t('concern_diagnosis_title'), desc: t('concern_diagnosis_desc') },
+                            { id: 'concern-family', iconName: 'Users', label: t('concern_family_title'), desc: t('concern_family_desc') },
+                            { id: 'concern-cost', iconName: 'Coins', label: t('concern_cost_title'), desc: t('concern_cost_desc') },
+                            { id: 'concern-test', iconName: 'FlaskConical', label: t('concern_test_title'), desc: t('concern_test_desc') },
+                            { id: 'concern-meds', iconName: 'Pill', label: t('concern_meds_title'), desc: t('concern_meds_desc') },
+                            { id: 'concern-heart', iconName: 'HeartPulse', label: t('concern_heart_title'), desc: t('concern_heart_desc') },
+                            { id: 'concern-insurance', iconName: 'ShieldCheck', label: t('concern_insurance_title'), desc: t('concern_insurance_desc') },
+                            { id: 'concern-curious', iconName: 'Sparkles', label: t('concern_curious_title'), desc: t('concern_curious_desc') },
                           ].map((opt) => {
                             const isSelected = onboardingConcerns.includes(opt.id);
                             return (
@@ -3738,10 +3751,7 @@ export default function PhoneSimulator({
                   <div className="bg-slate-200/50 p-1 rounded-xl flex gap-1 border border-slate-200/30">
                     <button
                       id="edu-tab-guides"
-                      onClick={() => {
-                        setEduSubTab('guides');
-                        setViewingChecklist(false);
-                      }}
+                      onClick={() => setEduSubTab('guides')}
                       className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
                         language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
                       } ${
@@ -3754,28 +3764,8 @@ export default function PhoneSimulator({
                       <span>{t('edu_tab_guides')}</span>
                     </button>
                     <button
-                      id="edu-tab-checklist"
-                      onClick={() => {
-                        setEduSubTab('checklist');
-                        setViewingChecklist(true);
-                      }}
-                      className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
-                        language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
-                      } ${
-                        eduSubTab === 'checklist'
-                          ? 'bg-[#00a859] text-white shadow-sm'
-                          : 'text-slate-600 hover:text-slate-800 bg-transparent hover:bg-slate-200/30'
-                      }`}
-                    >
-                      <CheckSquare className="w-3.5 h-3.5 shrink-0" />
-                      <span>{t('edu_tab_checklist')}</span>
-                    </button>
-                    <button
                       id="edu-tab-faq"
-                      onClick={() => {
-                        setEduSubTab('faq');
-                        setViewingChecklist(false);
-                      }}
+                      onClick={() => setEduSubTab('faq')}
                       className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg font-extrabold transition-all cursor-pointer leading-tight text-center ${
                         language === 'ta' || language === 'ms' ? 'text-[9.2px] px-0.5' : 'text-[10.5px] px-1'
                       } ${
@@ -3870,7 +3860,7 @@ export default function PhoneSimulator({
                                       <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
                                         <div className="animate-fade-in space-y-1">
                                           <span className="text-2xl">
-                                            {videoFrame === 0 ? '💡' : videoFrame === 1 ? '🤝' : videoFrame === 2 ? '🛡️' : '❤️'}
+                                            {videoFrame === 0 ? <Lightbulb className="w-8 h-8 text-amber-400 mx-auto" /> : videoFrame === 1 ? <Handshake className="w-8 h-8 text-emerald-400 mx-auto" /> : videoFrame === 2 ? <ShieldCheck className="w-8 h-8 text-blue-400 mx-auto" /> : <HeartPulse className="w-8 h-8 text-rose-400 mx-auto" />}
                                           </span>
                                           <p className="text-[11px] font-semibold leading-normal">
                                             {activeStory.frames[videoFrame]}
@@ -3930,62 +3920,142 @@ export default function PhoneSimulator({
                         );
                       })()}
 
-                      {/* Spec 4: Statistics 2x2 Grid 'Did You Know?' */}
-                      <div className="space-y-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs">💡</span>
-                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#00a859] font-mono">{t('edu_did_you_know')}</h4>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          {/* Stat 1 */}
-                          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
-                            <div className="text-xl">🇸🇬</div>
-                            <div>
-                              <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">1 in 250</h5>
-                              <p className="font-bold text-[10px] text-slate-800 leading-snug">{t('edu_stat1_label')}</p>
-                            </div>
-                            <p className="text-[9.5px] text-slate-500 leading-relaxed">
-                              {t('edu_stat1_body')}
-                            </p>
-                          </div>
+                      {/* Spec 4: Statistics 2x2 Grid 'Did You Know?' (Personalised & Concise) */}
+                      {(() => {
+                        const isQuestionnaireActive = onboardingCompleted && questionnaireStatus === 'completed';
 
-                          {/* Stat 2 */}
-                          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
-                            <div className="text-xl">🔍</div>
-                            <div>
-                              <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">~90%</h5>
-                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat2_label')}</p>
-                            </div>
-                            <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
-                              {t('edu_stat2_body')}
-                            </p>
-                          </div>
+                        const allCandidateStats = [
+                          {
+                            id: 'prevalence',
+                            value: t('edu_stat_prevalence_val'),
+                            label: t('edu_stat_prevalence_lbl'),
+                            Icon: Building2,
+                            baseScore: 10,
+                            match: () => onboardingTopics.includes('topic-basics') || onboardingConcerns.includes('concern-diagnosis') || onboardingFamiliarity === 'new',
+                          },
+                          {
+                            id: 'undiagnosed',
+                            value: t('edu_stat_undiagnosed_val'),
+                            label: t('edu_stat_undiagnosed_lbl'),
+                            Icon: Search,
+                            baseScore: 9,
+                            match: () => onboardingTopics.includes('topic-basics') || onboardingTopics.includes('topic-testing') || onboardingConcerns.includes('concern-test') || onboardingConcerns.includes('concern-diagnosis'),
+                          },
+                          {
+                            id: 'risk',
+                            value: t('edu_stat_risk_val'),
+                            label: t('edu_stat_risk_lbl'),
+                            Icon: HeartPulse,
+                            baseScore: 8,
+                            match: () => onboardingTopics.includes('topic-risk') || onboardingTopics.includes('topic-lifestyle') || onboardingConcerns.includes('concern-heart') || onboardingConcerns.includes('concern-[#00a859]') || onboardingConcerns.includes('concern-curious'),
+                          },
+                          {
+                            id: 'family',
+                            value: t('edu_stat_family_val'),
+                            label: t('edu_stat_family_lbl'),
+                            Icon: Users,
+                            baseScore: 7,
+                            match: () => onboardingTopics.includes('topic-family') || onboardingConcerns.includes('concern-family'),
+                          },
+                          {
+                            id: 'subsidies',
+                            value: t('edu_stat_subsidies_val'),
+                            label: t('edu_stat_subsidies_lbl'),
+                            Icon: Coins,
+                            baseScore: 6,
+                            match: () => onboardingTopics.includes('topic-costs') || onboardingConcerns.includes('concern-cost'),
+                          },
+                          {
+                            id: 'cost',
+                            value: t('edu_stat_cost_val'),
+                            label: t('edu_stat_cost_lbl'),
+                            Icon: Coins,
+                            baseScore: 5,
+                            match: () => onboardingTopics.includes('topic-costs') || onboardingConcerns.includes('concern-cost'),
+                          },
+                          {
+                            id: 'insurance',
+                            value: t('edu_stat_insurance_val'),
+                            label: t('edu_stat_insurance_lbl'),
+                            Icon: ShieldCheck,
+                            baseScore: 4,
+                            match: () => onboardingTopics.includes('topic-insurance') || onboardingConcerns.includes('concern-insurance'),
+                          },
+                          {
+                            id: 'meds',
+                            value: t('edu_stat_meds_val'),
+                            label: t('edu_stat_meds_lbl'),
+                            Icon: Pill,
+                            baseScore: 3,
+                            match: () => onboardingTopics.includes('topic-treatment') || onboardingConcerns.includes('concern-meds'),
+                          },
+                          {
+                            id: 'testing',
+                            value: t('edu_stat_testing_val'),
+                            label: t('edu_stat_testing_lbl'),
+                            Icon: FlaskConical,
+                            baseScore: 2,
+                            match: () => onboardingTopics.includes('topic-testing') || onboardingTopics.includes('topic-next') || onboardingConcerns.includes('concern-test'),
+                          },
+                        ];
 
-                          {/* Stat 3 */}
-                          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
-                            <div className="text-xl">❤️</div>
-                            <div>
-                              <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">Up to 80%</h5>
-                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat3_label')}</p>
-                            </div>
-                            <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
-                              {t('edu_stat3_body')}
-                            </p>
-                          </div>
+                        const scoredStats = allCandidateStats.map(stat => {
+                          let matched = false;
+                          let score = stat.baseScore;
+                          if (isQuestionnaireActive && stat.match()) {
+                            matched = true;
+                            score += 50;
+                          }
+                          return { ...stat, score, isPersonalized: matched };
+                        });
 
-                          {/* Stat 4 */}
-                          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-3xs space-y-1.5">
-                            <div className="text-xl">👥</div>
-                            <div>
-                              <h5 className="font-display font-extrabold text-[#00a859] text-[15px] leading-tight">1 in 2</h5>
-                              <p className="font-bold text-[10px] text-slate-800 leading-snug font-sans">{t('edu_stat4_label')}</p>
+                        scoredStats.sort((a, b) => b.score - a.score);
+                        const displayedStats = scoredStats.slice(0, 4);
+
+                        return (
+                          <div className="space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                <Lightbulb className="w-3.5 h-3.5 text-[#00a859]" />
+                                <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#00a859] font-mono">{t('edu_did_you_know')}</h4>
+                              </div>
+                              {isQuestionnaireActive && (
+                                <span className="text-[8.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50 flex items-center gap-1">
+                                  <Sparkles className="w-2.5 h-2.5" />
+                                  {t('edu_personalised_badge')}
+                                </span>
+                              )}
                             </div>
-                            <p className="text-[9.5px] text-slate-500 leading-relaxed font-sans">
-                              {t('edu_stat4_body')}
-                            </p>
+                            <div className="grid grid-cols-2 gap-2.5">
+                              {displayedStats.map((stat) => {
+                                const StatIcon = stat.Icon;
+                                return (
+                                  <div key={stat.id} className="bg-white border border-slate-200/90 rounded-xl p-3 flex flex-col justify-between shadow-3xs space-y-1.5 hover:border-emerald-300 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                      <div className="w-6 h-6 rounded-lg bg-emerald-50 text-[#00a859] flex items-center justify-center">
+                                        <StatIcon className="w-3.5 h-3.5 text-[#00a859]" />
+                                      </div>
+                                      {stat.isPersonalized && (
+                                        <span className="text-[8px] bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-emerald-100/80">
+                                          {t('edu_for_you_badge')}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <h5 className="font-display font-extrabold text-[#00a859] text-[16px] leading-tight tracking-tight">
+                                        {stat.value}
+                                      </h5>
+                                      <p className="font-bold text-[10px] text-slate-800 leading-snug mt-0.5">
+                                        {stat.label}
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      </div>
+                        );
+                      })()}
 
                       {/* Learning Hub Accordions - Grouped */}
                       {(() => {
@@ -4001,11 +4071,7 @@ export default function PhoneSimulator({
                                </div>
                              </div>
                            );
-                           if (id === 'costs-subsidies') return (
-                             <div className="text-[7.5px] text-slate-500 leading-relaxed my-2 pt-1 border-t border-emerald-100/40">
-                               Family members eligible for cascade screening may pay approximately S$8–S$38 after subsidies and MediSave.
-                             </div>
-                           );
+                           if (id === 'costs-subsidies') return null;
                            if (id === 'insurance-rights' || id === 'insurance') return (
                              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 my-2">
                                <div className="text-[9.5px] font-bold text-emerald-800 mb-1">{t('illus_consumer_safeguard_grid')}</div>
@@ -4068,17 +4134,17 @@ export default function PhoneSimulator({
                            if (id === 'healthy-lifestyle' || id === 'lifestyle') return (
                              <div className="grid grid-cols-3 gap-1.5 my-2">
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
-                                 <span className="text-xs">🍎</span>
+                                 <Apple className="w-4 h-4 text-emerald-600 mx-auto mb-0.5" />
                                  <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_fiber')}</div>
                                  <div className="text-[7px] text-slate-400 leading-tight">{t('illus_fiber_desc')}</div>
                                </div>
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
-                                 <span className="text-xs">🚫</span>
+                                 <Ban className="w-4 h-4 text-rose-500 mx-auto mb-0.5" />
                                  <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_limits')}</div>
                                  <div className="text-[7px] text-slate-400 leading-tight">{t('illus_limits_desc')}</div>
                                </div>
                                <div className="bg-white border border-slate-150 p-1.5 rounded-lg text-center space-y-0.5 shadow-3xs">
-                                 <span className="text-xs">🏃‍♂️</span>
+                                 <Activity className="w-4 h-4 text-sky-600 mx-auto mb-0.5" />
                                  <div className="text-[7.5px] font-extrabold text-slate-700">{t('illus_active')}</div>
                                  <div className="text-[7px] text-slate-400 leading-tight">{t('illus_active_desc')}</div>
                                </div>
@@ -4110,8 +4176,8 @@ export default function PhoneSimulator({
                           let note = "";
                           if ((id === 'cascade-screening' || id === 'why-testing-matters') && onboardingConcerns.includes('concern-family')) {
                             note = t('edu_note_cascade');
-                          } else if (id === 'costs-subsidies' && onboardingConcerns.includes('concern-cost')) {
-                             note = t('edu_note_costs');
+                          } else if (id === 'costs-subsidies') {
+                             return null;
                           } else if ((id === 'insurance-rights' || id === 'insurance') && onboardingConcerns.includes('concern-insurance')) {
                             note = t('edu_note_insurance');
                           } else if ((id === 'treatment-medication' || id === 'medication-fh') && onboardingConcerns.includes('concern-meds')) {
@@ -4120,25 +4186,19 @@ export default function PhoneSimulator({
                           if (!note) return null;
                           return (
                             <div className="bg-emerald-50 border border-emerald-100/50 p-2.5 rounded-lg text-emerald-800 text-[9px] font-medium leading-relaxed">
-                              🛡️ <span className="font-bold">{t('edu_personalized_support_prefix')}</span> {note}
+                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 inline mr-1 -mt-0.5" /><span className="font-bold">{t('edu_personalized_support_prefix')}</span> {note}
                             </div>
                           );
                         };
 
                         const renderGuideCard = (topic: any, isSelected: boolean) => {
-                          const isExpanded = isSelected ? !!eduExpanded[topic.id] : expandedOtherTopicId === topic.id;
+                          const isExpanded = !!eduExpanded[topic.id];
 
                           const toggleCard = () => {
-                            if (isSelected) {
-                              setEduExpanded(prev => ({ ...prev, [topic.id]: !prev[topic.id] }));
-                            } else {
-                              setExpandedOtherTopicId(isExpanded ? null : topic.id);
-                            }
+                            setEduExpanded(prev => ({ ...prev, [topic.id]: !prev[topic.id] }));
                           };
 
                           const customIllus = getCustomIllus(topic.id);
-                          const relatedFaq = getRelatedFaq(topic.id);
-                          const res = getRecommendedResource(topic.id);
 
                           return (
                             <div key={topic.id} className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-3xs transition-all duration-200 text-left">
@@ -4150,16 +4210,9 @@ export default function PhoneSimulator({
                                   <div className="flex-1 min-w-0 space-y-0.5">
                                     <h5 className="font-display font-extrabold text-[11px] text-slate-900 leading-tight tracking-tight">{topic.title}</h5>
                                     <p className="text-[10px] text-slate-500 leading-relaxed">{topic.shortSummary}</p>
-                                    {!isExpanded && (
-                                      <div className={`flex items-center pt-1 w-full ${isSelected ? 'justify-between' : 'justify-end'}`}>
-                                        {isSelected && (
-                                          <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">{t('edu_selected_for_you')}</span>
-                                        )}
-                                        {!isSelected && (
-                                          <span className="text-[9.5px] font-extrabold text-[#00a859] flex items-center gap-0.5">
-                                            {t('step2_opt_learn_more') || 'Learn More'} <ChevronRight className="w-3 h-3" />
-                                          </span>
-                                        )}
+                                    {!isExpanded && isSelected && (
+                                      <div className="flex items-center pt-1 w-full">
+                                        <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">{t('edu_selected_for_you')}</span>
                                       </div>
                                     )}
                                   </div>
@@ -4180,7 +4233,7 @@ export default function PhoneSimulator({
                                       {topic.visualItems.map((item: any, itemIdx: number) => (
                                         <div key={itemIdx} className="bg-white border border-slate-200/50 rounded-xl p-2.5 flex items-start gap-3 shadow-3xs transition hover:border-emerald-200/50">
                                           <div className="text-sm shrink-0 leading-none mt-0.5 select-none bg-slate-50 border border-slate-100 p-1 rounded-lg w-7 h-7 flex items-center justify-center">
-                                            {item.icon}
+                                            {getIcon(item.icon, "text-[#00a859]")}
                                           </div>
                                           <div className="space-y-0.5 flex-1 min-w-0 text-left">
                                             <h6 className="font-bold text-[10px] text-slate-900 leading-tight">
@@ -4193,6 +4246,15 @@ export default function PhoneSimulator({
                                         </div>
                                       ))}
                                     </div>
+                                  )}
+
+                                  {topic.id === 'costs-subsidies' && (
+                                    <p className="text-[9.5px] text-slate-500 font-medium italic leading-relaxed pt-0.5">
+                                      {language === 'ms' ? 'Bayaran akhir bergantung pada kewarganegaraan atau pemastautin, ujian kemampuan, kelayakan subsidi dan MediSave yang sedia ada.' :
+                                       language === 'zh' ? '最终支付金额取决于公民或永久居民身份、收入审查、津贴资格及可用的 MediSave 余额。' :
+                                       language === 'ta' ? 'இறுதித் தொகை குடியுரிமை, வருமான சோதனை, மானியத் தகுதி மற்றும் கிடைப்பிலுள்ள MediSave ஆகியவற்றைப் பொறுத்தது.' :
+                                       'Final payment depends on citizenship or residency, means-testing, subsidy eligibility and available MediSave.'}
+                                    </p>
                                   )}
 
                                   {/* Reassuring support note */}
@@ -4228,14 +4290,16 @@ export default function PhoneSimulator({
                                   {customIllus}
 
                                   {/* 1 short Key Takeaway */}
-                                  <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
-                                    <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway') || 'Key Takeaway'}</p>
-                                    <p className="text-emerald-800 text-[9.5px] mt-0.5 leading-normal">{topic.keyTakeaway}</p>
-                                  </div>
+                                  {topic.id !== 'costs-subsidies' && topic.keyTakeaway && (
+                                    <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
+                                      <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway') || 'Key Takeaway'}</p>
+                                      <p className="text-emerald-800 text-[9.5px] mt-0.5 leading-normal">{topic.keyTakeaway}</p>
+                                    </div>
+                                  )}
 
                                   {!isSelected && (
                                     <div className="flex justify-end pt-1">
-                                      <button onClick={(e) => { e.stopPropagation(); setExpandedOtherTopicId(null); }} className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9.5px] font-extrabold rounded-lg transition">
+                                      <button onClick={(e) => { e.stopPropagation(); setEduExpanded(prev => ({ ...prev, [topic.id]: false })); }} className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9.5px] font-extrabold rounded-lg transition">
                                         {t('step2_opt_show_less') || 'Show Less'}
                                       </button>
                                     </div>
@@ -4275,160 +4339,9 @@ export default function PhoneSimulator({
                                     {isGroupExpanded && (
                                       <div className="p-3 bg-slate-50/40 space-y-2.5 border-t border-slate-100 animate-fade-in">
                                         {group.sectionIds.map((secId) => {
-                                          let sec: any = null;
-                                          const idMapping: Record<string, string> = {
-                                            'what-is-fh': 'what-is-fh',
-                                            'why-testing-matters': 'cascade-screening',
-                                            'genetic-testing': 'genetic-testing',
-                                            'heart-health': 'heart-health',
-                                            'medication-fh': 'treatment-medication',
-                                            'healthy-lifestyle': 'healthy-lifestyle',
-                                            'testing-guide': 'testing-process',
-                                            'costs-subsidies': 'costs-subsidies',
-                                            'insurance-rights': 'insurance'
-                                          };
-
-                                          if (questionnaireStatus === 'completed') {
-                                            const mappedId = idMapping[secId] || secId;
-                                            const level = onboardingFamiliarity || 'new';
-                                            const pGuide = getPersonalisedGuideContent(mappedId, level, onboardingConcerns, language);
-                                            sec = {
-                                              id: secId,
-                                              title: pGuide.title,
-                                              shortSummary: pGuide.shortSummary,
-                                              readingTime: pGuide.readingTime,
-                                              iconName: pGuide.iconName || 'BookOpen',
-                                              keyTakeaway: pGuide.keyTakeaway,
-                                              content: pGuide.content,
-                                              visualItems: pGuide.visualItems
-                                            };
-                                          } else {
-                                            sec = getLocalizedEducationalSections(language).find(s => s.id === secId);
-                                          }
-
+                                          const sec = getLocalizedEducationalSections(language).find(s => s.id === secId);
                                           if (!sec) return null;
-                                          const isExpanded = !!eduExpanded[sec.id];
-                                          let displayTitle = sec.title;
-                                          let displaySubtitle = sec.shortSummary;
-
-                                          if (language === 'en' && questionnaireStatus !== 'completed') {
-                                            if (sec.id === 'what-is-fh') { displayTitle = isExpanded ? 'What is FH?' : 'Understanding FH'; displaySubtitle = isExpanded ? 'Familial Hypercholesterolaemia (FH) is a common genetic condition.' : 'What FH is and why early diagnosis matters.'; }
-                                            else if (sec.id === 'fh-symptoms') { displayTitle = isExpanded ? 'Symptoms & Physical Signs' : 'Visible Physical Signs'; displaySubtitle = isExpanded ? 'Learn the three main visible indicators of inherited high cholesterol on the body.' : 'Identify waxy deposits and yellow patches.'; }
-                                            else if (sec.id === 'testing-guide') { displayTitle = 'Your Testing Guide'; displaySubtitle = isExpanded ? 'Six straightforward steps from referral to your personal care plan.' : 'Step by step from counselling to your results.'; }
-                                            else if (sec.id === 'medication-fh') { displayTitle = 'Medication & FH'; displaySubtitle = isExpanded ? 'Highly effective, subsidized medical therapies.' : 'How statins work and what to expect.'; }
-                                            else if (sec.id === 'why-testing-matters') { displayTitle = 'Protecting Your Family'; displaySubtitle = isExpanded ? 'Confirming FH unlocks personalised care.' : 'How cascade screening keeps your loved ones safe.'; }
-                                            else if (sec.id === 'costs-subsidies') { displayTitle = 'Costs and Subsidies'; displaySubtitle = isExpanded ? 'Up to 70% means-tested MOH subsidies.' : 'What you pay and how subsidies and MediSave help.'; }
-                                            else if (sec.id === 'insurance-rights') { displayTitle = 'Insurance & Your Rights'; displaySubtitle = isExpanded ? 'National guidelines safeguard your right.' : 'How the LIA Moratorium protects you.'; }
-                                          }
-
-                                          return (
-                                            <div key={sec.id} className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-3xs transition-all duration-200">
-                                              <button onClick={() => toggleEdu(sec.id)} className="w-full text-left p-3.5 flex items-start gap-3 justify-between hover:bg-slate-50/55 transition cursor-pointer">
-                                                <div className="flex gap-3 items-start flex-1 min-w-0">
-                                                  <div className="mt-0.5 p-1.5 bg-emerald-50/70 rounded-lg border border-emerald-100/40 shrink-0 flex items-center justify-center">{getIcon(sec.iconName || 'HelpCircle')}</div>
-                                                  <div className="flex-1 min-w-0 space-y-0.5">
-                                                    <h5 className="font-display font-extrabold text-[11px] text-slate-900 leading-tight tracking-tight">{displayTitle}</h5>
-                                                    <p className="text-[10px] text-slate-500 leading-relaxed">{displaySubtitle}</p>
-                                                    {!isExpanded && sec.tags && sec.tags.length > 0 && (
-                                                      <div className="flex flex-wrap gap-1 pt-1">
-                                                        {sec.tags.map((tag, tIdx) => (
-                                                          <span key={tIdx} className="text-[8px] bg-slate-50 text-slate-400 font-medium px-1.5 py-0.5 rounded border border-slate-200/30">{tag}</span>
-                                                        ))}
-                                                      </div>
-                                                    )}
-                                                  </div>
-                                                </div>
-                                                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''} self-start mt-0.5`} />
-                                              </button>
-
-                                              {isExpanded && (() => {
-                                                const isCoreSection = sec.id === 'what-is-fh' || sec.id === 'why-testing-matters';
-                                                const isSelectedSection = isSectionRecommended(sec.id);
-                                                const shouldShowFullDepth = !onboardingCompleted || isCoreSection || isSelectedSection || !!forceFullExpand[sec.id];
-
-                                                if (!shouldShowFullDepth) {
-                                                  let summaryText = sec.id === 'testing-guide' ? (t('edu_testing_guide_summary') || "Your journey is fully structured, covering counselling and blood draw.") : sec.shortSummary;
-                                                  return (
-                                                    <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-2.5 text-left">
-                                                      <p className="text-slate-600 font-sans leading-relaxed text-[10.5px] font-medium">{summaryText}</p>
-                                                      <div className="flex items-center justify-end pt-1">
-                                                        <button onClick={(e) => { e.stopPropagation(); setForceFullExpand(prev => ({ ...prev, [sec.id]: true })); }} className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] font-extrabold text-[9.5px] rounded-lg border border-emerald-100/40 cursor-pointer">{t('step2_opt_learn_more') || 'Learn More'}</button>
-                                                      </div>
-                                                    </div>
-                                                  );
-                                                }
-
-                                                return (
-                                                  <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3.5 text-left animate-fade-in">
-                                                    {/* 1 short introduction sentence */}
-                                                    <p className="text-slate-700 font-medium text-[10px] leading-normal font-sans">
-                                                      {sec.content}
-                                                    </p>
-
-                                                    {/* up to 3 short points or visual items */}
-                                                    {sec.visualItems && sec.visualItems.length > 0 && (
-                                                      <div className="grid grid-cols-1 gap-2 my-2">
-                                                        {sec.visualItems.map((item: any, itemIdx: number) => (
-                                                          <div key={itemIdx} className="bg-white border border-slate-200/50 rounded-xl p-2.5 flex items-start gap-3 shadow-3xs transition hover:border-emerald-200/50">
-                                                            <div className="text-sm shrink-0 leading-none mt-0.5 select-none bg-slate-50 border border-slate-100 p-1 rounded-lg w-7 h-7 flex items-center justify-center">
-                                                              {item.icon}
-                                                            </div>
-                                                            <div className="space-y-0.5 flex-1 min-w-0 text-left">
-                                                              <h6 className="font-bold text-[10px] text-slate-900 leading-tight">
-                                                                {item.label}
-                                                              </h6>
-                                                              <p className="text-[9px] text-slate-500 leading-normal">
-                                                                {item.text}
-                                                              </p>
-                                                            </div>
-                                                          </div>
-                                                        ))}
-                                                      </div>
-                                                    )}
-
-                                                    {/* Unified Support Notes */}
-                                                    {getPersonalizedNote(sec.id)}
-
-                                                    {/* Only render old steps if no visualItems are present to avoid duplication */}
-                                                    {(!sec.visualItems || sec.visualItems.length === 0) && sec.steps && sec.steps.length > 0 && (
-                                                      <div className="relative pl-4 border-l-2 border-emerald-100 my-4 ml-2 space-y-3.5">
-                                                        {sec.steps.map((st) => (
-                                                          <div key={st.num} className="relative">
-                                                            <div className="absolute -left-[22px] top-0.5 w-4 h-4 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[9px] font-extrabold ring-4 ring-slate-50">{st.num}</div>
-                                                            <div className="space-y-0.5">
-                                                              <h6 className="font-bold text-[9.5px] text-slate-800">{st.title}</h6>
-                                                              <p className="text-[9px] text-slate-500 leading-normal">{st.description}</p>
-                                                            </div>
-                                                          </div>
-                                                        ))}
-                                                      </div>
-                                                    )}
-
-                                                    {/* Only render old subsections if no visualItems are present */}
-                                                    {(!sec.visualItems || sec.visualItems.length === 0) && sec.subsections && sec.subsections.length > 0 && (
-                                                      <div className="space-y-2 my-2">
-                                                        {sec.subsections.map((sub: any, sIdx: number) => (
-                                                          <div key={sIdx} className="bg-white border border-slate-150 p-2.5 rounded-lg shadow-3xs space-y-1">
-                                                            <h6 className="font-bold text-[9px] text-[#00a859] tracking-wider uppercase font-sans">{sub.title}</h6>
-                                                            <p className="text-[9.5px] text-slate-600 leading-relaxed font-sans">{sub.text}</p>
-                                                          </div>
-                                                        ))}
-                                                      </div>
-                                                    )}
-
-                                                    {/* Unified custom illustration diagrams */}
-                                                    {getCustomIllus(sec.id)}
-
-                                                    {/* 1 short Key Takeaway */}
-                                                    <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
-                                                      <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway')}</p>
-                                                      <p className="text-emerald-800 text-[10px] mt-0.5 leading-normal">{sec.keyTakeaway}</p>
-                                                    </div>
-                                                  </div>
-                                                );
-                                              })()}
-                                            </div>
-                                          );
+                                          return renderGuideCard(sec, false);
                                         })}
                                       </div>
                                     )}
@@ -4446,7 +4359,7 @@ export default function PhoneSimulator({
                             {selectedGuideTopics.length > 0 && (
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                  <h4 className="text-[12px] font-extrabold text-slate-900 font-display tracking-tight flex items-center gap-1.5">✨ {t('edu_selected_for_you')}</h4>
+                                  <h4 className="text-[12px] font-extrabold text-slate-900 font-display tracking-tight flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#00a859]" /> {t('edu_selected_for_you')}</h4>
                                   <span className="text-[9.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50">{t('edu_personalised_badge')}</span>
                                 </div>
                                 <div className="space-y-3">
@@ -4462,7 +4375,7 @@ export default function PhoneSimulator({
                                    <div className="flex items-center justify-between gap-2">
                                      <div className="space-y-0.5">
                                        <h4 className="text-[11.5px] font-extrabold text-slate-800 font-display tracking-tight flex items-center gap-1.5">
-                                         📚 {t('step2_opt_other_topics') || 'Other Topics You Can Explore'}
+                                         <BookOpen className="w-3.5 h-3.5 text-[#00a859] inline mr-1" />{t('step2_opt_other_topics') || 'Other Topics You Can Explore'}
                                        </h4>
                                        <p className="text-[9.5px] text-slate-500 leading-relaxed font-medium">
                                          {t('step2_opt_other_topics_desc') || 'More FH topics are available whenever you are ready.'}
@@ -4490,76 +4403,288 @@ export default function PhoneSimulator({
                         );
                       })()}
 
-                      {/* Pre-counselling Preparation Checklist Card */}
-                      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
-                        <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                          <div className="flex items-center gap-1.5">
-                            <CheckSquare className="w-4 h-4 text-[#00a859]" />
-                            <h4 className="font-bold text-xs text-slate-800 font-sans">{t('edu_checklist_card_title')}</h4>
+                      {/* Knowledge Check Section (Carousel) - Strictly under Guides tab only */}
+                      <div className="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-3xs text-left space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-[#00a859] flex items-center justify-center font-bold text-xs">
+                              <CheckSquare className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="font-display font-extrabold text-xs text-slate-900">Knowledge Check</h4>
+                              <p className="text-[10px] text-slate-500 font-medium">{quizQuestions.length} questions • &lt; 1 minute</p>
+                            </div>
                           </div>
                           <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-extrabold border border-emerald-100">
                             Optional
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-500 leading-relaxed font-sans">
-                          {t('edu_checklist_card_desc')}
-                        </p>
-                        <div className="space-y-4">
-                          {/* 1. Selected for You (Personalised Items) */}
-                          {onboardingCompleted && checklist.some(item => item.isPersonalized) && (
-                            <div className="space-y-2.5">
-                              <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                                <span className="text-[10px] font-extrabold text-slate-950 flex items-center gap-1">✨ {t('edu_selected_for_you')}</span>
-                                <span className="text-[8px] font-bold bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded border border-emerald-100/40">{t('edu_personalised_badge') || 'Personalised'}</span>
-                              </div>
-                              <div className="space-y-2">
-                                {checklist.filter(item => item.isPersonalized).map((item) => (
-                                  <button
-                                    key={item.id}
-                                    onClick={() => toggleChecklist(item.id)}
-                                    className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition cursor-pointer"
-                                  >
-                                    {item.checked ? (
-                                      <CheckSquare className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
-                                    ) : (
-                                      <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0 bg-white" />
-                                    )}
-                                    <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-700 font-medium'}`}>
-                                      {item.text}
-                                    </span>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          )}
 
-                          {/* 2. Essential Requirements / General */}
-                          <div className="space-y-2.5">
-                            {onboardingCompleted && checklist.some(item => item.isPersonalized) && (
-                              <div className="flex items-center border-b border-slate-100 pb-1.5 pt-1">
-                                <span className="text-[10px] font-extrabold text-slate-500">📋 {t('edu_checklist_essential_prep')}</span>
+                        {!quizSubmitted ? (
+                          <div className="space-y-3.5">
+                            {/* Carousel Stepper / Progress Header */}
+                            <div className="flex items-center justify-between text-[10.5px] font-bold text-slate-600 bg-slate-50/80 px-3 py-2 rounded-xl border border-slate-150">
+                              <span className="font-mono text-[10px] text-emerald-800 font-bold">
+                                Question {quizSlideIndex + 1} of {quizQuestions.length}
+                              </span>
+                              {/* Dot indicators */}
+                              <div className="flex items-center gap-1.5">
+                                {quizQuestions.map((q, idx) => {
+                                  const isAnswered = quizAnswers[q.id] !== undefined;
+                                  const isActive = idx === quizSlideIndex;
+                                  return (
+                                    <button
+                                      key={q.id}
+                                      onClick={() => setQuizSlideIndex(idx)}
+                                      title={`Go to Question ${idx + 1}`}
+                                      className={`transition-all rounded-full cursor-pointer ${
+                                        isActive
+                                          ? 'w-5 h-2 bg-[#00a859]'
+                                          : isAnswered
+                                          ? 'w-2 h-2 bg-emerald-400 hover:bg-emerald-500'
+                                          : 'w-2 h-2 bg-slate-200 hover:bg-slate-300'
+                                      }`}
+                                    />
+                                  );
+                                })}
                               </div>
-                            )}
-                            <div className="space-y-2">
-                              {checklist.filter(item => !item.isPersonalized).map((item) => (
-                                <button
-                                  key={item.id}
-                                  onClick={() => toggleChecklist(item.id)}
-                                  className="w-full text-left flex gap-2.5 items-start text-xs text-slate-700 hover:text-slate-900 transition cursor-pointer"
-                                >
-                                  {item.checked ? (
-                                    <CheckSquare className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
-                                  ) : (
-                                    <div className="w-4 h-4 rounded border-2 border-slate-300 mt-0.5 shrink-0 bg-white" />
-                                  )}
-                                  <span className={`text-[11px] leading-snug ${item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-700 font-medium'}`}>
-                                    {item.text}
-                                  </span>
-                                </button>
-                              ))}
                             </div>
+
+                            {/* Active Question Carousel Card */}
+                            {(() => {
+                              const currentQ = quizQuestions[quizSlideIndex] || quizQuestions[0];
+                              const selectedOpt = quizAnswers[currentQ.id];
+                              const totalAnswered = Object.keys(quizAnswers).length;
+                              const allAnswered = totalAnswered >= quizQuestions.length;
+
+                              return (
+                                <div className="space-y-3 bg-slate-50/70 border border-slate-150 p-3.5 rounded-xl animate-fade-in min-h-[190px] flex flex-col justify-between">
+                                  <div className="space-y-2.5">
+                                    <p className="text-[11.5px] font-bold text-slate-800 leading-snug">
+                                      {quizSlideIndex + 1}. {currentQ.question}
+                                    </p>
+                                    <div className="space-y-1.5">
+                                      {currentQ.options.map((opt, optIdx) => {
+                                        const isSelected = selectedOpt === optIdx;
+                                        return (
+                                          <button
+                                            key={optIdx}
+                                            onClick={() => setQuizAnswers(prev => ({ ...prev, [currentQ.id]: optIdx }))}
+                                            className={`w-full text-left p-2.5 rounded-lg text-[10.5px] font-medium transition flex items-center gap-2.5 cursor-pointer border ${
+                                              isSelected
+                                                ? 'bg-emerald-50 border-[#00a859] text-emerald-900 font-bold'
+                                                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100/60'
+                                            }`}
+                                          >
+                                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                                              isSelected ? 'border-[#00a859] bg-[#00a859] text-white' : 'border-slate-300'
+                                            }`}>
+                                              {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                            </div>
+                                            <span className="leading-tight">{opt}</span>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+
+                                  {/* Carousel Navigation Controls */}
+                                  <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-200/60 mt-2">
+                                    <button
+                                      onClick={() => setQuizSlideIndex(prev => Math.max(0, prev - 1))}
+                                      disabled={quizSlideIndex === 0}
+                                      className={`px-3 py-1.5 rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 ${
+                                        quizSlideIndex === 0
+                                          ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
+                                          : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer'
+                                      }`}
+                                    >
+                                      <ChevronLeft className="w-3.5 h-3.5" />
+                                      <span>Prev</span>
+                                    </button>
+
+                                    {quizSlideIndex < quizQuestions.length - 1 ? (
+                                      <button
+                                        onClick={() => setQuizSlideIndex(prev => Math.min(quizQuestions.length - 1, prev + 1))}
+                                        className="px-3.5 py-1.5 bg-[#00a859] hover:bg-emerald-700 text-white rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
+                                      >
+                                        <span>Next</span>
+                                        <ChevronRight className="w-3.5 h-3.5" />
+                                      </button>
+                                    ) : (
+                                      <button
+                                        onClick={() => setQuizSubmitted(true)}
+                                        disabled={!allAnswered}
+                                        className={`px-3.5 py-1.5 rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                                          allAnswered
+                                            ? 'bg-[#00a859] hover:bg-emerald-700 text-white shadow-xs'
+                                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                        }`}
+                                      >
+                                        <span>Submit Answers</span>
+                                        <Check className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })()}
+
+                            {/* Overall Submit Button shortcut if all answered before reaching last slide */}
+                            {Object.keys(quizAnswers).length >= quizQuestions.length && quizSlideIndex < quizQuestions.length - 1 && (
+                              <button
+                                onClick={() => setQuizSubmitted(true)}
+                                className="w-full py-2 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] border border-emerald-200 rounded-xl text-[10.5px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                <span>All questions answered — Submit Quiz Now</span>
+                              </button>
+                            )}
                           </div>
-                        </div>
+                        ) : (
+                          /* Quiz Results View with Carousel review */
+                          <div className="space-y-4 animate-fade-in">
+                            {/* Score summary banner */}
+                            {(() => {
+                              const correctCount = quizQuestions.filter(q => quizAnswers[q.id] === q.correctAnswer).length;
+                              const total = quizQuestions.length;
+                              const percentage = Math.round((correctCount / total) * 100);
+                              return (
+                                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-2 text-left">
+                                  <div className="flex items-center justify-between">
+                                    <h5 className="font-extrabold text-xs text-emerald-900">Knowledge Check Complete</h5>
+                                    <span className="font-display font-extrabold text-lg text-[#00a859]">
+                                      {percentage}%
+                                    </span>
+                                  </div>
+                                  <div className="space-y-1">
+                                    <p className="font-bold text-xs text-emerald-950">Great work!</p>
+                                    <p className="text-[10.5px] text-emerald-800 leading-relaxed font-sans">
+                                      You've completed the Knowledge Check and reinforced the key information to help prepare for your counselling appointment.
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+
+                            {/* Carousel Review for Results */}
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between text-[10.5px] font-bold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-150">
+                                <span className="font-mono text-[10px] text-emerald-800 font-bold">
+                                  Review Question {quizSlideIndex + 1} of {quizQuestions.length}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                  {quizQuestions.map((q, idx) => {
+                                    const isCorrect = quizAnswers[q.id] === q.correctAnswer;
+                                    const isActive = idx === quizSlideIndex;
+                                    return (
+                                      <button
+                                        key={q.id}
+                                        onClick={() => setQuizSlideIndex(idx)}
+                                        title={`Review Question ${idx + 1}`}
+                                        className={`transition-all rounded-full cursor-pointer ${
+                                          isActive
+                                            ? 'w-5 h-2 bg-[#00a859]'
+                                            : isCorrect
+                                            ? 'w-2 h-2 bg-emerald-400'
+                                            : 'w-2 h-2 bg-rose-400'
+                                        }`}
+                                      />
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              {(() => {
+                                const q = quizQuestions[quizSlideIndex] || quizQuestions[0];
+                                const userAns = quizAnswers[q.id];
+                                const isCorrect = userAns === q.correctAnswer;
+                                return (
+                                  <div className={`p-3.5 rounded-xl border space-y-2.5 animate-fade-in ${
+                                    isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/30 border-rose-200'
+                                  }`}>
+                                    <div className="flex items-start justify-between gap-2">
+                                      <p className="text-[11px] font-bold text-slate-800 leading-snug">
+                                        {quizSlideIndex + 1}. {q.question}
+                                      </p>
+                                      <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ${
+                                        isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                      }`}>
+                                        {isCorrect ? 'Correct' : 'Incorrect'}
+                                      </span>
+                                    </div>
+
+                                    <div className="space-y-1.5 pt-1">
+                                      {q.options.map((opt, optIdx) => {
+                                        const isUserChoice = userAns === optIdx;
+                                        const isCorrectChoice = q.correctAnswer === optIdx;
+                                        let badgeStyle = 'bg-white border-slate-200 text-slate-600';
+                                        if (isCorrectChoice) {
+                                          badgeStyle = 'bg-emerald-100/80 border-emerald-300 text-emerald-900 font-bold';
+                                        } else if (isUserChoice && !isCorrect) {
+                                          badgeStyle = 'bg-rose-100/80 border-rose-300 text-rose-900 font-medium';
+                                        }
+
+                                        return (
+                                          <div key={optIdx} className={`p-2 rounded-lg text-[10px] border flex items-center justify-between ${badgeStyle}`}>
+                                            <span className="leading-tight">{opt}</span>
+                                            {isCorrectChoice && <span className="text-[9px] text-emerald-700 font-bold shrink-0 ml-2 flex items-center gap-0.5"><Check className="w-3 h-3 stroke-[3]" /> Correct Answer</span>}
+                                            {isUserChoice && !isCorrectChoice && <span className="text-[9px] text-rose-700 font-bold shrink-0 ml-2">Your Choice</span>}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+
+                                    <div className="bg-white/80 p-2.5 rounded-lg border border-slate-200/60 text-[10px] text-slate-600 leading-relaxed">
+                                      <span className="font-bold text-slate-800">Explanation: </span>
+                                      {q.explanation}
+                                    </div>
+
+                                    {/* Results Carousel Controls */}
+                                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/60 mt-1">
+                                      <button
+                                        onClick={() => setQuizSlideIndex(prev => Math.max(0, prev - 1))}
+                                        disabled={quizSlideIndex === 0}
+                                        className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
+                                          quizSlideIndex === 0
+                                            ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
+                                            : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer'
+                                        }`}
+                                      >
+                                        <ChevronLeft className="w-3 h-3" />
+                                        <span>Prev Question</span>
+                                      </button>
+
+                                      <button
+                                        onClick={() => setQuizSlideIndex(prev => Math.min(quizQuestions.length - 1, prev + 1))}
+                                        disabled={quizSlideIndex === quizQuestions.length - 1}
+                                        className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
+                                          quizSlideIndex === quizQuestions.length - 1
+                                            ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
+                                            : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer'
+                                        }`}
+                                      >
+                                        <span>Next Question</span>
+                                        <ChevronRight className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                setQuizAnswers({});
+                                setQuizSubmitted(false);
+                                setQuizSlideIndex(0);
+                              }}
+                              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
+                            >
+                              Try Again
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -4667,77 +4792,206 @@ export default function PhoneSimulator({
                       <div className="space-y-3 pt-1">
                         <div className="flex justify-between items-center">
                           <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono font-sans">{t('edu_helpful_resources')}</h4>
+                          <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50 font-mono">
+                            {sortedHelpfulResources.length} {language === 'ms' ? 'Sumber' : language === 'zh' ? '项资源' : language === 'ta' ? 'வளங்கள்' : 'Resources'}
+                          </span>
                         </div>
 
-                        <div className="space-y-2.5">
-                          {sortedHelpfulResources.map((res) => {
-                            // Dynamic color configurations for appealing & diverse icon cards based on immutable ID
-                            let bgClass = "bg-slate-50 group-hover:bg-emerald-50 border-slate-100 group-hover:border-emerald-200";
-                            let iconColor = "text-[#00a859]";
-                            let typeTagClass = "bg-emerald-50 text-[#00a859] border-emerald-100/55";
+                        {/* Personalized Resources Banner */}
+                        {onboardingCompleted && questionnaireStatus === 'completed' && (
+                          <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-2.5 flex items-center justify-between text-left">
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                              <span className="text-[10.5px] font-bold text-emerald-900 leading-tight">
+                                {language === 'ms' ? 'Risalah & Sumber Dipersonalisasi' :
+                                 language === 'zh' ? '针对性宣传册与资源' :
+                                 language === 'ta' ? 'தனிப்பயனாக்கப்பட்ட சிற்றேடுகள்' :
+                                 'Targeted Brochures & Educational Resources'}
+                              </span>
+                            </div>
+                            <span className="text-[8.5px] font-mono bg-white text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded font-extrabold shrink-0">
+                              {language === 'ms' ? 'Dipersonalisasi' : language === 'zh' ? '已个性化' : language === 'ta' ? 'தனிப்பயனாக்கப்பட்டது' : 'Personalized'}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Resource Groups in Slide / Carousel Format */}
+                        <div className="space-y-3">
+                          {[
+                            {
+                              id: 'videos',
+                              title: language === 'ms' ? 'Kisah Pesakit & Panduan Video' : language === 'zh' ? '患者故事与视频指南' : language === 'ta' ? 'நோயாளி கதைகள் & வீடியோ வழிகாட்டிகள்' : 'Patient Stories & Video Guides',
+                              iconName: 'Play',
+                              headerBg: 'bg-rose-50/80 text-rose-900',
+                              iconColor: 'text-rose-600',
+                              badgeBg: 'bg-rose-100/80 text-rose-800',
+                              items: sortedHelpfulResources.filter(r => r.id === 'res-7' || r.id === 'res-6'),
+                              slideIdx: videoSlideIndex,
+                              setSlideIdx: setVideoSlideIndex
+                            },
+                            {
+                              id: 'brochures',
+                              title: language === 'ms' ? 'Panduan Pesakit & Risalah' : language === 'zh' ? '患者指南与宣传册' : language === 'ta' ? 'நோயாளி வழிகாட்டிகள் & சிற்றேடுகள்' : 'Patient Guides & Brochures',
+                              iconName: 'FileText',
+                              headerBg: 'bg-sky-50/80 text-sky-900',
+                              iconColor: 'text-sky-600',
+                              badgeBg: 'bg-sky-100/80 text-sky-800',
+                              items: sortedHelpfulResources.filter(r => r.id === 'res-1' || r.id === 'res-4' || r.id === 'res-8'),
+                              slideIdx: brochureSlideIndex,
+                              setSlideIdx: setBrochureSlideIndex
+                            },
+                            {
+                              id: 'clinical',
+                              title: language === 'ms' ? 'Sumber Klinikal & Polisi' : language === 'zh' ? '临床与政策资源' : language === 'ta' ? 'மருத்துவ & கொள்கை வளங்கள்' : 'Clinical & Policy Resources',
+                              iconName: 'Shield',
+                              headerBg: 'bg-emerald-50/80 text-emerald-900',
+                              iconColor: 'text-emerald-700',
+                              badgeBg: 'bg-emerald-100/80 text-emerald-800',
+                              items: sortedHelpfulResources.filter(r => r.id === 'res-2' || r.id === 'res-9' || r.id === 'res-5'),
+                              slideIdx: clinicalSlideIndex,
+                              setSlideIdx: setClinicalSlideIndex
+                            }
+                          ].map((group) => {
+                            if (group.items.length === 0) return null;
+                            const currentIdx = Math.min(Math.max(0, group.slideIdx), group.items.length - 1);
+                            const activeRes = group.items[currentIdx];
+                            const matchReason = getResourceMatchReason(activeRes);
+
+                            let bgClass = "bg-slate-50 group-hover:bg-emerald-50";
+                            let itemIconColor = "text-[#00a859]";
+                            let typeTagClass = "bg-emerald-50 text-[#00a859]";
                             let viewLinkColor = "text-[#00a859] group-hover:text-emerald-700";
                             let hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
 
-                            if (res.id === 'res-7' || res.id === 'res-6') { // Video Stories
-                              bgClass = "bg-rose-50 group-hover:bg-rose-100/80 border-rose-100 group-hover:border-rose-150";
-                              iconColor = "text-rose-600";
-                              typeTagClass = "bg-rose-50 text-rose-700 border-rose-100";
+                            if (group.id === 'videos') {
+                              bgClass = "bg-rose-50 group-hover:bg-rose-100/80";
+                              itemIconColor = "text-rose-600";
+                              typeTagClass = "bg-rose-50 text-rose-700";
                               viewLinkColor = "text-rose-600 group-hover:text-rose-700";
                               hoverBorderClass = "hover:border-rose-200 hover:bg-rose-50/10";
-                            } else if (res.id === 'res-9') { // Insurance/Moratorium
-                              bgClass = "bg-indigo-50 group-hover:bg-indigo-100/80 border-indigo-100 group-hover:border-indigo-150";
-                              iconColor = "text-indigo-600";
-                              typeTagClass = "bg-indigo-50 text-indigo-700 border-indigo-100";
-                              viewLinkColor = "text-indigo-600 group-hover:text-indigo-700";
-                              hoverBorderClass = "hover:border-indigo-200 hover:bg-indigo-50/10";
-                            } else if (res.id === 'res-5') { // Singapore Heart Foundation
-                              bgClass = "bg-emerald-50 group-hover:bg-emerald-100/80 border-emerald-100 group-hover:border-emerald-150";
-                              iconColor = "text-emerald-600";
-                              typeTagClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                              viewLinkColor = "text-emerald-600 group-hover:text-emerald-700";
-                              hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
-                            } else if (res.id === 'res-2') { // Clinical Guide
-                              bgClass = "bg-amber-50 group-hover:bg-amber-100/80 border-amber-100 group-hover:border-amber-150";
-                              iconColor = "text-amber-600";
-                              typeTagClass = "bg-amber-50 text-amber-700 border-amber-100";
-                              viewLinkColor = "text-amber-600 group-hover:text-amber-700";
-                              hoverBorderClass = "hover:border-amber-200 hover:bg-amber-50/10";
-                            } else if (res.id === 'res-1' || res.id === 'res-4' || res.id === 'res-8') { // PDF Brochures
-                              bgClass = "bg-sky-50 group-hover:bg-sky-100/80 border-sky-100 group-hover:border-sky-150";
-                              iconColor = "text-sky-600";
-                              typeTagClass = "bg-sky-50 text-sky-700 border-sky-100";
+                            } else if (group.id === 'brochures') {
+                              bgClass = "bg-sky-50 group-hover:bg-sky-100/80";
+                              itemIconColor = "text-sky-600";
+                              typeTagClass = "bg-sky-50 text-sky-700";
                               viewLinkColor = "text-sky-600 group-hover:text-sky-700";
                               hoverBorderClass = "hover:border-sky-200 hover:bg-sky-50/10";
+                            } else if (group.id === 'clinical') {
+                              bgClass = "bg-emerald-50 group-hover:bg-emerald-100/80";
+                              itemIconColor = "text-emerald-600";
+                              typeTagClass = "bg-emerald-50 text-emerald-700";
+                              viewLinkColor = "text-emerald-600 group-hover:text-emerald-700";
+                              hoverBorderClass = "hover:border-emerald-200 hover:bg-emerald-50/10";
                             }
 
                             return (
-                              <button
-                                key={res.id}
-                                onClick={() => {
-                                  setSelectedResource(res);
-                                  setResourcePage(0);
-                                }}
-                                className={`block w-full text-left bg-white border border-slate-200 rounded-xl p-3.5 space-y-2.5 shadow-3xs transition group cursor-pointer ${hoverBorderClass}`}
-                              >
-                                <div className="flex items-start gap-2.5">
-                                  <div className={`p-1.5 rounded-lg border shrink-0 mt-0.5 transition ${bgClass}`}>
-                                    {getIcon(res.iconName, iconColor)}
-                                  </div>
-                                  <div className="space-y-0.5 flex-1 min-w-0">
-                                    <div className="flex justify-between items-start gap-2">
-                                      <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#00a859] transition leading-tight">{res.title}</h5>
-                                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 border ${typeTagClass}`}>{res.type}</span>
+                              <div key={group.id} className="space-y-2 bg-white border border-slate-200/70 rounded-2xl p-3 shadow-3xs">
+                                {/* Group Category Bar */}
+                                <div className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-extrabold ${group.headerBg}`}>
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="p-1 bg-white rounded-md shadow-2xs">
+                                      {getIcon(group.iconName, group.iconColor)}
                                     </div>
+                                    <span>{group.title}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className={`text-[8.5px] font-mono px-1.5 py-0.2 rounded-full font-extrabold ${group.badgeBg}`}>
+                                      {group.items.length} {group.items.length === 1 ? 'Item' : 'Items'}
+                                    </span>
                                   </div>
                                 </div>
 
-                                <div className="flex items-center justify-end px-1 text-[10px]">
-                                  <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor}`}>
-                                    <span>{t('edu_view_resource')}</span>
-                                    <ExternalLink className="w-2.5 h-2.5 transition" />
+                                {/* Slide Dots Indicator */}
+                                <div className="flex items-center justify-between px-1 text-[10px]">
+                                  <div className="flex items-center gap-1.5">
+                                    {group.items.map((_, idx) => (
+                                      <button
+                                        key={idx}
+                                        onClick={() => group.setSlideIdx(idx)}
+                                        title={`Go to Slide ${idx + 1}`}
+                                        className={`transition-all rounded-full cursor-pointer ${
+                                          idx === currentIdx
+                                            ? 'w-5 h-1.5 bg-[#00a859]'
+                                            : 'w-1.5 h-1.5 bg-slate-200 hover:bg-slate-300'
+                                        }`}
+                                      />
+                                    ))}
                                   </div>
+                                  <span className="text-[9px] text-slate-400 font-mono font-medium">
+                                    {activeRes.type}
+                                  </span>
                                 </div>
-                              </button>
+
+                                {/* Active Slide Resource Card (Flexible height so full video/brochure titles display clearly) */}
+                                <button
+                                  onClick={() => {
+                                    setSelectedResource(activeRes);
+                                    setResourcePage(0);
+                                  }}
+                                  className={`w-full min-h-[115px] text-left bg-slate-50/60 border border-slate-100 rounded-xl p-3 transition group cursor-pointer flex flex-col justify-between ${hoverBorderClass}`}
+                                >
+                                  <div className="flex items-start gap-2.5 min-w-0">
+                                    <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 transition ${bgClass}`}>
+                                      {getIcon(activeRes.iconName, itemIconColor)}
+                                    </div>
+                                    <div className="space-y-0.5 flex-1 min-w-0">
+                                      <div className="flex justify-between items-start gap-2">
+                                        <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#00a859] transition leading-snug line-clamp-2">{activeRes.title}</h5>
+                                        <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 micro-badge ${typeTagClass}`}>{activeRes.type}</span>
+                                      </div>
+                                      <p className="text-[10px] text-slate-500 leading-normal line-clamp-2 mt-0.5">{activeRes.summary}</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex justify-between items-center pl-9 pt-1.5">
+                                    <div className="flex flex-wrap items-center gap-1 min-w-0">
+                                      {matchReason && (
+                                        <span className="text-[8px] hashtag-tag micro-badge bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded font-mono font-extrabold border border-emerald-200/80 flex items-center gap-0.5 shrink-0">
+                                          <Sparkles className="w-2 h-2 text-[#00a859]" />
+                                          {matchReason}
+                                        </span>
+                                      )}
+                                      {activeRes.keywords.slice(0, 2).map((kw, i) => (
+                                        <span key={i} className="text-[8px] hashtag-tag micro-badge font-mono bg-white text-slate-500 px-1.5 py-0.5 rounded border border-slate-200/40 truncate max-w-[90px]">
+                                          #{kw}
+                                        </span>
+                                      ))}
+                                    </div>
+                                    <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor} shrink-0`}>
+                                      <span>{t('edu_view_resource')}</span>
+                                      <ExternalLink className="w-2.5 h-2.5 transition" />
+                                    </div>
+                                  </div>
+                                </button>
+
+                                {/* Slide Prev / Next Buttons */}
+                                <div className="flex items-center justify-between gap-2 pt-0.5">
+                                  <button
+                                    onClick={() => group.setSlideIdx(prev => Math.max(0, prev - 1))}
+                                    disabled={currentIdx === 0}
+                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
+                                      currentIdx === 0
+                                        ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
+                                        : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer shadow-3xs'
+                                    }`}
+                                  >
+                                    <ChevronLeft className="w-3 h-3" />
+                                    <span>Prev Slide</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => group.setSlideIdx(prev => Math.min(group.items.length - 1, prev + 1))}
+                                    disabled={currentIdx === group.items.length - 1}
+                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
+                                      currentIdx === group.items.length - 1
+                                        ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
+                                        : 'text-white bg-[#00a859] hover:bg-emerald-700 cursor-pointer shadow-3xs'
+                                    }`}
+                                  >
+                                    <span>Next Slide</span>
+                                    <ChevronRight className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
                             );
                           })}
                         </div>
@@ -4745,198 +4999,22 @@ export default function PhoneSimulator({
                     </div>
                   )}
 
-                  {/* Knowledge Check Section (Part 2) */}
-                  <div className="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-3xs text-left space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-emerald-100 text-[#00a859] flex items-center justify-center font-bold text-xs">
-                          <CheckSquare className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h4 className="font-display font-extrabold text-xs text-slate-900">Knowledge Check</h4>
-                          <p className="text-[10px] text-slate-500 font-medium">3 questions • &lt; 1 minute</p>
-                        </div>
-                      </div>
-                      <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-extrabold border border-emerald-100">
-                        Optional
-                      </span>
-                    </div>
-
-                    {!quizSubmitted ? (
-                      <div className="space-y-4">
-                        {quizQuestions.map((q, idx) => {
-                          const selectedOpt = quizAnswers[q.id];
-                          return (
-                            <div key={q.id} className="space-y-2 bg-slate-50/70 border border-slate-150 p-3 rounded-xl">
-                              <p className="text-[11px] font-bold text-slate-800 leading-snug">
-                                {idx + 1}. {q.question}
-                              </p>
-                              <div className="space-y-1.5 pt-1">
-                                {q.options.map((opt, optIdx) => {
-                                  const isSelected = selectedOpt === optIdx;
-                                  return (
-                                    <button
-                                      key={optIdx}
-                                      onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: optIdx }))}
-                                      className={`w-full text-left p-2.5 rounded-lg text-[10.5px] font-medium transition flex items-center gap-2.5 cursor-pointer border ${
-                                        isSelected
-                                          ? 'bg-emerald-50 border-[#00a859] text-emerald-900 font-bold'
-                                          : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100/60'
-                                      }`}
-                                    >
-                                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                                        isSelected ? 'border-[#00a859] bg-[#00a859] text-white' : 'border-slate-300'
-                                      }`}>
-                                        {isSelected && <span className="text-[9px] font-bold">✓</span>}
-                                      </div>
-                                      <span className="leading-tight">{opt}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        <button
-                          onClick={() => setQuizSubmitted(true)}
-                          disabled={Object.keys(quizAnswers).length < quizQuestions.length}
-                          className={`w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                            Object.keys(quizAnswers).length >= quizQuestions.length
-                              ? 'bg-[#00a859] hover:bg-emerald-700 text-white shadow-sm'
-                              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                          }`}
-                        >
-                          Submit Answers
-                        </button>
-                      </div>
-                    ) : (
-                      /* Quiz Results View */
-                      <div className="space-y-4 animate-fade-in">
-                        {/* Score summary banner */}
-                        {(() => {
-                          const correctCount = quizQuestions.filter(q => quizAnswers[q.id] === q.correctAnswer).length;
-                          const total = quizQuestions.length;
-                          const percentage = Math.round((correctCount / total) * 100);
-                          return (
-                            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-2 text-left">
-                              <div className="flex items-center justify-between">
-                                <h5 className="font-extrabold text-xs text-emerald-900">Knowledge Check Complete</h5>
-                                <span className="font-display font-extrabold text-lg text-[#00a859]">
-                                  {percentage}%
-                                </span>
-                              </div>
-                              <div className="space-y-1">
-                                <p className="font-bold text-xs text-emerald-950">Great work!</p>
-                                <p className="text-[10.5px] text-emerald-800 leading-relaxed font-sans">
-                                  You've completed the Knowledge Check and reinforced the key information to help prepare for your counselling appointment.
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Questions feedback */}
-                        <div className="space-y-3">
-                          {quizQuestions.map((q, idx) => {
-                            const userAns = quizAnswers[q.id];
-                            const isCorrect = userAns === q.correctAnswer;
-                            return (
-                              <div key={q.id} className={`p-3 rounded-xl border space-y-2 ${
-                                isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/30 border-rose-200'
-                              }`}>
-                                <div className="flex items-start justify-between gap-2">
-                                  <p className="text-[11px] font-bold text-slate-800 leading-snug">
-                                    {idx + 1}. {q.question}
-                                  </p>
-                                  <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ${
-                                    isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                                  }`}>
-                                    {isCorrect ? '✓ Correct' : '✕ Incorrect'}
-                                  </span>
-                                </div>
-
-                                <div className="space-y-1 pt-1">
-                                  {q.options.map((opt, optIdx) => {
-                                    const isUserChoice = userAns === optIdx;
-                                    const isCorrectChoice = q.correctAnswer === optIdx;
-                                    let badgeStyle = 'bg-white border-slate-200 text-slate-600';
-                                    if (isCorrectChoice) {
-                                      badgeStyle = 'bg-emerald-100/80 border-emerald-300 text-emerald-900 font-bold';
-                                    } else if (isUserChoice && !isCorrect) {
-                                      badgeStyle = 'bg-rose-100/80 border-rose-300 text-rose-900 font-medium';
-                                    }
-
-                                    return (
-                                      <div key={optIdx} className={`p-2 rounded-lg text-[10px] border flex items-center justify-between ${badgeStyle}`}>
-                                        <span>{opt}</span>
-                                        {isCorrectChoice && <span className="text-[9px] text-emerald-700 font-bold">✓ Correct Answer</span>}
-                                        {isUserChoice && !isCorrectChoice && <span className="text-[9px] text-rose-700 font-bold">Your Choice</span>}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-
-                                <div className="bg-white/80 p-2.5 rounded-lg border border-slate-200/60 text-[10px] text-slate-600 leading-relaxed">
-                                  <span className="font-bold text-slate-800">Explanation: </span>
-                                  {q.explanation}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        <button
-                          onClick={() => {
-                            setQuizAnswers({});
-                            setQuizSubmitted(false);
-                          }}
-                          className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
-                        >
-                          Try Again
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
                   {/* Contextual Booking Reinforcement Card */}
                   <div className="bg-[#00a859] rounded-2xl p-5 text-center space-y-3.5 shadow-sm">
-                    {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
-                      <>
-                        <div className="space-y-1.5 px-1">
-                          <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
-                            {t('edu_cta_title_booked')}
-                          </h4>
-                          <div className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto space-y-1">
-                            <p>{t('edu_cta_subtitle_1_booked')}</p>
-                            <p>{t('edu_cta_subtitle_2_booked')}</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => onChangeScreen(ScreenId.Booking)}
-                          className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
-                        >
-                          {t('edu_cta_btn_booked')}
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <div className="space-y-1.5 px-1">
-                          <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
-                            {t('edu_cta_title')}
-                          </h4>
-                          <p className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto">
-                            {t('edu_cta_subtitle')}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => onChangeScreen(ScreenId.Booking)}
-                          className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
-                        >
-                          {t('edu_cta_btn')}
-                        </button>
-                      </>
-                    )}
+                    <div className="space-y-1.5 px-1">
+                      <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
+                        Ready to book your GAC counselling slot?
+                      </h4>
+                      <p className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto">
+                        Take the active step today. Booking takes under 20 seconds within HealthHub.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onChangeScreen(ScreenId.Booking)}
+                      className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
+                    >
+                      Go to Secure Booking
+                    </button>
                   </div>
                 </div>
               </div>
@@ -5037,7 +5115,7 @@ export default function PhoneSimulator({
                   <div>
                     <h3 className="font-extrabold text-base text-slate-850">{t('booking_confirmed_status')}</h3>
                     <p className="text-[10px] text-[#00a859] font-extrabold uppercase tracking-wide mt-1 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block border border-emerald-100">
-                      MOH SUBSIDY ELIGIBLE
+                      {t('booking_subsidized_slot')}
                     </p>
                   </div>
 
@@ -5085,11 +5163,14 @@ export default function PhoneSimulator({
                           <strong className="col-span-7 text-slate-800 text-right font-semibold">{details.duration.replace('mins', t('booking_mins'))}</strong>
                         </div>
                         <div className="grid grid-cols-12 gap-x-2 items-start pt-2 border-t border-slate-200">
-                          <span className="col-span-5 text-slate-500 font-bold">Estimated Cash Payment:</span>
-                          <div className="col-span-7 text-right space-y-0.5">
-                            <strong className="text-emerald-700 font-extrabold font-mono block">S$18–S$87</strong>
-                            <span className="text-[10px] text-slate-500 font-normal block">After applicable subsidies and MediSave</span>
-                            <span className="text-[10px] text-slate-400 font-normal block">Final payment depends on subsidy eligibility and available MediSave.</span>
+                          <span className="col-span-5 text-slate-500 font-bold">{t('booking_out_of_pocket')}</span>
+                          <div className="col-span-7 text-right">
+                            <strong className="text-emerald-700 font-extrabold font-mono text-sm block">
+                              {FH_COST_DATA.indexPatientEstimatedCash}
+                            </strong>
+                            <span className="text-[10px] text-slate-500 font-medium block mt-0.5">
+                              {FH_COST_DATA.bookingConfirmationSubtext}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -5281,7 +5362,7 @@ export default function PhoneSimulator({
                                 disabled={isDetectingLoc}
                                 className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                               >
-                                📍 {isDetectingLoc ? t('booking_detecting') : t('booking_live_location')}
+                                <MapPin className="w-3.5 h-3.5 text-emerald-600 inline mr-1" />{isDetectingLoc ? t('booking_detecting') : t('booking_live_location')}
                               </button>
                               <button
                                 onClick={() => {
@@ -5293,7 +5374,7 @@ export default function PhoneSimulator({
                                 }}
                                 className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
                               >
-                                🏠 {t('booking_default_address')}
+                                <Home className="w-3.5 h-3.5 text-[#00a859] inline mr-1" />{t('booking_default_address')}
                               </button>
                             </div>
 
@@ -5380,7 +5461,7 @@ export default function PhoneSimulator({
                                   </span>
                                   {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance === minDistance && (
                                     <span className="text-[9px] font-sans font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 flex items-center gap-0.5">
-                                      ⭐ {t('booking_nearest_clinic')}
+                                      <Sparkles className="w-3.5 h-3.5 text-amber-500 inline mr-1" />{t('booking_nearest_clinic')}
                                     </span>
                                   )}
                                 </div>
@@ -5397,19 +5478,7 @@ export default function PhoneSimulator({
                                 return (
                                   <button
                                     key={clinic.id}
-                                    onClick={() => {
-                                      setSelectedClinicId(clinic.id);
-                                      setShowClinicDropdown(false);
-                                      
-                                      // Auto-select earliest available future date for the new clinic
-                                      const earliest = getEarliestAvailableFutureDate(clinic.id, activeClinicSlotsDb);
-                                      if (earliest) {
-                                        setSelectedCalendarMonth(earliest.month);
-                                        setSelectedCalendarDay(earliest.day);
-                                      } else {
-                                        setSelectedCalendarDay(null);
-                                      }
-                                    }}
+                                    onClick={() => handleClinicChange(clinic.id)}
                                     className={`w-full text-left p-3.5 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${
                                       isSelected ? 'bg-emerald-50/20' : 'bg-white'
                                     }`}
@@ -5458,11 +5527,16 @@ export default function PhoneSimulator({
                             <button
                               onClick={() => {
                                 const idx = availableMonths.indexOf(selectedCalendarMonth);
-                                if (idx > 0) {
+                                if (idx > 0 && !isMonthBeforeCurrent(availableMonths[idx - 1])) {
                                   selectMonth(availableMonths[idx - 1]);
                                 }
                               }}
-                              disabled={availableMonths.indexOf(selectedCalendarMonth) === 0}
+                              disabled={
+                                availableMonths.indexOf(selectedCalendarMonth) <= 0 ||
+                                isMonthBeforeCurrent(
+                                  availableMonths[availableMonths.indexOf(selectedCalendarMonth) - 1] || ''
+                                )
+                              }
                               className="p-1.5 hover:bg-slate-200 disabled:hover:bg-transparent rounded-lg disabled:opacity-25 cursor-pointer transition text-slate-600 self-center"
                             >
                               <ChevronLeft className="w-4 h-4" />
@@ -5512,15 +5586,20 @@ export default function PhoneSimulator({
                             {/* Days 1 to totalDays */}
                             {Array.from({ length: getMonthConfig(selectedCalendarMonth).totalDays }).map((_, i) => {
                               const dayNum = i + 1;
-                              const hasSlots = !!activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isBeforeMinimumBookingDate(selectedCalendarMonth, dayNum);
-                              const isSelected = selectedCalendarDay === dayNum;
+                              const hasSlots = !!activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isTodayOrPast(selectedCalendarMonth, dayNum);
+                              const isSelected = selectedSlotMonth === selectedCalendarMonth && selectedCalendarDay === dayNum;
                               const isCurrentDay = isToday(selectedCalendarMonth, dayNum);
 
                               return (
                                 <button
                                   key={`day-${dayNum}`}
                                   disabled={!hasSlots}
-                                  onClick={() => setSelectedCalendarDay(dayNum)}
+                                  onClick={() => {
+                                    setSelectedCalendarDay(dayNum);
+                                    setSelectedSlotMonth(selectedCalendarMonth);
+                                    setSelectedSlotObj(null);
+                                    setSelectedSlotIdx(null);
+                                  }}
                                   className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer ${
                                     isSelected
                                       ? 'bg-[#00a859] text-white shadow-xs'
@@ -5557,14 +5636,55 @@ export default function PhoneSimulator({
                         </div>
                       </div>
 
+                      {/* Month Picker Popup Modal */}
+                      {showMonthPopup && (
+                        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+                          <div className="bg-white rounded-2xl max-w-xs w-full p-4 space-y-3 shadow-xl border border-slate-200">
+                            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                              <h3 className="font-bold text-xs text-slate-800 uppercase tracking-wider font-mono">Select Month</h3>
+                              <button onClick={() => setShowMonthPopup(false)} className="p-1 hover:bg-slate-100 rounded-lg text-slate-500 cursor-pointer">
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto p-1">
+                              {availableMonths.map((m) => {
+                                const isPastMonth = isMonthBeforeCurrent(m);
+                                const isSelectedMonth = m === selectedCalendarMonth;
+                                return (
+                                  <button
+                                    key={m}
+                                    disabled={isPastMonth}
+                                    onClick={() => {
+                                      if (!isPastMonth) {
+                                        selectMonth(m);
+                                        setShowMonthPopup(false);
+                                      }
+                                    }}
+                                    className={`h-9 px-1 rounded-xl text-[10.5px] font-bold text-center flex items-center justify-center transition-all cursor-pointer w-full border ${
+                                      isPastMonth
+                                        ? 'opacity-30 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed pointer-events-none'
+                                        : isSelectedMonth
+                                        ? 'bg-[#00a859] border-[#00a859] text-white shadow-md shadow-emerald-700/10'
+                                        : 'bg-slate-50 border-slate-200/50 text-slate-700 hover:bg-emerald-50 hover:text-[#00a859] hover:border-emerald-200'
+                                    }`}
+                                  >
+                                    {formatMonthShorthand(m, language)}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Dynamic Slots for Selected Calendar Day */}
                       <div className="space-y-2.5 text-left">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between items-center">
                           <span>{t('available_slots')}</span>
                         </label>
                         <div className="space-y-2">
-                          {activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[selectedCalendarDay] ? (
-                            activeClinicSlotsDb[selectedClinicId][selectedCalendarMonth][selectedCalendarDay].map((slot, idx) => (
+                          {selectedSlotMonth === selectedCalendarMonth && selectedCalendarDay > 0 && activeClinicSlotsDb[selectedClinicId]?.[selectedSlotMonth]?.[selectedCalendarDay] && !isTodayOrPast(selectedSlotMonth, selectedCalendarDay) ? (
+                            activeClinicSlotsDb[selectedClinicId][selectedSlotMonth][selectedCalendarDay].map((slot, idx) => (
                               <button
                                 key={idx}
                                 onClick={() => {
@@ -5593,13 +5713,6 @@ export default function PhoneSimulator({
                                 </div>
                               </button>
                             ))
-                          ) : selectedCalendarDay === null ? (
-                            <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
-                              {language === 'ms' ? 'Tiada janji temu masa hadapan tersedia untuk klinik ini.' :
-                               language === 'zh' ? '该诊所没有可用的未来预约。' :
-                               language === 'ta' ? 'இந்த மருத்துவமனைக்கு எதிர்கால சந்திப்புகள் இல்லை.' :
-                               'No future appointments available for this clinic.'}
-                            </div>
                           ) : (
                             <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
                               {t('booking_no_slots_alert')}
@@ -5608,11 +5721,16 @@ export default function PhoneSimulator({
                         </div>
                       </div>
 
-                      <div className="bg-white border border-emerald-100 rounded-xl p-3 space-y-1">
-                        <div className="text-[9.5px] font-bold text-emerald-800 uppercase tracking-tight">Estimated Cash Payment</div>
-                        <div className="text-base font-extrabold text-[#00a859] font-mono">S$18–S$87</div>
-                        <p className="text-[10px] text-slate-500 leading-snug">For an index patient with S$500 available under MediSave500. Final payment depends on subsidy eligibility and available MediSave.</p>
-                        <p className="text-[10px] text-slate-500 leading-snug">The package includes pre-test counselling, genetic testing, blood drawing and post-test counselling.</p>
+                      <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left">
+                        <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
+                          {FH_COST_DATA.cardHeading}
+                        </div>
+                        <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
+                          {FH_COST_DATA.indexPatientEstimatedCash}
+                        </div>
+                        <p className="text-[11px] text-slate-600 leading-snug font-medium">
+                          {FH_COST_DATA.supportingText}
+                        </p>
                       </div>
                     </div>
                   );
@@ -5670,9 +5788,14 @@ export default function PhoneSimulator({
                               <span className="text-slate-500 font-medium">{t('booking_duration_label')}</span>
                               <span className="text-slate-800 font-semibold">{slot.duration.replace('mins', t('booking_mins'))}</span>
                             </div>
-                            <div className="flex justify-between border-t border-slate-100 pt-2.5 mt-2.5">
-                              <span className="text-slate-500 font-bold">{t('booking_out_of_pocket_label')}</span>
-                              <span className="text-[#00a859] font-extrabold font-mono">S$18–S$87 <span className="text-[9px] font-sans font-medium text-slate-400">(est.)</span></span>
+                            <div className="border-t border-slate-100 pt-3 mt-3 space-y-1">
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-700 font-bold text-xs">{FH_COST_DATA.cardHeading}</span>
+                                <span className="text-[#00a859] font-black font-mono text-base">{FH_COST_DATA.indexPatientEstimatedCash}</span>
+                              </div>
+                              <p className="text-[10.5px] text-slate-500 leading-snug font-medium">
+                                {FH_COST_DATA.supportingText}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -5721,6 +5844,28 @@ export default function PhoneSimulator({
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
+                {/* My Profile Access Card */}
+                <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs flex justify-between items-center text-left">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 text-[#00a859] font-extrabold flex items-center justify-center text-sm shrink-0">
+                      {patientInitials}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-xs text-slate-800 truncate">{patientFullName}</h4>
+                      <p className="text-[10px] text-slate-500 truncate">{patientNric} • {t('profile_verified_singpass')}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onChangeScreen(ScreenId.Profile)}
+                    className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer border border-emerald-200 shrink-0 ml-2"
+                    id="settings-view-profile-btn"
+                  >
+                    <User className="w-3.5 h-3.5 text-[#00a859]" />
+                    <span>{t('profile_my_profile')}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-[#00a859]" />
+                  </button>
+                </div>
+
                 <div>
                   <p className="text-xs text-slate-500 leading-relaxed">
                     {isFHReferred ? t('settings_desc') : (
@@ -5731,21 +5876,6 @@ export default function PhoneSimulator({
                     )}
                   </p>
                 </div>
-
-                {/* Account & Profile Navigation */}
-                <button
-                  onClick={() => onChangeScreen(ScreenId.Profile)}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex items-center gap-3 hover:bg-slate-50/60 hover:border-slate-300 active:scale-[0.99] transition cursor-pointer text-left"
-                >
-                  <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100 text-[#00a859] shrink-0">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-xs text-slate-800">Account &amp; Profile</h4>
-                    <p className="text-[10px] text-slate-500 mt-0.5">View your personal details and profile</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
-                </button>
 
                 {/* Master Toggle */}
                 <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex justify-between items-center">
@@ -5901,13 +6031,13 @@ export default function PhoneSimulator({
                               }
 
                               if (language === 'ms') {
-                                return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi sehingga 70% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: Hai ${nameStr}, slot Konsultasi Pesakit Luar Am anda di ${bookedClinicName} disahkan pada ${dateStr} pukul ${timeStr}. Subsidi berperingkat MOH sehingga 70% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/gen-ref`;
                               } else if (language === 'zh') {
-                                return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 70% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: 您在 ${bookedClinicName} 的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。最高 70% 的 MOH 审查津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/gen-ref`;
                               } else if (language === 'ta') {
                                 return `MOH HealthHub: ${dateStr} அன்று ${timeStr} மணிக்கு ${bookedClinicName}-இல் உங்கள் பொது வெளிநோயாளி ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 70% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/gen-ref`;
                               } else {
-                                return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Subsidies up to 70% are cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
+                                return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Means-tested MOH subsidies up to 70% cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
                               }
                             })()}
                           </div>
@@ -6022,32 +6152,12 @@ export default function PhoneSimulator({
                         </label>
                         <div className="bg-[#e5ddd5] border border-slate-300 text-slate-800 rounded-xl p-4 shadow-2xs space-y-2 bg-[radial-gradient(#d5cdc5_1.2px,transparent_1.2px)] [background-size:16px_16px]">
                           <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-800 border-b border-slate-300/40 pb-2">
-                            <div className="w-4 h-4 bg-[#075e54] rounded-full flex items-center justify-center text-white text-[8px] font-black">✔</div>
+                            <div className="w-4 h-4 bg-[#075e54] rounded-full flex items-center justify-center text-white"><Check className="w-2.5 h-2.5 stroke-[3]" /></div>
                             <span>MOH HealthHub (Singapore)</span>
                             <span className="ml-auto text-[9px] font-normal text-slate-500">09:41 AM</span>
                           </div>
                           <div className="bg-[#e2f4c5] p-3 rounded-xl rounded-tl-none text-[11px] text-slate-700 leading-normal font-sans border border-[#d3eab0] relative shadow-3xs max-w-[280px]">
                             <h4 className="text-[11px] font-extrabold text-emerald-900 mb-1">MOH Appointment Alert</h4>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedChannels.includes('email') && (
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
-                          <span>{language === 'ms' ? 'Pratonton Makluman Emel' : language === 'zh' ? '电子邮件提醒预览' : language === 'ta' ? 'மின்னஞ்சல் விழிப்பூட்டல் முன்னோட்டம்' : 'Email Notification Preview'}</span>
-                          <span className="text-emerald-700">Official MOH Domain</span>
-                        </label>
-                        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
-                          <div className="text-[9.5px] font-bold text-slate-800 border-b border-slate-100 pb-2 flex justify-between">
-                            <span>From: appointment-reminders@healthhub.sg</span>
-                            <span className="text-slate-400 font-normal">{t('sms_today')}</span>
-                          </div>
-                          <div className="text-xs font-bold text-slate-800 font-sans mt-1">
-                            {isFHReferred ? 'Upcoming Outpatient Appointment: Genetic Counselling' : 'MOH HealthHub: Outpatient Appointment Confirmed'}
-                          </div>
-                          <p className="text-[10.5px] text-slate-600 leading-normal mt-1">
                             {(() => {
                               const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
                               const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
@@ -6057,9 +6167,9 @@ export default function PhoneSimulator({
                                 return <>
                                   Hi, janji temu rujukan pesakit luar anda telah disahkan.
                                   <br /><br />
-                                  🏥 <strong>Klinik:</strong> {bookedClinicName}
-                                  <br />📅 <strong>Tarikh:</strong> {dateStr}
-                                  <br />🕙 <strong>Masa:</strong> {timeStr}
+                                  <Building2 className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Klinik:</strong> {bookedClinicName}
+                                  <br /><Calendar className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Tarikh:</strong> {dateStr}
+                                  <br /><Clock className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Masa:</strong> {timeStr}
                                   <br /><br />
                                   Sila lengkapkan senarai semak rujukan pesakit luar anda dalam HealthHub.
                                 </>;
@@ -6067,9 +6177,9 @@ export default function PhoneSimulator({
                                 return <>
                                   您好，您的预约普通门诊转诊咨询已成功确认。
                                   <br /><br />
-                                  🏥 <strong>门诊:</strong> {bookedClinicName}
-                                  <br />📅 <strong>日期:</strong> {dateStr}
-                                  <br />🕙 <strong>时间:</strong> {timeStr}
+                                  <Building2 className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>门诊:</strong> {bookedClinicName}
+                                  <br /><Calendar className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>日期:</strong> {dateStr}
+                                  <br /><Clock className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>时间:</strong> {timeStr}
                                   <br /><br />
                                   请登录 HealthHub 应用完善您的准备信息。
                                 </>;
@@ -6077,9 +6187,9 @@ export default function PhoneSimulator({
                                 return <>
                                   வணக்கம், உங்களின் சந்திப்பு வெற்றிகரமாக உறுதிப்படுத்தப்பட்டுள்ளது.
                                   <br /><br />
-                                  🏥 <strong>சந்திப்பு:</strong> {bookedClinicName}
-                                  <br />📅 <strong>தேதி:</strong> {dateStr}
-                                  <br />🕙 <strong>நேரம்:</strong> {timeStr}
+                                  <Building2 className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>சந்திப்பு:</strong> {bookedClinicName}
+                                  <br /><Calendar className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>தேதி:</strong> {dateStr}
+                                  <br /><Clock className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>நேரம்:</strong> {timeStr}
                                   <br /><br />
                                   ஹெல்த்ஹப் செயலியில் உங்கள் சரிபார்ப்புப் பட்டியலை முடிக்கவும்.
                                 </>;
@@ -6087,15 +6197,15 @@ export default function PhoneSimulator({
                                 return <>
                                   Hi, your upcoming outpatient referral consultation is confirmed.
                                   <br /><br />
-                                  🏥 <strong>Clinic:</strong> {bookedClinicName}
-                                  <br />📅 <strong>Date:</strong> {dateStr}
-                                  <br />🕙 <strong>Time:</strong> {timeStr}
+                                  <Building2 className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Clinic:</strong> {bookedClinicName}
+                                  <br /><Calendar className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Date:</strong> {dateStr}
+                                  <br /><Clock className="w-3 h-3 text-emerald-800 inline mr-1 -mt-0.5" /><strong>Time:</strong> {timeStr}
                                   <br /><br />
                                   Please complete your pre-appointment checklist on the HealthHub app.
                                 </>;
                               }
                             })()}
-                          </p>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -6484,7 +6594,7 @@ export default function PhoneSimulator({
                 <div className="space-y-2 text-xs">
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_mobile')}</span>
-                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">+65 9123 4567</span>
+                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">{patientMobile}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_email')}</span>
@@ -6526,22 +6636,10 @@ export default function PhoneSimulator({
                   <MapPin className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_healthcare')}
                 </h4>
                 <div className="space-y-3 text-xs">
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
+                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
                     <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_preferred_clinic')}</span>
                     <span className="col-span-7 text-slate-800 font-semibold text-right">{patientPrimaryClinic}</span>
                   </div>
-                  
-                  {/* Interactive link to settings */}
-                  <button
-                    onClick={() => onChangeScreen(ScreenId.ReminderSettings)}
-                    className="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] rounded-xl text-xs font-bold transition flex items-center justify-between border border-emerald-100 cursor-pointer text-left"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Bell className="w-4 h-4 text-[#00a859]" />
-                      {t('profile_view_reminder_settings')}
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-[#00a859]" />
-                  </button>
                 </div>
               </div>
 
@@ -6800,7 +6898,7 @@ export default function PhoneSimulator({
         {isFHReferred && activeScreen !== ScreenId.Booking && (
           <button
             onClick={() => onChangeScreen(ScreenId.Booking)}
-            className="absolute bottom-4 right-4 z-40 bg-[#00a859] hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-full flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 text-xs font-bold font-sans animate-subtle-pulse"
+            className="absolute bottom-4 right-4 z-40 bg-[#00a859] hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-full flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 text-xs font-bold font-sans"
             title={appointment.status === 'booked' ? 'View Booking' : 'Book Now'}
           >
             <Calendar className="w-4 h-4 text-white" />
@@ -6814,13 +6912,19 @@ export default function PhoneSimulator({
         {[
           { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
           { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
-          ...(isFHReferred ? [{ icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education }] : [])
+          { icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education },
         ].map((tab) => (
           <button
             key={tab.label}
-            onClick={() => onChangeScreen(tab.screen)}
-            className={`flex flex-col items-center gap-0.5 transition ${
-              activeScreen === tab.screen ? 'text-[#00a859]' : 'text-slate-400 hover:text-slate-600'
+            onClick={() => {
+              if (bookingSubFlow) {
+                handleExitReschedule();
+                handleExitCancelFlow();
+              }
+              onChangeScreen(tab.screen);
+            }}
+            className={`flex flex-col items-center gap-0.5 transition cursor-pointer ${
+              activeScreen === tab.screen && !bookingSubFlow ? 'text-[#00a859]' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             {tab.icon}
