@@ -246,14 +246,14 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "MOH Subsidies: Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%.",
         "MediSave500/700: MediSave may be used after subsidies, subject to available balance and annual limits.",
-        "Estimated Out-of-Pocket Cost: An index patient may pay an estimated S$18–S$87 with S$500 available under MediSave500.",
-        "Cascade Screening: Family members may pay approximately S$8–S$38 after subsidies and MediSave."
+        "Estimated Out-of-Pocket Cost: An index patient may pay an estimated S$18–87 with S$500 available under MediSave500.",
+        "Cascade Screening: Family members may pay approximately S$8–38 after subsidies and MediSave."
       ],
       transcript: [
         "Hello, I'm Siti. I want to talk about the financial side of FH testing because that was my biggest worry. In Singapore, the Ministry of Health provides means-tested subsidies for eligible Singapore Citizens and Permanent Residents. I received up to 70% subsidy on my counselling and genetic test.",
         "After the subsidy, I was able to use MediSave500/700 to offset the remaining cost. It's subject to your available MediSave balance and the annual withdrawal limit, so the exact amount varies, but it significantly reduced what I had to pay in cash.",
-        "My estimated cash out-of-pocket was around S$18–S$87 as an index patient with S$500 available under MediSave500. The clinic handled the subsidy and MediSave applications directly during registration, which made the process straightforward.",
-        "For family members eligible for cascade screening, the estimated cash payment is even lower—around S$8–S$38 after subsidies and MediSave. Don't let cost worries stand in the way of protecting your heart health."
+        "My estimated cash out-of-pocket was around S$18–87 as an index patient with S$500 available under MediSave500. The clinic handled the subsidy and MediSave applications directly during registration, which made the process straightforward.",
+        "For family members eligible for cascade screening, the estimated cash payment is even lower—around S$8–38 after subsidies and MediSave. Don't let cost worries stand in the way of protecting your heart health."
       ]
     },
     ms: {
@@ -264,14 +264,14 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "Subsidi MOH: Warganegara dan Penduduk Tetap Singapura yang layak mungkin menerima subsidi berasaskan means sehingga 70%.",
         "MediSave500/700: MediSave boleh digunakan selepas subsidi, tertakluk kepada baki tersedia dan had tahunan.",
-        "Anggaran Bayaran Tunai: Pesakit indeks mungkin membayar anggaran S$18–S$87 dengan S$500 tersedia di bawah MediSave500.",
-        "Saringan Lata: Ahli keluarga mungkin membayar lebih kurang S$8–S$38 selepas subsidi dan MediSave."
+        "Anggaran Bayaran Tunai: Pesakit indeks mungkin membayar anggaran S$18–87 dengan S$500 tersedia di bawah MediSave500.",
+        "Saringan Lata: Ahli keluarga mungkin membayar lebih kurang S$8–38 selepas subsidi dan MediSave."
       ],
       transcript: [
         "Helo, saya Siti. Saya ingin bercakap tentang aspek kewangan ujian FH kerana itu kebimbangan terbesar saya. Di Singapura, Kementerian Kesihatan menyediakan subsidi berasaskan means untuk warganegara dan penduduk tetap yang layak. Saya menerima subsidi sehingga 70% untuk ujian saya.",
         "Selepas subsidi, saya boleh menggunakan MediSave500/700 untuk mengimbangi baki kos. Ia tertakluk kepada baki MediSave tersedia dan had pengeluaran tahunan, jadi jumlah sebenar berbeza, tetapi ia mengurangkan dengan ketara apa yang saya perlu bayar tunai.",
-        "Anggaran kos tunai saya sekitar S$18–S$87 sebagai pesakit indeks dengan S$500 tersedia di bawah MediSave500. Klinik menguruskan permohonan subsidi dan MediSave secara langsung semasa pendaftaran.",
-        "Bagi ahli keluarga yang layak untuk saringan lata, anggaran bayaran tunai adalah lebih rendah—sekitar S$8–S$38 selepas subsidi dan MediSave. Jangan biarkan kebimbangan kos menghalang anda melindungi kesihatan jantung."
+        "Anggaran kos tunai saya sekitar S$18–87 sebagai pesakit indeks dengan S$500 tersedia di bawah MediSave500. Klinik menguruskan permohonan subsidi dan MediSave secara langsung semasa pendaftaran.",
+        "Bagi ahli keluarga yang layak untuk saringan lata, anggaran bayaran tunai adalah lebih rendah—sekitar S$8–38 selepas subsidi dan MediSave. Jangan biarkan kebimbangan kos menghalang anda melindungi kesihatan jantung."
       ]
     },
     zh: {
@@ -282,14 +282,14 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "卫生部补贴：符合资格的新加坡公民和永久居民可获得高达 70% 的按需补贴。",
         "MediSave500/700：补贴后可使用 MediSave，但须视可用余额和年度提取限额而定。",
-        "估计现金支付：在 MediSave500 下有 S$500 可用时，先证患者的估计现金支付为 S$18–S$87。",
-        "家系筛查：家属在补贴和 MediSave 后可能支付约 S$8–S$38。"
+        "估计现金支付：在 MediSave500 下有 S$500 可用时，先证患者的估计现金支付为 S$18–87。",
+        "家系筛查：家属在补贴和 MediSave 后可能支付约 S$8–38。"
       ],
       transcript: [
         "大家好，我是 Siti。我想和大家聊聊 FH 基因检测的费用问题，因为这曾是我最担心的事情。在新加坡，卫生部为符合条件的新加坡公民和永久居民提供按需补贴。我的咨询和检测享受了高达 70% 的补贴。",
         "补贴后，我能够使用 MediSave500/700 来抵扣剩余费用。这取决于您的 MediSave 可用余额和年度提取限额，因此具体金额会有所不同，但它大幅减少了我需要用现金支付的部分。",
-        "作为先证患者，在 MediSave500 下有 S$500 可用时，我的估计现金支出约为 S$18–S$87。诊所在登记时直接办理了补贴和 MediSave 的划扣申请，流程很简便。",
-        "对于符合家系筛查资格的家属，估计的现金支付更低——在补贴和 MediSave 后约为 S$8–S$38。千万不要因为担心费用而耽误了保护您的心脏健康。"
+        "作为先证患者，在 MediSave500 下有 S$500 可用时，我的估计现金支出约为 S$18–87。诊所在登记时直接办理了补贴和 MediSave 的划扣申请，流程很简便。",
+        "对于符合家系筛查资格的家属，估计的现金支付更低——在补贴和 MediSave 后约为 S$8–38。千万不要因为担心费用而耽误了保护您的心脏健康。"
       ]
     },
     ta: {
@@ -300,14 +300,14 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "MOH மானியங்கள்: தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தர குடிமக்கள் 70% வரை வருமான அடிப்படையிலான மானியங்களைப் பெறலாம்.",
         "MediSave500/700: மானியங்களுக்குப் பிறகு MediSave பயன்படுத்தலாம், கிடைக்கும் இருப்பு மற்றும் ஆண்டு வரம்பிற்கு உட்பட்டது.",
-        "மதிப்பிடப்பட்ட பணம்: MediSave500 இல் S$500 கிடைக்கும்போது குறியீட்டு நோயாளிக்கான மதிப்பிடப்பட்ட பணம் S$18–S$87.",
-        "குடும்பப் பரிசோதனை: குடும்ப உறுப்பினர்கள் மானியம் மற்றும் MediSave க்குப் பிறகு சுமார் S$8–S$38 செலுத்தலாம்."
+        "மதிப்பிடப்பட்ட பணம்: MediSave500 இல் S$500 கிடைக்கும்போது குறியீட்டு நோயாளிக்கான மதிப்பிடப்பட்ட பணம் S$18–87.",
+        "குடும்பப் பரிசோதனை: குடும்ப உறுப்பினர்கள் மானியம் மற்றும் MediSave க்குப் பிறகு சுமார் S$8–38 செலுத்தலாம்."
       ],
       transcript: [
         "வணக்கம், நான் Siti. FH சோதனையின் நிதிப் பக்கத்தைப் பற்றி பேச விரும்புகிறேன், ஏனெனில் அதுதான் என் மிகப்பெரிய கவலையாக இருந்தது. சிங்கப்பூரில் சுகாதார அமைச்சகம் தகுதியுள்ள குடிமக்கள் மற்றும் நிரந்தர குடிமக்களுக்கு வருமான அடிப்படையிலான மானியங்களை வழங்குகிறது. எனது ஆலோசனை மற்றும் சோதனைக்கு 70% வரை மானியம் பெற்றேன்.",
         "மானியத்திற்குப் பிறகு, மீதமுள்ள தொகையை ஈடுசெய்ய MediSave500/700 ஐப் பயன்படுத்த முடிந்தது. இது உங்கள் கிடைக்கும் MediSave இருப்பு மற்றும் ஆண்டு திரும்பப் பெறுதல் வரம்பிற்கு உட்பட்டது, எனவே சரியான தொகை வேறுபடும், ஆனால் அது என் பணம் செலுத்த வேண்டிய தொகையை கணிசமாக குறைத்தது.",
-        "MediSave500 இல் S$500 கிடைக்கும்போது குறியீட்டு நோயாளியாக என் மதிப்பிடப்பட்ட பணம் சுமார் S$18–S$87 ஆகும். பதிவின் போது மானியம் மற்றும் MediSave விண்ணப்பங்களை மருத்துவமனை நேரடியாக நிர்வகித்தது.",
-        "குடும்பப் பரிசோதனைக்கு தகுதியுள்ள குடும்ப உறுப்பினர்களுக்கு, மதிப்பிடப்பட்ட பணம் இன்னும் குறைவாக உள்ளது—மானியம் மற்றும் MediSave க்குப் பிறகு சுமார் S$8–S$38. நிதி கவலைகள் உங்கள் இதய ஆரோக்கியத்தைப் பாதுகாப்பதைத் தடுக்க அனுமதிக்காதீர்கள்."
+        "MediSave500 இல் S$500 கிடைக்கும்போது குறியீட்டு நோயாளியாக என் மதிப்பிடப்பட்ட பணம் சுமார் S$18–87 ஆகும். பதிவின் போது மானியம் மற்றும் MediSave விண்ணப்பங்களை மருத்துவமனை நேரடியாக நிர்வகித்தது.",
+        "குடும்பப் பரிசோதனைக்கு தகுதியுள்ள குடும்ப உறுப்பினர்களுக்கு, மதிப்பிடப்பட்ட பணம் இன்னும் குறைவாக உள்ளது—மானியம் மற்றும் MediSave க்குப் பிறகு சுமார் S$8–38. நிதி கவலைகள் உங்கள் இதய ஆரோக்கியத்தைப் பாதுகாப்பதைத் தடுக்க அனுமதிக்காதீர்கள்."
       ]
     }
   },

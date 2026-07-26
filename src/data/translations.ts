@@ -400,7 +400,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_stat_family_lbl: 'First-Degree Family Risk',
     edu_stat_subsidies_val: 'Up to 70%',
     edu_stat_subsidies_lbl: 'MOH means-tested subsidies',
-    edu_stat_cost_val: 'S$18–S$87',
+    edu_stat_cost_val: 'S$18–87',
     edu_stat_cost_lbl: 'Estimated out-of-pocket cost for an index patient',
     edu_stat_insurance_val: '0%',
     edu_stat_insurance_lbl: 'Impact on Existing Insurance',
@@ -418,7 +418,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_group_costs_desc: 'MOH subsidies, MediSave coverage, and your legal insurance rights.',
     booking_mins: 'mins',
     chatbot_fallback_insurance: "Under the Singapore **LIA Moratorium**, insurers **cannot** ask you to disclose genetic test results. Existing plans like **MediShield Life** and Integrated Shield are completely unaffected.",
-    chatbot_fallback_cost: "FH testing is subsidized up to 70% by MOH for eligible Singapore Citizens and Permanent Residents. Estimated cash payment for an index patient is S$18–S$87 (assuming S$500 is available under MediSave500).",
+    chatbot_fallback_cost: "FH testing is subsidized up to 70% by MOH for eligible Singapore Citizens and Permanent Residents. Estimated cash payment for an index patient is S$18–87 (assuming S$500 is available under MediSave500).",
     chatbot_fallback_family: "FH is inherited — first-degree family members have a **50% chance** of sharing the gene. Your team will coordinate **cascade screening** to protect your family early.",
     chatbot_fallback_prep: "No fasting needed! Prepare your **family medical history**, **current medications**, and your **Singpass**. A 30-minute counselling session will guide you first.",
     chatbot_fallback_default: "I am here to help with FH testing. Your referral is a **subsidized, protected preventative screen**. Check the **Learn** tab or **Book** tab for more.",
@@ -980,7 +980,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_stat_family_lbl: 'Risiko Keturunan Keluarga',
     edu_stat_subsidies_val: 'Sehingga 70%',
     edu_stat_subsidies_lbl: 'Subsidi berperingkat MOH',
-    edu_stat_cost_val: 'S$18–S$87',
+    edu_stat_cost_val: 'S$18–87',
     edu_stat_cost_lbl: 'Anggaran bayaran tunai pesakit indeks',
     edu_stat_insurance_val: '0%',
     edu_stat_insurance_lbl: 'Kesan pada Insurans Sedia Ada',
@@ -998,7 +998,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_group_costs_desc: 'Subsidi MOH, liputan MediSave, dan hak insurans undang-undang anda.',
     booking_mins: 'minit',
     chatbot_fallback_insurance: "Di bawah **Moratorium LIA Singapura**, syarikat insurans **tidak boleh** meminta anda mendedahkan keputusan ujian genetik. Pelan sedia ada seperti **MediShield Life** dan Integrated Shield tidak terjejas langsung.",
-    chatbot_fallback_cost: "Ujian FH disubsidi sehingga 70% oleh MOH untuk warganegara dan PR yang layak. Anggaran bayaran tunai untuk pesakit indeks ialah S$18–S$87 (mengandaikan S$500 tersedia di bawah MediSave500).",
+    chatbot_fallback_cost: "Ujian FH disubsidi sehingga 70% oleh MOH untuk warganegara dan PR yang layak. Anggaran bayaran tunai untuk pesakit indeks ialah S$18–87 (mengandaikan S$500 tersedia di bawah MediSave500).",
     chatbot_fallback_family: "FH diwarisi — ahli keluarga darjah pertama mempunyai **peluang 50%** mewarisi gen tersebut. Pasukan anda akan menyelaras **pemeriksaan kaskad** untuk melindungi keluarga anda.",
     chatbot_fallback_prep: "Tidak perlu berpuasa! Sediakan **sejarah perubatan keluarga**, **ubat-ubatan semasa**, dan **Singpass** anda. Sesi kaunseling 30 minit akan membimbing anda terlebih dahulu.",
     chatbot_fallback_default: "Saya sedia membantu mengenai ujian FH. Rujukan anda adalah **saringan pencegahan yang disubsidi dan dilindungi**. Semak tab **Belajar** atau **Tempah** untuk maklumat lanjut.",
@@ -1560,7 +1560,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_stat_family_lbl: '直系亲属遗传概率',
     edu_stat_subsidies_val: '高达 70%',
     edu_stat_subsidies_lbl: '卫生部 MOH 审查津贴',
-    edu_stat_cost_val: 'S$18–S$87',
+    edu_stat_cost_val: 'S$18–87',
     edu_stat_cost_lbl: '先证者预计自付现金金额',
     edu_stat_insurance_val: '0%',
     edu_stat_insurance_lbl: '对已生效商业保单的影响',
@@ -1578,7 +1578,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_group_costs_desc: 'MOH补贴、MediSave保障及您的法定保险权利。',
     booking_mins: '分钟',
     chatbot_fallback_insurance: "根据新加坡**LIA暂停协议**，保险公司**不得**要求您披露基因检测结果。**MediShield Life**等现有保单完全不受影响。",
-    chatbot_fallback_cost: "符合资格的新加坡公民和永久居民可获得 MOH 高达 70% 的审查津贴。先证者预计自付现金费用为 S$18–S$87（假设 MediSave500 账户内有 S$500 可用）。",
+    chatbot_fallback_cost: "符合资格的新加坡公民和永久居民可获得 MOH 高达 70% 的审查津贴。先证者预计自付现金费用为 S$18–87（假设 MediSave500 账户内有 S$500 可用）。",
     chatbot_fallback_family: "FH具有遗传性——直系亲属有 **50%** 的概率携带相同基因。您的医疗团队将协调**级联筛查**，及早保护家人健康。",
     chatbot_fallback_prep: "无需空腹！请准备好**家族病史**（尤其是早发心脏病史）、**当前用药清单**及**Singpass**。30分钟咨询会首先为您详细说明。",
     chatbot_fallback_default: "我在此协助您了解FH检测。您的转诊是一项**受补贴、受保护的预防性筛查**。欢迎查阅**学习**或**预约**标签页。",
@@ -2141,7 +2141,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_stat_family_lbl: 'குடும்ப உறுப்பினர்கள் அபாயம்',
     edu_stat_subsidies_val: '70% வரை',
     edu_stat_subsidies_lbl: 'MOH வருமான அளவிலான மானியங்கள்',
-    edu_stat_cost_val: 'S$18–S$87',
+    edu_stat_cost_val: 'S$18–87',
     edu_stat_cost_lbl: 'முதன்மையான நோயாளிக்கான மதிப்பிடப்பட்ட கட்டணம்',
     edu_stat_insurance_val: '0%',
     edu_stat_insurance_lbl: 'தற்போதுள்ள காப்பீட்டில் தாக்கம்',
@@ -2159,7 +2159,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_group_costs_desc: 'MOH மானியங்கள், MediSave காப்பீடு மற்றும் உங்கள் சட்ட காப்பீட்டு உரிமைகள்.',
     booking_mins: 'நிமிடம்',
     chatbot_fallback_insurance: "சிங்கப்பூர் **LIA இடைநிறுத்த உடன்படிக்கையின்** படி, காப்பீட்டு நிறுவனங்கள் உங்கள் மரபணு சோதனை முடிவுகளை வெளியிடுமாறு **கோரக்கூடாது**. **MediShield Life** போன்ற தற்போதைய திட்டங்கள் முற்றிலும் பாதிக்கப்படாது.",
-    chatbot_fallback_cost: "FH பரிசோதனைக்கு தகுதியுள்ள குடிமக்கள் மற்றும் PR-களுக்கு MOH 70% வரை மானியம் வழங்குகிறது. முதன்மையான நோயாளிக்கான மதிப்பிடப்பட்ட ரொக்கக் கட்டணம் S$18–S$87 ஆகும் (MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டு).",
+    chatbot_fallback_cost: "FH பரிசோதனைக்கு தகுதியுள்ள குடிமக்கள் மற்றும் PR-களுக்கு MOH 70% வரை மானியம் வழங்குகிறது. முதன்மையான நோயாளிக்கான மதிப்பிடப்பட்ட ரொக்கக் கட்டணம் S$18–87 ஆகும் (MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டு).",
     chatbot_fallback_family: "FH மரபுவழியில் பரவுகிறது — நெருங்கிய குடும்பத்தினருக்கு **50% வாய்ப்பு** உள்ளது. உங்கள் குழு **cascade screening** ஒருங்கிணைத்து குடும்பத்தை பாதுகாக்கும்.",
     chatbot_fallback_prep: "உண்ணாவிரதம் தேவையில்லை! **குடும்ப மருத்துவ வரலாறு**, **தற்போதைய மருந்துகள்**, மற்றும் **Singpass** தயாராக வையுங்கள். 30 நிமிட ஆலோசனை முதலில் வழிகாட்டும்.",
     chatbot_fallback_default: "FH சோதனை குறித்து உதவ நான் இங்கே இருக்கிறேன். உங்கள் பரிந்துரை ஒரு **மானியம் பெற்ற, பாதுகாக்கப்பட்ட தடுப்பு பரிசோதனை**. **கற்றல்** அல்லது **முன்பதிவு** தாவலை பாருங்கள்.",
@@ -2429,7 +2429,7 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
           visualItems: [
             { icon: "Building2", label: "Subsidi MOH", text: "Warganegara Singapura dan Penduduk Tetap yang layak boleh menerima subsidi berperingkat sehingga 70%." },
             { icon: "Building2", label: "MediSave500/700", text: "MediSave boleh digunakan selepas subsidi, tertakluk kepada baki sedia ada dan had pengeluaran." },
-            { icon: "Coins", label: "Anggaran Bayaran Tunai", text: "S$18–S$87 untuk pesakit indeks, mengandaikan S$500 tersedia di bawah MediSave500." }
+            { icon: "Coins", label: "Anggaran Bayaran Tunai", text: "S$18–87 untuk pesakit indeks, mengandaikan S$500 tersedia di bawah MediSave500." }
           ]
         },
         {
@@ -2545,7 +2545,7 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
           visualItems: [
             { icon: "Building2", label: "MOH 审查津贴", text: "符合资格的新加坡公民与永久居民可获得高达 70% 的 MOH 审查津贴。" },
             { icon: "Building2", label: "MediSave500/700", text: "享受津贴后可使用 MediSave，受限于账户余额及提取上限。" },
-            { icon: "Coins", label: "预计自付现金", text: "S$18–S$87（先证者，假设 MediSave500 账户中有 S$500 可用）。" }
+            { icon: "Coins", label: "预计自付现金", text: "S$18–87（先证者，假设 MediSave500 账户中有 S$500 可用）。" }
           ]
         },
         {
@@ -2661,7 +2661,7 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
           visualItems: [
             { icon: "Building2", label: "MOH மானியம்", text: "தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தரவாசிகளுக்கு 70% வரை மானியம் வழங்கப்படும்." },
             { icon: "Building2", label: "MediSave500/700", text: "மானியத்திற்குப் பிறகு MediSave ஐப் பயன்படுத்தலாம், இது கணக்கு இருப்பு மற்றும் வரம்புகளுக்கு உட்பட்டது." },
-            { icon: "Coins", label: "மதிப்பிடப்பட்ட ரொக்கம்", text: "முதன்மையான நோயாளிக்கு S$18–S$87, MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டது." }
+            { icon: "Coins", label: "மதிப்பிடப்பட்ட ரொக்கம்", text: "முதன்மையான நோயாளிக்கு S$18–87, MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டது." }
           ]
         },
         {

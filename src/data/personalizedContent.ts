@@ -258,12 +258,12 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
         beginner: [
           { icon: "Building2", label: "MOH Subsidy", text: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%." },
           { icon: "Building2", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to available balance and withdrawal limits." },
-          { icon: "Coins", label: "Estimated Out-of-Pocket Cost", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
+          { icon: "Coins", label: "Estimated Out-of-Pocket Cost", text: "S$18–87 for an index patient, assuming S$500 is available under MediSave500." }
         ],
         advanced: [
           { icon: "Building2", label: "MOH Subsidy", text: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%." },
           { icon: "Building2", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to available balance and withdrawal limits." },
-          { icon: "Coins", label: "Estimated Out-of-Pocket Cost", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
+          { icon: "Coins", label: "Estimated Out-of-Pocket Cost", text: "S$18–87 for an index patient, assuming S$500 is available under MediSave500." }
         ]
       }
     },
@@ -422,12 +422,12 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
         beginner: [
           { icon: "Building2", label: "Subsidi MOH", text: "Warganegara Singapura dan Penduduk Tetap yang layak boleh menerima subsidi berperingkat sehingga 70%." },
           { icon: "Building2", label: "MediSave500/700", text: "MediSave boleh digunakan selepas subsidi, tertakluk kepada baki sedia ada dan had pengeluaran." },
-          { icon: "Coins", label: "Anggaran Bayaran Tunai", text: "S$18–S$87 untuk pesakit indeks, mengandaikan S$500 tersedia di bawah MediSave500." }
+          { icon: "Coins", label: "Anggaran Bayaran Tunai", text: "S$18–87 untuk pesakit indeks, mengandaikan S$500 tersedia di bawah MediSave500." }
         ],
         advanced: [
           { icon: "Building2", label: "Subsidi MOH", text: "Warganegara Singapura dan Penduduk Tetap yang layak boleh menerima subsidi berperingkat sehingga 70%." },
           { icon: "Building2", label: "MediSave500/700", text: "MediSave boleh digunakan selepas subsidi, tertakluk kepada baki sedia ada dan had pengeluaran." },
-          { icon: "Coins", label: "Anggaran Bayaran Tunai", text: "S$18–S$87 untuk pesakit indeks, mengandaikan S$500 tersedia di bawah MediSave500." }
+          { icon: "Coins", label: "Anggaran Bayaran Tunai", text: "S$18–87 untuk pesakit indeks, mengandaikan S$500 tersedia di bawah MediSave500." }
         ]
       }
     },
@@ -586,12 +586,12 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
         beginner: [
           { icon: "Building2", label: "MOH 审查津贴", text: "符合资格的新加坡公民与永久居民可获得高达 70% 的 MOH 审查津贴。" },
           { icon: "Building2", label: "MediSave500/700", text: "享受津贴后可使用 MediSave，受限于账户余额及提取上限。" },
-          { icon: "Coins", label: "预计自付现金", text: "S$18–S$87（先证者，假设 MediSave500 账户中有 S$500 可用）。" }
+          { icon: "Coins", label: "预计自付现金", text: "S$18–87（先证者，假设 MediSave500 账户中有 S$500 可用）。" }
         ],
         advanced: [
           { icon: "Building2", label: "MOH 审查津贴", text: "符合资格的新加坡公民与永久居民可获得高达 70% 的 MOH 审查津贴。" },
           { icon: "Building2", label: "MediSave500/700", text: "享受津贴后可使用 MediSave，受限于账户余额及提取上限。" },
-          { icon: "Coins", label: "预计自付现金", text: "S$18–S$87（先证者，假设 MediSave500 账户中有 S$500 可用）。" }
+          { icon: "Coins", label: "预计自付现金", text: "S$18–87（先证者，假设 MediSave500 账户中有 S$500 可用）。" }
         ]
       }
     },
@@ -750,12 +750,12 @@ export const VISUAL_CARDS_DB: Record<Language, Record<string, {
         beginner: [
           { icon: "Building2", label: "MOH மானியம்", text: "தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தரவாசிகளுக்கு 70% வரை மானியம் வழங்கப்படும்." },
           { icon: "Building2", label: "MediSave500/700", text: "மானியத்திற்குப் பிறகு MediSave ஐப் பயன்படுத்தலாம், இது கணக்கு இருப்பு மற்றும் வரம்புகளுக்கு உட்பட்டது." },
-          { icon: "Coins", label: "மதிப்பிடப்பட்ட ரொக்கம்", text: "முதன்மையான நோயாளிக்கு S$18–S$87, MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டது." }
+          { icon: "Coins", label: "மதிப்பிடப்பட்ட ரொக்கம்", text: "முதன்மையான நோயாளிக்கு S$18–87, MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டது." }
         ],
         advanced: [
           { icon: "Building2", label: "MOH மானியம்", text: "தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தரவாசிகளுக்கு 70% வரை மானியம் வழங்கப்படும்." },
           { icon: "Building2", label: "MediSave500/700", text: "மானியத்திற்குப் பிறகு MediSave ஐப் பயன்படுத்தலாம், இது கணக்கு இருப்பு மற்றும் வரம்புகளுக்கு உட்பட்டது." },
-          { icon: "Coins", label: "மதிப்பிடப்பட்ட ரொக்கம்", text: "முதன்மையான நோயாளிக்கு S$18–S$87, MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டது." }
+          { icon: "Coins", label: "மதிப்பிடப்பட்ட ரொக்கம்", text: "முதன்மையான நோயாளிக்கு S$18–87, MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டது." }
         ]
       }
     },
