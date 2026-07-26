@@ -88,25 +88,16 @@ export const educationalSections: EduSection[] = [
   {
     id: 'costs-subsidies',
     title: 'Costs and Subsidies',
-    shortSummary: 'MOH subsidies and MediSave support.',
+    shortSummary: 'MOH means-tested subsidies and MediSave support.',
     readingTime: '1 min read',
-    content: "Singapore's Ministry of Health ensures genetic testing for FH is heavily subsidized and highly affordable.",
-    keyTakeaway: 'Most out-of-pocket costs can be fully paid using MediSave.',
+    content: "",
+    keyTakeaway: "",
     iconName: 'Coins',
     tags: ['MediSave', 'subsidies'],
-    subsections: [
-      {
-        title: 'MOH SUBSIDIES',
-        text: 'Eligible Singapore Citizens receive 50% to 75% subsidies for both genetic counselling and the test itself.'
-      },
-      {
-        title: 'MEDISAVE USAGE',
-        text: 'You can use your MediSave account under chronic disease guidelines, minimizing cash payment.'
-      },
-      {
-        title: 'CHAS BENEFITS',
-        text: 'CHAS Blue, Orange, and Pioneer/Merdeka Generation cardholders receive enhanced subsidies automatically.'
-      }
+    visualItems: [
+      { icon: "Building2", label: "MOH Subsidy", text: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%." },
+      { icon: "Building2", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to available balance and withdrawal limits." },
+      { icon: "Coins", label: "Estimated Cash Payment", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
     ]
   },
   {
@@ -463,7 +454,7 @@ export const helpfulResources: HelpfulResource[] = [
         paragraphs: [
           'A key directive of Singapore\'s National Precision Medicine program is the systematic rollout of cascade screening. Cascade screening is the active process of identifying and testing the relatives of an individual diagnosed with FH (the proband).',
           'Clinical evidence demonstrates that cascade screening is one of the most cost-effective interventions in modern genetics. For every proband identified, an average of 2.6 family members are successfully screened and treated, significantly reducing premature heart attacks nationwide.',
-          'Subsidies of up to 75% are available at all public polyclinics and specialist outpatient clinics to ensure financial barriers do not prevent families from accessing this life-saving preventive care.'
+          'Subsidies of up to 70% are available at all public polyclinics and specialist outpatient clinics to ensure financial barriers do not prevent families from accessing this life-saving preventive care.'
         ]
       }
     ]
