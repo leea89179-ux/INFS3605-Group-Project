@@ -88,29 +88,16 @@ export const educationalSections: EduSection[] = [
   {
     id: 'costs-subsidies',
     title: 'Costs and Subsidies',
-    shortSummary: 'MOH subsidies and MediSave support.',
+    shortSummary: 'MOH means-tested subsidies and MediSave support.',
     readingTime: '1 min read',
-    content: "Singapore's Ministry of Health ensures genetic testing for FH is heavily subsidized and highly affordable.",
-    keyTakeaway: 'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%.',
+    content: "",
+    keyTakeaway: "",
     iconName: 'Coins',
     tags: ['MediSave', 'subsidies'],
-    subsections: [
-      {
-        title: 'UP TO 70% SUBSIDY',
-        text: 'Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies based on their circumstances.'
-      },
-      {
-        title: 'MEDISAVE500/700',
-        text: 'MediSave may be used after subsidies, subject to your available balance and annual withdrawal limit.'
-      },
-      {
-        title: 'ESTIMATED CASH PAYMENT',
-        text: 'S$18–S$87 estimated for an index patient with S$500 available under MediSave500. Your final payment depends on subsidy eligibility and available MediSave.'
-      },
-      {
-        title: 'PACKAGE INCLUDES',
-        text: 'Pre-test counselling, genetic testing, blood drawing and post-test counselling.'
-      }
+    visualItems: [
+      { icon: "Building2", label: "MOH Subsidy", text: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%." },
+      { icon: "Building2", label: "MediSave500/700", text: "MediSave may be used after subsidies, subject to available balance and withdrawal limits." },
+      { icon: "Coins", label: "Estimated Cash Payment", text: "S$18–S$87 for an index patient, assuming S$500 is available under MediSave500." }
     ]
   },
   {
@@ -169,7 +156,7 @@ export const faqs: FAQItem[] = [
   {
     category: 'cost',
     question: 'How much will I pay out-of-pocket?',
-    answer: "Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%. After subsidies, an index patient may pay an estimated S$18–S$87 cash out-of-pocket with S$500 available under MediSave500. Family members eligible for cascade screening may pay approximately S$8–S$38 after subsidies and MediSave. Final amounts depend on subsidy eligibility and available MediSave balance."
+    answer: "Between S$18 and S$120 after MOH subsidies and CHAS benefits. Crucially, the remaining balance can be 100% paid using MediSave under the Chronic Disease Management Scheme, meaning many Singaporeans pay S$0 cash out-of-pocket."
   },
   {
     category: 'insurance',
@@ -467,7 +454,7 @@ export const helpfulResources: HelpfulResource[] = [
         paragraphs: [
           'A key directive of Singapore\'s National Precision Medicine program is the systematic rollout of cascade screening. Cascade screening is the active process of identifying and testing the relatives of an individual diagnosed with FH (the proband).',
           'Clinical evidence demonstrates that cascade screening is one of the most cost-effective interventions in modern genetics. For every proband identified, an average of 2.6 family members are successfully screened and treated, significantly reducing premature heart attacks nationwide.',
-          'Means-tested subsidies of up to 70% are available at all public polyclinics and specialist outpatient clinics to ensure financial barriers do not prevent families from accessing this life-saving preventive care.'
+          'Subsidies of up to 70% are available at all public polyclinics and specialist outpatient clinics to ensure financial barriers do not prevent families from accessing this life-saving preventive care.'
         ]
       }
     ]
