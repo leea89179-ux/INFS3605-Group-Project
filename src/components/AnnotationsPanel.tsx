@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScreenId } from '../types';
-import { ShieldCheck, BookOpen, Clock, Heart, Users, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
+import { ShieldCheck, BookOpen, Clock, Heart, Users, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Sparkles } from 'lucide-react';
 
 interface AnnotationsPanelProps {
   activeScreen: ScreenId;
@@ -41,7 +41,7 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       problemSolved: 'Anxiety and fear. When patients hear "genetic testing," they worry about fatal diagnoses, high costs, and insurance discrimination. They search Google and get terrified by medical jargon.',
       uxGuidelines: [
         'Structured Progressive Disclosures: Subsections are collapsed into clean cards with clear iconography (e.g. Dna, Coins, Shield). Patients only read what they want to, when they want to.',
-        'Direct Financial Reassurance: Front-and-center display of Singapore MOH subsidies (50-75% off for citizens) and MediSave eligibility, directly removing cost barriers.',
+        'Direct Financial Reassurance: Front-and-center display of Singapore MOH means-tested subsidies (up to 70% off for eligible SCs and PRs) and MediSave eligibility, directly removing cost barriers.',
         'Simplified Insurance Explanation: Explains the Singapore LIA genetic moratorium in warm, plain human English: existing policies cannot be affected, and standard testing is highly protected.',
         'Pre-Counselling Prep Checklist: A friendly interactive checklist helping patients feel prepared and active, which reduces clinical anxiety.'
       ],

@@ -241,73 +241,73 @@ export const STORIES: Record<string, LocalizedStory> = {
     en: {
       title: "Understanding Costs and Support",
       videoLabel: "Financial Guide (Siti, 45)",
-      subtitle: "How MOH subsidies and MediSave ensure testing is affordable for everyone.",
+      subtitle: "How MOH subsidies and MediSave help make testing affordable for eligible patients.",
       summary: "",
       frames: [
-        "MOH Subsidies: Eligible Singapore citizens receive up to 75% subsidies for counselling and testing.",
-        "MediSave Approved: Co-payments are fully claimable under the Chronic Disease Management Scheme.",
-        "Low Cash Out-of-Pocket: Most patients pay very little cash, making testing highly accessible.",
-        "Additional Support: Safety nets like Medifund and CHAS benefits ensure no one is left behind."
+        "MOH Subsidies: Eligible Singapore Citizens and Permanent Residents may receive means-tested subsidies of up to 70%.",
+        "MediSave500/700: MediSave may be used after subsidies, subject to available balance and annual limits.",
+        "Estimated Out-of-Pocket Cost: An index patient may pay an estimated S$18–87 with S$500 available under MediSave500.",
+        "Cascade Screening: Family members may pay approximately S$8–38 after subsidies and MediSave."
       ],
       transcript: [
-        "Hello, I'm Siti. I want to talk about the financial side of FH testing because that was my biggest worry. In Singapore, the Ministry of Health has made genetic testing highly subsidized. As an eligible citizen, I received a 75% subsidy on my counselling and genetic test.",
-        "For the remaining co-payment, I didn't have to pay cash. It is a MediSave-approved clinical expense under the Chronic Disease Management Scheme (CDMS). They easily processed it using my MediSave account, which was a huge relief.",
-        "Because of these subsidies, my actual cash out-of-pocket cost was zero. The process is streamlined so the clinic handles all the subsidy and MediSave applications directly during your registration.",
-        "For lower-income families, there are extra safety nets like CHAS Blue/Orange benefits and Medifund to ensure absolute affordability. Don't let cost worries stand in the way of protecting your heart health."
+        "Hello, I'm Siti. I want to talk about the financial side of FH testing because that was my biggest worry. In Singapore, the Ministry of Health provides means-tested subsidies for eligible Singapore Citizens and Permanent Residents. I received up to 70% subsidy on my counselling and genetic test.",
+        "After the subsidy, I was able to use MediSave500/700 to offset the remaining cost. It's subject to your available MediSave balance and the annual withdrawal limit, so the exact amount varies, but it significantly reduced what I had to pay in cash.",
+        "My estimated cash out-of-pocket was around S$18–87 as an index patient with S$500 available under MediSave500. The clinic handled the subsidy and MediSave applications directly during registration, which made the process straightforward.",
+        "For family members eligible for cascade screening, the estimated cash payment is even lower—around S$8–38 after subsidies and MediSave. Don't let cost worries stand in the way of protecting your heart health."
       ]
     },
     ms: {
       title: "Memahami Kos dan Sokongan",
       videoLabel: "Panduan Kewangan (Siti, 45)",
-      subtitle: "Bagaimana subsidi MOH dan MediSave memastikan ujian mampu milik untuk semua.",
+      subtitle: "Bagaimana subsidi MOH dan MediSave membantu menjadikan ujian mampu milik untuk pesakit yang layak.",
       summary: "",
       frames: [
-        "Subsidi MOH: Warganegara Singapura yang layak menerima subsidi sehingga 75% untuk kaunseling dan ujian.",
-        "Lulus MediSave: Bayaran bersama boleh dituntut sepenuhnya di bawah Skim Pengurusan Penyakit Kronik.",
-        "Kos Tunai Rendah: Kebanyakan pesakit membayar sedikit tunai, menjadikan ujian sangat mudah diakses.",
-        "Sokongan Tambahan: Jaring keselamatan seperti bantuan Medifund dan CHAS memastikan tiada sesiapa terpinggir."
+        "Subsidi MOH: Warganegara dan Penduduk Tetap Singapura yang layak mungkin menerima subsidi berasaskan means sehingga 70%.",
+        "MediSave500/700: MediSave boleh digunakan selepas subsidi, tertakluk kepada baki tersedia dan had tahunan.",
+        "Anggaran Bayaran Tunai: Pesakit indeks mungkin membayar anggaran S$18–87 dengan S$500 tersedia di bawah MediSave500.",
+        "Saringan Lata: Ahli keluarga mungkin membayar lebih kurang S$8–38 selepas subsidi dan MediSave."
       ],
       transcript: [
-        "Helo, saya Siti. Saya ingin bercakap tentang aspek kewangan ujian FH kerana itu kebimbangan terbesar saya. Di Singapura, Kementerian Kesihatan menyediakan subsidi yang tinggi untuk ujian genetik. Sebagai warganegara yang layak, saya menerima subsidi 75% untuk ujian saya.",
-        "Untuk baki bayaran, saya tidak mengeluarkan tunai. Ia merupakan perbelanjaan diluluskan MediSave di bawah Skim Pengurusan Penyakit Kronik (CDMS). Mereka memprosesnya dengan mudah menggunakan akaun MediSave.",
-        "Oleh kerana subsidi ini, kos tunai keluar dari poket sebenar saya adalah sifar. Proses ini sangat teratur di mana klinik menguruskan semua permohonan subsidi dan MediSave secara langsung semasa pendaftaran.",
-        "Bagi keluarga berpendapatan rendah, terdapat jaring keselamatan tambahan seperti bantuan CHAS dan Medifund untuk menjamin kemampuan. Jangan biarkan kebimbangan kos menghalang anda melindungi kesihatan jantung."
+        "Helo, saya Siti. Saya ingin bercakap tentang aspek kewangan ujian FH kerana itu kebimbangan terbesar saya. Di Singapura, Kementerian Kesihatan menyediakan subsidi berasaskan means untuk warganegara dan penduduk tetap yang layak. Saya menerima subsidi sehingga 70% untuk ujian saya.",
+        "Selepas subsidi, saya boleh menggunakan MediSave500/700 untuk mengimbangi baki kos. Ia tertakluk kepada baki MediSave tersedia dan had pengeluaran tahunan, jadi jumlah sebenar berbeza, tetapi ia mengurangkan dengan ketara apa yang saya perlu bayar tunai.",
+        "Anggaran kos tunai saya sekitar S$18–87 sebagai pesakit indeks dengan S$500 tersedia di bawah MediSave500. Klinik menguruskan permohonan subsidi dan MediSave secara langsung semasa pendaftaran.",
+        "Bagi ahli keluarga yang layak untuk saringan lata, anggaran bayaran tunai adalah lebih rendah—sekitar S$8–38 selepas subsidi dan MediSave. Jangan biarkan kebimbangan kos menghalang anda melindungi kesihatan jantung."
       ]
     },
     zh: {
       title: "费用与政府补贴说明",
       videoLabel: "财务指南 (Siti, 45)",
-      subtitle: "了解政府高额补贴与 MediSave 如何共同保障新加坡公民轻松负担基因检测。",
+      subtitle: "了解卫生部补贴与 MediSave 如何帮助符合条件的患者负担基因检测。",
       summary: "",
       frames: [
-        "卫生部高额补贴：符合资格的新加坡公民在专家门诊和基因检测中可享受高达 75% 的政府补贴。",
-        "MediSave 强力支持：个人共付部分完全属于 CDMS 慢性病可报销开支，可全额使用 MediSave 账户进行抵扣。",
-        "几乎零现金开销：绝大多数患者通过补贴和公积金抵扣后，无需支付任何额外现金，毫无经济负担。",
-        "全方位兜底资助：针对中低收入家庭，CHAS 蓝卡、建国一代卡以及 Medifund 确保医疗费绝对能够负担。"
+        "卫生部补贴：符合资格的新加坡公民和永久居民可获得高达 70% 的按需补贴。",
+        "MediSave500/700：补贴后可使用 MediSave，但须视可用余额和年度提取限额而定。",
+        "估计现金支付：在 MediSave500 下有 S$500 可用时，先证患者的估计现金支付为 S$18–87。",
+        "家系筛查：家属在补贴和 MediSave 后可能支付约 S$8–38。"
       ],
       transcript: [
-        "大家好，我是 Siti。我想和大家聊聊 FH 基因检测的费用问题，因为这曾是我最担心的事情。在新加坡，卫生部 (MOH) 对临床遗传学咨询和基因检测提供了非常丰厚的补贴。作为符合条件的新加坡公民，我的咨询和检测当场享受了 75% 的补贴。",
-        "而对于剩下需要个人承担的自付部分，我其实根本不用掏现金。这笔费用已经纳入了慢性病管理计划 (CDMS) 下的 MediSave 支付目录。医院在收费时直接刷了我的 MediSave 账户，这让我松了一口气。",
-        "得益于这些贴心的补贴政策，我最后实际掏腰包的现金开销为零。诊所的后台系统非常智能，在您登记注册时，工作人员就会直接帮您办理好补贴和 MediSave 的划扣申请，无需跑繁杂的手续。",
-        "对于中低收入的家庭，政府还额外提供了 CHAS 蓝卡/橙卡以及 Medifund 医疗救助基金等方案，确保绝对不会有人因为经济困难而看不起病。所以，千万不要因为担心费用，而耽误了保护您和家人的心脏健康。"
+        "大家好，我是 Siti。我想和大家聊聊 FH 基因检测的费用问题，因为这曾是我最担心的事情。在新加坡，卫生部为符合条件的新加坡公民和永久居民提供按需补贴。我的咨询和检测享受了高达 70% 的补贴。",
+        "补贴后，我能够使用 MediSave500/700 来抵扣剩余费用。这取决于您的 MediSave 可用余额和年度提取限额，因此具体金额会有所不同，但它大幅减少了我需要用现金支付的部分。",
+        "作为先证患者，在 MediSave500 下有 S$500 可用时，我的估计现金支出约为 S$18–87。诊所在登记时直接办理了补贴和 MediSave 的划扣申请，流程很简便。",
+        "对于符合家系筛查资格的家属，估计的现金支付更低——在补贴和 MediSave 后约为 S$8–38。千万不要因为担心费用而耽误了保护您的心脏健康。"
       ]
     },
     ta: {
       title: "செலவுகள் மற்றும் ஆதரவைப் புரிந்துகொள்ளுதல்",
       videoLabel: "நிதி வழிகாட்டி (Siti, 45)",
-      subtitle: "MOH மானியங்கள் மற்றும் MediSave எவ்வாறு அனைவரும் எளிதில் பரிசோதனை செய்ய உதவுகின்றன.",
+      subtitle: "MOH மானியங்கள் மற்றும் MediSave எவ்வாறு தகுதியுள்ள நோயாளிகளுக்கு பரிசோதனையை மலிவாக்க உதவுகின்றன.",
       summary: "",
       frames: [
-        "MOH மானியங்கள்: தகுதியுள்ள சிங்கப்பூர் குடிமக்களுக்கு ஆலோசனை மற்றும் பரிசோதனைக்கு 75% வரை மானியம் வழங்கப்படுகிறது.",
-        "MediSave அனுமதி: மீதமுள்ள தொகையை நாள்பட்ட நோய் மேலாண்மை திட்டத்தின் கீழ் MediSave மூலம் செலுத்தலாம்.",
-        "குறைந்த கட்டணம்: பெரும்பாலான நோயாளிகள் மிகக் குறைந்த கட்டணமே செலுத்துகின்றனர், இது பரிசோதனையை எளிதாக்குகிறது.",
-        "கூடுதல் ஆதரவு: Medifund மற்றும் CHAS போன்ற பாதுகாப்புத் திட்டங்கள் நிதி நெருக்கடியில் உள்ளவர்களுக்கும் உதவுகின்றன."
+        "MOH மானியங்கள்: தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தர குடிமக்கள் 70% வரை வருமான அடிப்படையிலான மானியங்களைப் பெறலாம்.",
+        "MediSave500/700: மானியங்களுக்குப் பிறகு MediSave பயன்படுத்தலாம், கிடைக்கும் இருப்பு மற்றும் ஆண்டு வரம்பிற்கு உட்பட்டது.",
+        "மதிப்பிடப்பட்ட பணம்: MediSave500 இல் S$500 கிடைக்கும்போது குறியீட்டு நோயாளிக்கான மதிப்பிடப்பட்ட பணம் S$18–87.",
+        "குடும்பப் பரிசோதனை: குடும்ப உறுப்பினர்கள் மானியம் மற்றும் MediSave க்குப் பிறகு சுமார் S$8–38 செலுத்தலாம்."
       ],
       transcript: [
-        "வணக்கம், நான் Siti. FH சோதனையின் நிதிப் பக்கத்தைப் பற்றி பேச விரும்புகிறேன், ஏனெனில் அதுதான் என் மிகப்பெரிய கவலையாக இருந்தது. சிங்கப்பூரில் சுகாதார அமைச்சகம் மரபணு சோதனைக்கு அதிக மானியம் வழங்குகிறது. தகுதியுள்ள குடிமகள் என்ற முறையில், எனது ஆலோசனை மற்றும் சோதனைக்கு 75% மானியம் பெற்றேன்.",
-        "மீதமுள்ள தொகையை நான் பணமாக செலுத்த வேண்டியதில்லை. இது நாள்பட்ட நோய் மேலாண்மை திட்டத்தின் (CDMS) கீழ் MediSave அங்கீகரிக்கப்பட்ட மருத்துவ செலவு ஆகும். அவர்கள் அதை என் MediSave கணக்கைப் பயன்படுத்தி எளிதாகக் கழித்தனர், இது எனக்குப் பெரிய நிம்மதியைத் தந்தது.",
-        "இந்த மானியங்கள் காரணமாக, என் கையில் இருந்து செலவான தொகை கிட்டத்தட்ட ஏதுமில்லை. இந்த செயல்முறை மிகவும் எளிமையானது, உங்கள் பதிவின் போது மானியம் மற்றும் MediSave விண்ணப்பங்களை மருத்துவமனையே நேரடியாக நிர்வகிக்கும்.",
-        "குறைந்த வருமானம் உள்ள குடும்பங்களுக்கு, CHAS Blue/Orange மற்றும் Medifund போன்ற கூடுதல் பாதுகாப்புத் திட்டங்கள் உள்ளன. எனவே, நிதி கவலைகள் உங்கள் இதய ஆரோக்கியத்தைப் பாதுகாப்பதைத் தடுக்க அனுமதிக்காதீர்கள்."
+        "வணக்கம், நான் Siti. FH சோதனையின் நிதிப் பக்கத்தைப் பற்றி பேச விரும்புகிறேன், ஏனெனில் அதுதான் என் மிகப்பெரிய கவலையாக இருந்தது. சிங்கப்பூரில் சுகாதார அமைச்சகம் தகுதியுள்ள குடிமக்கள் மற்றும் நிரந்தர குடிமக்களுக்கு வருமான அடிப்படையிலான மானியங்களை வழங்குகிறது. எனது ஆலோசனை மற்றும் சோதனைக்கு 70% வரை மானியம் பெற்றேன்.",
+        "மானியத்திற்குப் பிறகு, மீதமுள்ள தொகையை ஈடுசெய்ய MediSave500/700 ஐப் பயன்படுத்த முடிந்தது. இது உங்கள் கிடைக்கும் MediSave இருப்பு மற்றும் ஆண்டு திரும்பப் பெறுதல் வரம்பிற்கு உட்பட்டது, எனவே சரியான தொகை வேறுபடும், ஆனால் அது என் பணம் செலுத்த வேண்டிய தொகையை கணிசமாக குறைத்தது.",
+        "MediSave500 இல் S$500 கிடைக்கும்போது குறியீட்டு நோயாளியாக என் மதிப்பிடப்பட்ட பணம் சுமார் S$18–87 ஆகும். பதிவின் போது மானியம் மற்றும் MediSave விண்ணப்பங்களை மருத்துவமனை நேரடியாக நிர்வகித்தது.",
+        "குடும்பப் பரிசோதனைக்கு தகுதியுள்ள குடும்ப உறுப்பினர்களுக்கு, மதிப்பிடப்பட்ட பணம் இன்னும் குறைவாக உள்ளது—மானியம் மற்றும் MediSave க்குப் பிறகு சுமார் S$8–38. நிதி கவலைகள் உங்கள் இதய ஆரோக்கியத்தைப் பாதுகாப்பதைத் தடுக்க அனுமதிக்காதீர்கள்."
       ]
     }
   },
@@ -394,13 +394,13 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "I eat healthy and stay active. I thought high cholesterol was only for elderly people or those who lead an unhealthy lifestyle.",
         "The genetic counsellor didn't push me at all. They just laid out the facts and let me make my own decision.",
-        "I found out existing health insurance is fully protected, and MOH subsidies cover up to 75% of the cost.",
+        "I found out existing health insurance is fully protected, and eligible patients may receive means-tested subsidies of up to 70%.",
         "I decided to do the test because getting clear facts helped me take control of my health and clarity on how to keep myself healthy."
       ],
       transcript: [
         "Hey everyone, I'm Chloe. When a screening flagged my LDL cholesterol as extremely high, I was totally confused. I live a healthy lifestyle, exercise regularly, and eat well, so I assumed high cholesterol was something only older people get, or maybe people who lead unhealthy lifestyles. My doctor explained that FH is inherited from birth—it has nothing to do with lifestyle or age.",
         "I was really skeptical about genetic counselling at first but, the counsellor didn't try to push me. She just explained how the genetics work, answered my questions about privacy, and left the decision completely up to me.",
-        "We talked about the practical side too. She clarified that under Singapore's guidelines, existing health insurance can't be touched, and MOH covers up to 75% of the costs. There were no hidden catches.",
+        "We talked about the practical side too. She clarified that under Singapore's guidelines, existing health insurance can't be touched, and eligible patients may receive means-tested subsidies of up to 70%. There were no hidden catches.",
         "In the end, I decided to go ahead and take the blood test. Getting the facts didn't change who I am, but it did give me clarity on how to keep myself healthy. It's about knowing your body, not living in fear."
       ]
     },
@@ -412,13 +412,13 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "Saya makan sihat dan aktif. Saya fikir kolesterol tinggi hanya untuk orang tua atau gaya hidup tidak sihat.",
         "Kaunselor genetik tidak mendesak saya. Mereka hanya membentangkan fakta dan membiarkan saya membuat keputusan sendiri.",
-        "Saya dapati insurans kesihatan sedia ada dilindungi sepenuhnya, dan subsidi MOH meliputi sehingga 75% kos.",
+        "Saya dapati insurans kesihatan sedia ada dilindungi sepenuhnya, dan pesakit yang layak mungkin menerima subsidi berasaskan means sehingga 70%.",
         "Saya memutuskan untuk melakukan ujian kerana mendapat fakta jelas membantu saya mengawal kesihatan saya."
       ],
       transcript: [
         "Hai semua, saya Chloe. Apabila saringan menunjukkan kolesterol LDL saya sangat tinggi, saya keliru kerana saya aktif dan makan sihat. Doktor menjelaskan FH diwarisi sejak lahir.",
         "Saya ragu-ragu tentang kaunseling genetik pada mulanya, tetapi kaunselor tidak memaksa. Beliau menerangkan prinsip genetik dan menjawab soalan privasi saya.",
-        "Kami berbincang tentang kos juga. Di bawah garis panduan Singapura, insurans kesihatan sedia ada tidak terjejas dan MOH menampung sehingga 75% kos.",
+        "Kami berbincang tentang kos juga. Di bawah garis panduan Singapura, insurans kesihatan sedia ada tidak terjejas dan pesakit yang layak mungkin menerima subsidi berasaskan means sehingga 70%.",
         "Akhirnya saya mengambil ujian darah. Mendapat fakta memberi saya kejelasan cara untuk kekal sihat. Ini tentang mengenali badan anda, bukan hidup dalam ketakutan."
       ]
     },
@@ -430,13 +430,13 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "我饮食健康并保持活跃。我以为高胆固醇只属于老年人或生活方式不健康的人。",
         "遗传咨询师完全没有强迫我。他们只是列出事实，让我自己做决定。",
-        "我发现现有的健康保险受到完全保护，MOH补贴覆盖高达75%的费用。",
+        "我发现现有的健康保险受到完全保护，符合条件的患者可获得高达 70% 的按需补贴。",
         "我决定做这个检测，因为获得清晰的事实帮助我掌控自己的健康，并明确如何保持健康。"
       ],
       transcript: [
         "大家好，我是Chloe。当一次筛查显示我的LDL胆固醇极高时，我完全困惑了。我生活方式健康，定期运动，饮食均衡，所以我以为高胆固醇只是老年人才会有的问题。我的医生解释说FH是从出生时就遗传的——与生活方式或年龄无关。",
         "起初我对遗传咨询持怀疑态度，但咨询师并没有试图强迫我。她只是解释了遗传学的原理，回答了我关于隐私的问题，并完全把决定权留给了我。",
-        "我们还讨论了实际问题。她澄清说在新加坡的指导方针下，现有的健康保险不会受到影响，MOH覆盖高达75%的费用。没有任何隐藏的陷阱。",
+        "我们还讨论了实际问题。她澄清说在新加坡的指导方针下，现有的健康保险不会受到影响，符合条件的患者可获得高达 70% 的按需补贴。没有任何隐藏的陷阱。",
         "最终，我决定继续进行血液检测。获得事实并没有改变我是谁，但它确实让我清楚地知道如何保持健康。这是关于了解你的身体，而不是生活在恐惧中。"
       ]
     },
@@ -448,13 +448,13 @@ export const STORIES: Record<string, LocalizedStory> = {
       frames: [
         "நான் ஆரோக்கியமாக உண்ணுகிறேன் மற்றும் சுறுசுறுப்பாக இருக்கிறேன். அதிக கொலஸ்ட்ரால் மூத்தவர்களுக்கு அல்லது ஆரோக்கியமற்ற வாழ்க்கை முறை கொண்டவர்களுக்கு மட்டுமே என நான் நினைத்தேன்.",
         "மரபணு ஆலோசகர் என்னை வற்புறுத்தவில்லை. அவர்கள் உண்மைகளை மட்டுமே முன்வைத்து முடிவெடுக்க எனக்கு விட்டுவிட்டார்கள்.",
-        "இருக்கும் சுகாதார காப்பீடு முழுமையாக பாதுகாக்கப்பட்டுள்ளது, மேலும் MOH மானியங்கள் செலவின் 75% வரை ஈடுசெயksிறது என நான் அறிந்தேன்.",
+        "இருக்கும் சுகாதார காப்பீடு முழுமையாக பாதுகாக்கப்பட்டுள்ளது, மேலும் தகுதியுள்ள நோயாளிகள் 70% வரை வருமான அடிப்படையிலான மானியங்களைப் பெறலாம் என நான் அறிந்தேன்.",
         "தெளிவான உண்மைகளை அறிந்துகொள்வது என் ஆரோக்கியத்தை கட்டுப்பாட்டில் வைக்கவும், ஆரோக்கியமாக இருக்க எனக்கு தெளிவைத் தந்ததால் சோதனை செய்ய முடிவு செய்தேன்."
       ],
       transcript: [
         "அனைவருக்கும் வணக்கம், நான் Chloe. என் கொலஸ்ட்ரால் அதிகமாக இருப்பதைக் கண்டபோது குழம்பினேன். நான் ஆரோக்கியமாக இருப்பதால், அதிக கொலஸ்ட்ரால் வயதானவர்களுக்கு மட்டுமே என நினைத்தேன். ஆனால் FH பிறப்பிலிருந்தே பெறப்படுகிறது என்று மருத்துவர் விளக்கினார்.",
         "ஆலோசகர் என்னை வற்புறுத்தவில்லை. மரபணுக்கள் எப்படி வேலை செய்கின்றன என்பதை விளக்கி முடிவை எனக்கே விட்டுவிட்டார்.",
-        "சிங்கப்பூர் வழிகாட்டுதல்களின்படி காப்பீடு பாதிக்கப்படாது, மேலும் MOH 75% வரை செலவை ஏற்கும் என்று தெளிவுபடுத்தினார்.",
+        "சிங்கப்பூர் வழிகாட்டுதல்களின்படி காப்பீடு பாதிக்கப்படாது, மேலும் தகுதியுள்ள நோயாளிகள் 70% வரை வருமான அடிப்படையிலான மானியங்களைப் பெறலாம் என்று தெளிவுபடுத்தினார்.",
         "இறுதியில் இரத்த பரிசோதனை செய்ய முடிவு செய்தேன். இது உடலை அறிந்துகொள்வதற்கானது, பயத்தில் வாழ்வதற்கல்ல."
       ]
     }

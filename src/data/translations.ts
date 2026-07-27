@@ -37,7 +37,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     book_counselling_step: 'Book your pre-test counselling appointment.',
     next_appointment: 'Next Appointment',
     learn_why: 'Learn Why',
-    why_referred_btn: 'Why Referred?',
+    why_referred_btn: 'Why Was I Referred?',
     book_now_btn: 'Book Now',
     manage_slot_btn: 'Manage Slot',
     your_journey: 'YOUR JOURNEY',
@@ -66,7 +66,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     explanation_1: 'Your lipid panel indicates extremely high LDL (bad) cholesterol levels. FH is a hereditary condition, meaning lifestyle alone is not the cause.',
     explanation_2: 'Genetic testing confirms if a specific gene variation is responsible. It helps your clinician custom-tailor highly effective preventative treatments for you and your family.',
     govt_subsidies_title: 'Government Subsidies',
-    subsidies_desc: 'Up to 75% MOH subsidy for CHAS Blue / Pioneer Generation. MediSave can also be used for remaining co-payment.',
+    subsidies_desc: 'Up to 70% means-tested MOH subsidy for eligible Singapore Citizens and Permanent Residents. MediSave500/700 can also be used to further offset out-of-pocket costs.',
     what_should_i_do: 'What should I do now?',
     what_should_i_do_desc: 'We strongly recommend booking your 45-minute pre-test counselling. The session carries no obligation and explains all medical implications clearly.',
     book_counselling_session: 'Book Counselling Session',
@@ -183,7 +183,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     booking_view_checklist: 'View Pre-Appointment Checklist',
     booking_reschedule_slot: 'Reschedule Appointment Slot',
     booking_cancel_slot: 'Cancel Appointment Booking',
-    booking_eligible_subsidies: 'Based on your clinical referral, you are eligible for up to 75% MOH subsidies at these registered institutions.',
+    booking_eligible_subsidies: 'Based on your clinical referral, you are eligible for up to 70% MOH means-tested subsidies at these registered institutions.',
     booking_nearest_tag: 'NEAREST',
     booking_select_counselling_slot: 'Select counselling slot',
     booking_choose_subsidized_slot: 'Choose your subsidized genetic counselling slot.',
@@ -218,7 +218,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     profile_referred_by: 'Referred by Specialist Cardiology',
     profile_subsidies_financing: 'Subsidies & Financing',
     profile_chas_blue_member: 'CHAS Blue Tier Member',
-    profile_chas_subsidy_level: 'MOH Subsidy level capped at 75%',
+    profile_chas_subsidy_level: 'MOH means-tested subsidy up to 70%',
     profile_chas_card_expiry: 'CHAS Card Expiry:',
     profile_medisave_account: 'MediSave Account:',
     profile_medisave_note: '*Outpatient genetic counselling and test panels are fully claimable under MOH MediSave rules.',
@@ -288,7 +288,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     settings_sms_verified_sender: 'Verified MOH Sender',
     settings_lockscreen_preview_title: 'HealthHub App Lockscreen Preview',
     settings_lockscreen_header: 'HealthHub Singapore • Just Now',
-    settings_sms_prefix: 'MOH HealthHub: Hi Lisa, your FH Genetic Counselling slot at National University Hospital Genetic Clinic is confirmed on {date} at {time}. Subsidies up to 75% are cleared. Bring Singpass. Info: https://hh.gov.sg/fh-ref',
+    settings_sms_prefix: 'MOH HealthHub: Hi Lisa, your FH Genetic Counselling slot at National University Hospital Genetic Clinic is confirmed on {date} at {time}. Means-tested MOH subsidies up to 70% cleared. Bring Singpass. Info: https://hh.gov.sg/fh-ref',
     journey_prep_title: 'Preparation Checklist',
     journey_prep_desc: 'Make sure you know what to expect and what family history reports to bring. Review our guides.',
     journey_review_checklist_btn: 'Review checklist now',
@@ -374,12 +374,12 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_video_story_label: 'Patient Experience Story (Chloe, 21)',
     edu_video_frame_0: '"I eat healthy and stay active. I thought high cholesterol was only for elderly people or those who lead an unhealthy lifestyle."',
     edu_video_frame_1: '"The genetic counsellor didn\'t push me at all. They just laid out the facts and let me make my own decision."',
-    edu_video_frame_2: '"I found out existing health insurance is fully protected, and MOH subsidies cover up to 75% of the cost."',
+    edu_video_frame_2: '"I found out existing health insurance is fully protected, and MOH subsidies cover up to 70% of the cost."',
     edu_video_frame_3: '"I decided to do the test because getting clear facts helped me take control of my health and clarity on how to keep myself healthy."',
     edu_video_transcript_title: 'Video Transcript & Captions',
     edu_video_transcript_1: '"Hey everyone, I\'m Chloe. When a screening flagged my LDL cholesterol as extremely high, I was totally confused. I live a healthy lifestyle, exercise regularly, and eat well, so I assumed high cholesterol was something only older people get, or maybe people who lead unhealty lifestyles. My doctor explained that FH is inherited from birth—it has nothing to do with lifestyle or age."',
     edu_video_transcript_2: '"I was really skeptical about genetic counselling at first but, the counsellor didn\'t try to push me. She just explained how the genetics work, answered my questions about privacy, and left the decision completely up to me."',
-    edu_video_transcript_3: '"We talked about the practical side too. She clarified that under Singapore\'s guidelines, existing health insurance can\'t be touched, and MOH covers up to 75% of the costs. There were no hidden catches."',
+    edu_video_transcript_3: '"We talked about the practical side too. She clarified that under Singapore\'s guidelines, existing health insurance can\'t be touched, and MOH covers up to 70% of the costs. There were no hidden catches."',
     edu_video_transcript_4: '"In the end, I decided to go ahead and take the blood test. Getting the facts didn\'t change who I am, but it did give me clarity on how to keep myself healthy. It\'s about knowing your body, not living in fear."',
     booking_header_title: 'Book Appointment',
     faq_title: 'Frequently Asked Questions',
@@ -389,14 +389,25 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     faq_category_testing: 'TESTING',
     faq_category_medication: 'MEDICATION',
     edu_did_you_know: 'Did You Know?',
-    edu_stat1_label: 'Singaporeans have FH',
-    edu_stat1_body: 'More common than most realize — over 22,000 Singaporeans are affected.',
-    edu_stat2_label: 'go undiagnosed',
-    edu_stat2_body: '9 out of 10 people with FH currently do not know they have it.',
-    edu_stat3_label: 'lower heart risk',
-    edu_stat3_body: 'Early diagnosis and simple treatment make a very big difference.',
-    edu_stat4_label: 'family risk',
-    edu_stat4_body: 'Each parent, sibling, or child has a 50% chance of inheritance.',
+    edu_for_you_badge: 'For You',
+    edu_stat_prevalence_val: '1 in 250',
+    edu_stat_prevalence_lbl: 'Singaporeans have FH',
+    edu_stat_undiagnosed_val: '~90%',
+    edu_stat_undiagnosed_lbl: 'Remain Undiagnosed in SG',
+    edu_stat_risk_val: 'Up to 80%',
+    edu_stat_risk_lbl: 'Lower Heart Attack Risk',
+    edu_stat_family_val: '50%',
+    edu_stat_family_lbl: 'First-Degree Family Risk',
+    edu_stat_subsidies_val: 'Up to 70%',
+    edu_stat_subsidies_lbl: 'MOH means-tested subsidies',
+    edu_stat_cost_val: 'S$18–87',
+    edu_stat_cost_lbl: 'Estimated out-of-pocket cost for an index patient',
+    edu_stat_insurance_val: '0%',
+    edu_stat_insurance_lbl: 'Impact on Existing Insurance',
+    edu_stat_meds_val: '30+ Yrs',
+    edu_stat_meds_lbl: 'Statin Safety Evidence',
+    edu_stat_testing_val: '4–6 Wks',
+    edu_stat_testing_lbl: 'DNA Report Turnaround',
     edu_learning_hub: 'LEARNING HUB',
     edu_modules_summary: '3 Modules • 6 Topics',
     edu_group_basics_title: 'Understanding FH & Meds',
@@ -407,7 +418,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_group_costs_desc: 'MOH subsidies, MediSave coverage, and your legal insurance rights.',
     booking_mins: 'mins',
     chatbot_fallback_insurance: "Under the Singapore **LIA Moratorium**, insurers **cannot** ask you to disclose genetic test results. Existing plans like **MediShield Life** and Integrated Shield are completely unaffected.",
-    chatbot_fallback_cost: "FH testing is subsidized **50–75%** by MOH for eligible Singaporeans. Out-of-pocket costs typically range from **S$50 to S$120** and can be **fully paid using MediSave**.",
+    chatbot_fallback_cost: "FH testing is subsidized up to 70% by MOH for eligible Singapore Citizens and Permanent Residents. Estimated cash payment for an index patient is S$18–87 (assuming S$500 is available under MediSave500).",
     chatbot_fallback_family: "FH is inherited — first-degree family members have a **50% chance** of sharing the gene. Your team will coordinate **cascade screening** to protect your family early.",
     chatbot_fallback_prep: "No fasting needed! Prepare your **family medical history**, **current medications**, and your **Singpass**. A 30-minute counselling session will guide you first.",
     chatbot_fallback_default: "I am here to help with FH testing. Your referral is a **subsidized, protected preventative screen**. Check the **Learn** tab or **Book** tab for more.",
@@ -546,19 +557,19 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     concern_test_desc: 'Learn what happens before, during and after genetic testing.',
     
     // New Illustration/Comparison Card Keys
-    illus_clinical_testing_flow: '📋 Clinical Testing Flow',
+    illus_clinical_testing_flow: 'Clinical Testing Flow',
     illus_step_booked: '1. Booked',
     illus_step_consult: '2. Consult',
     illus_step_blood_draw: '3. Blood Draw',
     illus_step_results: '4. Results',
-    illus_singapore_financing_model: '💰 Singapore Financing Model',
+    illus_singapore_financing_model: 'Singapore Financing Model',
     illus_government_subsidy: 'Government Subsidy',
-    illus_up_to_75_covered: 'Up to 75% Covered',
-    illus_consumer_safeguard_grid: '🛡️ Consumer Safeguard Grid',
+    illus_up_to_75_covered: 'Up to 70% Covered',
+    illus_consumer_safeguard_grid: 'Consumer Safeguard Grid',
     illus_active_policies_note: 'Active policies cannot be changed, canceled, or re-priced at all.',
-    illus_liver_ldl_clearance: '🧪 Liver LDL Clearance',
+    illus_liver_ldl_clearance: 'Liver LDL Clearance',
     illus_statins_boost_note: 'Statins boost recycling receptors on liver cells, pulling cholesterol from blood.',
-    illus_family_cascade_tree: '🌳 Family Cascade Screening Tree',
+    illus_family_cascade_tree: 'Family Cascade Screening Tree',
     illus_index_patient: 'Index Patient (You)',
     illus_inheritance_prob: '│ (50% inheritance probability)',
     illus_parents: 'Parents',
@@ -614,7 +625,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     book_counselling_step: 'Tempah janji temu kaunseling pra-ujian anda.',
     next_appointment: 'Janji Temu Seterusnya',
     learn_why: 'Ketahui Sebabnya',
-    why_referred_btn: 'Kenapa Dirujuk?',
+    why_referred_btn: 'Mengapa Saya Dirujuk?',
     book_now_btn: 'Tempah Sekarang',
     manage_slot_btn: 'Urus Slot',
     your_journey: 'PERJALANAN ANDA',
@@ -640,7 +651,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     explanation_1: 'Profil lipid anda menunjukkan tahap kolesterol LDL (buruk) yang sangat tinggi. FH adalah keadaan keturunan, bermakna gaya hidup sahaja bukanlah puncanya.',
     explanation_2: 'Ujian genetik mengesahkan jika variasi gen tertentu bertanggungjawab. Ia membantu pakar klinikal anda menyesuaikan rawatan pencegahan yang sangat berkesan untuk anda dan keluarga.',
     govt_subsidies_title: 'Subsidi Kerajaan',
-    subsidies_desc: 'Subsidi MOH sehingga 75% untuk ahli CHAS Biru / Generasi Pioneer. MediSave juga boleh digunakan untuk baki pembayaran bersama.',
+    subsidies_desc: 'Subsidi MOH sehingga 70% untuk warganegara dan PR yang layak. MediSave juga boleh digunakan untuk baki pembayaran bersama.',
     what_should_i_do: 'Apakah yang perlu saya lakukan sekarang?',
     what_should_i_do_desc: 'Kami amat mengesyorkan anda menempah sesi kaunseling pra-ujian selama 45 minit. Sesi ini tiada sebarang kewajipan dan menerangkan implikasi perubatan dengan jelas.',
     book_counselling_session: 'Tempah Sesi Kaunseling',
@@ -752,7 +763,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     booking_view_checklist: 'Lihat Senarai Semak Pra-Janji Temu',
     booking_reschedule_slot: 'Penjadualan Semula Slot Janji Temu',
     booking_cancel_slot: 'Batalkan Tempahan Janji Temu',
-    booking_eligible_subsidies: 'Berdasarkan rujukan klinikal anda, anda layak mendapat subsidi MOH sehingga 75% di institusi berdaftar ini.',
+    booking_eligible_subsidies: 'Berdasarkan rujukan klinikal anda, anda layak mendapat subsidi berperingkat MOH sehingga 70% di institusi berdaftar ini.',
     booking_nearest_tag: 'TERDEKAT',
     booking_select_counselling_slot: 'Pilih slot kaunseling',
     booking_choose_subsidized_slot: 'Pilih slot kaunseling genetik bersubsidi anda.',
@@ -787,7 +798,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     profile_referred_by: 'Dirujuk oleh Kardiologi Pakar',
     profile_subsidies_financing: 'Subsidi & Pembiayaan',
     profile_chas_blue_member: 'Ahli CHAS Blue Tier',
-    profile_chas_subsidy_level: 'Tahap subsidi MOH dihadkan pada 75%',
+    profile_chas_subsidy_level: 'Tahap subsidi berperingkat MOH sehingga 70%',
     profile_chas_card_expiry: 'Tamat Tempoh Kad CHAS:',
     profile_medisave_account: 'Akaun MediSave:',
     profile_medisave_note: '*Kaunseling genetik pesakit luar dan panel ujian boleh dituntut sepenuhnya di bawah peraturan MediSave MOH.',
@@ -857,7 +868,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     settings_sms_verified_sender: 'Penghantar MOH Disahkan',
     settings_lockscreen_preview_title: 'Pratonton Skrin Kunci Aplikasi HealthHub',
     settings_lockscreen_header: 'HealthHub Singapura • Baru Sahaja',
-    settings_sms_prefix: 'MOH HealthHub: Hai Lisa, slot Kaunseling Genetik FH anda di Klinik Genetik Hospital Universiti Nasional disahkan pada {date} pukul {time}. Subsidi sehingga 75% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/fh-ref',
+    settings_sms_prefix: 'MOH HealthHub: Hai Lisa, slot Kaunseling Genetik FH anda di Klinik Genetik Hospital Universiti Nasional disahkan pada {date} pukul {time}. Subsidi berperingkat MOH sehingga 70% telah diluluskan. Bawa Singpass. Info: https://hh.gov.sg/fh-ref',
     journey_prep_title: 'Senarai Semak Persediaan',
     journey_prep_desc: 'Pastikan anda mengetahui apa yang diharapkan dan laporan sejarah keluarga apa yang perlu dibawa. Semak panduan kami.',
     journey_review_checklist_btn: 'Semak senarai semak sekarang',
@@ -943,12 +954,12 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_video_story_label: 'Cerita Pengalaman Pesien (Chloe, 21)',
     edu_video_frame_0: '"Saya makan dengan sihat dan aktif. Saya ingat kolesterol tinggi hanya untuk orang tua atau mereka yang mempunyai gaya hidup tidak sihat."',
     edu_video_frame_1: '"Kaunselor genetik tidak memaksa saya langsung. Mereka hanya menyenaraikan fakta dan membiarkan saya membuat keputusan sendiri."',
-    edu_video_frame_2: '"Saya dapati insurans kesihatan sedia ada dilindungi sepenuhnya, dan subsidi MOH menampung sehingga 75% daripada kos."',
+    edu_video_frame_2: '"Saya dapati insurans kesihatan sedia ada dilindungi sepenuhnya, dan subsidi MOH menampung sehingga 70% daripada kos."',
     edu_video_frame_3: '"Saya memutuskan untuk melakukan ujian kerana mendapatkan fakta yang jelas membantu saya mengawal kesihatan saya dan kejelasan tentang cara untuk kekal sihat."',
     edu_video_transcript_title: 'Transkrip & Sari Kata Video',
     edu_video_transcript_1: '"Hei semua, saya Chloe. Apabila ujian menandakan kolesterol LDL saya sebagai sangat tinggi, saya sangat keliru. Saya hidup dengan gaya hidup sihat, bersenam secara teratur, dan makan dengan baik, jadi saya menganggap kolesterol tinggi adalah sesuatu yang hanya dialami orang tua, atau mungkin orang yang mempunyai gaya hidup tidak sihat. Doktor saya menerangkan bahawa FH diwarisi sejak lahir—tiada kaitan dengan gaya hidup atau umur."',
     edu_video_transcript_2: '"Pada mulanya saya sangat skeptikal tentang kaunseling genetik, tetapi kaunselor tidak cuba memaksa saya. Dia hanya menerangkan cara genetik berfungsi, menjawab soalan saya tentang privasi, dan membiarkan keputusan sepenuhnya kepada saya."',
-    edu_video_transcript_3: '"Kami juga membincangkan aspek praktikal. Dia menjelaskan bahawa di bawah garis panduan Singapura, insurans kesihatan sedia ada tidak boleh diubah, dan MOH menampung sehingga 75% kos. Tiada perangkap tersembunyi."',
+    edu_video_transcript_3: '"Kami juga membincangkan aspek praktikal. Dia menjelaskan bahawa di bawah garis panduan Singapura, insurans kesihatan sedia ada tidak boleh diubah, dan MOH menampung sehingga 70% kos. Tiada perangkap tersembunyi."',
     edu_video_transcript_4: '"Akhirnya, saya memutuskan untuk meneruskan dan mengambil ujian darah. Mendapatkan fakta tidak mengubah siapa saya, tetapi ia memberi saya kejelasan tentang cara untuk kekal sihat. Ia tentang mengenali badan anda, bukan hidup dalam ketakutan."',
     booking_header_title: 'Tempah Janji Temu',
     faq_title: 'Soalan Lazim',
@@ -958,14 +969,25 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     faq_category_testing: 'UJIAN',
     faq_category_medication: 'UBATAN',
     edu_did_you_know: 'Tahukah Anda?',
-    edu_stat1_label: 'rakyat Singapura menghidap FH',
-    edu_stat1_body: 'Lebih biasa daripada yang disedari — lebih 22,000 rakyat Singapura terjejas.',
-    edu_stat2_label: 'tidak didiagnosis',
-    edu_stat2_body: '9 daripada 10 orang yang menghidap FH tidak tahu mereka menghidapnya.',
-    edu_stat3_label: 'risiko jantung lebih rendah',
-    edu_stat3_body: 'Diagnosis awal dan rawatan ringkas membuat perbezaan yang sangat besar.',
-    edu_stat4_label: 'risiko keluarga',
-    edu_stat4_body: 'Setiap ibu bapa, adik beradik, atau anak mempunyai peluang warisan 50%.',
+    edu_for_you_badge: 'Untuk Anda',
+    edu_stat_prevalence_val: '1 dalam 250',
+    edu_stat_prevalence_lbl: 'Rakyat SG Menghidap FH',
+    edu_stat_undiagnosed_val: '~90%',
+    edu_stat_undiagnosed_lbl: 'Belum Didiagnosis di SG',
+    edu_stat_risk_val: 'Sehingga 80%',
+    edu_stat_risk_lbl: 'Risiko Jantung Lebih Rendah',
+    edu_stat_family_val: '50%',
+    edu_stat_family_lbl: 'Risiko Keturunan Keluarga',
+    edu_stat_subsidies_val: 'Sehingga 70%',
+    edu_stat_subsidies_lbl: 'Subsidi berperingkat MOH',
+    edu_stat_cost_val: 'S$18–87',
+    edu_stat_cost_lbl: 'Anggaran bayaran tunai pesakit indeks',
+    edu_stat_insurance_val: '0%',
+    edu_stat_insurance_lbl: 'Kesan pada Insurans Sedia Ada',
+    edu_stat_meds_val: '30+ Thn',
+    edu_stat_meds_lbl: 'Bukti Keselamatan Statin',
+    edu_stat_testing_val: '4–6 Mggu',
+    edu_stat_testing_lbl: 'Masa Laporan Ujian DNA',
     edu_learning_hub: 'HUB PEMBELAJARAN',
     edu_modules_summary: '3 Modul • 6 Topik',
     edu_group_basics_title: 'Memahami FH & Ubat',
@@ -976,7 +998,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_group_costs_desc: 'Subsidi MOH, liputan MediSave, dan hak insurans undang-undang anda.',
     booking_mins: 'minit',
     chatbot_fallback_insurance: "Di bawah **Moratorium LIA Singapura**, syarikat insurans **tidak boleh** meminta anda mendedahkan keputusan ujian genetik. Pelan sedia ada seperti **MediShield Life** dan Integrated Shield tidak terjejas langsung.",
-    chatbot_fallback_cost: "Ujian FH disubsidi **50–75%** oleh MOH untuk rakyat Malaysia yang layak. Kos sendiri biasanya antara **S$50 hingga S$120** dan boleh **dibayar sepenuhnya menggunakan MediSave**.",
+    chatbot_fallback_cost: "Ujian FH disubsidi sehingga 70% oleh MOH untuk warganegara dan PR yang layak. Anggaran bayaran tunai untuk pesakit indeks ialah S$18–87 (mengandaikan S$500 tersedia di bawah MediSave500).",
     chatbot_fallback_family: "FH diwarisi — ahli keluarga darjah pertama mempunyai **peluang 50%** mewarisi gen tersebut. Pasukan anda akan menyelaras **pemeriksaan kaskad** untuk melindungi keluarga anda.",
     chatbot_fallback_prep: "Tidak perlu berpuasa! Sediakan **sejarah perubatan keluarga**, **ubat-ubatan semasa**, dan **Singpass** anda. Sesi kaunseling 30 minit akan membimbing anda terlebih dahulu.",
     chatbot_fallback_default: "Saya sedia membantu mengenai ujian FH. Rujukan anda adalah **saringan pencegahan yang disubsidi dan dilindungi**. Semak tab **Belajar** atau **Tempah** untuk maklumat lanjut.",
@@ -1115,19 +1137,19 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     concern_test_desc: 'Ketahui apa yang berlaku sebelum, semasa dan selepas ujian genetik.',
     
     // New Illustration/Comparison Card Keys
-    illus_clinical_testing_flow: '📋 Aliran Ujian Klinikal',
+    illus_clinical_testing_flow: 'Aliran Ujian Klinikal',
     illus_step_booked: '1. Ditempah',
     illus_step_consult: '2. Rundingan',
     illus_step_blood_draw: '3. Ambil Darah',
     illus_step_results: '4. Keputusan',
-    illus_singapore_financing_model: '💰 Model Pembiayaan Singapura',
+    illus_singapore_financing_model: 'Model Pembiayaan Singapura',
     illus_government_subsidy: 'Subsidi Kerajaan',
-    illus_up_to_75_covered: 'Sehingga 75% Ditanggung',
-    illus_consumer_safeguard_grid: '🛡️ Grid Perlindungan Pengguna',
+    illus_up_to_75_covered: 'Sehingga 70% Ditanggung',
+    illus_consumer_safeguard_grid: 'Grid Perlindungan Pengguna',
     illus_active_policies_note: 'Polisi aktif tidak boleh diubah, dibatalkan, atau dinaikkan harga sama sekali.',
-    illus_liver_ldl_clearance: '🧪 Pembersihan LDL Hati',
+    illus_liver_ldl_clearance: 'Pembersihan LDL Hati',
     illus_statins_boost_note: 'Statin meningkatkan reseptor kitar semula pada sel hati, menarik kolesterol daripada darah.',
-    illus_family_cascade_tree: '🌳 Salasilah Saringan Lata Keluarga',
+    illus_family_cascade_tree: 'Salasilah Saringan Lata Keluarga',
     illus_index_patient: 'Pesakit Indeks (Anda)',
     illus_inheritance_prob: '│ (50% kebarangkalian warisan)',
     illus_parents: 'Ibu Bapa',
@@ -1183,7 +1205,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     book_counselling_step: '预约您的检测前基因咨询。',
     next_appointment: '下一次预约',
     learn_why: '了解原因',
-    why_referred_btn: '为何被转诊？',
+    why_referred_btn: '了解转诊原因',
     book_now_btn: '立即预约',
     manage_slot_btn: '管理预约',
     your_journey: '您的康复之旅',
@@ -1209,7 +1231,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     explanation_1: '您的血脂报告显示低密度脂蛋白（坏胆固醇）水平极高。FH是一种遗传性疾病，这意味着单靠改善生活方式无法完全解决。',
     explanation_2: '基因检测能确认是否存在特定的基因变异。这有助于您的临床医生为您和您的家人量身定制高效的预防性治疗方案。',
     govt_subsidies_title: '政府津贴与补助',
-    subsidies_desc: 'CHAS蓝色卡和建国一代享有高达75%的卫生部 (MOH) 津贴。MediSave（保健储蓄）也可用来自付剩余的共付额。',
+    subsidies_desc: '符合资格的新加坡公民与 PR 享有高达 70% 的 MOH 审查津贴。MediSave（保健储蓄）也可用于支付自付额。',
     what_should_i_do: '我现在应该做什么？',
     what_should_i_do_desc: '我们强烈建议您预约45分钟的免费检测前咨询。此咨询无强制检测义务，将为您清晰解答所有医学影响。',
     book_counselling_session: '预约基因咨询',
@@ -1321,7 +1343,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     booking_view_checklist: '查看就诊前准备清单',
     booking_reschedule_slot: '重新安排预约时段',
     booking_cancel_slot: '取消预约就诊',
-    booking_eligible_subsidies: '根据您的临床转诊推荐，您有资格在这些注册医疗机构享受高达 75% 的 MOH 转诊津贴。',
+    booking_eligible_subsidies: '根据您的临床转诊推荐，您有资格在这些注册医疗机构享受高达 70% 的 MOH 审查津贴。',
     booking_nearest_tag: '最近距离',
     booking_select_counselling_slot: '选择基因咨询时段',
     booking_choose_subsidized_slot: '选择您的政府资助基因咨询预约时段。',
@@ -1356,7 +1378,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     profile_referred_by: '由心脏专科门诊医生推荐',
     profile_subsidies_financing: '政府津贴与补助',
     profile_chas_blue_member: 'CHAS 蓝色社保卡会员',
-    profile_chas_subsidy_level: '卫生部 MOH 津贴比例最高达 75%',
+    profile_chas_subsidy_level: '卫生部 MOH 审查津贴比例最高达 70%',
     profile_chas_card_expiry: 'CHAS 卡有效期至：',
     profile_medisave_account: '保健储蓄账户 (MediSave):',
     profile_medisave_note: '*门诊基因咨询和检测项目完全符合卫生部 MOH MediSave 报销规定。',
@@ -1426,7 +1448,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     settings_sms_verified_sender: '卫生部官方发送渠道',
     settings_lockscreen_preview_title: 'HealthHub 应用锁屏推送预览',
     settings_lockscreen_header: '新加坡 HealthHub • 刚刚',
-    settings_sms_prefix: 'MOH HealthHub: 您的 FH 基因咨询预约已确认，时间为 {date} {time}，地点为国立大学医院基因诊所。最高 75% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/fh-ref',
+    settings_sms_prefix: 'MOH HealthHub: 您的 FH 基因咨询预约已确认，时间为 {date} {time}，地点为国立大学医院基因诊所。最高 70% 的政府津贴已通过审核。请携带您的 NRIC/Singpass。详情：https://hh.gov.sg/fh-ref',
     journey_prep_title: '就诊前准备清单',
     journey_prep_desc: '确保您清楚了解就诊细节以及需要携带的家族病史报告。请仔细核对我们的指南。',
     journey_review_checklist_btn: '立即核对准备清单',
@@ -1512,12 +1534,12 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_video_story_label: '患者体验故事 (Chloe, 21)',
     edu_video_frame_0: '"我饮食健康并保持活跃。我以为高胆固醇只属于老年人或生活方式不健康的人。"',
     edu_video_frame_1: '"遗传咨询师完全没有强迫我。他们只是列出事实，让我自己做决定。"',
-    edu_video_frame_2: '"我发现现有的健康保险受到完全保护，MOH补贴覆盖高达75%的费用。"',
+    edu_video_frame_2: '"我发现现有的健康保险受到完全保护，MOH补贴覆盖高达70%的费用。"',
     edu_video_frame_3: '"我决定做这个检测，因为获得清晰的事实帮助我掌控自己的健康，并明确如何保持健康。"',
     edu_video_transcript_title: '视频文字稿与字幕',
     edu_video_transcript_1: '"大家好，我是Chloe。当一次筛查显示我的LDL胆固醇极高时，我完全困惑了。我生活方式健康，定期运动，饮食均衡，所以我以为高胆固醇只是老年人才会有的问题，或者那些生活方式不健康的人。我的医生解释说FH是从出生时就遗传的——与生活方式或年龄无关。"',
     edu_video_transcript_2: '"起初我对遗传咨询持怀疑态度，但咨询师并没有试图强迫我。她只是解释了遗传学的原理，回答了我关于隐私的问题，并完全把决定权留给了我。"',
-    edu_video_transcript_3: '"我们还讨论了实际问题。她澄清说在新加坡的指导方针下，现有的健康保险不会受到影响，MOH覆盖高达75%的费用。没有任何隐藏的陷阱。"',
+    edu_video_transcript_3: '"我们还讨论了实际问题。她澄清说在新加坡的指导方针下，现有的健康保险不会受到影响，MOH覆盖高达70%的费用。没有任何隐藏的陷阱。"',
     edu_video_transcript_4: '"最终，我决定继续进行血液检测。获得事实并没有改变我是谁，但它确实让我清楚地知道如何保持健康。这是关于了解你的身体，而不是生活在恐惧中。"',
     booking_header_title: '预约挂号',
     faq_title: '常见问题',
@@ -1527,14 +1549,25 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     faq_category_testing: '检测',
     faq_category_medication: '药物',
     edu_did_you_know: '您知道吗？',
-    edu_stat1_label: '新加坡人患有FH',
-    edu_stat1_body: '比大多数人意识到的更常见——超过22,000名新加坡人受到影响。',
-    edu_stat2_label: '未被诊断',
-    edu_stat2_body: '10人中有9人患有FH却不知道自己有这种病。',
-    edu_stat3_label: '降低心脏风险',
-    edu_stat3_body: '早期诊断和简单治疗能产生很大的积极影响。',
-    edu_stat4_label: '家族风险',
-    edu_stat4_body: '每位父母、兄弟姐妹或子女都有50%的遗传概率。',
+    edu_for_you_badge: '为您推荐',
+    edu_stat_prevalence_val: '1 / 250',
+    edu_stat_prevalence_lbl: '新加坡本地人患有 FH',
+    edu_stat_undiagnosed_val: '~90%',
+    edu_stat_undiagnosed_lbl: '本地患者尚未被确诊',
+    edu_stat_risk_val: '高达 80%',
+    edu_stat_risk_lbl: '早期预防降低心血管风险',
+    edu_stat_family_val: '50%',
+    edu_stat_family_lbl: '直系亲属遗传概率',
+    edu_stat_subsidies_val: '高达 70%',
+    edu_stat_subsidies_lbl: '卫生部 MOH 审查津贴',
+    edu_stat_cost_val: 'S$18–87',
+    edu_stat_cost_lbl: '先证者预计自付现金金额',
+    edu_stat_insurance_val: '0%',
+    edu_stat_insurance_lbl: '对已生效商业保单的影响',
+    edu_stat_meds_val: '30+ 年',
+    edu_stat_meds_lbl: '他汀类药物临床安全验证',
+    edu_stat_testing_val: '4–6 周',
+    edu_stat_testing_lbl: '临床专科 DNA 报告周期',
     edu_learning_hub: '学习中心',
     edu_modules_summary: '3 个模块 • 6 个主题',
     edu_group_basics_title: '了解FH与药物',
@@ -1545,7 +1578,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_group_costs_desc: 'MOH补贴、MediSave保障及您的法定保险权利。',
     booking_mins: '分钟',
     chatbot_fallback_insurance: "根据新加坡**LIA暂停协议**，保险公司**不得**要求您披露基因检测结果。**MediShield Life**等现有保单完全不受影响。",
-    chatbot_fallback_cost: "FH检测获MOH **50–75%** 补贴（符合资格的新加坡公民）。自付费用通常为 **S$50至S$120**，可**全额使用MediSave支付**。",
+    chatbot_fallback_cost: "符合资格的新加坡公民和永久居民可获得 MOH 高达 70% 的审查津贴。先证者预计自付现金费用为 S$18–87（假设 MediSave500 账户内有 S$500 可用）。",
     chatbot_fallback_family: "FH具有遗传性——直系亲属有 **50%** 的概率携带相同基因。您的医疗团队将协调**级联筛查**，及早保护家人健康。",
     chatbot_fallback_prep: "无需空腹！请准备好**家族病史**（尤其是早发心脏病史）、**当前用药清单**及**Singpass**。30分钟咨询会首先为您详细说明。",
     chatbot_fallback_default: "我在此协助您了解FH检测。您的转诊是一项**受补贴、受保护的预防性筛查**。欢迎查阅**学习**或**预约**标签页。",
@@ -1685,19 +1718,19 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     concern_test_desc: '了解基因检测前、检测中和检测后会发生什么。',
     
     // New Illustration/Comparison Card Keys
-    illus_clinical_testing_flow: '📋 临床检测流程',
+    illus_clinical_testing_flow: '临床检测流程',
     illus_step_booked: '1. 已预约',
     illus_step_consult: '2. 咨询',
     illus_step_blood_draw: '3. 采血',
     illus_step_results: '4. 报告出炉',
-    illus_singapore_financing_model: '💰 新加坡医疗融资模式',
+    illus_singapore_financing_model: '新加坡医疗融资模式',
     illus_government_subsidy: '政府津贴',
-    illus_up_to_75_covered: '最高涵盖 75%',
-    illus_consumer_safeguard_grid: '🛡️ 消费者保障网',
+    illus_up_to_75_covered: '最高涵盖 70%',
+    illus_consumer_safeguard_grid: '消费者保障网',
     illus_active_policies_note: '生效中的保单绝不能被修改、取消或重新定价。',
-    illus_liver_ldl_clearance: '🧪 肝脏 LDL 清除机制',
+    illus_liver_ldl_clearance: '肝脏 LDL 清除机制',
     illus_statins_boost_note: '他汀类药物可增加肝细胞表面的受体数量，从而加速从血液中清除胆固醇。',
-    illus_family_cascade_tree: '🌳 家族级联筛查树',
+    illus_family_cascade_tree: '家族级联筛查树',
     illus_index_patient: '索引患者（您）',
     illus_inheritance_prob: '│ (50% 遗传概率)',
     illus_parents: '父母',
@@ -1753,7 +1786,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     book_counselling_step: 'உங்களின் சோதனைக்கு முந்தைய ஆலோசனையை முன்பதிவு செய்யவும்.',
     next_appointment: 'அடுத்த சந்திப்பு',
     learn_why: 'காரணத்தை அறிய',
-    why_referred_btn: 'ஏன் பரிந்துரைக்கப்பட்டேன்?',
+    why_referred_btn: 'நான் ஏன் பரிந்துரைக்கப்பட்டேன்?',
     book_now_btn: 'முன்பதிவு செய்ய',
     manage_slot_btn: 'முன்பதிவை நிர்வகிக்க',
     your_journey: 'உங்கள் சிகிச்சை பயணம்',
@@ -1779,7 +1812,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     explanation_1: 'உங்கள் கொழுப்பு அளவு மிகவும் அதிகமான LDL (கெட்ட) கொழுப்பைக் காட்டுகிறது. FH என்பது மரபுவழி நிலை, அதாவது வாழ்க்கை முறை மட்டுமே இதற்குக் காரணம் அல்ல.',
     explanation_2: 'ஒரு குறிப்பிட்ட மரபணு மாறுபாடு காரணமா என்பதை மரபணு சோதனை உறுதிப்படுத்துகிறது. இது உங்களுக்கும் உங்கள் குடும்பத்திற்கும் மிகவும் பயனுள்ள தடுப்பு சிகிச்சைகளை வடிவமைக்க உதவுகிறது.',
     govt_subsidies_title: 'அரசு மானியங்கள்',
-    subsidies_desc: 'CHAS ப்ளூ / முன்னோடி தலைமுறையினருக்கு 75% வரை MOH மானியம். மீதமுள்ள கட்டணத்தை செலுத்த MediSave ஐயும் பயன்படுத்தலாம்.',
+    subsidies_desc: 'தகுதியான குடிமக்களுக்கு 70% வரை MOH மானியம். மீதமுள்ள கட்டணத்தை செலுத்த MediSave ஐயும் பயன்படுத்தலாம்.',
     what_should_i_do: 'நான் இப்போது என்ன செய்ய வேண்டும்?',
     what_should_i_do_desc: 'உங்களது 45 நிமிட ஆலோசனை சந்திப்பை முன்பதிவு செய்யுமாறு பரிந்துரைக்கிறோம். இந்த அமர்வுக்கு எவ்வித கட்டாயமும் இல்லை, மேலும் இது மருத்துவ தாக்கங்களை தெளிவாக விளக்கும்.',
     book_counselling_session: 'ஆலோசனை அமர்வை முன்பதிவு செய்',
@@ -1891,7 +1924,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     booking_view_checklist: 'முன்-சந்திப்பு சரிபார்ப்புப் பட்டியலைப் பார்',
     booking_reschedule_slot: 'முன்பதிவு மாற்றம்',
     booking_cancel_slot: 'சந்திப்பு முன்பதிவை ரத்து செய்',
-    booking_eligible_subsidies: 'உங்கள் மருத்துவ பரிந்துரையின் அடிப்படையில், இந்த பதிவு செய்யப்பட்ட நிறுவனங்களில் 75% வரை MOH மானியங்களைப் பெற நீங்கள் தகுதியுடையவர்.',
+    booking_eligible_subsidies: 'உங்கள் மருத்துவ பரிந்துரையின் அடிப்படையில், இந்த பதிவு செய்யப்பட்ட நிறுவனங்களில் 70% வரை MOH மானியங்களைப் பெற நீங்கள் தகுதியுடையவர்.',
     booking_nearest_tag: 'அருகிலுள்ள',
     booking_select_counselling_slot: 'ஆலோசனை நேரத்தைத் தேர்ந்தெடுக்கவும்',
     booking_choose_subsidized_slot: 'உங்களுக்கு மானியம் பெற்ற மரபணு ஆலோசனை நேரத்தைத் தேர்ந்தெடுக்கவும்.',
@@ -1926,7 +1959,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     profile_referred_by: 'இதயவியல் நிபுணரால் பரிந்துரைக்கப்பட்டது',
     profile_subsidies_financing: 'மானியங்கள் & நிதி',
     profile_chas_blue_member: 'CHAS ப்ளூ அடுக்கு உறுப்பினர்',
-    profile_chas_subsidy_level: 'MOH மானியம் 75% வரை வரையறுக்கப்பட்டுள்ளது',
+    profile_chas_subsidy_level: 'MOH மானியம் 70% வரை வரையறுக்கப்பட்டுள்ளது',
     profile_chas_card_expiry: 'CHAS அட்டை காலாவதி தேதி:',
     profile_medisave_account: 'MediSave கணக்கு:',
     profile_medisave_note: '*வெளிநோயாளி மரபணு ஆலோசனை மற்றும் சோதனை கட்டணங்களை MOH MediSave விதிகளின் கீழ் முழுமையாகப் பெறலாம்.',
@@ -1996,7 +2029,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     settings_sms_verified_sender: 'அங்கீகரிக்கப்பட்ட MOH அனுப்புநர்',
     settings_lockscreen_preview_title: 'பூட்டுத் திரை அறிவிப்பு முன்னோட்டம்',
     settings_lockscreen_header: 'ஹெல்த்ஹப் சிங்கப்பூர் • இப்போது',
-    settings_sms_prefix: 'MOH HealthHub: {date} அன்று {time} மணிக்கு NUH மரபணு கிளினிக்கில் உங்கள் FH ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 75% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/fh-ref',
+    settings_sms_prefix: 'MOH HealthHub: {date} அன்று {time} மணிக்கு NUH மரபணு கிளினிக்கில் உங்கள் FH ஆலோசனை உறுதிப்படுத்தப்பட்டுள்ளது. 70% வரை மானியம் வழங்கப்பட்டுள்ளது. Singpass கொண்டு வரவும். விவரம்: https://hh.gov.sg/fh-ref',
     journey_prep_title: 'தயாரிப்பு சரிபார்ப்புப் பட்டியல்',
     journey_prep_desc: 'நீங்கள் எதை எதிர்பார்க்க வேண்டும் மற்றும் என்ன குடும்ப வரலாற்று அறிக்கைகளைக் கொண்டு வர வேண்டும் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள். எங்கள் வழிகாட்டிகளைப் படிக்கவும்.',
     journey_review_checklist_btn: 'சரிபார்ப்பு பட்டியலை இப்போது சரிபார்க்கவும்',
@@ -2082,12 +2115,12 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_video_story_label: 'நோயாளி அனுபவக் கதை (Chloe, 21)',
     edu_video_frame_0: '"நான் ஆரோக்கியமாக உண்ணுகிறேன் மற்றும் சுறுசுறுப்பாக இருக்கிறேன். அதிக கொலஸ்ட்ரால் மூத்தவர்களுக்கு அல்லது ஆரோக்கியமற்ற வாழ்க்கை முறை கொண்டவர்களுக்கு மட்டுமே என நான் நினைத்தேன்."',
     edu_video_frame_1: '"மரபணு ஆலோசகர் என்னை வற்புறுத்தவில்லை. அவர்கள் உண்மைகளை மட்டுமே முன்வைத்து முடிவெடுக்க எனக்கு விட்டுவிட்டார்கள்."',
-    edu_video_frame_2: '"இருக்கும் சுகாதார காப்பீடு முழுமையாக பாதுகாக்கப்பட்டுள்ளது, மேலும் MOH மானியங்கள் செலவின் 75% வரை ஈடுசெய்கிறது என நான் அறிந்தேன்."',
+    edu_video_frame_2: '"இருக்கும் சுகாதார காப்பீடு முழுமையாக பாதுகாக்கப்பட்டுள்ளது, மேலும் MOH மானியங்கள் செலவின் 70% வரை ஈடுசெய்கிறது என நான் அறிந்தேன்."',
     edu_video_frame_3: '"தெளிவான உண்மைகளை அறிந்துகொள்வது என் ஆரோக்கியத்தை கட்டுப்பாட்டில் வைக்கவும், ஆரோக்கியமாக இருக்க எனக்கு தெளிவைத் தந்ததால் சோதனை செய்ய முடிவு செய்தேன்."',
     edu_video_transcript_title: 'வீடியோ படியெடுப்பு & வசனம்',
     edu_video_transcript_1: '"அனைவருக்கும் வணக்கம், நான் Chloe. ஒரு பரிசோதனை என் LDL கொலஸ்ட்ரால் மிக அதிகமாக இருப்பதைக் காட்டியபோது, நான் முற்றிலும் குழப்பமடைந்தேன். நான் ஆரோக்கியமான வாழ்க்கை முறை, தொடர்ச்சியான உடற்பயிற்சி, மற்றும் சரியான உணவு கொண்டவனாக இருந்ததால், அதிக கொலஸ்ட்ரால் வயதானவர்களுக்கு மட்டுமே அல்லது ஆரோக்கியமற்ற வாழ்க்கை முறை கொண்டவர்களுக்கு மட்டுமே என நான் நினைத்தேன். என் மருத்துவர் FH பிறப்பிலிருந்தே மரபணு ரீதியாக பெறப்படுகிறது என விளக்கினார்—வாழ்க்கை முறை அல்லது வயதுடன் எந்த தொடர்பும் இல்லை."',
     edu_video_transcript_2: '"மரபணு ஆலோசனை பற்றி நான் ஆரம்பத்தில் சந்தேகம் கொண்டிருந்தேன், ஆனால் ஆலோசகர் என்னை வற்புறுத்த முயற்சிக்கவில்லை. அவள் மரபணுக்கள் எப்படி வேலை செய்கின்றன என்பதை விளக்கினாள், தனியுரிமை பற்றிய என் கேள்விகளுக்கு பதிலளித்தாள், மேலும் முடிவை முழுமையாக எனக்கே விட்டுவிட்டாள்."',
-    edu_video_transcript_3: '"நாங்கள் நடைமுறை அம்சங்களையும் விவாதித்தோம். சிங்கப்பூர் வழிகாட்டுதல்களின் கீழ், இருக்கும் சுகாதார காப்பீட்டை மாற்ற முடியாது, மேலும் MOH செலவின் 75% வரை ஈடுசெய்கிறது என அவள் தெளிவுபடுத்தினாள். எந்த மறைக்கப்பட்ட சிக்கல்களும் இல்லை."',
+    edu_video_transcript_3: '"நாங்கள் நடைமுறை அம்சங்களையும் விவாதித்தோம். சிங்கப்பூர் வழிகாட்டுதல்களின் கீழ், இருக்கும் சுகாதார காப்பீட்டை மாற்ற முடியாது, மேலும் MOH செலவின் 70% வரை ஈடுசெய்கிறது என அவள் தெளிவுபடுத்தினாள். எந்த மறைக்கப்பட்ட சிக்கல்களும் இல்லை."',
     edu_video_transcript_4: '"இறுதியில், இரத்த பரிசோதனை செய்ய முடிவு செய்தேன். உண்மைகளை அறிந்துகொள்வது நான் யார் என்பதை மாற்றவில்லை, ஆனால் ஆரோக்கியமாக இருக்க எனக்கு தெளிவைத் தந்தது. இது உங்கள் உடலை அறிந்துகொள்வதற்கானது, பயத்தில் வாழ்வதற்கல்ல."',
     booking_header_title: 'சந்திப்பை பதிவு செய்',
     faq_title: 'அடிக்கடி கேட்கப்படும் கேள்விகள்',
@@ -2097,14 +2130,25 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     faq_category_testing: 'பரிசோதனை',
     faq_category_medication: 'மருந்து',
     edu_did_you_know: 'உங்களுக்கு தெரியுமா?',
-    edu_stat1_label: 'சிங்கப்பூரர்களுக்கு FH உள்ளது',
-    edu_stat1_body: 'பெரும்பாலானோர் நினைப்பதை விட அதிகம் — 22,000க்கும் மேற்பட்ட சிங்கப்பூரர்கள் பாதிக்கப்பட்டுள்ளனர்.',
-    edu_stat2_label: 'கண்டறியப்படவில்லை',
-    edu_stat2_body: 'FH உள்ள 10 பேரில் 9 பேருக்கு தங்களுக்கு இது இருப்பதாக தெரியாது.',
-    edu_stat3_label: 'இதய அபாயம் குறைவு',
-    edu_stat3_body: 'ஆரம்ப நோயறிதல் மற்றும் எளிய சிகிச்சை மிகவும் பெரிய மாற்றத்தை ஏற்படுத்துகின்றன.',
-    edu_stat4_label: 'குடும்ப அபாயம்',
-    edu_stat4_body: 'ஒவ்வொரு பெற்றோர், உடன்பிறந்தவர் அல்லது குழந்தைக்கும் 50% மரபு வாய்ப்பு உள்ளது.',
+    edu_for_you_badge: 'உங்களுக்காக',
+    edu_stat_prevalence_val: '250இல் 1',
+    edu_stat_prevalence_lbl: 'சிங்கப்பூரர்களுக்கு FH உள்ளது',
+    edu_stat_undiagnosed_val: '~90%',
+    edu_stat_undiagnosed_lbl: 'கண்டறியப்படாமல் உள்ளனர்',
+    edu_stat_risk_val: '80% வரை',
+    edu_stat_risk_lbl: 'இதய அபாயம் குறையும்',
+    edu_stat_family_val: '50%',
+    edu_stat_family_lbl: 'குடும்ப உறுப்பினர்கள் அபாயம்',
+    edu_stat_subsidies_val: '70% வரை',
+    edu_stat_subsidies_lbl: 'MOH வருமான அளவிலான மானியங்கள்',
+    edu_stat_cost_val: 'S$18–87',
+    edu_stat_cost_lbl: 'முதன்மையான நோயாளிக்கான மதிப்பிடப்பட்ட கட்டணம்',
+    edu_stat_insurance_val: '0%',
+    edu_stat_insurance_lbl: 'தற்போதுள்ள காப்பீட்டில் தாக்கம்',
+    edu_stat_meds_val: '30+ ஆண்டுகள்',
+    edu_stat_meds_lbl: 'ஸ்டாடின் பாதுகாப்பு சான்று',
+    edu_stat_testing_val: '4–6 வாரங்கள்',
+    edu_stat_testing_lbl: 'டிஎன்ஏ அறிக்கை காலம்',
     edu_learning_hub: 'கற்றல் மையம்',
     edu_modules_summary: '3 தொகுதிகள் • 6 தலைப்புகள்',
     edu_group_basics_title: 'FH மற்றும் மருந்துகளை புரிந்துகொள்ளுங்கள்',
@@ -2115,7 +2159,7 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_group_costs_desc: 'MOH மானியங்கள், MediSave காப்பீடு மற்றும் உங்கள் சட்ட காப்பீட்டு உரிமைகள்.',
     booking_mins: 'நிமிடம்',
     chatbot_fallback_insurance: "சிங்கப்பூர் **LIA இடைநிறுத்த உடன்படிக்கையின்** படி, காப்பீட்டு நிறுவனங்கள் உங்கள் மரபணு சோதனை முடிவுகளை வெளியிடுமாறு **கோரக்கூடாது**. **MediShield Life** போன்ற தற்போதைய திட்டங்கள் முற்றிலும் பாதிக்கப்படாது.",
-    chatbot_fallback_cost: "FH சோதனைக்கு தகுதியுள்ள சிங்கப்பூரியர்களுக்கு MOH **50–75%** மானியம் வழங்குகிறது. சொந்த செலவு பொதுவாக **S$50 முதல் S$120** வரை இருக்கும், **MediSave மூலம் முழுமையாக செலுத்தலாம்**.",
+    chatbot_fallback_cost: "FH பரிசோதனைக்கு தகுதியுள்ள குடிமக்கள் மற்றும் PR-களுக்கு MOH 70% வரை மானியம் வழங்குகிறது. முதன்மையான நோயாளிக்கான மதிப்பிடப்பட்ட ரொக்கக் கட்டணம் S$18–87 ஆகும் (MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டு).",
     chatbot_fallback_family: "FH மரபுவழியில் பரவுகிறது — நெருங்கிய குடும்பத்தினருக்கு **50% வாய்ப்பு** உள்ளது. உங்கள் குழு **cascade screening** ஒருங்கிணைத்து குடும்பத்தை பாதுகாக்கும்.",
     chatbot_fallback_prep: "உண்ணாவிரதம் தேவையில்லை! **குடும்ப மருத்துவ வரலாறு**, **தற்போதைய மருந்துகள்**, மற்றும் **Singpass** தயாராக வையுங்கள். 30 நிமிட ஆலோசனை முதலில் வழிகாட்டும்.",
     chatbot_fallback_default: "FH சோதனை குறித்து உதவ நான் இங்கே இருக்கிறேன். உங்கள் பரிந்துரை ஒரு **மானியம் பெற்ற, பாதுகாக்கப்பட்ட தடுப்பு பரிசோதனை**. **கற்றல்** அல்லது **முன்பதிவு** தாவலை பாருங்கள்.",
@@ -2255,19 +2299,19 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     concern_test_desc: 'மரபணு சோதனைக்கு முன், அதன் போது மற்றும் அதற்குப் பிறகு என்ன நடக்கும் என்பதை அறிந்து கொள்ளுங்கள்.',
     
     // New Illustration/Comparison Card Keys
-    illus_clinical_testing_flow: '📋 மருத்துவ பரிசோதனை ஓட்டம்',
+    illus_clinical_testing_flow: 'மருத்துவ பரிசோதனை ஓட்டம்',
     illus_step_booked: '1. பதிவு செய்யப்பட்டது',
     illus_step_consult: '2. ஆலோசனை',
     illus_step_blood_draw: '3. இரத்த மாதிரி',
     illus_step_results: '4. முடிவுகள்',
-    illus_singapore_financing_model: '💰 சிங்கப்பூர் நிதி மாதிரி',
+    illus_singapore_financing_model: 'சிங்கப்பூர் நிதி மாதிரி',
     illus_government_subsidy: 'அரசு மானியம்',
-    illus_up_to_75_covered: '75% வரை மறைக்கப்படும்',
-    illus_consumer_safeguard_grid: '🛡️ நுகர்வோர் பாதுகாப்பு கட்டம்',
+    illus_up_to_75_covered: '70% வரை மறைக்கப்படும்',
+    illus_consumer_safeguard_grid: 'நுகர்வோர் பாதுகாப்பு கட்டம்',
     illus_active_policies_note: 'செயலில் உள்ள காப்பீடுகளை மாற்றவோ, ரத்து செய்யவோ அல்லது பிரீமியத்தை உயர்த்தவோ முடியாது.',
-    illus_liver_ldl_clearance: '🧪 கல்லீரல் LDL சுத்திகரிப்பு',
+    illus_liver_ldl_clearance: 'கல்லீரல் LDL சுத்திகரிப்பு',
     illus_statins_boost_note: 'ஸ்டேடின்கள் கல்லீரல் உயிரணுக்களில் உள்ள ஏற்பிகளை அதிகரித்து, இரத்தத்திலிருந்து கொழுப்பை ஈர்க்கின்றன.',
-    illus_family_cascade_tree: '🌳 குடும்பப் பரிசோதனை மரம்',
+    illus_family_cascade_tree: 'குடும்பப் பரிசோதனை மரம்',
     illus_index_patient: 'குறியீட்டு நோயாளி (நீங்கள்)',
     illus_inheritance_prob: '│ (50% பரம்பரை சாத்தியம்)',
     illus_parents: 'பெற்றோர்',
@@ -2308,107 +2352,6 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     edu_faq_meds_q: "சோதனையின் போது நான் கொலஸ்ட்ரால் மருந்து உட்கொள்வதை நிறுத்தலாமா?",
     edu_faq_meds_a: "இல்லை, உங்கள் மருத்துவர் அறிவுறுத்தாத வரை நீங்கள் பரிந்துரைக்கப்பட்ட மருந்தை உட்கொள்வதை நிறுத்தவோ மாற்றவோ கூடாது. டிஎன்ஏ எந்த மருந்தினாலும் மாறாது.",
   },
-};
-
-// Localized preCounsellingChecklist
-export const getLocalizedChecklist = (
-  lang: Language,
-  familiarity?: string | null,
-  topics: string[] = [],
-  concerns: string[] = []
-) => {
-  const t = (key: string): string => {
-    return UI_TRANSLATIONS[lang]?.[key] || UI_TRANSLATIONS['en']?.[key] || key;
-  };
-
-  // 1. Mandatory items (always shown)
-  const items = [
-    { id: 'mandatory_nric', text: t('mandatory_nric'), checked: false, isPersonalized: false },
-    { id: 'mandatory_meds', text: t('mandatory_meds'), checked: false, isPersonalized: false },
-  ];
-
-  // If onboarding is completed (or details are provided), add personalized tasks
-  if (familiarity) {
-    // 2. Knowledge-based preparation tasks
-    if (familiarity === 'new' || familiarity === 'beginner') {
-      items.push({ id: 'knowledge_new', text: t('knowledge_new'), checked: false, isPersonalized: true });
-    } else if (familiarity === 'little' || familiarity === 'research' || familiarity === 'intermediate') {
-      items.push({ id: 'knowledge_little_research', text: t('knowledge_little_research'), checked: false, isPersonalized: true });
-    } else if (familiarity === 'advanced') {
-      items.push({ id: 'knowledge_advanced', text: t('knowledge_advanced'), checked: false, isPersonalized: true });
-    }
-
-    // 3. Topic-based preparation tasks
-    if (
-      topics.includes('topic-costs') ||
-      topics.includes('topic-subsidies') ||
-      topics.includes('costs-subsidies') ||
-      topics.includes('costs')
-    ) {
-      items.push({ id: 'topic_costs', text: t('topic_costs'), checked: false, isPersonalized: true });
-    }
-    if (
-      topics.includes('topic-insurance') ||
-      topics.includes('insurance-rights') ||
-      topics.includes('insurance')
-    ) {
-      items.push({ id: 'topic_insurance', text: t('topic_insurance'), checked: false, isPersonalized: true });
-    }
-    if (
-      topics.includes('topic-family') ||
-      topics.includes('cascade-screening') ||
-      topics.includes('family')
-    ) {
-      items.push({ id: 'topic_family', text: t('topic_family'), checked: false, isPersonalized: true });
-    }
-    if (
-      topics.includes('topic-treatment') ||
-      topics.includes('topic-medication') ||
-      topics.includes('treatment-medication') ||
-      topics.includes('medication')
-    ) {
-      items.push({ id: 'topic_treatment', text: t('topic_treatment'), checked: false, isPersonalized: true });
-    }
-
-    // 4. Concern-based preparation tasks
-    if (
-      concerns.includes('concern-test') ||
-      concerns.includes('concern-testing') ||
-      concerns.includes('testing-process') ||
-      concerns.includes('test')
-    ) {
-      items.push({ id: 'concern_test', text: t('concern_test'), checked: false, isPersonalized: true });
-    }
-    if (
-      concerns.includes('concern-family') ||
-      concerns.includes('family')
-    ) {
-      items.push({ id: 'concern_family', text: t('concern_family'), checked: false, isPersonalized: true });
-    }
-    if (
-      concerns.includes('concern-cost') ||
-      concerns.includes('concern-costs') ||
-      concerns.includes('cost')
-    ) {
-      items.push({ id: 'concern_cost', text: t('concern_cost'), checked: false, isPersonalized: true });
-    }
-    if (
-      concerns.includes('concern-insurance') ||
-      concerns.includes('insurance')
-    ) {
-      items.push({ id: 'concern_insurance', text: t('concern_insurance'), checked: false, isPersonalized: true });
-    }
-  } else {
-    // Fallback/standard items when onboarding is skipped or not completed yet
-    items.push({
-      id: 'prep_review',
-      text: t('edu_checklist_progress_desc') || 'Review Learn section for resources and common questions',
-      checked: false,
-      isPersonalized: false,
-    });
-  }
-
-  return items;
 };
 
 // Localized educationalSections
@@ -2479,23 +2422,14 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
           title: 'Kos dan Subsidi',
           shortSummary: 'Kos yang anda bayar serta cara subsidi dan MediSave membantu.',
           readingTime: 'Masa membaca: 2.5 minit',
-          content: "GovTech Singapore bekerjasama dengan Kementerian Kesihatan untuk memastikan penjagaan kesihatan kekal berpatutan. Ujian genetik untuk FH disubsidi dengan banyak.",
-          keyTakeaway: 'Kos sendiri boleh dituntut melalui MediSave di bawah garis panduan pengurusan penyakit kronik.',
+          content: "",
+          keyTakeaway: "",
           iconName: 'Coins',
           tags: ['MediSave', 'CHAS', 'subsidi'],
-          subsections: [
-            {
-              title: 'SUBSIDI MOH',
-              text: 'Warganegara Singapura yang layak menerima subsidi 50% hingga 75% untuk kaunseling genetik dan ujian, bergantung pada tahap ujian kemampuan isi rumah mereka.'
-            },
-            {
-              title: 'PENGGUNAAN MEDISAVE',
-              text: 'Baki kos sendiri boleh ditolak menggunakan akaun MediSave anda di bawah garis panduan pengurusan penyakit kronik, meminimumkan pembayaran tunai segera.'
-            },
-            {
-              title: 'MANFAAT KAD CHAS',
-              text: 'Pemegang kad CHAS Biru, Jingga, dan Generasi Pioneer/Merdeka menerima subsidi yang dipertingkatkan, yang digunakan secara automatik semasa pembayaran.'
-            }
+          visualItems: [
+            { icon: "Building2", label: "Subsidi MOH", text: "Warganegara Singapura dan Penduduk Tetap yang layak boleh menerima subsidi berperingkat sehingga 70%." },
+            { icon: "Building2", label: "MediSave500/700", text: "MediSave boleh digunakan selepas subsidi, tertakluk kepada baki sedia ada dan had pengeluaran." },
+            { icon: "Coins", label: "Anggaran Bayaran Tunai", text: "S$18–87 untuk pesakit indeks, mengandaikan S$500 tersedia di bawah MediSave500." }
           ]
         },
         {
@@ -2604,23 +2538,14 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
           title: '费用与政府津贴',
           shortSummary: '详细了解自付费用、政府高额补贴以及如何使用 MediSave。',
           readingTime: '2.5分钟阅读',
-          content: "新加坡卫生部 (MOH) 与 GovTech 紧密合作，确保所有国人都可轻松负担高品质医疗。FH 基因检测已纳入高额政府补贴。 ",
-          keyTakeaway: '根据慢性疾病管理指南，您可以使用 MediSave（保健储蓄）报销绝大多数的自付费用。',
+          content: "",
+          keyTakeaway: "",
           iconName: 'Coins',
           tags: ['MediSave储蓄', 'CHAS津贴', '政府补贴'],
-          subsections: [
-            {
-              title: '新加坡卫生部 (MOH) 补贴',
-              text: '符合资格的新加坡公民在接受基因咨询和检测时，可根据家庭收入调查级别，获得 50% 至 75% 的高额政府直接津贴。'
-            },
-            {
-              title: '使用 MediSave 保健储蓄',
-              text: '剩余的个人自付费用，可在慢性疾病管理计划（CDMP）下通过您的 MediSave 账户予以扣除，最大程度降低现金支出压力。'
-            },
-            {
-              title: 'CHAS 卡尊享福利',
-              text: 'CHAS蓝色卡、橙色卡，以及建国一代或立国一代卡持有者可直接享有更高的专属额外补贴，该费用在结算时会自动进行抵扣。'
-            }
+          visualItems: [
+            { icon: "Building2", label: "MOH 审查津贴", text: "符合资格的新加坡公民与永久居民可获得高达 70% 的 MOH 审查津贴。" },
+            { icon: "Building2", label: "MediSave500/700", text: "享受津贴后可使用 MediSave，受限于账户余额及提取上限。" },
+            { icon: "Coins", label: "预计自付现金", text: "S$18–87（先证者，假设 MediSave500 账户中有 S$500 可用）。" }
           ]
         },
         {
@@ -2729,23 +2654,14 @@ export const getLocalizedEducationalSections = (lang: Language): EduSection[] =>
           title: 'கட்டணம் மற்றும் மானியங்கள்',
           shortSummary: 'நீங்கள் செலுத்தும் கட்டணம் மற்றும் அரசு மானியம், MediSave எவ்வாறு உதவுகிறது.',
           readingTime: '2.5 நிமிட வாசிப்பு',
-          content: "சுகாதாரச் சேவைகள் மலிவு விலையில் கிடைப்பதை உறுதி செய்ய சிங்கப்பூர் சுகாதார அமைச்சகம் (MOH) மானியங்களை வழங்குகிறது.",
-          keyTakeaway: 'மீதமுள்ள கட்டணத்தை நாள்பட்ட நோய் மேலாண்மை வழிகாட்டுதலின் கீழ் MediSave மூலம் செலுத்தலாம்.',
+          content: "",
+          keyTakeaway: "",
           iconName: 'Coins',
           tags: ['MediSave', 'CHAS', 'மானியங்கள்'],
-          subsections: [
-            {
-              title: 'MOH மானியங்கள்',
-              text: 'தகுதியான சிங்கப்பூர் குடிமக்கள் தங்களது குடும்ப வருமான வரம்பிற்கு ஏற்ப 50% முதல் 75% வரை மானியம் பெறலாம்.'
-            },
-            {
-              title: 'MEDISAVE பயன்பாடு',
-              text: 'மீதமுள்ள கட்டணத்தை உங்கள் MediSave கணக்கிலிருந்து செலுத்தலாம், இதனால் உடனடி பணத் தொகை குறைகிறது.'
-            },
-            {
-              title: 'CHAS அட்டை நன்மைகள்',
-              text: 'CHAS ப்ளூ, ஆரஞ்சு மற்றும் முன்னோடித் தலைமுறை அட்டைதாரர்களுக்கு கூடுதல் மானியங்கள் தானாகவே பயன்படுத்தப்படும்.'
-            }
+          visualItems: [
+            { icon: "Building2", label: "MOH மானியம்", text: "தகுதியுள்ள சிங்கப்பூர் குடிமக்கள் மற்றும் நிரந்தரவாசிகளுக்கு 70% வரை மானியம் வழங்கப்படும்." },
+            { icon: "Building2", label: "MediSave500/700", text: "மானியத்திற்குப் பிறகு MediSave ஐப் பயன்படுத்தலாம், இது கணக்கு இருப்பு மற்றும் வரம்புகளுக்கு உட்பட்டது." },
+            { icon: "Coins", label: "மதிப்பிடப்பட்ட ரொக்கம்", text: "முதன்மையான நோயாளிக்கு S$18–87, MediSave500 இல் S$500 இருப்பதை அடிப்படையாகக் கொண்டது." }
           ]
         },
         {
@@ -2840,7 +2756,7 @@ export const getLocalizedFaqs = (lang: Language): FAQItem[] => {
         },
         {
           question: '扣除政府津贴后，基因检测的实际个人自付费用是多少？',
-          answer: '符合新加坡卫生部补贴资格的公民（例如 CHAS 蓝色卡持有者），在享受高达 75% 的政府直接直接津贴后，个人自付费用通常仅在 15 至 45 新元之间。此外，剩余的全部账单均可直接使用您的 MediSave 账户予以支付，无需支付现金。',
+          answer: '符合新加坡卫生部补贴资格的公民与 PR，在享受高达 70% 的 MOH 审查津贴后，先证者自付费用预计在 18 至 87 新元之间（假设使用 MediSave500/700 中的 500 新元）。',
           category: 'cost'
         },
         {
@@ -3001,7 +2917,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
   const msResources: Record<string, Partial<HelpfulResource>> = {
     'res-7': {
       title: "Kisah Pesakit: Perjuangan Ibu untuk Anak-Anaknya",
-      summary: "Video kisah pesakit yang menyentuh hati berkongsi perspektif ibu tentang kehidupan dengan FH dan harapannya agar dua orang anaknya yang masih kecil disaring awal untuk melindungi masa depan mereka.",
+      summary: "Kisah seorang ibu tentang kehidupan dengan FH dan kepentingan saringan awal untuk anak-anaknya.",
       type: "Kisah Video",
       keywords: ['kisah-pesakit', 'video', 'ibu', 'saringan-pediatrik', 'harapan-keluarga'],
       readingTime: 'Video 6-min',
@@ -3034,7 +2950,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-6': {
       title: "Kisah Pesakit: Hidup dengan FH (Perjalanan Seorang Pemuda)",
-      summary: "Video pesakit yang memberi inspirasi berkongsi pengalaman seorang pemuda yang didiagnosis dengan FH, mengharungi pengesanan awal, saringan genetik dan memulakan hidup dengan kolesterol tinggi.",
+      summary: "Pengalaman seorang pemuda dengan diagnosis FH, saringan genetik, dan memulakan rawatan awal.",
       type: "Kisah Video",
       keywords: ['kisah-pesakit', 'video', 'dewasa-muda', 'pengalaman-hidup'],
       readingTime: 'Video 5-min',
@@ -3059,7 +2975,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-9': {
       title: "Panduan Pengguna: Moratorium Ujian Genetik dan Insurans",
-      summary: "Panduan pengguna rasmi Kementerian Kesihatan Singapura yang menerangkan moratorium kebangsaan, bagaimana keputusan ujian genetik mempengaruhi permohonan insurans anda dan hak anda sebagai pengguna.",
+      summary: "Panduan MOH mengenai moratorium ujian genetik Singapura dan perlindungan insurans.",
       type: "Panduan Klinikal",
       keywords: ['insurans', 'moratorium', 'ujian-genetik', 'hak-pengguna'],
       readingTime: 'Slaid 3-min',
@@ -3076,7 +2992,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-5': {
       title: "Panduan FH Yayasan Jantung Singapura",
-      summary: "Panduan bermaklumat Yayasan Jantung Singapura mengenai faktor risiko FH, implikasi kardiovaskular dan pengubahsuaian gaya hidup untuk menguruskan kolesterol tinggi genetik.",
+      summary: "Panduan Yayasan Jantung Singapura mengenai risiko FH, kesihatan jantung, dan pengurusan gaya hidup.",
       type: "Panduan Klinikal",
       keywords: ['yjs', 'faktor-risiko', 'kesihatan-jantung', 'pencegahan'],
       readingTime: 'Slaid 4-min',
@@ -3093,7 +3009,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-4': {
       title: "Risalah FH Rangkaian Penjagaan Utama",
-      summary: "Risalah pendidikan komprehensif yang diedarkan oleh Rangkaian Penjagaan Utama Singapura untuk pesakit dan keluarga mengenai pengesanan FH, risiko genetik dan pilihan rawatan.",
+      summary: "Panduan Rangkaian Penjagaan Utama mengenai pengesanan FH, risiko genetik, dan pilihan rawatan.",
       type: "Risalah PDF",
       keywords: ['penjagaan-utama', 'risalah', 'panduan-pesakit'],
       readingTime: 'PDF 5-min',
@@ -3109,7 +3025,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-8': {
       title: "Risalah Klinik Penilaian Genomik NHG (GAC)",
-      summary: "Panduan pesakit rasmi Klinik Penilaian Genomik National Healthcare Group mengenai kaunseling genetik klinikal, penilaian risiko dan ujian DNA di Singapura.",
+      summary: "Panduan NHG mengenai kaunseling genetik, penilaian risiko, dan ujian DNA.",
       type: "Risalah PDF",
       keywords: ['nhg', 'gac', 'kaunseling-genetik', 'ujian-dna', 'genomik-klinikal'],
       readingTime: 'PDF 4-min',
@@ -3125,7 +3041,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-1': {
       title: "Pamflet Pesakit FH Klinikal NUHS",
-      summary: "Pamflet klinikal rasmi National University Health System yang menerangkan mekanik ujian DNA, risiko kardiovaskular dan pengurusan lipid di Singapura.",
+      summary: "Panduan NUHS menerangkan ujian DNA, risiko jantung, dan pengurusan lipid.",
       type: "Risalah PDF",
       keywords: ['nuhs', 'panduan-pesakit', 'pamflet-klinikal'],
       readingTime: 'PDF 3-min',
@@ -3141,7 +3057,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-2': {
       title: "Program Ujian Genetik FH Kebangsaan MOH",
-      summary: "Pengumuman akhbar rasmi Kementerian Kesihatan Singapura melancarkan inisiatif ujian DNA klinikal kebangsaan bersubsidi dan saringan lata.",
+      summary: "Panduan MOH mengenai ujian genetik bersubsidi kebangsaan dan saringan lata.",
       type: "Panduan Klinikal",
       keywords: ['moh', 'garis-panduan', 'standard-klinikal'],
       readingTime: 'Slaid 5-min',
@@ -3160,7 +3076,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
   const zhResources: Record<string, Partial<HelpfulResource>> = {
     'res-7': {
       title: "患者故事：一位母亲为孩子们的奋斗",
-      summary: "感人至深的患者视频，分享了一位母亲对于伴随 FH 生活的看法，以及她希望及早为两个幼儿进行筛查以守护他们未来的期望。",
+      summary: "一位母亲分享她与 FH 共处的历程，以及为孩子进行早期筛查的重要性。",
       type: "视频故事",
       keywords: ['患者故事', '视频', '母亲', '儿童筛查', '家庭希望'],
       readingTime: '6分钟视频',
@@ -3193,7 +3109,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-6': {
       title: "患者故事：伴随 FH 生活（一个年轻人的旅程）",
-      summary: "具有启发性的患者视频，分享了一位被诊断患有 FH 的年轻人的经历，讲述了他如何应对早期发现、基因筛查以及如何在伴随高胆固醇的情况下开启人生。",
+      summary: "一位年轻人确诊 FH、进行基因筛查以及早期接受治疗的亲身经历。",
       type: "视频故事",
       keywords: ['患者故事', '视频', '年轻成人', '亲身经历'],
       readingTime: '5分钟视频',
@@ -3218,7 +3134,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-9': {
       title: "消费者指南：基因检测与保险暂行停征令",
-      summary: "新加坡卫生部官方消费者指南，详细阐述了国家暂行停征令、基因检测结果如何影响您的保险申请，以及您作为消费者的合法权益。",
+      summary: "新加坡卫生部关于基因检测暂停禁令及保险权益保障的官方指南。",
       type: "临床指南",
       keywords: ['保险', '停征令', '基因检测', '消费者权益'],
       readingTime: '3分钟阅读',
@@ -3235,7 +3151,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-5': {
       title: "新加坡心脏基金会 FH 指南",
-      summary: "新加坡心脏基金会提供的信息指南，介绍 FH 的危险因素、心血管影响以及管理基因遗传性高胆固醇的生活方式改善方法。",
+      summary: "新加坡心脏基金会关于 FH 风险、心脏健康及生活方式管理的指南。",
       type: "临床指南",
       keywords: ['心脏基金会', '危险因素', '心脏健康', '预防措施'],
       readingTime: '4分钟阅读',
@@ -3252,7 +3168,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-4': {
       title: "基层医疗 FH 教育手册",
-      summary: "新加坡基层医疗网络为患者和家属分发的综合教育手册，包含 FH 检测、基因风险和治疗方案选择。",
+      summary: "基层医疗网络关于 FH 检测、基因风险及治疗方案的教育指南。",
       type: "PDF 宣传册",
       keywords: ['基层医疗', '宣传册', '患者手册'],
       readingTime: '5分钟阅读',
@@ -3268,7 +3184,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-8': {
       title: "NHG 基因组评估诊所 (GAC) 宣传册",
-      summary: "国家健康集团 (NHG) 官方基因组评估诊所患者指南，内容涉及新加坡的临床基因咨询、风险评估和 DNA 检测。",
+      summary: "国立健康集团关于基因咨询、风险评估及 DNA 检测的指南。",
       type: "PDF 宣传册",
       keywords: ['国家健康集团', '基因咨询诊所', '基因咨询', 'DNA检测', '临床基因组学'],
       readingTime: '4分钟阅读',
@@ -3284,7 +3200,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-1': {
       title: "NUHS 临床 FH 患者手册",
-      summary: "国立大学医学组织 (NUHS) 官方临床手册，解释了新加坡的 DNA 检测机制、心血管风险和血脂管理。",
+      summary: "新加坡国立大学医学组织关于 DNA 检测、心脏风险及血脂管理的指南。",
       type: "PDF 宣传册",
       keywords: ['国立大学医学组织', '患者手册', '临床手册'],
       readingTime: '3分钟阅读',
@@ -3300,7 +3216,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-2': {
       title: "新加坡卫生部 (MOH) 国家 FH 基因检测计划",
-      summary: "新加坡卫生部官方新闻公告，正式启动了享受政府补贴的国家临床 DNA 检测以及家族级联筛查计划。",
+      summary: "新加坡卫生部关于国家基因检测及家族级联筛查指南。",
       type: "临床指南",
       keywords: ['卫生部', '指南规范', '临床标准'],
       readingTime: '5分钟阅读',
@@ -3319,7 +3235,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
   const taResources: Record<string, Partial<HelpfulResource>> = {
     'res-7': {
       title: "நோயாளி கதை: தன் குழந்தைகளுக்காக ஒரு தாயின் போராட்டம்",
-      summary: "FH உடன் வாழ்வது குறித்த தாயின் பார்வையை விவரிக்கும் ஒரு மனதைத் தொடும் வீடியோ கதை மற்றும் அவர்களின் எதிர்காலத்தைப் பாதுகாக்க தனது இரு குழந்தைகளையும் ஆரம்பத்திலேயே பரிசோதிக்க வேண்டும் என்ற அவரது நம்பிக்கை.",
+      summary: "FH உடன் வாழும் அனுபவம் மற்றும் தன் குழந்தைகளுக்கு ஆரம்பத்திலேயே பரிசோதனை செய்வதன் முக்கியத்துவத்தை ஒரு தாய் பகிர்ந்து கொள்கிறார்.",
       type: "வீடியோ கதை",
       keywords: ['நோயாளி-கதை', 'வீடியோ', 'தாய்', 'குழந்தைகள்-பரிசோதனை', 'குடும்ப-நம்பிக்கை'],
       readingTime: '6-நிமிடம் வீடியோ',
@@ -3344,7 +3260,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-6': {
       title: "நோயாளி கதை: FH உடன் வாழ்வது (ஒரு இளைஞனின் பயணம்)",
-      summary: "FH நோயால் பாதிக்கப்பட்ட ஒரு இளைஞனின் அனுபவம், ஆரம்பக்கால கண்டறிதல், மரபணு பரிசோதனை மற்றும் அதிக கொழுப்புடன் வாழ்க்கையைத் தொடங்குதல் ஆகியவற்றைப் பகிர்ந்து கொள்ளும் ஒரு சக்திவாய்ந்த வீடியோ.",
+      summary: "FH கண்டறிதல், மரபணு பரிசோதனை மற்றும் ஆரம்பக்கால சிகிச்சை பற்றிய ஒரு இளைஞனின் அனுபவம்.",
       type: "வீடியோ கதை",
       keywords: ['நோயாளி-கதை', 'வீடியோ', 'இளைஞர்', 'வாழ்நாள்-அனுபவம்'],
       readingTime: '5-நிமிடம் வீடியோ',
@@ -3369,7 +3285,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-9': {
       title: "நுகர்வோர் வழிகாட்டி: மரபணு சோதனை மற்றும் காப்பீடு மீதான தற்காலிகத் தடை",
-      summary: "தேசிய தற்காலிகத் தடையை விளக்கும் சிங்கப்பூர் சுகாதார அமைச்சகத்தின் அதிகாரப்பூர்வ நுகர்வோர் வழிகாட்டி, மரபணு சோதனை முடிவுகள் உங்கள் காப்பீட்டு விண்ணப்பங்களை எவ்வாறு பாதிக்கின்றன மற்றும் ஒரு நுகர்வோராக உங்களுக்கான உரிமைகள்.",
+      summary: "சிங்கப்பூரின் மரபணு பரிசோதனை தற்காலிகத் தடை மற்றும் காப்பீட்டு பாதுகாப்புகள் பற்றிய MOH வழிகாட்டி.",
       type: "மருத்துவ வழிகாட்டி",
       keywords: ['காப்பீடு', 'தற்காலிக-தடை', 'மரபணு-சோதனை', 'நுகர்வோர்-உரிமைகள்'],
       readingTime: '3-நிமிடம் வாசிப்பு',
@@ -3385,7 +3301,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-5': {
       title: "சிங்கப்பூர் இதய அறக்கட்டளை FH வழிகாட்டி",
-      summary: "FH ஆபத்து காரணிகள், இருதய பாதிப்புகள் மற்றும் மரபணு சார்ந்த அதிக கொழுப்பை நிர்வகிப்பதற்கான வாழ்க்கை முறை மாற்றங்கள் குறித்த சிங்கப்பூர் இதய அறக்கட்டளையின் தகவல் வழிகாட்டி.",
+      summary: "FH ஆபத்துகள், இதய ஆரோக்கியம் மற்றும் வாழ்க்கை முறை நிர்வாகம் பற்றிய சிங்கப்பூர் இதய அறக்கட்டளை வழிகாட்டி.",
       type: "மருத்துவ வழிகாட்டி",
       keywords: ['இதய-அறக்கட்டளை', 'ஆபத்து-காரணிகள்', 'இதய-ஆரோக்கியம்', 'தடுப்பு'],
       readingTime: '4-நிமிடம் வாசிப்பு',
@@ -3401,7 +3317,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-4': {
       title: "ஆரம்ப சுகாதார FH கையேடு",
-      summary: "சிங்கப்பூர் ஆரம்ப சுகாதார வலையமைப்பால் விநியோகிக்கப்படும் விரிவான கல்வி கையேடு, நோயாளிகள் மற்றும் குடும்பங்களுக்கு FH கண்டறிதல், மரபணு அபாயங்கள் மற்றும் சிகிச்சை விருப்பங்கள் பற்றி விளக்குகிறது.",
+      summary: "FH கண்டறிதல், மரபணு ஆபத்துகள் மற்றும் சிகிச்சை முறைகள் பற்றிய முதன்மை பராமரிப்பு வழிகாட்டி.",
       type: "PDF கையேடு",
       keywords: ['ஆரம்ப-சுகாதாரம்', 'கையேடு', 'நோயாளி-கைநூல்'],
       readingTime: '5-நிமிடம் வாசிப்பு',
@@ -3417,7 +3333,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-8': {
       title: "NHG மரபணு மதிப்பீட்டு மருத்துவமனை (GAC) கையேடு",
-      summary: "சிங்கப்பூரில் உள்ள மருத்துவ மரபணு ஆலோசனை, ஆபத்து மதிப்பீடு மற்றும் DNA பரிசோதனை பற்றிய நேஷனல் ஹெல்த்கேர் குரூப்பின் (NHG) அதிகாரப்பூர்வ மரபணு மதிப்பீட்டு மருத்துவமனை நோயாளி வழிகாட்டி.",
+      summary: "மரபணு ஆலோசனை, ஆபத்து மதிப்பீடு மற்றும் டிஎன்ஏ பரிசோதனை பற்றிய NHG வழிகாட்டி.",
       type: "PDF கையேடு",
       keywords: ['nhg', 'gac', 'மரபணு-ஆலோசனை', 'DNA-பரிசோதனை', 'மருத்துவ-மரபணுவியல்'],
       readingTime: '4-நிமிடம் வாசிப்பு',
@@ -3432,7 +3348,7 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-1': {
       title: "NUHS மருத்துவ FH நோயாளி துண்டுப்பிரசுரம்",
-      summary: "சிங்கப்பூரில் DNA சோதனை முறைகள், இருதய ஆபத்து மற்றும் கொழுப்பு மேலாண்மை ஆகியவற்றை விளக்கும் நேஷனல் யுனிவர்சிட்டி ஹெல்த் சிஸ்டத்தின் (NUHS) அதிகாரப்பூர்வ மருத்துவ துண்டுப்பிரசுரம்.",
+      summary: "டிஎன்ஏ பரிசோதனை, இதய ஆபத்து மற்றும் கொழுப்பு நிர்வாகம் பற்றிய NUHS வழிகாட்டி.",
       type: "PDF கையேடு",
       keywords: ['nuhs', 'நோயாளி-கைநூல்', 'மருத்துவ-துண்டுப்பிரசுரம்'],
       readingTime: '3-நிமிடம் வாசிப்பு',
@@ -3447,9 +3363,9 @@ export const getLocalizedHelpfulResources = (resources: HelpfulResource[], lang:
     },
     'res-2': {
       title: "MOH தேசிய FH மரபணு சோதனை திட்டம்",
-      summary: "மானியம் வழங்கப்பட்ட தேசிய மருத்துவ DNA சோதனை மற்றும் அடுக்கு முறை சல்லடை பரிசோதனை முயற்சியைத் தொடங்கும் சிங்கப்பூர் சுகாதார அமைச்சகத்தின் அதிகாரப்பூர்வ செய்தி அறிவிப்பு.",
+      summary: "மானியம்பெற்ற தேசிய மரபணு பரிசோதனை மற்றும் கேஸ்கேட் பரிசோதனை பற்றிய MOH வழிகாட்டி.",
       type: "மருத்துவ வழிகாட்டி",
-      keywords: ['moh', 'வழிகாட்டுதல்கள்', 'மருத்துவ-தரநிலைகள்'],
+      keywords: ['moh', 'வழிகாட்டுதல்கள்', 'மருத்துவ-தரநிலه‌ها'],
       readingTime: '5-நிமிடம் வாசிப்பு',
       pages: [
         {

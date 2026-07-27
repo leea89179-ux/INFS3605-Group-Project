@@ -20,7 +20,7 @@ export interface Appointment {
 export interface ReminderPreferences {
   enabled: boolean;
   channel: string;
-  frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom';
+  frequency: string;
   previewText: string;
 }
 
@@ -81,7 +81,7 @@ export interface ReminderPreferenceRecord {
   patient_id: string;
   enabled: boolean;
   notification_channel: string | null;
-  frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom' | null;
+  frequency: string | null;
   next_notification_date: string | null;
 }
 
