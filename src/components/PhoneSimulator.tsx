@@ -5867,30 +5867,6 @@ export default function PhoneSimulator({
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
-                {/* ── Language Preferences (Top of Settings) ── */}
-                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
-                    <Globe className="w-3.5 h-3.5 text-emerald-600" />
-                    {t('lang_pref_title')}
-                  </label>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">{t('lang_pref_desc')}</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(Object.entries(LANG_LABELS) as [Language, string][]).map(([code, label]) => (
-                      <button
-                        key={code}
-                        onClick={() => handleLanguageChange(code)}
-                        className={`py-2 px-3 rounded-xl text-xs font-semibold transition border cursor-pointer ${
-                          language === code
-                            ? 'bg-emerald-600 text-white border-emerald-600'
-                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50 hover:border-emerald-200'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* My Profile Access Card */}
                 <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs flex justify-between items-center text-left">
                   <div className="flex items-center gap-3 min-w-0">
