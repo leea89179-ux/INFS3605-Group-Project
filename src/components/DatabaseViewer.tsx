@@ -37,57 +37,6 @@ export default function DatabaseViewer({
   const [activeTab, setActiveTab] = useState<'tables' | 'schema' | 'logs'>('tables');
   const [selectedTable, setSelectedTable] = useState<'patient' | 'appointment' | 'reminder' | 'history' | 'referral' | 'education' | 'results'>('patient');
 
-  // Schema DDL Definitions
-  const schemaDDL = {
-    patient: `CREATE TABLE Patient (
-  patient_id VARCHAR(50) PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  age INT,
-  occupation VARCHAR(100),
-  contact_details VARCHAR(150) NOT NULL
-);`,
-    appointment: `CREATE TABLE Appointment (
-  appointment_id VARCHAR(50) PRIMARY KEY,
-  patient_id VARCHAR(50) REFERENCES Patient(patient_id),
-  appointment_date VARCHAR(50) NOT NULL,
-  appointment_time VARCHAR(20) NOT NULL,
-  clinic VARCHAR(100) NOT NULL,
-  status VARCHAR(20) DEFAULT 'pending', -- 'pending' | 'booked' | 'confirmed' | 'completed' | 'cancelled' | 'missed'
-  attendance VARCHAR(20),               -- 'attended' | 'missed'
-  calendar_added BOOLEAN DEFAULT FALSE
-);`,
-    reminder: `CREATE TABLE ReminderPreference (
-  reminder_id VARCHAR(50) PRIMARY KEY,
-  patient_id VARCHAR(50) REFERENCES Patient(patient_id),
-  enabled BOOLEAN DEFAULT TRUE,
-  notification_channel VARCHAR(20),     -- 'push' | 'sms' | 'both'
-  frequency VARCHAR(50),                -- 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom'
-  next_notification_date VARCHAR(50)
-);`,
-    history: `CREATE TABLE NotificationHistory (
-  notification_id VARCHAR(50) PRIMARY KEY,
-  patient_id VARCHAR(50) REFERENCES Patient(patient_id),
-  appointment_id VARCHAR(50) REFERENCES Appointment(appointment_id),
-  sent_date VARCHAR(50) NOT NULL,
-  opened_status VARCHAR(20) DEFAULT 'sent',  -- 'sent' | 'opened'
-  action_taken VARCHAR(50) DEFAULT 'none'    -- 'none' | 'confirmed' | 'rescheduled' | 'education_viewed'
-);`,
-    referral: `CREATE TABLE Referral (
-  referral_id VARCHAR(50) PRIMARY KEY,
-  patient_id VARCHAR(50) REFERENCES Patient(patient_id),
-  referral_type VARCHAR(50) NOT NULL, -- 'cascade_screening' | 'clinical_suspicion' | 'clinical_referral'
-  status VARCHAR(20) DEFAULT 'referral_received' -- 'referral_received' | 'active' | 'completed'
-);`,
-    education: `CREATE TABLE EducationProgress (
-  patient_id VARCHAR(50) PRIMARY KEY REFERENCES Patient(patient_id),
-  percent_complete INT DEFAULT 0
-);`,
-    results: `CREATE TABLE Results (
-  patient_id VARCHAR(50) PRIMARY KEY REFERENCES Patient(patient_id),
-  status VARCHAR(20) DEFAULT 'pending' -- 'pending' | 'available'
-);`
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -151,7 +100,7 @@ export default function DatabaseViewer({
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
-          <FileText className="w-3.5 h-3.5" /> Schema (DDL)
+          <FileText className="w-3.5 h-3.5" /> Schema
         </button>
       </div>
 
@@ -488,7 +437,7 @@ export default function DatabaseViewer({
           </div>
         )}
 
-        {/* TAB 2: SCHEMA (DDL) */}
+        {/* TAB 2: SCHEMA */}
         {activeTab === 'schema' && (
           <div className="flex-1 flex flex-col overflow-hidden space-y-4">
             
@@ -531,60 +480,6 @@ export default function DatabaseViewer({
                   <span className="font-bold text-emerald-300">Results</span>
                   <span className="text-[9px] text-slate-500"> (pat_id, FK)</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Raw DDL Definitions */}
-            <div className="flex-1 overflow-y-auto space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 scrollbar-none">
-              <h4 className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest border-b border-slate-800 pb-1.5 mb-3">PostgreSQL DDL Statements</h4>
-              
-              <div>
-                <p className="text-emerald-500/80 font-bold mb-1">-- Table 1: Patient Details</p>
-                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
-                  {schemaDDL.patient}
-                </pre>
-              </div>
-
-              <div>
-                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 2: Clinical Genetic Appointments</p>
-                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
-                  {schemaDDL.appointment}
-                </pre>
-              </div>
-
-              <div>
-                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 3: Patient Reminder Settings</p>
-                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
-                  {schemaDDL.reminder}
-                </pre>
-              </div>
-
-              <div>
-                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 4: Audit Notification History</p>
-                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
-                  {schemaDDL.history}
-                </pre>
-              </div>
-
-              <div>
-                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 5: Genetic Referral Status</p>
-                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
-                  {schemaDDL.referral}
-                </pre>
-              </div>
-
-              <div>
-                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 6: Interactive Education Progress</p>
-                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
-                  {schemaDDL.education}
-                </pre>
-              </div>
-
-              <div>
-                <p className="text-emerald-500/80 font-bold mb-1 mt-3">-- Table 7: Diagnostic Genetic Results</p>
-                <pre className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px] text-slate-300 leading-normal overflow-x-auto whitespace-pre">
-                  {schemaDDL.results}
-                </pre>
               </div>
             </div>
           </div>

@@ -3460,9 +3460,7 @@ export default function PhoneSimulator({
                           </p>
                         </div>
 
-                        <div className={`grid gap-2.5 pt-1 overflow-y-auto max-h-[340px] pr-1 ${
-                          language === 'ta' || language === 'ms' ? 'grid-cols-1' : 'grid-cols-2'
-                        }`}>
+                        <div className="grid grid-cols-2 gap-2 pt-1 overflow-y-auto max-h-[360px] pr-1">
                           {[
                             { id: 'topic-basics', iconName: 'Dna', label: t('step2_opt_basics') },
                             { id: 'topic-risk', iconName: 'HeartPulse', label: t('step2_opt_risk') },
@@ -3491,25 +3489,21 @@ export default function PhoneSimulator({
                                   }
                                   setShowCascadeTooltip(false);
                                 }}
-                                className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between min-h-[56px] relative bg-white ${
+                                className={`w-full text-left py-2 px-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between min-h-[44px] relative bg-white ${
                                   isSelected
                                     ? 'border-[#00a859] bg-emerald-50/40 ring-1 ring-[#00a859]/30 shadow-xs'
                                     : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300'
                                   }`}
                               >
-                                <div className="flex items-center gap-2 min-w-0 flex-1 pr-1.5">
-                                  <span className="text-[13px] shrink-0">{getIcon(opt.iconName || 'HelpCircle', "text-[#00a859]")}</span>
+                                <div className="flex items-center gap-1.5 min-w-0 flex-1 pr-1">
+                                  <span className="text-[12px] shrink-0">{getIcon(opt.iconName || 'HelpCircle', "text-[#00a859]")}</span>
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex items-center flex-wrap gap-1">
-                                      <span className={`font-semibold text-slate-800 leading-tight ${
-                                        language === 'ta' || language === 'ms' ? 'text-[11.5px]' : 'text-[11px]'
-                                      }`}>
-                                        {opt.label}
-                                      </span>
-                                    </div>
+                                    <span className="font-semibold text-slate-800 leading-snug text-[11px] block truncate">
+                                      {opt.label}
+                                    </span>
                                   </div>
                                 </div>
-                                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-all ${
                                   isSelected ? 'bg-[#00a859] border-[#00a859] text-white' : 'border-slate-300 bg-white'
                                 }`}>
                                   {isSelected && <Check className="w-2.5 h-2.5 stroke-[4px]" />}
