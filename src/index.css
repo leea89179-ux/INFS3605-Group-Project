@@ -1,10 +1,209 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", "Noto Sans SC", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Inter", "Noto Sans SC", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Inter", "Noto Sans SC", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Custom sleek thin scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #0f172a;
+    background-color: #f8fafc;
+  }
+
+  p, li, label, span, button, input, select, textarea {
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-size: 32px !important;
+    line-height: 1.3 !important;
+    font-weight: 800 !important;
+  }
+
+  h2 {
+    font-size: 24px !important;
+    line-height: 1.35 !important;
+    font-weight: 700 !important;
+  }
+
+  h3 {
+    font-size: 20px !important;
+    line-height: 1.4 !important;
+    font-weight: 700 !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Unified & Proportional Typography & Contrast Overrides                      */
+/* -------------------------------------------------------------------------- */
+
+/* WCAG Contrast Boosts for Slate and Gray Text */
+.text-slate-400 {
+  color: #334155;
+}
+
+.text-slate-500 {
+  color: #1e293b;
+}
+
+.text-gray-400 {
+  color: #374151;
+}
+
+.text-gray-500 {
+  color: #111827;
+}
+
+/* Protection for fixed UI controls (nav icons, header controls, badges, selectors) */
+.fixed-ui-control,
+.fixed-ui-control *,
+.no-text-scale,
+.no-text-scale * {
+  font-size: unset;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Central Text-Size System (Small / Normal / Large)                          */
+/* Small = 0.875x, Normal = 1.0x (default), Large = 1.125x                    */
+/* -------------------------------------------------------------------------- */
+
+/* Normal Mode (100% - Default Proportions) */
+.education-text-md {
+  font-size: 16px;
+}
+
+/* Small Mode (87.5% - Always strictly smaller than Normal) */
+.education-text-sm {
+  font-size: 14px;
+}
+
+.education-text-sm .text-3xl:not(.no-text-scale, .no-text-scale *) { font-size: 26px !important; }
+.education-text-sm .text-2xl:not(.no-text-scale, .no-text-scale *) { font-size: 20px !important; }
+.education-text-sm .text-xl:not(.no-text-scale, .no-text-scale *) { font-size: 17px !important; }
+.education-text-sm .text-lg:not(.no-text-scale, .no-text-scale *) { font-size: 15.5px !important; }
+.education-text-sm .text-base:not(.no-text-scale, .no-text-scale *),
+.education-text-sm p:not(.no-text-scale, .no-text-scale *),
+.education-text-sm label:not(.no-text-scale, .no-text-scale *) { font-size: 14px !important; }
+.education-text-sm .text-sm:not(.no-text-scale, .no-text-scale *) { font-size: 12.25px !important; }
+.education-text-sm .text-xs:not(.no-text-scale, .no-text-scale *) { font-size: 10.5px !important; }
+.education-text-sm .text-\[16px\]:not(.no-text-scale, .no-text-scale *) { font-size: 14px !important; }
+.education-text-sm .text-\[15px\]:not(.no-text-scale, .no-text-scale *) { font-size: 13.1px !important; }
+.education-text-sm .text-\[14px\]:not(.no-text-scale, .no-text-scale *) { font-size: 12.25px !important; }
+.education-text-sm .text-\[13.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 11.8px !important; }
+.education-text-sm .text-\[13px\]:not(.no-text-scale, .no-text-scale *) { font-size: 11.4px !important; }
+.education-text-sm .text-\[12.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 11px !important; }
+.education-text-sm .text-\[12px\]:not(.no-text-scale, .no-text-scale *) { font-size: 10.5px !important; }
+.education-text-sm .text-\[11px\]:not(.no-text-scale, .no-text-scale *),
+.education-text-sm .text-\[11\.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 9.6px !important; }
+.education-text-sm .text-\[10px\]:not(.no-text-scale, .no-text-scale *),
+.education-text-sm .text-\[10\.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 8.75px !important; }
+.education-text-sm .text-\[9px\]:not(.no-text-scale, .no-text-scale *),
+.education-text-sm .text-\[9\.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 8px !important; }
+.education-text-sm .text-\[8px\]:not(.no-text-scale, .no-text-scale *),
+.education-text-sm .text-\[8\.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 7.2px !important; }
+
+/* Large Mode (Always strictly larger than Normal) */
+.education-text-lg {
+  font-size: 18px;
+}
+
+.education-text-lg .text-3xl:not(.no-text-scale, .no-text-scale *) { font-size: 36px !important; }
+.education-text-lg .text-2xl:not(.no-text-scale, .no-text-scale *) { font-size: 28px !important; }
+.education-text-lg .text-xl:not(.no-text-scale, .no-text-scale *) { font-size: 24px !important; }
+.education-text-lg .text-lg:not(.no-text-scale, .no-text-scale *) { font-size: 21.5px !important; }
+.education-text-lg .text-base:not(.no-text-scale, .no-text-scale *),
+.education-text-lg p:not(.no-text-scale, .no-text-scale *),
+.education-text-lg label:not(.no-text-scale, .no-text-scale *) { font-size: 19px !important; }
+.education-text-lg .text-sm:not(.no-text-scale, .no-text-scale *) { font-size: 16.5px !important; }
+.education-text-lg .text-xs:not(.no-text-scale, .no-text-scale *) { font-size: 14.5px !important; }
+.education-text-lg .text-\[16px\]:not(.no-text-scale, .no-text-scale *) { font-size: 19px !important; }
+.education-text-lg .text-\[15px\]:not(.no-text-scale, .no-text-scale *) { font-size: 18px !important; }
+.education-text-lg .text-\[14px\]:not(.no-text-scale, .no-text-scale *) { font-size: 16.5px !important; }
+.education-text-lg .text-\[13.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 15.8px !important; }
+.education-text-lg .text-\[13px\]:not(.no-text-scale, .no-text-scale *) { font-size: 15.2px !important; }
+.education-text-lg .text-\[12.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 14.8px !important; }
+.education-text-lg .text-\[12px\]:not(.no-text-scale, .no-text-scale *) { font-size: 14.2px !important; }
+.education-text-lg .text-\[11px\]:not(.no-text-scale, .no-text-scale *),
+.education-text-lg .text-\[11\.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 13.5px !important; }
+.education-text-lg .text-\[10px\]:not(.no-text-scale, .no-text-scale *),
+.education-text-lg .text-\[10\.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 12.8px !important; }
+.education-text-lg .text-\[9px\]:not(.no-text-scale, .no-text-scale *),
+.education-text-lg .text-\[9\.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 12px !important; }
+.education-text-lg .text-\[8px\]:not(.no-text-scale, .no-text-scale *),
+.education-text-lg .text-\[8\.5px\]:not(.no-text-scale, .no-text-scale *) { font-size: 11px !important; }
+
+.education-text-lg h1:not(.no-text-scale, .no-text-scale *),
+.education-text-lg h2:not(.no-text-scale, .no-text-scale *),
+.education-text-lg h3:not(.no-text-scale, .no-text-scale *),
+.education-text-lg h4:not(.no-text-scale, .no-text-scale *),
+.education-text-lg h5:not(.no-text-scale, .no-text-scale *),
+.education-text-lg h6:not(.no-text-scale, .no-text-scale *) {
+  line-height: 1.3 !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Locale-Aware Script & Typography Overrides                                 */
+/* -------------------------------------------------------------------------- */
+
+/* Tamil (ta): Normal tracking to prevent character distortion, clean line height */
+[data-lang="ta"], .lang-ta {
+  letter-spacing: normal !important;
+}
+
+[data-lang="ta"] h1, [data-lang="ta"] h2, [data-lang="ta"] h3, [data-lang="ta"] h4,
+[data-lang="ta"] .font-display, .lang-ta h1, .lang-ta h2, .lang-ta h3, .lang-ta h4 {
+  letter-spacing: normal !important;
+  line-height: 1.38 !important;
+}
+
+[data-lang="ta"] button, [data-lang="ta"] span, .lang-ta button, .lang-ta span {
+  letter-spacing: normal !important;
+}
+
+/* Malay (ms): Word wrapping and natural hyphenation */
+[data-lang="ms"], .lang-ms {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Chinese (zh): Normal tracking for ideographs */
+[data-lang="zh"], .lang-zh {
+  letter-spacing: normal !important;
 }
 
 @layer utilities {
@@ -31,28 +230,8 @@
   animation: slideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes bounceShort {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
 .animate-fade-in {
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-bounce-short {
-  animation: bounceShort 3s ease-in-out infinite;
-}
-
-@keyframes subtlePulse {
-  0% { transform: scale(1); }
-  6% { transform: scale(1.05); }
-  12% { transform: scale(1); }
-  100% { transform: scale(1); }
-}
-
-.animate-subtle-pulse {
-  animation: subtlePulse 6s ease-in-out infinite;
 }
 
 /* Custom shadow utilities */
@@ -60,40 +239,3 @@
   text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
-/* Accessibility Font Size Overrides for Small Text (90%) */
-.education-text-sm p,
-.education-text-sm li,
-.education-text-sm span:not(.font-mono) {
-  font-size: 90% !important;
-}
-.education-text-sm .\text-\[9px\] { font-size: 8px !important; }
-.education-text-sm .\text-\[9\.5px\] { font-size: 8.5px !important; }
-.education-text-sm .\text-\[10px\] { font-size: 9px !important; }
-.education-text-sm .\text-\[10\.5px\] { font-size: 9.5px !important; }
-.education-text-sm .\text-\[11px\] { font-size: 10px !important; }
-.education-text-sm .\text-\[11\.5px\] { font-size: 10.5px !important; }
-.education-text-sm .\text-\[12px\] { font-size: 11px !important; }
-.education-text-sm .\text-\[12\.5px\] { font-size: 11.5px !important; }
-.education-text-sm .\text-\[15px\] { font-size: 13px !important; }
-.education-text-sm .text-xs { font-size: 11px !important; }
-.education-text-sm .text-sm { font-size: 12.5px !important; }
-.education-text-sm .text-base { font-size: 14px !important; }
-
-/* Accessibility Font Size Overrides for Large Text (118%) */
-.education-text-lg p,
-.education-text-lg li,
-.education-text-lg span:not(.font-mono) {
-  font-size: 118% !important;
-}
-.education-text-lg .\text-\[9px\] { font-size: 11.5px !important; }
-.education-text-lg .\text-\[9\.5px\] { font-size: 12px !important; }
-.education-text-lg .\text-\[10px\] { font-size: 13px !important; }
-.education-text-lg .\text-\[10\.5px\] { font-size: 13.5px !important; }
-.education-text-lg .\text-\[11px\] { font-size: 14.5px !important; }
-.education-text-lg .\text-\[11\.5px\] { font-size: 15px !important; }
-.education-text-lg .\text-\[12px\] { font-size: 15.5px !important; }
-.education-text-lg .\text-\[12\.5px\] { font-size: 16.5px !important; }
-.education-text-lg .\text-\[15px\] { font-size: 18.5px !important; }
-.education-text-lg .text-xs { font-size: 14.5px !important; }
-.education-text-lg .text-sm { font-size: 17px !important; }
-.education-text-lg .text-base { font-size: 19.5px !important; }

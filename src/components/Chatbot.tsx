@@ -126,7 +126,7 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
           } else if (query.includes('prepare') || query.includes('prep') || query.includes('checklist') || query.includes('fast') || query.includes('sediakan') || query.includes('准备') || query.includes('தயார்')) {
             botResponse = "No fasting is needed! Just prepare a **family medical history** (especially early heart attacks), your **current medications**, and your **Singpass**. A 30-minute counselling session will guide you first.";
           } else if (query.includes('what') && (query.includes('fh') || query.includes('cholesterol'))) {
-            botResponse = "FH is a genetic condition causing **extremely high LDL cholesterol from birth**, unaffected by diet alone. Early genetic detection allows doctors to customize **highly effective preventative treatment** like statins.";
+            botResponse = "FH is a genetic condition causing **extremely high LDL cholesterol from birth**, unaffected by diet alone. Early genetic detection allows doctors to customise **highly effective preventative treatment** like statins.";
           } else if (query.includes('statin') || query.includes('medication') || query.includes('pill') || query.includes('treatment') || query.includes('ubat') || query.includes('药物') || query.includes('மருந்து')) {
             botResponse = "FH is highly manageable using daily **statins**, which safely lower LDL by up to **50%**. Never adjust your prescribed dosage without consulting your clinical team.";
           } else if (query.includes('booking') || query.includes('reschedule') || query.includes('appointment') || query.includes('tempah') || query.includes('预约') || query.includes('முன்பதிவு')) {
@@ -180,7 +180,7 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
               <span className="text-[10px] text-slate-400">{t(language, 'chatbot_online')}</span>
             </div>
           </div>
@@ -247,9 +247,9 @@ export default function Chatbot({ onClose, language = 'en' }: ChatbotProps) {
             </div>
             <div className="bg-slate-800 p-3 rounded-xl rounded-tl-none border border-slate-700/50">
               <div className="flex gap-1 items-center py-1">
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
               </div>
             </div>
           </div>

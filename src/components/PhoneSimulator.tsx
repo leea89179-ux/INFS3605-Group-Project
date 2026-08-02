@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenId, Appointment, ReminderPreferences, PatientRecord } from '../types';
-import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail, Lightbulb, Handshake, Heart, FlaskConical, Apple, Ban, Activity, Building2, Home, AlertTriangle, Brain } from 'lucide-react';
+import { HeartPulse, Dna, ClipboardList, Coins, ShieldAlert, Pill, ChevronRight, Calendar, CalendarX, Bell, Check, ArrowLeft, Play, Pause, MapPin, SquareCheck as CheckSquare, Square, Info, ShieldCheck, ExternalLink, MessageCircle, Smartphone, CircleAlert as AlertCircle, Share2, Users, Sparkles, BookOpen, FileText, Shield, Settings, CreditCard, User, ChevronDown, Clock, X, Download, Printer, ChevronLeft, CircleHelp as HelpCircle, Globe, CircleCheck as CheckCircle, Phone, LogOut, Search, Send, RefreshCw, MessageSquare, Mail, Lightbulb, Handshake, Heart, FlaskConical, Apple, Ban, Activity, Building2, Home, AlertTriangle, Brain, Crosshair, Navigation, LogIn, Type, Lock, Eye, EyeOff } from 'lucide-react';
 import { educationalSections, faqs, HelpfulResource, helpfulResources } from '../data/education';
 import { Language, LANG_LABELS, UI_TRANSLATIONS, getLocalizedEducationalSections, getLocalizedFaqs, getLocalizedDate, getLocalizedMonthOnly, getLocalizedHelpfulResources } from '../data/translations';
 import { getPersonalizedGuide, getPersonalisedGuideContent } from '../data/personalizedContent';
 import { getPersonalizedStory } from '../data/personalizedStories';
-import { FH_COST_DATA } from '../data/pricingConstants';
+import { FH_COST_DATA, getLocalizedCostData } from '../data/pricingConstants';
 
 interface PhoneSimulatorProps {
   activeScreen: ScreenId;
@@ -24,6 +24,8 @@ interface PhoneSimulatorProps {
   percentComplete?: number;
   onUpdateEducationProgress?: (patientId: string, percent: number) => void;
   emilyWongRefreshTrigger?: number;
+  onSelectPersona?: (patientId: string) => void;
+  onResetEmily?: () => void;
 }
 
 export const PERSONA_DETAILS: Record<string, { fullName: string; nric: string; dob: string; gender: string; email: string; age: number; address: string }> = {
@@ -60,7 +62,7 @@ export const clinicalSlots = [
   {
     date: '21 July 2026',
     time: '10:00 AM',
-    provider: 'Dr. Helen Lim',
+    provider: 'Clinical Specialist',
     role: 'Senior Genetic Counsellor',
     duration: '45 mins',
     clinic: 'National University Hospital Genetic Clinic',
@@ -70,7 +72,7 @@ export const clinicalSlots = [
   {
     date: '23 July 2026',
     time: '2:00 PM',
-    provider: 'Dr. Helen Lim',
+    provider: 'Clinical Specialist',
     role: 'Senior Genetic Counsellor',
     duration: '45 mins',
     clinic: 'National University Hospital Genetic Clinic',
@@ -80,7 +82,7 @@ export const clinicalSlots = [
   {
     date: '24 July 2026',
     time: '9:30 AM',
-    provider: 'Dr. Helen Lim',
+    provider: 'Clinical Specialist',
     role: 'Senior Genetic Counsellor',
     duration: '45 mins',
     clinic: 'National University Hospital Genetic Clinic',
@@ -106,7 +108,7 @@ export const CLINICS: ClinicOption[] = [
     address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074',
     lat: 1.2941,
     lng: 103.7831,
-    provider: 'Dr. Helen Lim',
+    provider: 'Clinical Specialist',
     role: 'Senior Genetic Counsellor'
   },
   {
@@ -115,7 +117,7 @@ export const CLINICS: ClinicOption[] = [
     address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608',
     lat: 1.2798,
     lng: 103.8329,
-    provider: 'Dr. Marcus Goh',
+    provider: 'Clinical Specialist',
     role: 'Principal Genetics Specialist'
   },
   {
@@ -124,7 +126,7 @@ export const CLINICS: ClinicOption[] = [
     address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433',
     lat: 1.3214,
     lng: 103.8458,
-    provider: 'Dr. Sarah Tan',
+    provider: 'Clinical Specialist',
     role: 'Senior Clinical Geneticist'
   },
   {
@@ -133,7 +135,7 @@ export const CLINICS: ClinicOption[] = [
     address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899',
     lat: 1.3094,
     lng: 103.8456,
-    provider: 'Dr. Jeanette Tan',
+    provider: 'Clinical Specialist',
     role: 'Lead Paediatric Counsellor'
   }
 ];
@@ -145,7 +147,7 @@ export const GENERAL_CLINICS: ClinicOption[] = [
     address: '2003 Toa Payoh Lor 8, Singapore 319260',
     lat: 1.3392,
     lng: 103.8565,
-    provider: 'Dr. Audrey Ng',
+    provider: 'Clinical Specialist',
     role: 'Family Physician'
   },
   {
@@ -154,7 +156,7 @@ export const GENERAL_CLINICS: ClinicOption[] = [
     address: '21 Ang Mo Kio Central 2, Singapore 569666',
     lat: 1.3785,
     lng: 103.8454,
-    provider: 'Dr. Kevin Tan',
+    provider: 'Clinical Specialist',
     role: 'Senior Resident Physician'
   },
   {
@@ -163,7 +165,7 @@ export const GENERAL_CLINICS: ClinicOption[] = [
     address: '190 Serangoon Road, Singapore 218064',
     lat: 1.3125,
     lng: 103.8580,
-    provider: 'Dr. Priya Ramasamy',
+    provider: 'Clinical Specialist',
     role: 'Family Physician'
   },
   {
@@ -172,7 +174,7 @@ export const GENERAL_CLINICS: ClinicOption[] = [
     address: '6A Napier Rd, Singapore 258500',
     lat: 1.3065,
     lng: 103.8015,
-    provider: 'Dr. Christopher de Souza',
+    provider: 'Clinical Specialist',
     role: 'General Practitioner'
   }
 ];
@@ -258,22 +260,22 @@ export const getClinicAddress = (clinicName: string) => {
 
 export const getClinicSpecialist = (clinicName: string) => {
   if (clinicName.includes("Toa Payoh Polyclinic")) {
-    return "Dr. Audrey Ng (Family Physician)";
+    return "Clinical Specialist (Family Physician)";
   } else if (clinicName.includes("Ang Mo Kio Polyclinic")) {
-    return "Dr. Kevin Tan (Senior Resident Physician)";
+    return "Clinical Specialist (Senior Resident Physician)";
   } else if (clinicName.includes("Kallang Polyclinic")) {
-    return "Dr. Priya Ramasamy (Family Physician)";
+    return "Clinical Specialist (Family Physician)";
   } else if (clinicName.includes("Gleneagles")) {
-    return "Dr. Christopher de Souza (General Practitioner)";
+    return "Clinical Specialist (General Practitioner)";
   }
   if (clinicName.includes("Singapore General") || clinicName.includes("SGH")) {
-    return "Dr. Marcus Goh (Principal Genetics Specialist)";
+    return "Clinical Specialist (Principal Genetics Specialist)";
   } else if (clinicName.includes("Tan Tock Seng") || clinicName.includes("TTSH")) {
-    return "Dr. Sarah Tan (Senior Clinical Geneticist)";
+    return "Clinical Specialist (Senior Clinical Geneticist)";
   } else if (clinicName.includes("KK Women") || clinicName.includes("KKH")) {
-    return "Dr. Jeanette Tan (Lead Paediatric Counsellor)";
+    return "Clinical Specialist (Lead Paediatric Counsellor)";
   }
-  return "Dr. Helen Lim (Senior Genetic Counsellor)";
+  return "Clinical Specialist (Senior Genetic Counsellor)";
 };
 
 export interface ClinicSlot {
@@ -291,188 +293,188 @@ export const CLINIC_SLOTS_DB: Record<string, Record<string, Record<number, Clini
   nuh: {
     'July 2026': {
       21: [
-        { date: '21 July 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '21 July 2026', time: '10:00 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '21 July 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       22: [
-        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '22 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '22 July 2026', time: '10:30 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '11:30 AM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '2:30 PM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '22 July 2026', time: '4:00 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       23: [
-        { date: '23 July 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '11:00 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '2:00 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '23 July 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '23 July 2026', time: '9:00 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '11:00 AM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '2:00 PM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '23 July 2026', time: '3:30 PM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       24: [
-        { date: '24 July 2026', time: '9:30 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '24 July 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '24 July 2026', time: '9:30 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '11:00 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '24 July 2026', time: '4:00 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     },
     'August 2026': {
       12: [
-        { date: '12 August 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '12 August 2026', time: '10:00 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '12 August 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       13: [
-        { date: '13 August 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '13 August 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '13 August 2026', time: '11:30 AM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '13 August 2026', time: '2:30 PM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       14: [
-        { date: '14 August 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '14 August 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '14 August 2026', time: '9:00 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '14 August 2026', time: '3:30 PM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       18: [
-        { date: '18 August 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '18 August 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '18 August 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '18 August 2026', time: '4:00 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     },
     'September 2026': {
       8: [
-        { date: '8 September 2026', time: '10:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '8 September 2026', time: '10:00 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '8 September 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       9: [
-        { date: '9 September 2026', time: '11:30 AM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '9 September 2026', time: '2:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '9 September 2026', time: '11:30 AM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '9 September 2026', time: '2:30 PM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       10: [
-        { date: '10 September 2026', time: '9:00 AM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '10 September 2026', time: '3:30 PM', provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '10 September 2026', time: '9:00 AM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '10 September 2026', time: '3:30 PM', provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ],
       15: [
-        { date: '15 September 2026', time: '1:30 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-        { date: '15 September 2026', time: '4:00 PM', provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+        { date: '15 September 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+        { date: '15 September 2026', time: '4:00 PM', provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
       ]
     }
   },
   sgh: {
     'July 2026': {
       22: [
-        { date: '22 July 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '22 July 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '22 July 2026', time: '9:00 AM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '10:30 AM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '1:30 PM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '22 July 2026', time: '3:00 PM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       23: [
-        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '23 July 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '23 July 2026', time: '3:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '23 July 2026', time: '11:30 AM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '23 July 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '23 July 2026', time: '3:00 PM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       25: [
-        { date: '25 July 2026', time: '10:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '25 July 2026', time: '11:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '25 July 2026', time: '2:00 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '25 July 2026', time: '10:00 AM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '25 July 2026', time: '11:30 AM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '25 July 2026', time: '2:00 PM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     },
     'August 2026': {
       12: [
-        { date: '12 August 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '12 August 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '12 August 2026', time: '9:00 AM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '12 August 2026', time: '10:30 AM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       13: [
-        { date: '13 August 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '13 August 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '13 August 2026', time: '1:30 PM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '13 August 2026', time: '3:00 PM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       19: [
-        { date: '19 August 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '19 August 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '19 August 2026', time: '11:30 AM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '19 August 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     },
     'September 2026': {
       8: [
-        { date: '8 September 2026', time: '9:00 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '8 September 2026', time: '10:30 AM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '8 September 2026', time: '9:00 AM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '8 September 2026', time: '10:30 AM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       9: [
-        { date: '9 September 2026', time: '1:30 PM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '9 September 2026', time: '3:00 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '9 September 2026', time: '1:30 PM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '9 September 2026', time: '3:00 PM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ],
       16: [
-        { date: '16 September 2026', time: '11:30 AM', provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-        { date: '16 September 2026', time: '1:30 PM', provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+        { date: '16 September 2026', time: '11:30 AM', provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+        { date: '16 September 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
       ]
     }
   },
   ttsh: {
     'July 2026': {
       21: [
-        { date: '21 July 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '21 July 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '21 July 2026', time: '3:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '21 July 2026', time: '10:30 AM', provider: 'Clinical Specialist', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '21 July 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '21 July 2026', time: '3:00 PM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       23: [
-        { date: '23 July 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '23 July 2026', time: '11:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '23 July 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '23 July 2026', time: '10:00 AM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '23 July 2026', time: '11:30 AM', provider: 'Clinical Specialist', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '23 July 2026', time: '4:00 PM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       24: [
-        { date: '24 July 2026', time: '9:00 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '24 July 2026', time: '11:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '24 July 2026', time: '2:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '24 July 2026', time: '9:00 AM', provider: 'Clinical Specialist', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '24 July 2026', time: '11:00 AM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '24 July 2026', time: '2:30 PM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     },
     'August 2026': {
       14: [
-        { date: '14 August 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '14 August 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '14 August 2026', time: '10:30 AM', provider: 'Clinical Specialist', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '14 August 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       20: [
-        { date: '20 August 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '20 August 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '20 August 2026', time: '10:00 AM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '20 August 2026', time: '4:00 PM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     },
     'September 2026': {
       10: [
-        { date: '10 September 2026', time: '10:30 AM', provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '10 September 2026', time: '1:30 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '10 September 2026', time: '10:30 AM', provider: 'Clinical Specialist', role: 'Consultant Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '10 September 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ],
       17: [
-        { date: '17 September 2026', time: '10:00 AM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-        { date: '17 September 2026', time: '4:00 PM', provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+        { date: '17 September 2026', time: '10:00 AM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+        { date: '17 September 2026', time: '4:00 PM', provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
       ]
     }
   },
   kkh: {
     'July 2026': {
       22: [
-        { date: '22 July 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '22 July 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '22 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '22 July 2026', time: '11:00 AM', provider: 'Clinical Specialist', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '22 July 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '22 July 2026', time: '3:30 PM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ],
       24: [
-        { date: '24 July 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '24 July 2026', time: '1:30 PM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '24 July 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '24 July 2026', time: '10:30 AM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '24 July 2026', time: '1:30 PM', provider: 'Clinical Specialist', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '24 July 2026', time: '3:30 PM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ],
       27: [
-        { date: '27 July 2026', time: '10:00 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '27 July 2026', time: '1:00 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '27 July 2026', time: '3:00 PM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '27 July 2026', time: '10:00 AM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '27 July 2026', time: '1:00 PM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '27 July 2026', time: '3:00 PM', provider: 'Clinical Specialist', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ]
     },
     'August 2026': {
       12: [
-        { date: '12 August 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '12 August 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '12 August 2026', time: '11:00 AM', provider: 'Clinical Specialist', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '12 August 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ],
       18: [
-        { date: '18 August 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '18 August 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '18 August 2026', time: '10:30 AM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '18 August 2026', time: '3:30 PM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ]
     },
     'September 2026': {
       8: [
-        { date: '8 September 2026', time: '11:00 AM', provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '8 September 2026', time: '1:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '8 September 2026', time: '11:00 AM', provider: 'Clinical Specialist', role: 'Consultant Paediatric Geneticist', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '8 September 2026', time: '1:30 PM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ],
       15: [
-        { date: '15 September 2026', time: '10:30 AM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-        { date: '15 September 2026', time: '3:30 PM', provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+        { date: '15 September 2026', time: '10:30 AM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+        { date: '15 September 2026', time: '3:30 PM', provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', duration: '45 mins', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
       ]
     }
   }
@@ -487,20 +489,20 @@ const extraOfferingsMonths = [
 
 const referenceClinicDetails: Record<string, { provider: string; role: string; cost: string; clinic: string; address: string }[]> = {
   nuh: [
-    { provider: 'Dr. Helen Lim', role: 'Senior Genetic Counsellor', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
-    { provider: 'Dr. Albert Chiang', role: 'Consultant Cardiogeneticist', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
+    { provider: 'Clinical Specialist', role: 'Senior Genetic Counsellor', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' },
+    { provider: 'Consultant Specialist', role: 'Consultant Cardiogeneticist', cost: 'S$18–87', clinic: 'National University Hospital Genetic Clinic', address: '5 Lower Kent Ridge Rd, Main Building Zone B, Singapore 119074' }
   ],
   sgh: [
-    { provider: 'Dr. Marcus Goh', role: 'Principal Genetics Specialist', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
-    { provider: 'Dr. Fiona Lee', role: 'Senior Genetic Counsellor', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
+    { provider: 'Clinical Specialist', role: 'Principal Genetics Specialist', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' },
+    { provider: 'Consultant Specialist', role: 'Senior Genetic Counsellor', cost: 'S$18–87', clinic: 'Singapore General Hospital Genetics Service', address: 'Outram Rd, Academic Medicine Basement 1, Singapore 169608' }
   ],
   ttsh: [
-    { provider: 'Dr. Benjamin Chew', role: 'Consultant Geneticist', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
-    { provider: 'Dr. Sarah Tan', role: 'Senior Clinical Geneticist', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
+    { provider: 'Clinical Specialist', role: 'Consultant Geneticist', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' },
+    { provider: 'Consultant Specialist', role: 'Senior Clinical Geneticist', cost: 'S$18–87', clinic: 'Tan Tock Seng Hospital Clinical Genomics', address: '11 Jalan Tan Tock Seng, Clinic 4B, Singapore 308433' }
   ],
   kkh: [
-    { provider: 'Dr. Claire Wong', role: 'Consultant Paediatric Geneticist', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
-    { provider: 'Dr. Jeanette Tan', role: 'Lead Paediatric Counsellor', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
+    { provider: 'Clinical Specialist', role: 'Consultant Paediatric Geneticist', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' },
+    { provider: 'Consultant Specialist', role: 'Lead Paediatric Counsellor', cost: 'S$18–87', clinic: 'KK Women\'s and Children\'s Hospital Genetics Clinic', address: '100 Bukit Timah Rd, Children\'s Tower Level 5, Singapore 229899' }
   ]
 };
 
@@ -612,7 +614,7 @@ for (const clinicId of Object.keys(referenceClinicDetails)) {
 }
 
 export const availableMonths = [
-  'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
+  'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
   'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027', 'June 2027',
   'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
 ];
@@ -766,6 +768,15 @@ const isMonthBeforeCurrent = (monthStr: string): boolean => {
   if (year < currentYear) return true;
   if (year === currentYear && monthIndex < currentMonthIndex) return true;
   return false;
+};
+
+const isAfterDecember2026 = (monthStr: string): boolean => {
+  if (!monthStr) return false;
+  const parts = monthStr.trim().split(/\s+/);
+  if (parts.length < 2) return false;
+  const year = parseInt(parts[1], 10);
+  if (isNaN(year)) return false;
+  return year > 2026;
 };
 
 const getEarliestFutureAppointment = (clinicId: string, customSlotsDb?: any) => {
@@ -959,6 +970,8 @@ export default function PhoneSimulator({
   percentComplete,
   onUpdateEducationProgress,
   emilyWongRefreshTrigger,
+  onSelectPersona,
+  onResetEmily,
 }: PhoneSimulatorProps) {
 
   // Local state for interactive elements
@@ -1050,11 +1063,13 @@ export default function PhoneSimulator({
   };
   const patientInitials = getInitials(patientName);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [titleLangMenuOpen, setTitleLangMenuOpen] = useState(false);
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem('fh-app-language', lang);
     setLangMenuOpen(false);
+    setTitleLangMenuOpen(false);
     const langToUrl: Record<Language, string> = { en: 'en', ms: 'ms', zh: 'zh-CN', ta: 'ta' };
     const htmlLang: Record<Language, string> = { en: 'en', ms: 'ms', zh: 'zh-Hans', ta: 'ta' };
     window.history.replaceState({}, '', `/${langToUrl[lang]}/`);
@@ -1125,7 +1140,13 @@ export default function PhoneSimulator({
 
   const [eduExpanded, setEduExpanded] = useState<Record<string, boolean>>({});
   const [forceFullExpand, setForceFullExpand] = useState<Record<string, boolean>>({});
-  const [activeFaqCategory, setActiveFaqCategory] = useState<string>('all');
+  const [activeFaqCategory, setActiveFaqCategory] = useState<string>(() => {
+    try {
+      const qStatus = localStorage.getItem('fh-questionnaire-status');
+      if (qStatus === 'completed') return 'recommended';
+    } catch {}
+    return 'all';
+  });
   const [faqExpanded, setFaqExpanded] = useState<Record<number, boolean>>({});
   const [eduSubTab, setEduSubTab] = useState<'guides' | 'faq'>('guides');
   const [brochureSlideIndex, setBrochureSlideIndex] = useState(0);
@@ -1137,10 +1158,81 @@ export default function PhoneSimulator({
   const [faqActiveIdx, setFaqActiveIdx] = useState<number | null>(null);
   const [textSize, setTextSize] = useState<'sm' | 'md' | 'lg'>('md');
   const [questionnaireTextSize, setQuestionnaireTextSize] = useState<'sm' | 'md' | 'lg'>('md');
+  const [showTextSizeMenu, setShowTextSizeMenu] = useState<boolean>(false);
+  const [showQuestionnaireTextSizeMenu, setShowQuestionnaireTextSizeMenu] = useState<boolean>(false);
 
   const [showOtherTopics, setShowOtherTopics] = useState<boolean>(false);
   const [expandedOtherTopicId, setExpandedOtherTopicId] = useState<string | null>(null);
   const [showCascadeTooltip, setShowCascadeTooltip] = useState<boolean>(false);
+
+  // Simple Green Title / Splash Screen State
+  const [showSplash, setShowSplash] = useState<boolean>(true);
+  const [splashFading, setSplashFading] = useState<boolean>(false);
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [authTab, setAuthTab] = useState<'persona' | 'singpass'>('persona');
+  const [authStage, setAuthStage] = useState<'credentials' | 'otp'>('credentials');
+  const [nricInput, setNricInput] = useState<string>('');
+  const [passwordInput, setPasswordInput] = useState<string>('');
+  const [rememberMe, setRememberMe] = useState<boolean>(true);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [otpInput, setOtpInput] = useState<string>('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
+  const [otpSending, setOtpSending] = useState<boolean>(false);
+
+  const handleLoginSelectPersona = (patientId: string) => {
+    if (onSelectPersona) {
+      onSelectPersona(patientId);
+    }
+    setShowLoginModal(false);
+    setSplashFading(true);
+    setAuthError(null);
+    setAuthStage('credentials');
+    setTimeout(() => {
+      setShowSplash(false);
+      onChangeScreen(ScreenId.Home);
+    }, 400);
+  };
+
+  const handleSingpassLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    if (!nricInput.trim()) {
+      setAuthError(t('auth_error_nric'));
+      return;
+    }
+    if (!passwordInput.trim()) {
+      setAuthError(t('auth_error_password'));
+      return;
+    }
+    setAuthLoading(true);
+    setTimeout(() => {
+      setAuthLoading(false);
+      setAuthStage('otp');
+    }, 600);
+  };
+
+  const handleVerifyOtpSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    if (otpInput.trim().length !== 6) {
+      setAuthError(t('auth_otp_error'));
+      return;
+    }
+    setAuthLoading(true);
+    setTimeout(() => {
+      setAuthLoading(false);
+      handleLoginSelectPersona('EW003');
+    }, 600);
+  };
+
+  const handleResendOtp = () => {
+    setOtpSending(true);
+    setTimeout(() => {
+      setOtpSending(false);
+      triggerToast(t('auth_otp_resent_success'));
+    }, 800);
+  };
 
   const handleCompleteOnboarding = (completed: boolean = true, status?: 'completed' | 'skipped') => {
     setOnboardingCompleted(completed);
@@ -1148,6 +1240,9 @@ export default function PhoneSimulator({
     setExpandedOtherTopicId(null);
     const resolvedStatus = status || (completed ? 'completed' : 'skipped');
     setQuestionnaireStatus(resolvedStatus);
+    if (resolvedStatus === 'completed') {
+      setActiveFaqCategory('recommended');
+    }
     try {
       localStorage.setItem('fh-onboarding-completed', completed ? 'true' : 'false');
       localStorage.setItem('fh-questionnaire-status', resolvedStatus);
@@ -1186,26 +1281,7 @@ export default function PhoneSimulator({
   }, [emilyWongRefreshTrigger]);
 
   const scaleText = (defaultClass: string) => {
-    if (textSize === 'md') return defaultClass;
-    let res = defaultClass;
-    if (textSize === 'sm') {
-      res = res.replace('text-[9px]', 'text-[8px]');
-      res = res.replace('text-[9.5px]', 'text-[8.5px]');
-      res = res.replace('text-[10px]', 'text-[9px]');
-      res = res.replace('text-[10.5px]', 'text-[9.5px]');
-      res = res.replace('text-[11px]', 'text-[10px]');
-      res = res.replace('text-xs', 'text-[11px]');
-      res = res.replace('text-sm', 'text-xs');
-    } else if (textSize === 'lg') {
-      res = res.replace('text-[9px]', 'text-[11px]');
-      res = res.replace('text-[9.5px]', 'text-[11.5px]');
-      res = res.replace('text-[10px]', 'text-[12px]');
-      res = res.replace('text-[10.5px]', 'text-[12.5px]');
-      res = res.replace('text-[11px]', 'text-[13px]');
-      res = res.replace('text-xs', 'text-[13.5px]');
-      res = res.replace('text-sm', 'text-base');
-    }
-    return res;
+    return defaultClass;
   };
 
   const getButtonTextSizeClass = (lang: string) => {
@@ -1291,10 +1367,32 @@ export default function PhoneSimulator({
     },
   ];
 
-  // List of all 6 educational sections from localized sections source of truth
+  // List of all 6 educational sections from localized sections source of truth, enriched with questionnaire personalization
   const allGuideTopics = useMemo(() => {
-    return getLocalizedEducationalSections(language);
-  }, [language]);
+    const defaultSections = getLocalizedEducationalSections(language);
+    if (!onboardingCompleted || questionnaireStatus === 'skipped') {
+      return defaultSections;
+    }
+    return defaultSections.map(sec => {
+      const pGuide = getPersonalizedGuide(
+        sec.id,
+        onboardingFamiliarity,
+        onboardingConcerns,
+        language,
+        questionnaireStatus
+      );
+      return {
+        ...sec,
+        title: pGuide.title || sec.title,
+        content: pGuide.content || sec.content,
+        keyTakeaway: pGuide.keyTakeaway || sec.keyTakeaway,
+        visualItems: (pGuide.visualItems && pGuide.visualItems.length > 0) ? pGuide.visualItems : sec.visualItems,
+        readingTime: pGuide.readingTime || sec.readingTime,
+        disclaimer: pGuide.disclaimer || sec.disclaimer,
+        shortSummary: pGuide.shortSummary || sec.shortSummary,
+      };
+    });
+  }, [language, onboardingCompleted, questionnaireStatus, onboardingFamiliarity, onboardingConcerns]);
 
   const selectedTopicsList = useMemo(() => {
     const raw = onboardingTopics || [];
@@ -1460,7 +1558,7 @@ export default function PhoneSimulator({
     if (res.id === 'res-5') return language === 'ms' ? 'Kesihatan Jantung' : language === 'zh' ? '心脏健康' : language === 'ta' ? 'இதய ஆரோக்கியம்' : 'Heart Health';
     if (res.id === 'res-2') return language === 'ms' ? 'Panduan Klinikal' : language === 'zh' ? '临床指南' : language === 'ta' ? 'மருத்துவ வழிகாட்டி' : 'Clinical Practice';
 
-    return language === 'ms' ? 'Padanan Relevan' : language === 'zh' ? '契合需求' : language === 'ta' ? 'பொருத்தமானது' : 'Personalized Match';
+    return language === 'ms' ? 'Padanan Relevan' : language === 'zh' ? '契合需求' : language === 'ta' ? 'பொருத்தமானது' : 'Relevant Match';
   };
 
   const sortedHelpfulResources = [...getLocalizedHelpfulResources(helpfulResources, language)].sort((a, b) => {
@@ -1487,10 +1585,12 @@ export default function PhoneSimulator({
     return PERSONA_COORDS[currentPatientId] || { lat: 1.3625, lng: 103.8542 };
   });
   const [patientLocName, setPatientLocName] = useState<string>(() => patientAddress);
+  const [locationType, setLocationType] = useState<'registered' | 'live' | 'custom'>('registered');
   const [locationSearchQuery, setLocationSearchQuery] = useState<string>('');
   const [isDetectingLoc, setIsDetectingLoc] = useState<boolean>(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
+  const [showChasModal, setShowChasModal] = useState<boolean>(false);
   const [showClinicDropdown, setShowClinicDropdown] = useState<boolean>(false);
 
   // Calendar Booking States (User request 2)
@@ -1512,10 +1612,38 @@ export default function PhoneSimulator({
   useEffect(() => {
     if (patientAddress) {
       setPatientLocName(patientAddress);
+      setLocationType('registered');
+      setGpsError(null);
       const coords = PERSONA_COORDS[currentPatientId] || { lat: 1.3625, lng: 103.8542 };
       setPatientCoords(coords);
     }
-  }, [currentPatientId, patientAddress]);
+
+    // Reset previous patient's booking state and modals to avoid carrying data over
+    setBookingStep('available');
+    setSelectedSlotObj(null);
+    setSelectedSlotIdx(null);
+    setProposedSlotObj(null);
+    setBookingSubFlow(null);
+    setShowChasModal(false);
+    setShowClinicDropdown(false);
+
+    const patientClinics = isFHReferred ? CLINICS : GENERAL_CLINICS;
+    const matchingClinic = patientClinics.find(c => c.name === appointment?.clinic);
+    const targetClinicId = matchingClinic ? matchingClinic.id : patientClinics[0].id;
+    setSelectedClinicId(targetClinicId);
+    setRescheduleClinicId(targetClinicId);
+
+    const slotsDb = getClinicSlotsDb(isFHReferred);
+    const earliest = getEarliestFutureAppointment(targetClinicId, slotsDb);
+    if (earliest) {
+      setSelectedCalendarMonth(earliest.monthStr);
+      setSelectedCalendarDay(earliest.dayNum);
+      setSelectedSlotMonth(earliest.monthStr);
+    } else {
+      setSelectedCalendarDay(0);
+      setSelectedSlotMonth('');
+    }
+  }, [currentPatientId, patientAddress, isFHReferred, appointment?.clinic]);
 
   const handleClinicChange = (clinicId: string) => {
     setSelectedClinicId(clinicId);
@@ -1573,17 +1701,17 @@ export default function PhoneSimulator({
   const [rescheduleCalendarMonth, setRescheduleCalendarMonth] = useState<string>(() => {
     const todayMonth = getTodayMonthStr();
     const available = [
-      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
+      'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026',
       'January 2027', 'February 2027', 'March 2027', 'April 2027', 'May 2027', 'June 2027',
       'July 2027', 'August 2027', 'September 2027', 'October 2027', 'November 2027', 'December 2027'
     ];
-    return available.includes(todayMonth) ? todayMonth : 'July 2026';
+    return available.includes(todayMonth) ? todayMonth : 'August 2026';
   });
   const [rescheduleCalendarDay, setRescheduleCalendarDay] = useState<number>(() => {
     const todayMonth = getTodayMonthStr();
     const initialMonth = [
-      'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
-    ].includes(todayMonth) ? todayMonth : 'July 2026';
+      'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026'
+    ].includes(todayMonth) ? todayMonth : 'August 2026';
     return getFirstAvailableDay(initialMonth, 'nuh', activeClinicSlotsDb);
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -1731,8 +1859,14 @@ export default function PhoneSimulator({
       ],
       correctAnswer: 0,
       explanation: isAdvanced
-        ? 'FH is predominantly caused by mutations in the LDLR, APOB, or PCSK9 genes affecting hepatic clearance.'
-        : 'FH is an inherited condition from birth, meaning medication alongside healthy lifestyle is usually necessary.'
+        ? (language === 'ms' ? 'FH disebabkan terutamanya oleh mutasi pada gen LDLR, APOB, atau PCSK9 yang menjejaskan pembersihan hati.' :
+           language === 'zh' ? 'FH 主要是由于 LDLR、APOB 或 PCSK9 基因突变导致肝脏清除功能受损所致。' :
+           language === 'ta' ? 'FH என்பது கல்லீரல் சுத்திகரிப்பை பாதிக்கும் LDLR, APOB அல்லது PCSK9 மரபணு மாற்றங்களால் ஏற்படுகிறது.' :
+           'FH is predominantly caused by mutations in the LDLR, APOB, or PCSK9 genes affecting hepatic clearance.')
+        : (language === 'ms' ? 'FH adalah keadaan keturunan sejak lahir, bermakna ubat bersama gaya hidup sihat biasanya diperlukan.' :
+           language === 'zh' ? 'FH 是自出生起即存在的遗传性疾病，这意味着通常需要药物联合健康生活方式进行管理。' :
+           language === 'ta' ? 'FH என்பது பிறப்பிலிருந்தே உள்ள பரம்பரை நிலை, மருந்துகளும் ஆரோக்கியமான பழக்கவழக்கங்களும் தேவை.' :
+           'FH is an inherited condition from birth, meaning medication alongside healthy lifestyle is usually necessary.')
     });
 
     // Question 2: Topic specific based on onboardingTopics
@@ -1781,8 +1915,14 @@ export default function PhoneSimulator({
         ],
         correctAnswer: 0,
         explanation: onboardingTopics.includes('topic-costs')
-          ? 'Singapore Citizens and PRs receive up to 70% means-tested subsidies for FH counselling and genetic testing, with MediSave500/700 coverage.'
-          : 'Cascade screening tests parents, siblings, and children of an index patient who have a 50% inheritance chance.'
+          ? (language === 'ms' ? 'Rakyat Singapura dan PR menerima subsidi MOH sehingga 70% untuk kaunseling dan ujian FH, serta perlindungan MediSave500/700.' :
+             language === 'zh' ? '新加坡公民与永久居民享有高达 70% 的 MOH 基因检测与咨询津贴，并可用 MediSave500/700 支付。' :
+             language === 'ta' ? 'சிங்கப்பூர் குடிமக்கள் மற்றும் PR-கள் FH ஆலோசனை மற்றும் பரிசோதனைக்கு 70% வரை MOH மானியம் மற்றும் MediSave500/700 பெறுகிறார்கள்.' :
+             'Singapore Citizens and PRs receive up to 70% means-tested subsidies for FH counselling and genetic testing, with MediSave500/700 coverage.')
+          : (language === 'ms' ? 'Saringan kaskad menguji ibu bapa, adik-beradik dan anak-anak pesakit indeks yang mempunyai 50% peluang pewarisan.' :
+             language === 'zh' ? '级联家系筛查对具有 50% 遗传概率的患者父母、兄弟姐妹和子女进行针对性检测。' :
+             language === 'ta' ? 'அடுக்கு திரையிடல் 50% பரம்பரை வாய்ப்புள்ள பெற்றோர், உடன்பிறந்தோர் மற்றும் குழந்தைகளை சோதிக்கிறது.' :
+             'Cascade screening tests parents, siblings, and children of an index patient who have a 50% inheritance chance.')
       });
     }
 
@@ -1808,7 +1948,7 @@ export default function PhoneSimulator({
           language === 'ms' ? 'Semua insuran dibatalkan secara automatik apabila mengambil ujian' :
           language === 'zh' ? '进行检测后，所有保险将被自动取消' :
           language === 'ta' ? 'சோதனை செய்தவுடன் அனைத்து காப்பீடுகளும் ரத்து செய்யப்படும்' :
-          'All existing insurance policies are automatically canceled',
+          'All existing insurance policies are automatically cancelled',
 
           language === 'ms' ? 'Insurans menaikkan kadar premium secara serta-merta sebanyak 200%' :
           language === 'zh' ? '保险保费将立即大幅上涨 200%' :
@@ -1832,8 +1972,14 @@ export default function PhoneSimulator({
         ],
         correctAnswer: 0,
         explanation: onboardingTopics.includes('topic-insurance')
-          ? 'Under Singapore\'s LIA moratorium, test results cannot be demanded for standard policies and active plans cannot be altered.'
-          : 'The FH blood draw requires no fasting and takes only a few minutes during an outpatient visit.'
+          ? (language === 'ms' ? 'Di bawah moratorium LIA Singapura, keputusan ujian tidak boleh dituntut untuk polisi biasa dan pelan aktif tidak boleh diubah.' :
+             language === 'zh' ? '在新加坡 LIA 暂行规定下，标准保单不得要求出示检测结果，现有生效保单亦不得擅自更改。' :
+             language === 'ta' ? 'சிங்கப்பூரின் LIA உடன்படிக்கையின் கீழ், வழக்கமான பாலிசிகளுக்கு முடிவுகளைக் கேட்க முடியாது.' :
+             'Under Singapore\'s LIA moratorium, test results cannot be demanded for standard policies and active plans cannot be altered.')
+          : (language === 'ms' ? 'Ujian darah FH tidak memerlukan puasa dan hanya mengambil masa beberapa minit semasa lawatan pesakit luar.' :
+             language === 'zh' ? 'FH 抽血检测无需禁食，门诊仅需几分钟即可完成。' :
+             language === 'ta' ? 'FH இரத்த பரிசோதனைக்கு உண்ணாவிரதம் தேவையில்லை மற்றும் சில நிமிடங்கள் மட்டுமே ஆகும்.' :
+             'The FH blood draw requires no fasting and takes only a few minutes during an outpatient visit.')
       });
     }
 
@@ -1884,31 +2030,37 @@ export default function PhoneSimulator({
   const detectLiveLocation = () => {
     setIsDetectingLoc(true);
     setGpsError(null);
+
     if (!navigator.geolocation) {
-      setTimeout(() => {
-        setPatientCoords({ lat: 1.2931, lng: 103.7845 }); // Kent Ridge
-        setPatientLocName('My live location');
-        setIsDetectingLoc(false);
-        triggerToast('Simulated live location successfully!');
-      }, 600);
+      setIsDetectingLoc(false);
+      setGpsError('Geolocation is not supported by your browser or environment. Please use your registered address.');
+      triggerToast('Live location not supported');
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setPatientCoords({
           lat: position.coords.latitude,
           lng: position.coords.longitude
         });
-        setPatientLocName('My live location');
+        setPatientLocName('Current Device Live GPS Location');
+        setLocationType('live');
         setIsDetectingLoc(false);
+        setGpsError(null);
         triggerToast('Detected live location!');
       },
       (error) => {
-        console.warn('GPS blocked, falling back to simulated location:', error);
-        setPatientCoords({ lat: 1.2931, lng: 103.7845 }); // Kent Ridge
-        setPatientLocName('My live location');
+        console.warn('GPS blocked/denied:', error);
         setIsDetectingLoc(false);
-        triggerToast('Simulated live location successfully!');
+        let errorMsg = 'Location permission denied by browser or device settings. Please allow location access or choose your registered address.';
+        if (error.code === 2) {
+          errorMsg = 'GPS location position is unavailable. Please try again or choose your registered address.';
+        } else if (error.code === 3) {
+          errorMsg = 'Location detection request timed out. Please try again or choose your registered address.';
+        }
+        setGpsError(errorMsg);
+        triggerToast('Location access denied');
       },
       { timeout: 4000 }
     );
@@ -1937,7 +2089,7 @@ export default function PhoneSimulator({
     if (isPlayingVideo) {
       interval = setInterval(() => {
         setVideoFrame((prev) => (prev + 1) % 4);
-      }, 2000);
+      }, 6000);
     }
     return () => clearInterval(interval);
   }, [isPlayingVideo]);
@@ -1962,7 +2114,7 @@ export default function PhoneSimulator({
 
   const handleEnterReschedule = () => {
     setProposedSlotObj(null);
-    const currentClinicId = activeClinics.find(c => c.name === appointment?.clinic)?.id || 'nuh';
+    const currentClinicId = activeClinics.find(c => c.name === appointment?.clinic)?.id || activeClinics[0].id;
     setRescheduleClinicId(currentClinicId);
 
     // Derive month and day from appointment.date (format: "22 July 2026")
@@ -2013,6 +2165,9 @@ export default function PhoneSimulator({
   const handleConfirmCancellation = () => {
     onCancelAppointment();
     setBookingSubFlow('cancel-success');
+    setBookingStep('available');
+    setSelectedSlotIdx(null);
+    setSelectedSlotObj(null);
   };
 
   const handleNotificationClickAction = (action: 'confirm' | 'reschedule' | 'learn') => {
@@ -2028,7 +2183,9 @@ export default function PhoneSimulator({
     }
   };
 
-  const filteredFaqs = activeFaqCategory === 'all' 
+  const filteredFaqs = activeFaqCategory === 'recommended'
+    ? sortedFaqs.filter(faq => getFaqMatchScore(faq) > 0)
+    : activeFaqCategory === 'all' 
     ? getLocalizedFaqs(language) 
     : getLocalizedFaqs(language).filter(faq => faq.category === activeFaqCategory);
 
@@ -2106,12 +2263,192 @@ export default function PhoneSimulator({
   };
 
   return (
-    <div className="relative w-[375px] h-[780px] bg-slate-950 rounded-[55px] border-[12px] border-slate-800 shadow-2xl overflow-hidden flex flex-col shrink-0 select-none">
+    <div 
+      data-lang={language}
+      className={`relative w-[375px] h-[780px] bg-slate-950 rounded-[55px] border-[12px] border-slate-800 shadow-2xl overflow-hidden flex flex-col shrink-0 select-none lang-${language} ${
+      textSize === 'sm' ? 'education-text-sm' :
+      textSize === 'lg' ? 'education-text-lg' :
+      'education-text-md'
+    }`}>
       
+      {/* Simple Green Title / Splash Screen */}
+      {showSplash && (
+        <div
+          className={`absolute inset-0 z-[100] bg-gradient-to-b from-[#009b52] via-[#00a859] to-[#008f4c] text-white flex flex-col justify-between items-center p-6 transition-opacity duration-500 ease-out select-none ${
+            splashFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}
+        >
+          {/* Top Header Controls: Language Selector centred near top */}
+          <div className="w-full flex justify-center items-center pt-3 relative z-50">
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setTitleLangMenuOpen(prev => !prev);
+                }}
+                className="px-4 py-1.5 bg-white/20 hover:bg-white/30 active:bg-white/40 backdrop-blur-md text-white rounded-full text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer border border-white/30 shadow-xs"
+                title={t('auth_aria_select_language')}
+                id="title-page-language-select-btn"
+              >
+                <Globe className="w-4 h-4 text-white shrink-0" />
+                <span>{LANG_LABELS[language]}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-white/80 shrink-0" />
+              </button>
+
+              {/* Language Dropdown Menu */}
+              {titleLangMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setTitleLangMenuOpen(false)} />
+                  <div className="absolute left-1/2 -translate-x-1/2 top-9 bg-white border border-slate-200 rounded-2xl shadow-xl p-1.5 z-50 min-w-[170px] text-xs font-medium animate-fade-in text-slate-800">
+                    {[
+                      { code: 'en', label: 'English (EN)' },
+                      { code: 'ms', label: 'Bahasa Melayu (MS)' },
+                      { code: 'zh', label: '简体中文 (ZH)' },
+                      { code: 'ta', label: 'தமிழ் (TA)' }
+                    ].map(({ code, label }) => (
+                      <button
+                        key={code}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLanguageChange(code as Language);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between text-xs cursor-pointer ${
+                          language === code 
+                            ? 'bg-emerald-50 text-[#00a859] font-bold' 
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        {label}
+                        {language === code && (
+                          <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Center Brand Identity: HealthHub Logo + FHAssistant */}
+          <div className="flex flex-col items-center text-center space-y-6 my-auto">
+            {/* White Card with HealthHub Logo */}
+            <div className="bg-white text-slate-900 px-8 py-5 rounded-3xl shadow-xl flex items-center justify-center gap-2 border border-emerald-100/40">
+              <span className="font-extrabold text-2xl tracking-tight text-slate-900 font-sans">Health</span>
+              <span className="font-black text-2xl tracking-tight text-[#00a859] font-sans">Hub</span>
+              <svg className="w-7 h-7 ml-0.5 drop-shadow-xs" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="6" fill="#FBBF24" fillOpacity="0.9" />
+                <circle cx="16" cy="8" r="6" fill="#10B981" fillOpacity="0.9" />
+                <circle cx="12" cy="15" r="6" fill="#3B82F6" fillOpacity="0.9" />
+                <circle cx="10" cy="12" r="4.5" fill="#EF4444" fillOpacity="0.85" />
+              </svg>
+            </div>
+
+            {/* App Name & Subtitle */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2.5">
+                <HeartPulse className="w-7 h-7 text-white stroke-[2.5]" />
+                <h1 className="text-3xl font-black tracking-tight text-white font-display">
+                  FHAssistant
+                </h1>
+              </div>
+              <p className="text-xs font-semibold text-white/95 tracking-wide text-center max-w-[250px] leading-snug">
+                {t('login_app_subtitle')}
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom Footer & Login Button */}
+          <div className="w-full flex flex-col items-center pb-8 space-y-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowLoginModal(true);
+              }}
+              className="px-9 py-3 bg-white text-[#008f4c] hover:bg-slate-50 active:scale-95 rounded-full font-bold text-base shadow-xl flex items-center justify-center gap-2.5 border border-emerald-100/50 transition-all duration-200 cursor-pointer"
+            >
+              <LogIn className="w-4.5 h-4.5 text-[#008f4c] stroke-[2.5]" />
+              <span>{t('login_button')}</span>
+            </button>
+            <p className="text-xs font-bold text-white/90 tracking-wide">
+              {t('login_footer')}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Screen 2: Health-record selection modal */}
+      {showLoginModal && (
+        <div
+          onClick={() => {
+            setShowLoginModal(false);
+          }}
+          className="absolute inset-0 z-[150] bg-black/20 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in transition-all duration-300 cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl w-full max-w-[300px] shadow-2xl border border-slate-100 overflow-hidden flex flex-col text-slate-800 animate-slide-up cursor-default"
+          >
+            {/* Header */}
+            <div className="bg-[#00a859] px-4 py-3.5 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-extrabold text-base text-white tracking-tight">
+                  {t('login_select_persona')}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowLoginModal(false);
+                }}
+                className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 active:bg-white/20 transition cursor-pointer"
+                aria-label={t('auth_aria_close')}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Health-record options: 3 items */}
+            <div className="p-4 space-y-3 bg-slate-50/50">
+              {[
+                { id: 'EW003', initials: 'EW', name: 'Emily Wong' },
+                { id: 'SL001', initials: 'SL', name: 'Sarah Lim' },
+                { id: 'DT002', initials: 'DT', name: 'Daniel Tan' },
+              ].map((persona) => (
+                <button
+                  key={persona.id}
+                  onClick={() => handleLoginSelectPersona(persona.id)}
+                  className="w-full text-left p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-[#00a859]/50 active:scale-[0.99] transition-all duration-200 flex items-center gap-3.5 cursor-pointer group shadow-2xs hover:shadow-xs"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#00a859] text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-2xs">
+                    {persona.initials}
+                  </div>
+                  <span className="font-extrabold text-sm text-slate-900 group-hover:text-[#00733a] transition-colors flex-1">
+                    {persona.name}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#00a859] shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </button>
+              ))}
+            </div>
+
+            {/* Security Footer inside Modal */}
+            <div className="bg-slate-50 px-4 py-3.5 border-t border-slate-100 text-center">
+              <p className="text-xs font-semibold text-slate-700 leading-snug max-w-[210px] mx-auto">
+                {t('login_singpass_security')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast Notification */}
       {toastMessage && (
         <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[11px] font-bold py-2 px-4 rounded-full shadow-lg z-50 flex items-center gap-2 border border-slate-800 animate-fade-in whitespace-nowrap">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -2128,7 +2465,7 @@ export default function PhoneSimulator({
                 <span className="p-1 bg-emerald-50 text-[#00a859] rounded-lg">
                   <Calendar className="w-4 h-4" />
                 </span>
-                Change this appointment?
+                {t('change_this_appointment')}
               </h4>
               <button
                 onClick={handleExitCancelFlow}
@@ -2280,11 +2617,6 @@ export default function PhoneSimulator({
 
         {/* RESCHEDULE – select new slot */}
         {bookingSubFlow === 'reschedule-select' && (() => {
-          const rclinicsWithDistances = activeClinics.map(c => ({
-            ...c,
-            distance: calculateDistance(patientCoords.lat, patientCoords.lng, c.lat, c.lng),
-          })).sort((a, b) => a.distance - b.distance);
-          const rminDistance = Math.min(...rclinicsWithDistances.map(c => c.distance));
           return (
             <div className="flex flex-col flex-1 h-full overflow-hidden bg-slate-50 animate-fade-in">
               {/* Header – matches "Secure Appointment Booking" layout */}
@@ -2307,7 +2639,7 @@ export default function PhoneSimulator({
                   <div className="mx-4 mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-start gap-2">
                     <span className="mt-0.5 text-[#00a859]"><Calendar className="w-4 h-4" /></span>
                     <div>
-                      <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">{t('reschedule_current_appt')}</p>
+                      <p className="text-[10px] font-bold text-emerald-800">{t('reschedule_current_appt')}</p>
                       <p className="text-[11px] text-emerald-900 font-semibold mt-0.5">{getLocalizedDate(appointment.date, language)}</p>
                       <p className="text-[10.5px] text-emerald-700">{appointment.timeSlot} · {appointment.clinic}</p>
                     </div>
@@ -2321,7 +2653,7 @@ export default function PhoneSimulator({
                 <div className="px-4 pb-4 mt-3 space-y-4">
                   {/* Clinic selector */}
                   <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('reschedule_select_clinic')}</label>
+                    <label className="text-[10px] font-bold text-slate-500">{t('reschedule_select_clinic')}</label>
                     <div className="relative">
                       <button
                         onClick={() => setShowRescheduleClinicDropdown(!showRescheduleClinicDropdown)}
@@ -2331,16 +2663,10 @@ export default function PhoneSimulator({
                           <div className="p-1.5 bg-emerald-50 rounded-lg shrink-0">
                             <MapPin className="w-4 h-4 text-[#00a859]" />
                           </div>
-                          <div className="min-w-0">
-                            <h4 className="font-bold text-xs text-slate-800 truncate">
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-bold text-xs text-slate-800 break-words">
                               {activeClinics.find(c => c.id === rescheduleClinicId)?.name}
                             </h4>
-                            <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
-                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance.toFixed(1)} {t('booking_km_away')}
-                              {rclinicsWithDistances.find(c => c.id === rescheduleClinicId)?.distance === rminDistance && (
-                                <span className="ml-1 text-emerald-700 font-semibold">· {t('reschedule_nearest')}</span>
-                              )}
-                            </p>
                           </div>
                         </div>
                         <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
@@ -2348,9 +2674,8 @@ export default function PhoneSimulator({
 
                       {showRescheduleClinicDropdown && (
                         <div className="absolute top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 shadow-md z-40 overflow-hidden divide-y divide-slate-100 animate-fade-in max-h-48 overflow-y-auto">
-                          {rclinicsWithDistances.map((clinic) => {
+                          {activeClinics.map((clinic) => {
                             const isSelected = rescheduleClinicId === clinic.id;
-                            const isNearest = clinic.distance === rminDistance;
                             return (
                               <button
                                 key={clinic.id}
@@ -2369,13 +2694,8 @@ export default function PhoneSimulator({
                                 className={`w-full text-left p-3 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${isSelected ? 'bg-emerald-50/20' : 'bg-white'}`}
                               >
                                 <div className="space-y-0.5 min-w-0 flex-1">
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <h5 className={`font-bold text-xs ${isSelected ? 'text-[#00a859]' : 'text-slate-800'}`}>{clinic.name}</h5>
-                                    {isNearest && <span className="text-[8px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">{t('reschedule_nearest')}</span>}
-                                  </div>
-                                  <p className="text-[9px] font-mono text-slate-400">
-                                    <span className="text-emerald-700 font-bold">{clinic.distance.toFixed(1)} km</span>
-                                  </p>
+                                  <h5 className={`font-bold text-xs ${isSelected ? 'text-[#00a859]' : 'text-slate-800'}`}>{clinic.name}</h5>
+                                  {clinic.address && <p className="text-[10px] text-slate-500 leading-snug">{clinic.address}</p>}
                                 </div>
                                 {isSelected && <Check className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />}
                               </button>
@@ -2422,38 +2742,66 @@ export default function PhoneSimulator({
                   </div>
 
                   {/* Day grid */}
-                  <div className="grid grid-cols-7 gap-1 text-center">
-                    {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
-                      <span key={d} className="text-[9px] font-bold text-slate-400">{d}</span>
-                    ))}
-                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).emptyCells }).map((_, i) => (
-                      <span key={`pad-${i}`} />
-                    ))}
-                    {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
-                      const dayNum = i + 1;
-                      const hasSlots = !!activeClinicSlotsDb[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
-                      const isSelected = rescheduleCalendarDay === dayNum;
-                      const isRescheduleCurrentDay = isToday(rescheduleCalendarMonth, dayNum);
-                      return (
+                  <div className="relative">
+                    <div className={`grid grid-cols-7 gap-1 text-center transition-all ${isAfterDecember2026(rescheduleCalendarMonth) ? 'opacity-25 grayscale pointer-events-none blur-[0.5px]' : ''}`}>
+                      {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
+                        <span key={d} className="text-[9px] font-bold text-slate-400">{d}</span>
+                      ))}
+                      {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).emptyCells }).map((_, i) => (
+                        <span key={`pad-${i}`} />
+                      ))}
+                      {Array.from({ length: getMonthConfig(rescheduleCalendarMonth).totalDays }).map((_, i) => {
+                        const dayNum = i + 1;
+                        const hasSlots = !!activeClinicSlotsDb[rescheduleClinicId]?.[rescheduleCalendarMonth]?.[dayNum] && !isDateBeforeToday(rescheduleCalendarMonth, dayNum);
+                        const isSelected = rescheduleCalendarDay === dayNum;
+                        const isRescheduleCurrentDay = isToday(rescheduleCalendarMonth, dayNum);
+                        return (
+                          <button
+                            key={`day-${dayNum}`}
+                            disabled={!hasSlots}
+                            onClick={() => setRescheduleCalendarDay(dayNum)}
+                            className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer mx-auto ${
+                              isSelected
+                                ? 'bg-[#00a859] text-white shadow-xs'
+                                : isRescheduleCurrentDay
+                                ? 'bg-slate-200/60 border border-slate-300 text-slate-800 hover:bg-slate-300/60'
+                                : hasSlots
+                                ? 'bg-emerald-50 text-[#00a859] border border-emerald-200/55 hover:bg-emerald-100/60'
+                                : 'text-slate-300 pointer-events-none'
+                            }`}
+                          >
+                            <span>{dayNum}</span>
+                            {hasSlots && !isSelected && <span className="absolute bottom-1 w-1 h-1 bg-[#00a859] rounded-full" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {isAfterDecember2026(rescheduleCalendarMonth) && (
+                      <div className="absolute inset-0 bg-slate-800/65 backdrop-blur-xs rounded-xl p-3 flex flex-col items-center justify-center text-center space-y-2 z-20 animate-fade-in shadow-xl border border-slate-600/40">
+                        <div className="p-1.5 bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30">
+                          <CalendarX className="w-4 h-4" />
+                        </div>
+                        <div className="space-y-0.5 max-w-[220px]">
+                          <h4 className="font-extrabold text-xs text-white leading-tight">
+                            {t('schedule_not_released')}
+                          </h4>
+                          <p className="text-[9.5px] text-slate-200 leading-snug font-medium">
+                            {t('schedule_not_released_desc')}
+                          </p>
+                        </div>
                         <button
-                          key={`day-${dayNum}`}
-                          disabled={!hasSlots}
-                          onClick={() => setRescheduleCalendarDay(dayNum)}
-                          className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer mx-auto ${
-                            isSelected
-                              ? 'bg-[#00a859] text-white shadow-xs'
-                              : isRescheduleCurrentDay
-                              ? 'bg-slate-200/60 border border-slate-300 text-slate-800 hover:bg-slate-300/60'
-                              : hasSlots
-                              ? 'bg-emerald-50 text-[#00a859] border border-emerald-200/55 hover:bg-emerald-100/60'
-                              : 'text-slate-300 pointer-events-none'
-                          }`}
+                          onClick={() => {
+                            setRescheduleCalendarMonth('December 2026');
+                            const days = Object.keys(activeClinicSlotsDb[rescheduleClinicId]?.['December 2026'] || {}).map(Number).filter(d => !isDateBeforeToday('December 2026', d));
+                            setRescheduleCalendarDay(days[0] ?? 1);
+                          }}
+                          className="mt-1 px-3 py-1 bg-[#00a859] hover:bg-emerald-600 text-white font-extrabold text-[9.5px] rounded-lg transition cursor-pointer shadow-sm"
                         >
-                          <span>{dayNum}</span>
-                          {hasSlots && !isSelected && <span className="absolute bottom-1 w-1 h-1 bg-[#00a859] rounded-full" />}
+                          {t('return_to_dec_2026')}
                         </button>
-                      );
-                    })}
+                      </div>
+                    )}
                   </div>
 
                   {/* Time slots */}
@@ -2480,8 +2828,6 @@ export default function PhoneSimulator({
                               <div className="space-y-0.5">
                                 <p className="text-xs font-extrabold text-slate-800">{slot.time}</p>
                                 <div className="flex items-center gap-1 text-[10px] text-slate-500">
-                                  <span className="font-semibold text-slate-600">{slot.provider}</span>
-                                  <span className="text-slate-300">·</span>
                                   <span>{slot.duration.replace('mins', t('booking_mins'))}</span>
                                 </div>
                               </div>
@@ -2499,27 +2845,30 @@ export default function PhoneSimulator({
                   </div>
 
                   {/* Detailed Cost card */}
-                  <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left mt-4">
-                    <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
-                      {FH_COST_DATA.cardHeading}
+                  <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-2 text-left mt-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-slate-800">
+                        {getLocalizedCostData(language).cardHeading}
+                      </span>
+                      <span className="text-base font-black text-[#00a859] font-mono tracking-tight shrink-0 bg-white px-2.5 py-1 rounded-lg border border-emerald-200/80 shadow-2xs">
+                        {getLocalizedCostData(language).indexPatientEstimatedCash}
+                      </span>
                     </div>
-                    <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
-                      {FH_COST_DATA.indexPatientEstimatedCash}
-                    </div>
-                    <p className="text-[11px] text-slate-600 leading-snug font-medium">
-                      {FH_COST_DATA.supportingText}
+                    <p className="text-[11px] text-slate-600 leading-normal font-medium border-t border-emerald-200/60 pt-2">
+                      {getLocalizedCostData(language).supportingText}
                     </p>
                   </div>
                 </div>
               </div>{/* end scrollable body */}
 
               {/* Pinned footer */}
-              <div className="px-4 py-4 text-center bg-slate-50 border-t border-slate-100 shrink-0">
+              <div className="px-4 py-3 bg-white border-t border-slate-200/80 shrink-0">
                 <button
                   onClick={handleExitReschedule}
-                  className="text-[10.5px] text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-bold transition cursor-pointer text-center border border-slate-200/90 flex items-center justify-center gap-1.5 shadow-3xs"
                 >
-                  {t('reschedule_keep_current')}
+                  <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                  <span>{t('reschedule_keep_current')}</span>
                 </button>
               </div>
             </div>
@@ -2535,7 +2884,7 @@ export default function PhoneSimulator({
                 onClick={() => setBookingSubFlow('reschedule-select')}
                 className="w-16 flex items-center gap-0.5 p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer text-[10.5px]"
               >
-                <ChevronLeft className="w-3.5 h-3.5" /> Back
+                <ChevronLeft className="w-3.5 h-3.5" /> {t('btn_back') || 'Back'}
               </button>
               <span className="flex-1 text-center font-bold text-sm text-slate-800">{t('reschedule_review_title')}</span>
               <button
@@ -2586,15 +2935,17 @@ export default function PhoneSimulator({
               </div>
 
               {/* Cost card */}
-              <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left">
-                <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
-                  {FH_COST_DATA.cardHeading}
+              <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-2 text-left">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-800">
+                    {getLocalizedCostData(language).cardHeading}
+                  </span>
+                  <span className="text-base font-black text-[#00a859] font-mono tracking-tight shrink-0 bg-white px-2.5 py-1 rounded-lg border border-emerald-200/80 shadow-2xs">
+                    {getLocalizedCostData(language).indexPatientEstimatedCash}
+                  </span>
                 </div>
-                <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
-                  {FH_COST_DATA.indexPatientEstimatedCash}
-                </div>
-                <p className="text-[11px] text-slate-600 leading-snug font-medium">
-                  {FH_COST_DATA.supportingText}
+                <p className="text-[11px] text-slate-600 leading-normal font-medium border-t border-emerald-200/60 pt-2">
+                  {getLocalizedCostData(language).supportingText}
                 </p>
               </div>
             </div>
@@ -2614,9 +2965,10 @@ export default function PhoneSimulator({
               </button>
               <button
                 onClick={handleExitReschedule}
-                className="w-full py-2 text-slate-400 hover:text-slate-600 text-[10.5px] font-medium transition cursor-pointer text-center"
+                className="w-full py-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-bold transition cursor-pointer text-center border border-slate-200 flex items-center justify-center gap-1.5 shadow-3xs"
               >
-                {t('reschedule_keep_current')}
+                <X className="w-3.5 h-3.5 text-slate-400" />
+                <span>{t('reschedule_keep_current')}</span>
               </button>
             </div>
           </div>
@@ -2693,14 +3045,18 @@ export default function PhoneSimulator({
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -14, opacity: 0.96 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              className="flex-col flex flex-1 min-h-0 h-full overflow-hidden relative animate-slide-in"
+              className={`flex-col flex flex-1 min-h-0 h-full overflow-hidden relative animate-slide-in ${
+                textSize === 'sm' ? 'education-text-sm' :
+                textSize === 'lg' ? 'education-text-lg' :
+                'education-text-md'
+              }`}
             >
 
         {/* ----------------- SCREEN 1: HOME ----------------- */}
         {activeScreen === ScreenId.Home && (
           <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50 relative animate-slide-in">
             {/* 1. Official HealthHub Top Header Row */}
-            <div className="bg-white px-4 py-3 flex justify-between items-center border-b border-slate-100 shrink-0">
+            <div className="bg-white px-4 py-3 flex justify-between items-center border-b border-slate-100 shrink-0 no-text-scale">
               {/* Notification Bell */}
               <button 
                 onClick={() => setShowNotificationPopup(true)} 
@@ -2724,7 +3080,7 @@ export default function PhoneSimulator({
                 </svg>
               </div>
 
-              {/* Right controls: Language + Settings */}
+              {/* Right controls: Language + Text Size + Settings */}
               <div className="flex items-center gap-1 relative">
                 {/* Globe / Language Selector */}
                 <button
@@ -2749,8 +3105,7 @@ export default function PhoneSimulator({
                         <button
                           key={code}
                           onClick={() => {
-                            setLanguage(code as any);
-                            setLangMenuOpen(false);
+                            handleLanguageChange(code as Language);
                           }}
                           className={`w-full text-left px-3 py-1.5 rounded-lg flex items-center justify-between text-xs cursor-pointer ${
                             language === code 
@@ -2767,6 +3122,80 @@ export default function PhoneSimulator({
                     </div>
                   </>
                 )}
+
+                {/* Text Size Accessibility Controller */}
+                <div className="relative no-text-scale">
+                  <button
+                    onClick={() => setShowTextSizeMenu(prev => !prev)}
+                    className="p-1 hover:bg-slate-100 rounded-full transition cursor-pointer flex items-center justify-center no-text-scale"
+                    title="Text Size & Accessibility"
+                  >
+                    <Type className="w-5 h-5 text-slate-700 no-text-scale" />
+                  </button>
+
+                  <AnimatePresence>
+                    {showTextSizeMenu && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowTextSizeMenu(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-xl p-2 shadow-xl z-50 flex items-center gap-2 shrink-0 whitespace-nowrap no-text-scale"
+                        >
+                          <span className="text-[11px] font-bold text-slate-500 font-sans tracking-tight shrink-0 no-text-scale px-0.5">
+                            {t('text_size_label')}
+                          </span>
+                          <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-lg border border-slate-200/80 no-text-scale shrink-0">
+                            <button
+                              onClick={() => {
+                                setTextSize('sm');
+                                setShowTextSizeMenu(false);
+                              }}
+                              title="Small Text"
+                              className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                textSize === 'sm'
+                                  ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                  : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              A-
+                            </button>
+                            <button
+                              onClick={() => {
+                                setTextSize('md');
+                                setShowTextSizeMenu(false);
+                              }}
+                              title="Medium Text"
+                              className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                textSize === 'md'
+                                  ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                  : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              A
+                            </button>
+                            <button
+                              onClick={() => {
+                                setTextSize('lg');
+                                setShowTextSizeMenu(false);
+                              }}
+                              title="Large Text"
+                              className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                textSize === 'lg'
+                                  ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                  : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              A+
+                            </button>
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Settings Cog */}
                 <div className="cursor-pointer hover:opacity-80 transition p-1 hover:bg-slate-100 rounded-full" onClick={() => onChangeScreen(ScreenId.ReminderSettings)}>
@@ -2834,8 +3263,93 @@ export default function PhoneSimulator({
               </div>
             )}
 
+            {/* CHAS Status & Subsidies Pop-up Dialog */}
+            {showChasModal && (
+              <div className="absolute inset-x-3 top-10 bottom-16 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 animate-fade-in flex flex-col max-w-[350px] mx-auto overflow-hidden">
+                {/* Sticky Header */}
+                <div className="flex justify-between items-center border-b border-slate-100 p-3.5 shrink-0 bg-white">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <ShieldCheck className="w-4 h-4 text-[#00a859] shrink-0" />
+                    <h4 className="font-bold text-xs text-slate-800 break-words truncate">{t('chas_status_subsidies')}</h4>
+                  </div>
+                  <button 
+                    onClick={() => setShowChasModal(false)} 
+                    className="text-slate-400 hover:text-slate-600 font-bold text-xs p-1 cursor-pointer shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Scrollable Modal Body */}
+                <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-left">
+                  {/* Digital Card Preview */}
+                  <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-800 text-white rounded-xl p-3.5 shadow-md space-y-2">
+                    <div className="flex items-center justify-between gap-1 flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0" />
+                        <span className="text-[10px] font-black uppercase tracking-wider text-blue-100 font-mono">{t('chas_blue_card_title')}</span>
+                      </div>
+                      <span className="text-[9px] font-extrabold bg-emerald-400 text-slate-900 px-2 py-0.5 rounded-full uppercase shrink-0">{t('chas_active_status')}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-black tracking-wide break-words">{patientName}</p>
+                      <p className="text-[10px] text-blue-200 font-mono">NRIC: {patientNric}</p>
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-blue-500/40 text-[9px] text-blue-200 flex-wrap gap-1">
+                      <span>{t('moh_means_tested_tier')}</span>
+                      <span className="font-mono">{t('chas_expires_date')}</span>
+                    </div>
+                  </div>
+
+                  {/* Benefits Breakdown */}
+                  <div className="space-y-2 text-xs">
+                    <p className="font-bold text-slate-800 text-[11px] leading-snug">{t('your_subsidised_benefits')}</p>
+                    <div className="space-y-2 bg-emerald-50/60 border border-emerald-100 rounded-xl p-2.5">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0 mt-0.5" />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-extrabold text-[11px] text-slate-800 leading-snug">{t('polyclinic_gp_subsidies')}</p>
+                          <p className="text-[10px] text-slate-600 leading-normal break-words">{t('polyclinic_gp_subsidies_desc')}</p>
+                        </div>
+                      </div>
+                      {isFHReferred && (
+                        <div className="flex items-start gap-2 pt-2 border-t border-emerald-100">
+                          <CheckCircle className="w-3.5 h-3.5 text-[#00a859] shrink-0 mt-0.5" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-extrabold text-[11px] text-slate-800 leading-snug">{t('fh_genetic_screening_coverage')}</p>
+                            <p className="text-[10px] text-slate-600 leading-normal break-words">{t('fh_genetic_screening_coverage_desc')}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sticky Footer */}
+                <div className="p-3 border-t border-slate-100 flex gap-2 shrink-0 bg-white">
+                  {isFHReferred && (
+                    <button
+                      onClick={() => {
+                        setShowChasModal(false);
+                        onChangeScreen(ScreenId.Booking);
+                      }}
+                      className="flex-1 py-2 px-3 bg-[#00a859] hover:bg-[#008f4c] text-white font-bold text-xs rounded-xl shadow-xs transition text-center cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis"
+                    >
+                      {t('book_subsidised_slot')}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowChasModal(false)}
+                    className={`${isFHReferred ? 'px-3.5' : 'w-full'} py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer text-center`}
+                  >
+                    {t('close')}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Scrollable Container */}
-            <div className="flex-1 overflow-y-auto pb-6 space-y-4">
+            <div className="flex-1 overflow-y-auto pb-36 space-y-4">
               
               {/* 2. User Welcome Greeting Row */}
               <div className="bg-white px-4 py-3 border-b border-slate-100 flex justify-between items-center">
@@ -2845,12 +3359,15 @@ export default function PhoneSimulator({
                   </div>
                   <div>
                     <h4 className="font-bold text-xs text-slate-800">{patientName}</h4>
-                    <p className="text-[9px] text-slate-400 font-medium">{patientNric} • {t('active_user')}</p>
+                    <p className="text-[9px] text-slate-400 font-medium">{patientNric}</p>
                   </div>
                 </div>
-                <span className="bg-emerald-50 text-[#00a859] text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-100/70 font-sans">
+                <button 
+                  onClick={() => setShowChasModal(true)}
+                  className="bg-emerald-50 text-[#00a859] hover:bg-emerald-100/80 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-200/70 font-sans transition cursor-pointer"
+                >
                   {t('chas_blue')}
-                </span>
+                </button>
               </div>
 
               {/* 3. Primary Focus: Personalised FH Genetic Testing Referral Banner */}
@@ -2877,15 +3394,28 @@ export default function PhoneSimulator({
 
                     {/* Recommended Next Step or Next Appointment Box */}
                     <div className="bg-white/80 p-3.5 rounded-xl border border-emerald-100/40 space-y-1" id="hh-next-step-box">
-                      {appointment.status === 'booked' ? (
+                      {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
                         <>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('next_appointment')}</p>
-                          <p className="text-xs font-extrabold text-slate-800">Thursday, 9 July</p>
-                          <p className="text-[11px] text-slate-500 font-medium">10:00 AM</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#00a859] font-sans">{t('next_appointment')}</p>
+                          <p className="text-xs font-extrabold text-slate-800">
+                            {(() => {
+                              try {
+                                const d = new Date(appointment.date);
+                                if (!isNaN(d.getTime())) {
+                                  const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
+                                  return `${dayName}, ${getLocalizedDate(appointment.date, language)}`;
+                                }
+                              } catch (e) {}
+                              return getLocalizedDate(appointment.date, language);
+                            })()}
+                          </p>
+                          <p className="text-[11px] text-slate-600 font-medium leading-snug">
+                            {appointment.timeSlot}{appointment.clinic ? ` • ${appointment.clinic}` : ''}
+                          </p>
                         </>
                       ) : (
                         <>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#00a859] font-mono">{t('recommended_next_step')}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#00a859] font-sans">{t('recommended_next_step')}</p>
                           <p className="text-xs font-extrabold text-slate-800 leading-tight">
                             {t('book_counselling_step')}
                           </p>
@@ -2898,9 +3428,9 @@ export default function PhoneSimulator({
                       <button
                         id="hh-home-primary-cta"
                         onClick={() => onChangeScreen(ScreenId.Booking)}
-                        className="w-full h-11 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent"
+                        className="w-full min-h-[44px] py-2.5 px-3 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer select-none border border-transparent leading-snug break-words text-center"
                       >
-                        {appointment.status === 'booked' ? 'Manage booking' : t('book_now_btn')} <ChevronRight className="w-4 h-4" />
+                        <span>{appointment.status === 'booked' || appointment.status === 'confirmed' ? t('manage_booking') : t('book_now_btn')}</span> <ChevronRight className="w-4 h-4 shrink-0" />
                       </button>
                       {isFHReferred && (
                         <button
@@ -2928,36 +3458,36 @@ export default function PhoneSimulator({
                           {/* Colored Active Line */}
                           <div 
                             className="absolute top-[9px] left-[12%] h-[3px] bg-gradient-to-r from-emerald-400 to-[#00a859] rounded-full transition-all duration-500" 
-                            style={{ width: appointment.status === 'booked' ? '76%' : '38%' }} 
+                            style={{ width: (appointment.status === 'booked' || appointment.status === 'confirmed') ? '76%' : '38%' }} 
                           />
 
                           {/* Step 1: Referral */}
-                          <div className="flex flex-col items-center relative z-10 w-[64px]">
-                            <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center shadow-xs ring-4 ring-emerald-50">
+                          <div className="flex flex-col items-center relative z-10 flex-1 min-w-0 px-0.5">
+                            <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center shadow-xs ring-4 ring-emerald-50 shrink-0">
                               <Check className="w-2.5 h-2.5 stroke-[3]" />
                             </div>
-                            <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
+                            <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight break-words max-w-full">
                               {t('step_referral')}
                             </span>
                           </div>
 
                           {/* Step 2: Book Counselling */}
-                          <div className="flex flex-col items-center relative z-10 w-[96px]">
-                            {appointment.status === 'booked' ? (
+                          <div className="flex flex-col items-center relative z-10 flex-1 min-w-0 px-0.5">
+                            {(appointment.status === 'booked' || appointment.status === 'confirmed') ? (
                               <>
-                                <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center shadow-xs ring-4 ring-emerald-50">
+                                <div className="w-5 h-5 rounded-full bg-[#00a859] text-white flex items-center justify-center shadow-xs ring-4 ring-emerald-50 shrink-0">
                                   <Check className="w-2.5 h-2.5 stroke-[3]" />
                                 </div>
-                                <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
+                                <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight break-words max-w-full">
                                   {t('step_counselling')}
                                 </span>
                               </>
                             ) : (
                               <>
-                                <div className="w-5 h-5 rounded-full border-2 border-[#00a859] bg-white flex items-center justify-center shadow-xs">
+                                <div className="w-5 h-5 rounded-full border-2 border-[#00a859] bg-white flex items-center justify-center shadow-xs shrink-0">
                                   <div className="w-1.5 h-1.5 rounded-full bg-[#00a859]" />
                                 </div>
-                                <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight">
+                                <span className="text-[9px] font-bold text-[#00a859] mt-1.5 text-center leading-tight break-words max-w-full">
                                   {t('step_counselling')}
                                 </span>
                               </>
@@ -2965,11 +3495,11 @@ export default function PhoneSimulator({
                           </div>
 
                           {/* Step 3: Genetic Testing */}
-                          <div className="flex flex-col items-center relative z-10 w-[80px]">
-                            <div className="w-5 h-5 rounded-full border border-slate-300 bg-white flex items-center justify-center shadow-3xs">
+                          <div className="flex flex-col items-center relative z-10 flex-1 min-w-0 px-0.5">
+                            <div className="w-5 h-5 rounded-full border border-slate-300 bg-white flex items-center justify-center shadow-3xs shrink-0">
                               <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                             </div>
-                            <span className="text-[9px] font-semibold text-slate-400 mt-1.5 text-center leading-tight">
+                            <span className="text-[9px] font-semibold text-slate-400 mt-1.5 text-center leading-tight break-words max-w-full">
                               {t('step_testing')}
                             </span>
                           </div>
@@ -2989,108 +3519,71 @@ export default function PhoneSimulator({
 
                 {/* CTAs in 3-column grid layout */}
                 <div className="grid grid-cols-3 gap-2 mt-4 px-4">
+                  {/* Card 1: Translation / Language */}
+                  <button
+                    onClick={() => {
+                      setLangMenuOpen(true);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 hover:bg-slate-50/50 transition min-h-[82px] cursor-pointer active:scale-95"
+                    title={t('select_app_language')}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center mb-1 shrink-0">
+                      <Globe className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight break-words">{t('link_translate')}</span>
+                  </button>
+
+                  {/* Card 2: Appointments */}
                   <button
                     onClick={() => onChangeScreen(ScreenId.Booking)}
-                    className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square"
+                    className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition min-h-[82px] cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center mb-1 shrink-0">
                       <Calendar className="w-4 h-4 text-rose-500" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_appointments')}</span>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight break-words">{t('link_appointments')}</span>
                   </button>
 
-                  {/* Card 2: CHAS */}
-                  <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mb-1 shrink-0">
-                      <div className="border-1.5 border-blue-400 rounded px-1.5 py-0.5 text-[8px] font-black text-blue-500 bg-white leading-none scale-90">CHAS</div>
+                  {/* Card 3: CHAS Card & Subsidies */}
+                  <button
+                    onClick={() => setShowChasModal(true)}
+                    className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-emerald-200 hover:bg-emerald-50/40 transition min-h-[82px] cursor-pointer active:scale-95"
+                    title={t('chas_status_subsidies')}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1 shrink-0">
+                      <ShieldCheck className="w-4 h-4 text-[#00a859]" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">CHAS</span>
-                  </div>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight break-words">{t('link_chas')}</span>
+                  </button>
 
                   {/* Card 4: Medical reports / certs */}
-                  <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                  <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition min-h-[82px]">
                     <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1 shrink-0">
                       <FileText className="w-4 h-4 text-emerald-600" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_medical_reports')}</span>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight break-words">{t('link_medical_reports')}</span>
                   </div>
 
                   {/* Card 5: Medication Refill */}
-                  <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                  <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition min-h-[82px]">
                     <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center mb-1 shrink-0">
                       <Pill className="w-4 h-4 text-amber-600" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_medication_refill')}</span>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight break-words">{t('link_medication_refill')}</span>
                   </div>
 
                   {/* Card 6: Payment */}
-                  <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition aspect-square">
+                  <div className="bg-white border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:border-slate-200 transition min-h-[82px]">
                     <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center mb-1 shrink-0">
                       <CreditCard className="w-4 h-4 text-sky-600" />
                     </div>
-                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight">{t('link_payment')}</span>
+                    <span className="text-[9.5px] font-bold text-slate-700 leading-tight break-words">{t('link_payment')}</span>
                   </div>
                 </div>
               </div>
 
-              {/* 6. Programmes Section (1:1 with reference screenshot) */}
-              <div className="space-y-2">
-                <div className="px-4">
-                  <h3 className="font-display font-bold text-slate-900 text-xs tracking-tight">{t('link_programmes')}</h3>
-                </div>
 
-                <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-none">
-                  {/* Card 1: Diabetes Hub (Beautiful custom stylized graphic matching screenshot style) */}
-                  <div className="bg-amber-100/90 border border-amber-200 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
-                    <HeartPulse className="absolute -right-1 -bottom-1 w-14 h-14 text-amber-500/20 stroke-[1.5]" />
-                    <div>
-                      <span className="bg-amber-500/20 text-amber-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">
-                        {language === 'ms' ? 'Hab Aktif' :
-                         language === 'zh' ? '活跃中心' :
-                         language === 'ta' ? 'செயலில் உள்ள மையம்' :
-                         'Active Hub'}
-                      </span>
-                      <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">
-                        {language === 'ms' ? 'Hab Diabetes' :
-                         language === 'zh' ? '糖尿病管理中心' :
-                         language === 'ta' ? 'நீரிழிவு மையம்' :
-                         'Diabetes Hub'}
-                      </h4>
-                    </div>
-                    <p className="text-[9px] text-slate-600 leading-snug">
-                      {language === 'ms' ? 'Panduan peribadi untuk mengurus dan mencegah diabetes.' :
-                       language === 'zh' ? '个性化糖尿病管理和预防指南。' :
-                       language === 'ta' ? 'நீரிழிவு நோயை நிர்வகிப்பதற்கும் தடுப்பதற்கும் தனிப்பயனாக்கப்பட்ட வழிகாட்டிகள்.' :
-                       'Personalised guides for managing and preventing diabetes.'}
-                    </p>
-                  </div>
-
-                  {/* Card 2: Mental Well-being */}
-                  <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex flex-col justify-between h-32 min-w-[220px] relative overflow-hidden shrink-0 shadow-xs">
-                    <Brain className="absolute -right-1 -bottom-1 w-14 h-14 text-emerald-500/20 stroke-[1.5]" />
-                    <div>
-                      <span className="bg-emerald-500/20 text-emerald-800 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full font-mono">
-                        {language === 'ms' ? 'Sumber' :
-                         language === 'zh' ? '资源区' :
-                         language === 'ta' ? 'வளங்கள்' :
-                         'Resource'}
-                      </span>
-                      <h4 className="font-display font-bold text-slate-900 text-[11px] mt-1.5">
-                        {language === 'ms' ? 'Kesejahteraan Mental' :
-                         language === 'zh' ? '心理健康与福祉' :
-                         language === 'ta' ? 'மன நலம்' :
-                         'Mental Well-being'}
-                      </h4>
-                    </div>
-                    <p className="text-[9px] text-slate-600 leading-snug">
-                      {language === 'ms' ? 'Panduan kesedaran dan rangkaian sokongan untuk keselamatan emosi.' :
-                       language === 'zh' ? '关于情感支持、正念练习和支持网络的指南。' :
-                       language === 'ta' ? 'உணர்ச்சிப் பாதுகாப்பிற்கான தியான வழிகாட்டிகள் மற்றும் ஆதரவு நெட்வொர்க்குகள்.' :
-                       'Mindfulness guides and support networks for emotional safety.'}
-                    </p>
-                  </div>
-                </div>
-              </div>
 
             </div>
           </div>
@@ -3101,11 +3594,11 @@ export default function PhoneSimulator({
         {activeScreen === ScreenId.ReferralIntro && (
           <div className="flex-col flex flex-1 min-h-0 max-h-full overflow-hidden bg-slate-50 animate-fade-in">
             {/* Top Navigation */}
-            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-              <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full">
-                <ArrowLeft className="w-5 h-5 text-slate-600" />
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 shrink-0">
+              <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer transition shrink-0">
+                <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
-              <span className="font-bold text-sm text-slate-800">{t('referred_intro_title')}</span>
+              <span className="font-bold text-sm text-slate-800 break-words min-w-0 flex-1">{t('referred_intro_title')}</span>
             </div>
 
             {/* Scrollable Content */}
@@ -3163,115 +3656,6 @@ export default function PhoneSimulator({
                   </div>
                 </div>
               </div>
-
-              {/* SECTION 2 — Why this matters */}
-              <div>
-                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-4">{t('why_this_matters')}</h4>
-                <div className="space-y-3">
-                  {/* Card 1 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
-                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Check className="w-4.5 h-4.5 text-[#00a859]" />
-                    </div>
-                    <div className="flex-1">
-                      <h5 className="text-xs font-bold text-slate-800">{t('early_diagnosis')}</h5>
-                    </div>
-                  </div>
-                  {/* Card 2 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
-                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Users className="w-4.5 h-4.5 text-[#00a859]" />
-                    </div>
-                    <div className="flex-1">
-                      <h5 className="text-xs font-bold text-slate-800">{t('protect_family')}</h5>
-                    </div>
-                  </div>
-                  {/* Card 3 */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex gap-3 items-center shadow-sm">
-                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Sparkles className="w-4.5 h-4.5 text-[#00a859]" />
-                    </div>
-                    <div className="flex-1">
-                      <h5 className="text-xs font-bold text-slate-800">{t('personalized_care')}</h5>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 3 — What happens next? */}
-              <div>
-                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-4">{t('what_happens_next')}</h4>
-                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-                  {/* Progress indicator */}
-                  <div className="space-y-4">
-                    {/* Step 1 — done */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-[#00a859] flex items-center justify-center shrink-0">
-                        <Check className="w-3.5 h-3.5 text-white" />
-                      </div>
-                      <span className="text-xs text-slate-500 line-through">{t('step_referral_received')}</span>
-                    </div>
-                    {/* Step 2 — current */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-[#00a859] flex items-center justify-center shrink-0 ring-4 ring-emerald-100">
-                        <BookOpen className="w-3.5 h-3.5 text-white" />
-                      </div>
-                      <span className="text-xs font-bold text-[#00a859]">{t('step_learn_about_fh')}</span>
-                      <span className="text-[9px] text-[#00a859] bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full font-bold ml-2">{t('step_current')}</span>
-                    </div>
-                    {/* Step 3 — upcoming */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
-                        <ClipboardList className="w-3.5 h-3.5 text-slate-400" />
-                      </div>
-                      <span className="text-xs text-slate-400">{t('step_pre_test_counselling')}</span>
-                    </div>
-                    {/* Step 4 — future */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
-                        <Dna className="w-3.5 h-3.5 text-slate-400" />
-                      </div>
-                      <span className="text-xs text-slate-400">{t('step_genetic_results')}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      {t('referred_next_step_learning')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 4 — Before your appointment */}
-              <div>
-                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-2">{t('referred_before_app')}</h4>
-                <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                  {t('referred_spend_time')}
-                </p>
-                {/* Five compact preview cards */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
-                    <Dna className="w-5 h-5 text-[#00a859]" />
-                    <span className="text-xs font-bold text-slate-800 text-center">{t('referred_short_what_is')}</span>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
-                    <ClipboardList className="w-5 h-5 text-[#00a859]" />
-                    <span className="text-xs font-bold text-slate-800 text-center">{t('referred_short_why')}</span>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
-                    <HeartPulse className="w-5 h-5 text-[#00a859]" />
-                    <span className="text-xs font-bold text-slate-800 text-center">{t('referred_short_process')}</span>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
-                    <Coins className="w-5 h-5 text-[#00a859]" />
-                    <span className="text-xs font-bold text-slate-800 text-center">{t('referred_short_costs')}</span>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm col-span-2">
-                    <ShieldAlert className="w-5 h-5 text-[#00a859]" />
-                    <span className="text-xs font-bold text-slate-800 text-center">{t('referred_short_insurance')}</span>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Bottom Buttons */}
@@ -3306,8 +3690,8 @@ export default function PhoneSimulator({
                 'education-text-md'
               }`}>
                 {/* Dedicated Questionnaire Header */}
-                <div className="bg-white px-3 py-2.5 border-b border-slate-100 flex items-center justify-between gap-1 shrink-0">
-                  <div className="flex items-center gap-1.5 min-w-0">
+                <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-2 shrink-0 no-text-scale">
+                  <div className="flex items-center gap-2 min-w-0">
                     <button 
                       onClick={() => {
                         if (onboardingStep > 1) {
@@ -3316,67 +3700,101 @@ export default function PhoneSimulator({
                           onChangeScreen(ScreenId.Home);
                         }
                       }} 
-                      className="p-1.5 hover:bg-slate-100 rounded-full cursor-pointer transition flex items-center justify-center shrink-0"
+                      className="p-1 hover:bg-slate-100 rounded-full cursor-pointer transition shrink-0"
                     >
                       <ArrowLeft className="w-5 h-5 text-slate-700" />
                     </button>
-                    <span className={`font-extrabold text-slate-800 tracking-tight truncate ${
-                      language === 'ta' ? 'text-[11.5px]' : 'text-[13.5px]'
-                    }`}>
+                    <span className="font-bold text-sm text-slate-800 break-words min-w-0 flex-1">
                       {t('title')}
                     </span>
                   </div>
-                  <button 
-                    id="onboarding-skip-btn"
-                    onClick={() => handleCompleteOnboarding(true, 'skipped')}
-                    className={`font-semibold bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition cursor-pointer select-none shrink-0 ${
-                      language === 'ta' ? 'text-[9.5px] px-2 py-1' : 'text-xs px-3 py-1.5'
-                    }`}
-                  >
-                    {t('btn_skip')}
-                  </button>
-                </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {/* Expandable Single Accessibility Icon */}
+                    <div className="relative no-text-scale">
+                      <button
+                        onClick={() => setShowQuestionnaireTextSizeMenu(prev => !prev)}
+                        title={t('text_size_accessibility')}
+                        className={`p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center border no-text-scale ${
+                          showQuestionnaireTextSizeMenu
+                            ? 'bg-emerald-50 text-[#00a859] border-[#00a859]'
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+                        }`}
+                      >
+                        <Type className="w-4 h-4 no-text-scale" />
+                      </button>
 
-                {/* Questionnaire Text-Size Control */}
-                <div className="bg-white px-4 py-2 border-b border-slate-100 flex items-center justify-between gap-2 shrink-0 flex-wrap">
-                  <span className={`font-extrabold text-slate-500 uppercase tracking-tight select-none font-sans ${
-                    language === 'ta' ? 'text-[9.5px]' : 'text-[10px]'
-                  }`}>
-                    {t('text_size_label')}
-                  </span>
-                  <div className="flex items-center gap-1 bg-slate-100/80 px-1 py-0.5 rounded-lg border border-slate-200 shrink-0">
-                    <button
-                      onClick={() => setQuestionnaireTextSize('sm')}
-                      title="Small Text"
-                      className={`px-1.5 py-0.5 rounded-md text-[9px] font-extrabold transition cursor-pointer select-none ${
-                        questionnaireTextSize === 'sm'
-                          ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
+                      <AnimatePresence>
+                        {showQuestionnaireTextSizeMenu && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setShowQuestionnaireTextSizeMenu(false)} />
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-xl p-2 shadow-xl z-50 flex items-center gap-2 shrink-0 whitespace-nowrap no-text-scale"
+                            >
+                              <span className="text-[11px] font-bold text-slate-500 font-sans tracking-tight shrink-0 no-text-scale px-0.5">
+                                {t('text_size_label')}
+                              </span>
+                              <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-lg border border-slate-200/80 no-text-scale shrink-0">
+                                <button
+                                  onClick={() => {
+                                    setTextSize('sm');
+                                    setShowQuestionnaireTextSizeMenu(false);
+                                  }}
+                                  title={t('text_size_small')}
+                                  className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                    textSize === 'sm'
+                                      ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                      : 'text-slate-600 hover:text-slate-900'
+                                  }`}
+                                >
+                                  A-
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setTextSize('md');
+                                    setShowQuestionnaireTextSizeMenu(false);
+                                  }}
+                                  title={t('text_size_medium')}
+                                  className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                    textSize === 'md'
+                                      ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                      : 'text-slate-600 hover:text-slate-900'
+                                  }`}
+                                >
+                                  A
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setTextSize('lg');
+                                    setShowQuestionnaireTextSizeMenu(false);
+                                  }}
+                                  title={t('text_size_large')}
+                                  className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                    textSize === 'lg'
+                                      ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                      : 'text-slate-600 hover:text-slate-900'
+                                  }`}
+                                >
+                                  A+
+                                </button>
+                              </div>
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    <button 
+                      id="onboarding-skip-btn"
+                      onClick={() => handleCompleteOnboarding(true, 'skipped')}
+                      className={`font-semibold bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition cursor-pointer select-none shrink-0 ${
+                        language === 'ta' ? 'text-[9.5px] px-2 py-1' : 'text-xs px-3 py-1.5'
                       }`}
                     >
-                      A-
-                    </button>
-                    <button
-                      onClick={() => setQuestionnaireTextSize('md')}
-                      title="Medium Text"
-                      className={`px-1.5 py-0.5 rounded-md text-[10.5px] font-extrabold transition cursor-pointer select-none ${
-                        questionnaireTextSize === 'md'
-                          ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
-                      }`}
-                    >
-                      A
-                    </button>
-                    <button
-                      onClick={() => setQuestionnaireTextSize('lg')}
-                      title="Large Text"
-                      className={`px-1.5 py-0.5 rounded-md text-[11.5px] font-extrabold transition cursor-pointer select-none ${
-                        questionnaireTextSize === 'lg'
-                          ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
-                      }`}
-                    >
-                      A+
+                      {t('btn_skip')}
                     </button>
                   </div>
                 </div>
@@ -3384,38 +3802,28 @@ export default function PhoneSimulator({
                 {/* Questionnaire Content */}
                 <div className="flex-1 flex flex-col bg-white text-slate-800 overflow-y-auto">
                   {/* Step Indicator and Content */}
-                  <div className="flex-1 p-5 flex flex-col justify-between space-y-6">
+                  <div className="flex-1 p-4 flex flex-col justify-between space-y-4">
                      {/* Progress Indicator */}
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <div className={`flex justify-between items-center text-slate-500 font-bold ${
                         language === 'ta' || language === 'ms' ? 'text-[9.5px]' : 'text-[11px]'
                       }`}>
                         <span>{t('question_indicator').replace('{step}', onboardingStep.toString())}</span>
                         <span className="text-[#00a859]">{t('percentage_complete').replace('{percent}', Math.round((onboardingStep / 3) * 100).toString())}</span>
                       </div>
-                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                         <div className="bg-[#00a859] h-full transition-all duration-300" style={{ width: `${(onboardingStep / 3) * 100}%` }} />
                       </div>
                     </div>
 
                     {/* STEP 1: FAMILIARITY */}
                     {onboardingStep === 1 && (
-                      <div className="flex-1 flex flex-col space-y-4 animate-fade-in text-left">
-                        <div className="space-y-1">
-                          <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">{t('step1_title')}</h3>
-                        </div>
+                      <div className="flex-1 flex flex-col space-y-3 animate-fade-in text-left">
+                        <h3 className="font-display font-extrabold text-[16px] sm:text-[17px] text-slate-900 tracking-tight leading-snug">
+                          {t('step1_q')}
+                        </h3>
 
-                        <div className={`bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 flex items-center gap-2 text-slate-600 font-medium shrink-0 leading-normal ${
-                          language === 'ta' ? 'text-[9.5px]' : 'text-[11px]'
-                        }`}>
-                          <Clock className="w-4 h-4 text-[#00a859] shrink-0" />
-                          <span>{t('est_time_desc')}</span>
-                        </div>
-
-                        <div className="space-y-3 pt-2 flex-1">
-                          <label className="block text-[12px] font-bold text-slate-800">
-                            {t('step1_q')}
-                          </label>
+                        <div className="space-y-2 pt-1 flex-1">
                           <div className="space-y-2">
                             {[
                               { id: 'new', label: t('step1_opt1_title') },
@@ -3428,7 +3836,7 @@ export default function PhoneSimulator({
                                 <button
                                   key={opt.id}
                                   onClick={() => setOnboardingFamiliarity(opt.id as any)}
-                                  className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer flex items-center gap-3.5 ${
+                                  className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${
                                     isSelected
                                       ? 'bg-emerald-50/50 border-[#00a859] text-slate-900 shadow-xs'
                                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
@@ -3440,7 +3848,7 @@ export default function PhoneSimulator({
                                     {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <span className="text-[12px] font-bold text-slate-800 leading-tight block">{opt.label}</span>
+                                    <span className="text-[12.5px] font-normal text-slate-800 leading-snug block">{opt.label}</span>
                                   </div>
                                 </button>
                               );
@@ -3498,7 +3906,7 @@ export default function PhoneSimulator({
                                 <div className="flex items-center gap-1.5 min-w-0 flex-1 pr-1">
                                   <span className="text-[12px] shrink-0">{getIcon(opt.iconName || 'HelpCircle', "text-[#00a859]")}</span>
                                   <div className="flex-1 min-w-0">
-                                    <span className="font-semibold text-slate-800 leading-snug text-[11px] block truncate">
+                                    <span className="font-normal text-slate-800 leading-tight text-[11px] block break-words whitespace-normal">
                                       {opt.label}
                                     </span>
                                   </div>
@@ -3526,16 +3934,18 @@ export default function PhoneSimulator({
                         </div>
 
                         <div className="space-y-2 pt-1 overflow-y-auto max-h-[340px] pr-1">
-                          {[
-                            { id: 'concern-diagnosis', iconName: 'HelpCircle', label: t('concern_diagnosis_title'), desc: t('concern_diagnosis_desc') },
-                            { id: 'concern-family', iconName: 'Users', label: t('concern_family_title'), desc: t('concern_family_desc') },
-                            { id: 'concern-cost', iconName: 'Coins', label: t('concern_cost_title'), desc: t('concern_cost_desc') },
-                            { id: 'concern-test', iconName: 'FlaskConical', label: t('concern_test_title'), desc: t('concern_test_desc') },
-                            { id: 'concern-meds', iconName: 'Pill', label: t('concern_meds_title'), desc: t('concern_meds_desc') },
-                            { id: 'concern-heart', iconName: 'HeartPulse', label: t('concern_heart_title'), desc: t('concern_heart_desc') },
-                            { id: 'concern-insurance', iconName: 'ShieldCheck', label: t('concern_insurance_title'), desc: t('concern_insurance_desc') },
-                            { id: 'concern-curious', iconName: 'Sparkles', label: t('concern_curious_title'), desc: t('concern_curious_desc') },
-                          ].map((opt) => {
+                          {(
+                            [
+                              { id: 'concern-diagnosis', iconName: 'HelpCircle', label: t('concern_diagnosis_title')},
+                              { id: 'concern-family', iconName: 'Users', label: t('concern_family_title')},
+                              { id: 'concern-cost', iconName: 'Coins', label: t('concern_cost_title')},
+                              { id: 'concern-test', iconName: 'FlaskConical', label: t('concern_test_title') },
+                              { id: 'concern-meds', iconName: 'Pill', label: t('concern_meds_title') },
+                              { id: 'concern-heart', iconName: 'HeartPulse', label: t('concern_heart_title') },
+                              { id: 'concern-insurance', iconName: 'ShieldCheck', label: t('concern_insurance_title') },
+                              { id: 'concern-curious', iconName: 'Sparkles', label: t('concern_curious_title') },
+                            ] as Array<{ id: string; iconName: string; label: string; desc?: string }>
+                          ).map((opt) => {
                             const isSelected = onboardingConcerns.includes(opt.id);
                             return (
                               <button
@@ -3559,8 +3969,8 @@ export default function PhoneSimulator({
                                   {isSelected && <Check className="w-2.5 h-2.5 stroke-[4px]" />}
                                 </div>
                                 <div className="space-y-0.5 min-w-0 flex-1">
-                                  <span className="text-[12px] font-bold text-slate-800 leading-tight block">{opt.label}</span>
-                                  <span className="text-[10px] text-slate-500 leading-normal block">{opt.desc}</span>
+                                  <span className="text-[12px] font-normal text-slate-800 leading-tight block">{opt.label}</span>
+                                  {opt.desc && <span className="text-[10px] text-slate-500 leading-normal block">{opt.desc}</span>}
                                 </div>
                               </button>
                             );
@@ -3603,56 +4013,90 @@ export default function PhoneSimulator({
           ) : (
           <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50">
               {/* Top Navigation */}
-              <div className="bg-white px-3 py-2.5 border-b border-slate-200 flex items-center justify-between gap-1 shrink-0">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer shrink-0">
-                    <ArrowLeft className="w-4 h-4 text-slate-700" />
+              <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-2 shrink-0 no-text-scale">
+                <div className="flex items-center gap-2 min-w-0">
+                  <button onClick={() => onChangeScreen(ScreenId.Home)} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer transition shrink-0">
+                    <ArrowLeft className="w-5 h-5 text-slate-700" />
                   </button>
-                  <span className="font-bold text-[13px] text-slate-800 truncate">{t('edu_hub_title')}</span>
+                  <span className="font-bold text-sm text-slate-800 break-words min-w-0 flex-1">{t('edu_hub_title')}</span>
                 </div>
-              </div>
 
-              {/* Text Size Accessibility Control Bar */}
-              <div className="bg-white px-3 py-1.5 border-b border-slate-200 flex items-center justify-between gap-2 shrink-0 select-none">
-                <span className={`font-extrabold text-slate-500 uppercase tracking-tight select-none font-sans ${
-                  language === 'ta' ? 'text-[9.5px]' : 'text-[10px]'
-                }`}>
-                  {t('text_size_label')}
-                </span>
-                <div className="flex items-center gap-1 bg-slate-100/80 px-1 py-0.5 rounded-lg border border-slate-200 shrink-0">
+                {/* Expandable Single Accessibility Icon */}
+                <div className="relative no-text-scale">
                   <button
-                    onClick={() => setTextSize('sm')}
-                    title="Small Text"
-                    className={`px-1.5 py-0.5 rounded-md text-[9px] font-extrabold transition cursor-pointer select-none ${
-                      textSize === 'sm'
-                        ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
+                    onClick={() => setShowTextSizeMenu(prev => !prev)}
+                    title="Text Size & Accessibility"
+                    className={`p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center border no-text-scale ${
+                      showTextSizeMenu
+                        ? 'bg-emerald-50 text-[#00a859] border-[#00a859]'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
                     }`}
                   >
-                    A-
+                    <Type className="w-4 h-4 no-text-scale" />
                   </button>
-                  <button
-                    onClick={() => setTextSize('md')}
-                    title="Medium Text"
-                    className={`px-1.5 py-0.5 rounded-md text-[10.5px] font-extrabold transition cursor-pointer select-none ${
-                      textSize === 'md'
-                        ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
-                    }`}
-                  >
-                    A
-                  </button>
-                  <button
-                    onClick={() => setTextSize('lg')}
-                    title="Large Text"
-                    className={`px-1.5 py-0.5 rounded-md text-[11.5px] font-extrabold transition cursor-pointer select-none ${
-                      textSize === 'lg'
-                        ? 'bg-white text-[#00a859] shadow-3xs border border-slate-200/40 font-black'
-                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/30'
-                    }`}
-                  >
-                    A+
-                  </button>
+
+                  <AnimatePresence>
+                    {showTextSizeMenu && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowTextSizeMenu(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-xl p-2 shadow-xl z-50 flex items-center gap-2 shrink-0 whitespace-nowrap no-text-scale"
+                        >
+                          <span className="text-[11px] font-bold text-slate-500 font-sans tracking-tight shrink-0 no-text-scale px-0.5">
+                            {t('text_size_label')}
+                          </span>
+                          <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-lg border border-slate-200/80 no-text-scale shrink-0">
+                            <button
+                              onClick={() => {
+                                setTextSize('sm');
+                                setShowTextSizeMenu(false);
+                              }}
+                              title="Small Text"
+                              className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                textSize === 'sm'
+                                  ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                  : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              A-
+                            </button>
+                            <button
+                              onClick={() => {
+                                setTextSize('md');
+                                setShowTextSizeMenu(false);
+                              }}
+                              title="Medium Text"
+                              className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                textSize === 'md'
+                                  ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                  : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              A
+                            </button>
+                            <button
+                              onClick={() => {
+                                setTextSize('lg');
+                                setShowTextSizeMenu(false);
+                              }}
+                              title="Large Text"
+                              className={`h-7 px-2.5 rounded-md text-xs font-bold transition flex items-center justify-center cursor-pointer select-none no-text-scale shrink-0 min-w-[30px] ${
+                                textSize === 'lg'
+                                  ? 'bg-white text-[#00a859] shadow-2xs border border-slate-200/60 font-black'
+                                  : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              A+
+                            </button>
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
@@ -3662,78 +4106,48 @@ export default function PhoneSimulator({
                   <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
                     <ShieldAlert className="w-8 h-8 text-emerald-600" />
                   </div>
-                  <h3 className="font-bold text-sm text-slate-800">No Active Genetic Referrals</h3>
+                  <h3 className="font-bold text-sm text-slate-800">{t('no_active_referrals_title')}</h3>
                   <p className="text-xs text-slate-500 leading-relaxed max-w-[280px]">
-                    This personalised educational hub is only visible for patients with an active clinical referral for FH genetic testing.
+                    {t('no_active_referrals_desc')}
                   </p>
                   <button 
                     onClick={() => onChangeScreen(ScreenId.Home)} 
                     className="px-4 py-2.5 bg-[#00a859] hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-sm transition cursor-pointer"
                   >
-                    Back to HealthHub Home
+                    {t('back_to_healthhub_home')}
                   </button>
                 </div>
               ) : (
                 /* High-fidelity Education Hub content for referred patients */
-                <div className={`flex-1 overflow-y-auto flex flex-col pb-6 ${
+                <div className={`flex-1 overflow-y-auto flex flex-col pb-36 ${
                   textSize === 'sm' ? 'education-text-sm' :
                   textSize === 'lg' ? 'education-text-lg' :
                   'education-text-md'
                 }`}>
-                {/* Profile Info Row */}
-                <div className="bg-emerald-50/60 border-b border-emerald-100 px-4 py-2.5 flex justify-between items-center text-[11px] shrink-0">
-                  <span className="text-slate-600">{t('patient_label')}: <strong className="text-slate-800">{patientName} ({patientNric})</strong></span>
-                  <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold border border-emerald-200/50">
-                    {language === 'ms' ? 'Dirujuk MOH' :
-                     language === 'zh' ? 'MOH 已转诊' :
-                     language === 'ta' ? 'MOH பரிந்துரைக்கப்பட்டது' :
-                     'MOH Referred'}
-                  </span>
-                </div>
-
                 {/* Hero Section - Edge-to-edge Deep Teal Banner */}
-                <div className="bg-[#00a859] text-white px-5 py-5 space-y-2 shrink-0">
-                  <span className="text-[9.5px] font-bold tracking-widest text-emerald-100 font-mono uppercase">{t('edu_hi_greeting').replace('{name}', patientFirstName)}</span>
-                  <h3 className="font-display font-extrabold text-sm text-white tracking-tight leading-snug">
-                    {t('edu_learning_guide_title')}
-                  </h3>
-                  <p className="text-[11px] text-emerald-50/90 leading-relaxed font-sans">
-                    {t('edu_learning_guide_subtitle')}
+                <div className="bg-[#00a859] text-white px-5 py-4.5 space-y-2.5 shrink-0 shadow-xs">
+                  <div className="space-y-0.5 text-left">
+                    <span className="text-xs font-semibold text-emerald-100 tracking-wide block">
+                      {t('edu_hi_greeting').replace('{name}', language === 'ta' ? getTamilName(patientFirstNameCapitalized) : patientFirstNameCapitalized)}
+                    </span>
+                    <h3 className="font-display font-black text-base text-white tracking-tight leading-snug">
+                      {t('edu_learning_guide_title')}
+                    </h3>
+                  </div>
+
+                  <p className="text-[12px] text-emerald-50/95 leading-relaxed font-normal text-left">
+                    {t('edu_banner_personalized_desc')}
                   </p>
 
-                  {/* Personalization Status Bar & Retake Hook */}
-                  {onboardingCompleted ? (
-                    <div className="bg-emerald-950/40 border border-emerald-400/20 rounded-xl p-2.5 flex flex-col gap-2 text-[10.5px]">
-                      <div className="flex items-start gap-2">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0 mt-0.5" />
-                        <span className="text-emerald-50 leading-tight">{t('feed_personalized')}</span>
-                      </div>
-                      <div className="flex justify-end border-t border-emerald-800/30 pt-1.5">
-                        <button
-                          onClick={handleRetakeOnboarding}
-                          className="font-extrabold text-amber-300 hover:text-amber-200 uppercase tracking-wider font-mono text-[9px] hover:underline cursor-pointer flex items-center gap-1"
-                        >
-                          <Sparkles className="w-3 h-3 text-amber-300 shrink-0" />
-                          {t('retake_onboarding')}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-emerald-950/25 border border-emerald-400/10 rounded-xl p-2.5 flex flex-col gap-2 text-[10.5px]">
-                      <div className="flex items-start gap-2">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-300 shrink-0 mt-0.5 animate-pulse" />
-                        <span className="text-emerald-50/80 leading-tight">{t('personalize_feed_prompt')}</span>
-                      </div>
-                      <div className="flex justify-end border-t border-emerald-800/20 pt-1.5">
-                        <button
-                          onClick={handleRetakeOnboarding}
-                          className="font-extrabold text-white bg-emerald-800 hover:bg-emerald-700 px-2 py-0.5 rounded uppercase tracking-wider font-mono text-[9.5px] cursor-pointer"
-                        >
-                          {t('btn_start')}
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <div className="pt-0.5 text-left">
+                    <button
+                      onClick={handleRetakeOnboarding}
+                      className="inline-flex items-center gap-1.5 bg-white text-[#00a859] hover:bg-emerald-50 active:scale-95 font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-all cursor-pointer border border-white/20"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 shrink-0 text-[#00a859]" />
+                      <span>{t('edu_banner_update_prefs_btn')}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Segmented Control Sub-Tabs */}
@@ -3793,118 +4207,113 @@ export default function PhoneSimulator({
                         );
                         return (
                           <>
-                            {onboardingCompleted && questionnaireStatus === 'completed' && (
-                              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
-                                <Sparkles className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
-                                <div className="space-y-0.5 text-left">
-                                  <span className="text-[9px] font-extrabold text-emerald-800 uppercase tracking-widest font-mono">
-                                    {language === 'ms' ? 'Disyorkan Untuk Anda' :
-                                     language === 'zh' ? '为您推荐' :
-                                     language === 'ta' ? 'உங்களுக்கு பரிந்துரைக்கப்படுகிறது' :
-                                     'RECOMMENDED FOR YOU'}
-                                  </span>
-                                  <p className="text-[10.5px] text-slate-700 leading-normal">
-                                    {language === 'ms' ? 'Disyorkan berdasarkan topik yang anda pilih.' :
-                                     language === 'zh' ? '根据您选择的主题推荐。' :
-                                     language === 'ta' ? 'நீங்கள் தேர்ந்தெடுத்த தலைப்புகளின் அடிப்படையில் பரிந்துரைக்கப்படுகிறது.' :
-                                     'Recommended based on the topics you selected.'}
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-
                             {/* Patient Experience Wrapper Card */}
-                            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3 text-left">
-                              <div className="flex justify-between items-start gap-2">
-                                <div className="space-y-0.5">
-                                  <span className="text-[9px] font-extrabold text-[#00a859] uppercase tracking-widest font-mono">
-                                    {language === 'ms' ? 'Pengalaman Pesakit' :
+                            <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-3xs space-y-4 text-left">
+                              {/* Lesson Card Header: Title & Key Takeaway */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-[11px] font-bold text-[#00a859] font-mono">
+                                    {language === 'ms' ? 'Pengalaman pesakit' :
                                      language === 'zh' ? '患者体验故事' :
                                      language === 'ta' ? 'நோயாளி அனுபவம்' :
-                                     'Patient Experience'}
+                                     'Patient experience'}
                                   </span>
-                                  <h4 className="font-display font-extrabold text-slate-900 text-[13px] leading-snug">
-                                    {activeStory.title}
-                                  </h4>
                                 </div>
-                                <div className="bg-slate-100 px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold text-slate-500 shrink-0">
-                                  0:45
-                                </div>
+                                <h4 className="font-display font-extrabold text-slate-900 text-[14px] leading-snug">
+                                  {activeStory.title}
+                                </h4>
                               </div>
 
-                              {activeStory.summary && (
-                                <p className="text-[10.5px] text-slate-600 leading-relaxed">
-                                  {activeStory.summary}
-                                </p>
-                              )}
+                              {/* Patient Experience Video/Audio Player Section */}
+                              <div className="bg-slate-900 rounded-xl overflow-hidden relative shadow-sm border border-slate-800">
+                                {/* Player Header Label */}
+                                <div className="bg-slate-950/90 px-3.5 py-2 border-b border-slate-800 flex items-center justify-between text-white shrink-0">
+                                  <span className="text-[11.5px] font-semibold text-emerald-400 break-words leading-tight min-w-0 pr-2">
+                                    {activeStory.videoLabel}
+                                  </span>
+                                </div>
 
-                              {/* Patient Experience Video Section */}
-                              <div className="bg-slate-900 rounded-2xl overflow-hidden relative shadow-md">
-                                {/* Simulated Video Frame */}
-                                <div className="h-44 flex flex-col items-center justify-center relative p-4 text-center">
+                                {/* Simulated Video Frame - Fixed Height prevents layout shifts across slides */}
+                                <div 
+                                  className="w-full h-[180px] sm:h-[190px] relative text-center cursor-pointer select-none overflow-hidden"
+                                  onClick={() => setIsPlayingVideo(!isPlayingVideo)}
+                                >
                                   {isPlayingVideo ? (
-                                    <div className="absolute inset-0 bg-emerald-950/85 flex flex-col justify-between p-4 text-white">
-                                      <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 self-start">{activeStory.videoLabel}</span>
-                                      
-                                      {/* CSS cartoon animations based on active simulated frame */}
-                                      <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-                                        <div className="animate-fade-in space-y-1">
-                                          <span className="text-2xl">
-                                            {videoFrame === 0 ? <Lightbulb className="w-8 h-8 text-amber-400 mx-auto" /> : videoFrame === 1 ? <Handshake className="w-8 h-8 text-emerald-400 mx-auto" /> : videoFrame === 2 ? <ShieldCheck className="w-8 h-8 text-blue-400 mx-auto" /> : <HeartPulse className="w-8 h-8 text-rose-400 mx-auto" />}
-                                          </span>
-                                          <p className="text-[11px] font-semibold leading-normal">
+                                    <div className="w-full h-full bg-emerald-950/90 flex flex-col justify-center items-center p-4 text-white animate-fade-in">
+                                      {/* Center text area (flexible, centered, guaranteed to fit within fixed height) */}
+                                      <div className="flex-1 flex flex-col items-center justify-center text-center px-2 py-2 overflow-y-auto w-full">
+                                        <div className="animate-fade-in space-y-2 w-full my-auto">
+                                          <p className="text-[12px] sm:text-[12.5px] font-medium leading-relaxed text-slate-100 max-w-full">
                                             {activeStory.frames[videoFrame]}
                                           </p>
                                         </div>
                                       </div>
-
-                                      {/* Video progress indicator bar */}
-                                      <div className="w-full flex items-center gap-2">
-                                        <div className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden">
-                                          <div className="bg-emerald-400 h-full transition-all duration-300" style={{ width: `${(videoFrame + 1) * 25}%` }} />
-                                        </div>
-                                        <span className="text-[9px] font-mono">0:{(videoFrame + 1) * 11} / 0:45</span>
-                                      </div>
                                     </div>
                                   ) : (
-                                    <div className="absolute inset-0 bg-slate-900/90 flex flex-col justify-center items-center text-white p-4">
-                                      <div className="w-12 h-12 rounded-full bg-[#00a859] hover:bg-emerald-500 flex items-center justify-center shadow-lg cursor-pointer transform active:scale-95 transition" onClick={() => setIsPlayingVideo(true)}>
-                                        <Play className="w-6 h-6 text-white ml-0.5 fill-current" />
+                                    <div className="w-full h-full bg-slate-900 flex flex-col justify-center items-center text-white p-4">
+                                      <div 
+                                        className="w-12 h-12 rounded-full bg-[#00a859] hover:bg-emerald-500 flex items-center justify-center shadow-md cursor-pointer transform active:scale-95 transition" 
+                                        onClick={(e) => { e.stopPropagation(); setIsPlayingVideo(true); }}
+                                      >
+                                        <Play className="w-5 h-5 text-white ml-0.5 fill-current" />
                                       </div>
-                                      <h4 className="font-bold text-xs mt-3">{activeStory.title}</h4>
-                                      <p className="text-[10px] text-slate-400 mt-1 max-w-[240px] leading-normal">{activeStory.subtitle}</p>
+                                      <p className="text-[12px] text-slate-300 font-medium mt-3">
+                                        {t('edu_play_story') || 'Play Audio Guide'}
+                                      </p>
                                     </div>
                                   )}
                                 </div>
 
-                                {/* Video controls */}
-                                <div className="bg-slate-950 px-4 py-2 flex justify-between items-center text-xs text-slate-300 border-t border-slate-800">
-                                  <button 
-                                    onClick={() => setIsPlayingVideo(!isPlayingVideo)}
-                                    className="text-emerald-400 font-bold hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
-                                  >
-                                    {isPlayingVideo ? <><Pause className="w-3.5 h-3.5" /> {t('edu_pause_story')}</> : <><Play className="w-3.5 h-3.5" /> {t('edu_play_story')}</>}
-                                  </button>
-                                  
-                                  <button 
-                                    onClick={() => setShowTranscript(!showTranscript)}
-                                    className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-medium transition cursor-pointer"
-                                  >
-                                    <FileText className="w-3.5 h-3.5 text-emerald-400" />
-                                    {showTranscript ? t('edu_hide_transcript') : t('edu_view_transcript')}
-                                  </button>
-                                </div>
-                              </div>
+                                {/* Dedicated Bottom Control Bar */}
+                                <div className="bg-slate-950 px-3.5 py-2.5 space-y-2 border-t border-slate-800 text-slate-300">
+                                  {/* Row 1: Progress Bar & Slide Counter */}
+                                  <div className="flex items-center gap-2.5 w-full min-w-0">
+                                    <div className="flex-1 min-w-[70px] h-2 bg-slate-800 rounded-full overflow-hidden">
+                                      <div 
+                                        className="bg-[#00a859] h-full transition-all duration-300 rounded-full" 
+                                        style={{ width: `${isPlayingVideo ? (((videoFrame + 1) / activeStory.frames.length) * 100) : 0}%` }} 
+                                      />
+                                    </div>
+                                    <span className="text-[10px] font-mono font-bold text-slate-300 shrink-0 select-none">
+                                      {isPlayingVideo ? `${videoFrame + 1}/${activeStory.frames.length}` : `0/${activeStory.frames.length}`}
+                                    </span>
+                                  </div>
 
-                              {/* Accessible Transcript Container */}
-                              {showTranscript && (
-                                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[10px] text-slate-600 leading-relaxed space-y-1.5 animate-fade-in">
-                                  <p className="font-bold text-emerald-800 uppercase tracking-wider text-[8px] font-mono border-b border-slate-200 pb-1">{t('edu_video_transcript_title')}</p>
-                                  {activeStory.transcript.map((para, index) => (
-                                    <p key={index} className="leading-relaxed">{para}</p>
-                                  ))}
+                                  {/* Row 2: Playback Controls & Transcript Button */}
+                                  <div className="flex items-center justify-between gap-2 w-full pt-0.5 min-w-0">
+                                    <button 
+                                      type="button"
+                                      onClick={() => setIsPlayingVideo(!isPlayingVideo)}
+                                      className="text-emerald-400 hover:text-emerald-300 font-extrabold flex items-center gap-1.5 cursor-pointer text-[11.5px] shrink-0 transition whitespace-nowrap"
+                                    >
+                                      {isPlayingVideo ? (
+                                        <><Pause className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> <span>{t('edu_pause_story') || 'Pause Story'}</span></>
+                                      ) : (
+                                        <><Play className="w-3.5 h-3.5 text-emerald-400 shrink-0 fill-current" /> <span>{t('edu_play_story') || 'Play Story'}</span></>
+                                      )}
+                                    </button>
+                                    
+                                    <button 
+                                      type="button"
+                                      onClick={() => setShowTranscript(!showTranscript)}
+                                      className="text-[11.5px] text-slate-300 hover:text-white flex items-center gap-1.5 font-medium transition cursor-pointer shrink-0 whitespace-nowrap ml-auto"
+                                    >
+                                      <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                      <span>{showTranscript ? (t('edu_hide_transcript') || 'Hide Transcript') : (t('edu_view_transcript') || 'View Transcript')}</span>
+                                    </button>
+                                  </div>
                                 </div>
-                              )}
+
+                                {/* Accessible Transcript Container inside the dark player container */}
+                                {showTranscript && (
+                                  <div className="bg-slate-950/95 border-t border-slate-800 p-3.5 text-[10.5px] text-slate-200 leading-relaxed space-y-2 animate-fade-in text-left">
+                                    <p className="font-bold text-emerald-400 text-[10px] border-b border-slate-800 pb-1.5">{t('edu_video_transcript_title')}</p>
+                                    {activeStory.transcript.map((para, index) => (
+                                      <p key={index} className="leading-relaxed text-slate-200">{para}</p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </>
                         );
@@ -4007,29 +4416,18 @@ export default function PhoneSimulator({
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-1.5">
                                 <Lightbulb className="w-3.5 h-3.5 text-[#00a859]" />
-                                <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#00a859] font-mono">{t('edu_did_you_know')}</h4>
+                                <h4 className="text-[11.5px] font-bold text-[#00a859]">{t('edu_did_you_know')}</h4>
                               </div>
-                              {isQuestionnaireActive && (
-                                <span className="text-[8.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50 flex items-center gap-1">
-                                  <Sparkles className="w-2.5 h-2.5" />
-                                  {t('edu_personalised_badge')}
-                                </span>
-                              )}
                             </div>
                             <div className="grid grid-cols-2 gap-2.5">
                               {displayedStats.map((stat) => {
                                 const StatIcon = stat.Icon;
                                 return (
-                                  <div key={stat.id} className="bg-white border border-slate-200/90 rounded-xl p-3 flex flex-col justify-between shadow-3xs space-y-1.5 hover:border-emerald-300 transition-colors">
+                                  <div key={stat.id} className="bg-white rounded-xl p-3 flex flex-col justify-between shadow-3xs space-y-1.5 transition-colors border border-slate-200/90 hover:border-emerald-300">
                                     <div className="flex items-center justify-between">
                                       <div className="w-6 h-6 rounded-lg bg-emerald-50 text-[#00a859] flex items-center justify-center">
                                         <StatIcon className="w-3.5 h-3.5 text-[#00a859]" />
                                       </div>
-                                      {stat.isPersonalized && (
-                                        <span className="text-[8px] bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-emerald-100/80">
-                                          {t('edu_for_you_badge')}
-                                        </span>
-                                      )}
                                     </div>
                                     <div>
                                       <h5 className="font-display font-extrabold text-[#00a859] text-[16px] leading-tight tracking-tight">
@@ -4054,10 +4452,40 @@ export default function PhoneSimulator({
                         // Unified helpers for content richness, shared between Default Layout and Personalized Layout
                          const getCustomIllus = (id: string) => {
                            if (id === 'testing-process' || id === 'testing-guide' || id === 'genetic-testing') return (
-                             <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-xl p-3 text-center my-2">
-                               <div className="text-[9.5px] font-bold text-emerald-800 mb-1.5">{t('illus_clinical_testing_flow')}</div>
-                               <div className="flex justify-between text-[8px] font-bold text-slate-500">
-                                 <span>{t('illus_step_booked')}</span><span>{t('illus_step_consult')}</span><span>{t('illus_step_blood_draw')}</span><span>{t('illus_step_results')}</span>
+                             <div className="bg-emerald-50/60 border border-emerald-200/60 rounded-xl p-3 my-2.5 space-y-2.5 text-left shadow-2xs">
+                               <div className="text-[11px] font-extrabold text-emerald-900 border-b border-emerald-200/60 pb-1.5 flex items-center gap-2">
+                                 <ClipboardList className="w-4 h-4 text-emerald-600 shrink-0" />
+                                 <span>{t('illus_clinical_testing_flow') || 'Clinical Testing Flow'}</span>
+                               </div>
+                               <div className="grid grid-cols-1 gap-2 text-[10px]">
+                                 <div className="flex items-start gap-2.5 bg-white p-2.5 rounded-lg border border-emerald-100/80 shadow-3xs">
+                                   <span className="w-5 h-5 rounded-full bg-[#00a859] text-white font-extrabold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                                   <div className="space-y-0.5 flex-1 min-w-0">
+                                     <span className="font-bold text-slate-900 block leading-tight">{t('illus_step_1_title')}</span>
+                                     <span className="text-[9.5px] text-slate-500 block leading-relaxed">{t('illus_step_1_desc')}</span>
+                                   </div>
+                                 </div>
+                                 <div className="flex items-start gap-2.5 bg-white p-2.5 rounded-lg border border-emerald-100/80 shadow-3xs">
+                                   <span className="w-5 h-5 rounded-full bg-[#00a859] text-white font-extrabold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                                   <div className="space-y-0.5 flex-1 min-w-0">
+                                     <span className="font-bold text-slate-900 block leading-tight">{t('illus_step_2_title')}</span>
+                                     <span className="text-[9.5px] text-slate-500 block leading-relaxed">{t('illus_step_2_desc')}</span>
+                                   </div>
+                                 </div>
+                                 <div className="flex items-start gap-2.5 bg-white p-2.5 rounded-lg border border-emerald-100/80 shadow-3xs">
+                                   <span className="w-5 h-5 rounded-full bg-[#00a859] text-white font-extrabold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                                   <div className="space-y-0.5 flex-1 min-w-0">
+                                     <span className="font-bold text-slate-900 block leading-tight">{t('illus_step_3_title')}</span>
+                                     <span className="text-[9.5px] text-slate-500 block leading-relaxed">{t('illus_step_3_desc')}</span>
+                                   </div>
+                                 </div>
+                                 <div className="flex items-start gap-2.5 bg-white p-2.5 rounded-lg border border-emerald-100/80 shadow-3xs">
+                                   <span className="w-5 h-5 rounded-full bg-[#00a859] text-white font-extrabold text-[10px] flex items-center justify-center shrink-0 mt-0.5">4</span>
+                                   <div className="space-y-0.5 flex-1 min-w-0">
+                                     <span className="font-bold text-slate-900 block leading-tight">{t('illus_step_4_title')}</span>
+                                     <span className="text-[9.5px] text-slate-500 block leading-relaxed">{t('illus_step_4_desc')}</span>
+                                   </div>
+                                 </div>
                                </div>
                              </div>
                            );
@@ -4091,11 +4519,11 @@ export default function PhoneSimulator({
                            if (id === 'what-is-fh') return (
                              <div className="grid grid-cols-2 gap-2 my-2">
                                <div className="bg-slate-50 border border-slate-150 p-2 rounded-lg text-center">
-                                 <div className="text-[8.5px] font-extrabold text-slate-500 uppercase tracking-tight">{t('illus_standard_high_cholesterol')}</div>
+                                 <div className="text-[8.5px] font-bold text-slate-500">{t('illus_standard_high_cholesterol')}</div>
                                  <div className="text-[8.5px] text-slate-600 mt-1">{t('illus_standard_desc')}</div>
                                </div>
                                <div className="bg-emerald-50/50 border border-emerald-100/60 p-2 rounded-lg text-center">
-                                 <div className="text-[8.5px] font-extrabold text-emerald-700 uppercase tracking-tight">{t('illus_fh_familial')}</div>
+                                 <div className="text-[8.5px] font-bold text-emerald-700">{t('illus_fh_familial')}</div>
                                  <div className="text-[8.5px] text-emerald-800 mt-1">{t('illus_fh_desc')}</div>
                                 </div>
                              </div>
@@ -4181,7 +4609,11 @@ export default function PhoneSimulator({
                           );
                         };
 
-                        const renderGuideCard = (topic: any, isSelected: boolean) => {
+                        const renderGuideCard = (rawTopic: any, isSelected: boolean) => {
+                          const topic = (onboardingCompleted && questionnaireStatus === 'completed')
+                            ? getPersonalisedGuideContent(rawTopic.id, onboardingFamiliarity, onboardingConcerns, questionnaireStatus, language)
+                            : rawTopic;
+
                           const isExpanded = !!eduExpanded[topic.id];
 
                           const toggleCard = () => {
@@ -4190,47 +4622,89 @@ export default function PhoneSimulator({
 
                           const customIllus = getCustomIllus(topic.id);
 
+                          // Prepare points (up to 3 max)
+                          const points = topic.visualItems && topic.visualItems.length > 0
+                            ? topic.visualItems.slice(0, 3)
+                            : (topic.subsections && topic.subsections.length > 0
+                              ? topic.subsections.slice(0, 3)
+                              : (topic.steps ? topic.steps.slice(0, 3) : []));
+
+                          const btnLabel = isExpanded ? (t('step2_opt_show_less') || 'Show Less') : (t('read_guide') || 'Read Guide');
+                          const titleLen = topic.title?.length || 0;
+                          const summaryLen = topic.shortSummary?.length || 0;
+                          const shouldStack = (titleLen + summaryLen) > 28 || textSize === 'lg' || textSize === 'md' || language !== 'en';
+
                           return (
-                            <div key={topic.id} className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-3xs transition-all duration-200 text-left">
-                              <button onClick={toggleCard} aria-expanded={isExpanded} className="w-full text-left p-3.5 flex items-start gap-3 justify-between hover:bg-slate-50/55 transition cursor-pointer">
-                                <div className="flex gap-3 items-start flex-1 min-w-0">
-                                  <div className="mt-0.5 p-1.5 bg-emerald-50/70 rounded-lg border border-emerald-100/40 shrink-0 flex items-center justify-center">
-                                    {getIcon(topic.iconName || 'HelpCircle')}
+                            <div key={topic.id} className="bg-white rounded-xl shadow-3xs transition-all duration-200 text-left border border-slate-200/80 w-full overflow-hidden">
+                              {/* Preview Card: Topic title, One summary sentence, One clear action button */}
+                              {shouldStack ? (
+                                <div className="p-3.5 flex flex-col gap-3 text-left w-full">
+                                  <div className="flex gap-3 items-start w-full">
+                                    <div className="p-2 bg-emerald-50 rounded-lg border border-emerald-100/50 shrink-0 flex items-center justify-center text-[#00a859] mt-0.5">
+                                      {getIcon(topic.iconName || 'HelpCircle')}
+                                    </div>
+                                    <div className="flex-1 min-w-0 space-y-1 w-full text-left break-words [word-break:break-word] [hyphens:none]">
+                                      <h5 className="font-extrabold text-[#00a859] font-sans leading-snug tracking-tight text-sm break-words [word-break:break-word] [hyphens:none]">{topic.title}</h5>
+                                      <p className="text-xs text-slate-500 leading-relaxed font-sans break-words [word-break:break-word] [hyphens:none]">{topic.shortSummary}</p>
+                                    </div>
                                   </div>
-                                  <div className="flex-1 min-w-0 space-y-0.5">
-                                    <h5 className="font-display font-extrabold text-[11px] text-slate-900 leading-tight tracking-tight">{topic.title}</h5>
-                                    <p className="text-[10px] text-slate-500 leading-relaxed">{topic.shortSummary}</p>
-                                    {!isExpanded && isSelected && (
-                                      <div className="flex items-center pt-1 w-full">
-                                        <span className="text-[8px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded border border-emerald-100/30">{t('edu_selected_for_you')}</span>
-                                      </div>
-                                    )}
+                                  <div className="w-full pt-0.5">
+                                    <button
+                                      onClick={toggleCard}
+                                      aria-expanded={isExpanded}
+                                      className="w-full px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer border border-emerald-200 shrink-0 min-h-[36px]"
+                                    >
+                                      <span className="whitespace-nowrap">{btnLabel}</span>
+                                      <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                    </button>
                                   </div>
                                 </div>
-                                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''} self-start mt-0.5`} />
-                              </button>
+                              ) : (
+                                <div className="p-3.5 flex items-start justify-between gap-3 text-left w-full">
+                                  <div className="flex gap-3 items-start flex-1 min-w-0">
+                                    <div className="p-2 bg-emerald-50 rounded-lg border border-emerald-100/50 shrink-0 flex items-center justify-center text-[#00a859] mt-0.5">
+                                      {getIcon(topic.iconName || 'HelpCircle')}
+                                    </div>
+                                    <div className="flex-1 min-w-0 space-y-1 text-left break-words [word-break:break-word] [hyphens:none]">
+                                      <h5 className="font-extrabold text-[#00a859] font-sans leading-snug tracking-tight text-sm break-words [word-break:break-word] [hyphens:none]">{topic.title}</h5>
+                                      <p className="text-xs text-slate-500 leading-relaxed font-sans break-words [word-break:break-word] [hyphens:none]">{topic.shortSummary}</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={toggleCard}
+                                    aria-expanded={isExpanded}
+                                    className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer border border-emerald-200 shrink-0 min-h-[36px]"
+                                  >
+                                    <span className="whitespace-nowrap">{btnLabel}</span>
+                                    <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                  </button>
+                                </div>
+                              )}
 
+                              {/* Expanded Guide: Short intro, Up to 3 points, 1 visual, 1 takeaway, optional details */}
                               {isExpanded && (
-                                <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-[10.5px] text-slate-600 leading-relaxed space-y-3">
-                                  {/* 1 short introduction sentence */}
-                                  <p className="text-slate-700 font-medium text-[10px] leading-normal font-sans">
-                                    {topic.content}
-                                  </p>
+                                <div className="px-3.5 pb-3.5 pt-2.5 border-t border-slate-100 bg-slate-50/50 text-slate-600 leading-relaxed space-y-3 font-sans">
+                                  {/* 1 short introduction */}
+                                  {topic.content && (
+                                    <p className="text-slate-700 font-medium leading-normal font-sans text-xs">
+                                      {topic.content}
+                                    </p>
+                                  )}
 
-                                  {/* up to 3 short points or visual items */}
-                                  {topic.visualItems && topic.visualItems.length > 0 && (
-                                    <div className="grid grid-cols-1 gap-2 my-2">
-                                      {topic.visualItems.map((item: any, itemIdx: number) => (
-                                        <div key={itemIdx} className="bg-white border border-slate-200/50 rounded-xl p-2.5 flex items-start gap-3 shadow-3xs transition hover:border-emerald-200/50">
-                                          <div className="text-sm shrink-0 leading-none mt-0.5 select-none bg-slate-50 border border-slate-100 p-1 rounded-lg w-7 h-7 flex items-center justify-center">
-                                            {getIcon(item.icon, "text-[#00a859]")}
+                                  {/* Up to 3 concise points */}
+                                  {points.length > 0 && (
+                                    <div className="space-y-2 my-2">
+                                      {points.map((pt: any, ptIdx: number) => (
+                                        <div key={ptIdx} className="bg-white border border-slate-200/60 rounded-xl p-2.5 flex items-start gap-2.5 shadow-3xs">
+                                          <div className="shrink-0 leading-none mt-0.5 bg-emerald-50 border border-emerald-100 p-1 rounded-lg text-[#00a859]">
+                                            {pt.icon ? getIcon(pt.icon, "text-[#00a859]") : <Check className="w-3.5 h-3.5" />}
                                           </div>
                                           <div className="space-y-0.5 flex-1 min-w-0 text-left">
-                                            <h6 className="font-bold text-[10px] text-slate-900 leading-tight">
-                                              {item.label}
+                                            <h6 className="font-bold text-xs text-slate-900 leading-tight">
+                                              {pt.label || pt.title || pt.heading}
                                             </h6>
-                                            <p className="text-[9px] text-slate-500 leading-normal">
-                                              {item.text}
+                                            <p className="text-xs text-slate-500 leading-normal">
+                                              {pt.text || pt.description}
                                             </p>
                                           </div>
                                         </div>
@@ -4238,60 +4712,14 @@ export default function PhoneSimulator({
                                     </div>
                                   )}
 
-                                  {topic.id === 'costs-subsidies' && (
-                                    <p className="text-[9.5px] text-slate-500 font-medium italic leading-relaxed pt-0.5">
-                                      {language === 'ms' ? 'Bayaran akhir bergantung pada kewarganegaraan atau pemastautin, ujian kemampuan, kelayakan subsidi dan MediSave yang sedia ada.' :
-                                       language === 'zh' ? '最终支付金额取决于公民或永久居民身份、收入审查、津贴资格及可用的 MediSave 余额。' :
-                                       language === 'ta' ? 'இறுதித் தொகை குடியுரிமை, வருமான சோதனை, மானியத் தகுதி மற்றும் கிடைப்பிலுள்ள MediSave ஆகியவற்றைப் பொறுத்தது.' :
-                                       'Final payment depends on citizenship or residency, means-testing, subsidy eligibility and available MediSave.'}
-                                    </p>
-                                  )}
-
-                                  {/* Reassuring support note */}
-                                  {getPersonalizedNote(topic.id)}
-
-                                  {/* Only render old steps if no visualItems are present to avoid duplication */}
-                                  {(!topic.visualItems || topic.visualItems.length === 0) && topic.steps && topic.steps.length > 0 && (
-                                    <div className="relative pl-4 border-l-2 border-emerald-100 my-3 ml-2 space-y-3">
-                                      {topic.steps.map((st: any) => (
-                                        <div key={st.num} className="relative">
-                                          <div className="absolute -left-[22px] top-0.5 w-4 h-4 rounded-full bg-[#00a859] text-white flex items-center justify-center text-[9px] font-extrabold ring-4 ring-slate-50">{st.num}</div>
-                                          <div className="space-y-0.5">
-                                            <h6 className="font-bold text-[9.5px] text-slate-800">{st.title}</h6>
-                                            <p className="text-[9px] text-slate-500 leading-normal">{st.description}</p>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                  {/* Only render old subsections if no visualItems are present */}
-                                  {(!topic.visualItems || topic.visualItems.length === 0) && topic.subsections && topic.subsections.length > 0 && (
-                                    <div className="space-y-2 my-2">
-                                      {topic.subsections.map((sub: any, sIdx: number) => (
-                                        <div key={sIdx} className="bg-white border border-slate-150 p-2.5 rounded-lg shadow-3xs space-y-1">
-                                          <h6 className="font-bold text-[9px] text-[#00a859] tracking-wider uppercase font-sans">{sub.title}</h6>
-                                          <p className="text-[9.5px] text-slate-600 leading-relaxed font-sans">{sub.text}</p>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-
+                                  {/* 1 relevant visual where useful */}
                                   {customIllus}
 
-                                  {/* 1 short Key Takeaway */}
-                                  {topic.id !== 'costs-subsidies' && topic.keyTakeaway && (
-                                    <div className="border-l-4 border-emerald-500 bg-emerald-50/60 px-2.5 py-1.5 rounded-r-lg">
-                                      <p className="font-bold text-[8.5px] text-emerald-900 uppercase tracking-tight font-mono">{t('edu_key_takeaway') || 'Key Takeaway'}</p>
-                                      <p className="text-emerald-800 text-[9.5px] mt-0.5 leading-normal">{topic.keyTakeaway}</p>
-                                    </div>
-                                  )}
-
-                                  {!isSelected && (
-                                    <div className="flex justify-end pt-1">
-                                      <button onClick={(e) => { e.stopPropagation(); setEduExpanded(prev => ({ ...prev, [topic.id]: false })); }} className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9.5px] font-extrabold rounded-lg transition">
-                                        {t('step2_opt_show_less') || 'Show Less'}
-                                      </button>
+                                  {/* 1 topic-specific Key Takeaway */}
+                                  {topic.keyTakeaway && (
+                                    <div className="border-l-4 border-[#00a859] bg-emerald-50/80 px-3 py-2 rounded-r-xl">
+                                      <p className="font-bold text-xs text-emerald-900">{t('edu_key_takeaway') || 'Key Takeaway'}</p>
+                                      <p className="text-emerald-800 text-xs mt-0.5 leading-normal">{topic.keyTakeaway}</p>
                                     </div>
                                   )}
                                 </div>
@@ -4304,7 +4732,7 @@ export default function PhoneSimulator({
                           return (
                             <div className="space-y-3.5">
                               <div className="flex justify-between items-center">
-                                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('edu_learning_hub')}</h4>
+                                <h4 className="text-[10px] font-bold text-slate-500">{t('edu_learning_hub')}</h4>
                                 <span className="text-[10px] text-slate-500 font-medium">{t('edu_modules_summary')}</span>
                               </div>
 
@@ -4350,7 +4778,6 @@ export default function PhoneSimulator({
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                                   <h4 className="text-[12px] font-extrabold text-slate-900 font-display tracking-tight flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#00a859]" /> {t('edu_selected_for_you')}</h4>
-                                  <span className="text-[9.5px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50">{t('edu_personalised_badge')}</span>
                                 </div>
                                 <div className="space-y-3">
                                   {selectedGuideTopics.map(topic => renderGuideCard(topic, true))}
@@ -4358,85 +4785,56 @@ export default function PhoneSimulator({
                               </div>
                             )}
 
-                             {/* Section 2: Other Topics You Can Explore */}
-                             {unselectedGuideTopics.length > 0 && (
-                               <div className="pt-2 border-t border-slate-100/60">
-                                 <div className="bg-white border border-slate-200/80 rounded-xl p-3.5 transition-all duration-200 text-left">
-                                   <div className="flex items-center justify-between gap-2">
-                                     <div className="space-y-0.5">
-                                       <h4 className="text-[11.5px] font-extrabold text-slate-800 font-display tracking-tight flex items-center gap-1.5">
-                                         <BookOpen className="w-3.5 h-3.5 text-[#00a859] inline mr-1" />{t('step2_opt_other_topics') || 'Other Topics You Can Explore'}
-                                       </h4>
-                                       <p className="text-[9.5px] text-slate-500 leading-relaxed font-medium">
-                                         {t('step2_opt_other_topics_desc') || 'More FH topics are available whenever you are ready.'}
-                                       </p>
-                                     </div>
-                                     <button
-                                       onClick={() => setShowOtherTopics(!showOtherTopics)}
-                                       aria-expanded={showOtherTopics}
-                                       className="flex items-center gap-1 text-[10px] font-extrabold text-[#00a859] hover:text-[#008f4c] transition cursor-pointer shrink-0 py-1 px-2 border border-emerald-100/50 hover:bg-emerald-50/30 rounded-lg"
-                                     >
-                                       <span>{showOtherTopics ? (t('step2_opt_minimise') || 'Minimise') : (t('step2_opt_view_other_topics') || 'View Other Topics')}</span>
-                                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showOtherTopics ? 'rotate-180' : ''}`} />
-                                     </button>
-                                   </div>
+                            {/* Section 2: View Other Topics */}
+                            {unselectedGuideTopics.length > 0 && (
+                              <div className="pt-2 border-t border-slate-100/60">
+                                <div className="bg-white border border-slate-200/80 rounded-xl p-3 transition-all duration-200 text-left">
+                                  <button
+                                    onClick={() => setShowOtherTopics(!showOtherTopics)}
+                                    aria-expanded={showOtherTopics}
+                                    className="w-full flex items-center justify-between gap-2 text-left cursor-pointer"
+                                  >
+                                    <h4 className="text-[11.5px] font-extrabold text-slate-800 font-display tracking-tight flex items-center gap-1.5">
+                                      <BookOpen className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                                      <span>{showOtherTopics ? (t('step2_opt_minimise') || 'Minimise') : (t('step2_opt_view_other_topics') || 'View Other Topics')}</span>
+                                    </h4>
+                                    <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${showOtherTopics ? 'rotate-180' : ''}`} />
+                                  </button>
 
-                                   {showOtherTopics && (
-                                     <div className="space-y-3 pt-3 mt-3 border-t border-slate-100 animate-fade-in">
-                                       {unselectedGuideTopics.map(topic => renderGuideCard(topic, false))}
-                                     </div>
-                                   )}
-                                 </div>
-                               </div>
-                             )}
+                                  {showOtherTopics && (
+                                    <div className="space-y-3 pt-3 mt-3 border-t border-slate-100 animate-fade-in">
+                                      {unselectedGuideTopics.map(topic => renderGuideCard(topic, false))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         );
                       })()}
 
                       {/* Knowledge Check Section (Carousel) - Strictly under Guides tab only */}
-                      <div className="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-3xs text-left space-y-4">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <div className="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-3xs text-left space-y-2">
+                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="w-7 h-7 rounded-lg bg-emerald-100 text-[#00a859] flex items-center justify-center font-bold text-xs">
                               <CheckSquare className="w-4 h-4" />
                             </div>
                             <div>
-                              <h4 className="font-display font-extrabold text-xs text-slate-900">Knowledge Check</h4>
-                              <p className="text-[10px] text-slate-500 font-medium">{quizQuestions.length} questions • &lt; 1 minute</p>
+                              <h4 className="font-display font-extrabold text-xs text-slate-900">{t('knowledge_check_title')}</h4>
                             </div>
                           </div>
-                          <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-extrabold border border-emerald-100">
-                            Optional
-                          </span>
                         </div>
 
                         {!quizSubmitted ? (
-                          <div className="space-y-3.5">
-                            {/* Carousel Stepper / Progress Header */}
-                            <div className="flex items-center justify-between text-[10.5px] font-bold text-slate-600 bg-slate-50/80 px-3 py-2 rounded-xl border border-slate-150">
-                              <span className="font-mono text-[10px] text-emerald-800 font-bold">
-                                Question {quizSlideIndex + 1} of {quizQuestions.length}
-                              </span>
-                              {/* Dot indicators */}
-                              <div className="flex items-center gap-1.5">
-                                {quizQuestions.map((q, idx) => {
-                                  const isAnswered = quizAnswers[q.id] !== undefined;
-                                  const isActive = idx === quizSlideIndex;
-                                  return (
-                                    <button
-                                      key={q.id}
-                                      onClick={() => setQuizSlideIndex(idx)}
-                                      title={`Go to Question ${idx + 1}`}
-                                      className={`transition-all rounded-full cursor-pointer ${
-                                        isActive
-                                          ? 'w-5 h-2 bg-[#00a859]'
-                                          : isAnswered
-                                          ? 'w-2 h-2 bg-emerald-400 hover:bg-emerald-500'
-                                          : 'w-2 h-2 bg-slate-200 hover:bg-slate-300'
-                                      }`}
-                                    />
-                                  );
-                                })}
+                          <div className="space-y-2">
+                            {/* Carousel Stepper / Header */}
+                            <div className="px-0.5 py-0.5">
+                              <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="font-bold text-[#00a859]">{t('quiz_question_label')} {quizSlideIndex + 1}</span>
+                                  <span className="text-slate-400 font-normal">{t('quiz_of')} {quizQuestions.length}</span>
+                                </span>
                               </div>
                             </div>
 
@@ -4448,19 +4846,19 @@ export default function PhoneSimulator({
                               const allAnswered = totalAnswered >= quizQuestions.length;
 
                               return (
-                                <div className="space-y-3 bg-slate-50/70 border border-slate-150 p-3.5 rounded-xl animate-fade-in min-h-[190px] flex flex-col justify-between">
-                                  <div className="space-y-2.5">
-                                    <p className="text-[11.5px] font-bold text-slate-800 leading-snug">
+                                <div className="bg-slate-50/70 p-3.5 rounded-xl min-h-[380px] flex flex-col justify-between">
+                                  <div className="space-y-2.5 flex-1">
+                                    <p className="text-[12px] font-bold text-slate-800 leading-snug">
                                       {quizSlideIndex + 1}. {currentQ.question}
                                     </p>
-                                    <div className="space-y-1.5">
+                                    <div className="space-y-2">
                                       {currentQ.options.map((opt, optIdx) => {
                                         const isSelected = selectedOpt === optIdx;
                                         return (
                                           <button
                                             key={optIdx}
                                             onClick={() => setQuizAnswers(prev => ({ ...prev, [currentQ.id]: optIdx }))}
-                                            className={`w-full text-left p-2.5 rounded-lg text-[10.5px] font-medium transition flex items-center gap-2.5 cursor-pointer border ${
+                                            className={`w-full text-left p-2.5 rounded-lg text-[11px] font-medium transition flex items-center gap-2.5 cursor-pointer border ${
                                               isSelected
                                                 ? 'bg-emerald-50 border-[#00a859] text-emerald-900 font-bold'
                                                 : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100/60'
@@ -4479,7 +4877,7 @@ export default function PhoneSimulator({
                                   </div>
 
                                   {/* Carousel Navigation Controls */}
-                                  <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-200/60 mt-2">
+                                  <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-200/60 mt-2 shrink-0">
                                     <button
                                       onClick={() => setQuizSlideIndex(prev => Math.max(0, prev - 1))}
                                       disabled={quizSlideIndex === 0}
@@ -4490,46 +4888,40 @@ export default function PhoneSimulator({
                                       }`}
                                     >
                                       <ChevronLeft className="w-3.5 h-3.5" />
-                                      <span>Prev</span>
+                                      <span>{t('quiz_prev')}</span>
                                     </button>
 
-                                    {quizSlideIndex < quizQuestions.length - 1 ? (
-                                      <button
-                                        onClick={() => setQuizSlideIndex(prev => Math.min(quizQuestions.length - 1, prev + 1))}
-                                        className="px-3.5 py-1.5 bg-[#00a859] hover:bg-emerald-700 text-white rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
-                                      >
-                                        <span>Next</span>
-                                        <ChevronRight className="w-3.5 h-3.5" />
-                                      </button>
-                                    ) : (
-                                      <button
-                                        onClick={() => setQuizSubmitted(true)}
-                                        disabled={!allAnswered}
-                                        className={`px-3.5 py-1.5 rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer ${
-                                          allAnswered
-                                            ? 'bg-[#00a859] hover:bg-emerald-700 text-white shadow-xs'
-                                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                        }`}
-                                      >
-                                        <span>Submit Answers</span>
-                                        <Check className="w-3.5 h-3.5" />
-                                      </button>
-                                    )}
+                                    <div className="flex items-center gap-1.5">
+                                      {quizSlideIndex < quizQuestions.length - 1 ? (
+                                        <button
+                                          onClick={() => setQuizSlideIndex(prev => Math.min(quizQuestions.length - 1, prev + 1))}
+                                          className="px-3.5 py-1.5 bg-[#00a859] hover:bg-emerald-700 text-white rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
+                                        >
+                                          <span>{t('quiz_next')}</span>
+                                          <ChevronRight className="w-3.5 h-3.5" />
+                                        </button>
+                                      ) : (
+                                        <button
+                                          onClick={() => {
+                                            setQuizSubmitted(true);
+                                            setQuizSlideIndex(0);
+                                          }}
+                                          disabled={!allAnswered}
+                                          className={`px-3.5 py-1.5 rounded-lg text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                                            allAnswered
+                                              ? 'bg-[#00a859] hover:bg-emerald-700 text-white shadow-xs'
+                                              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                          }`}
+                                        >
+                                          <span>{t('quiz_submit')}</span>
+                                          <Check className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               );
                             })()}
-
-                            {/* Overall Submit Button shortcut if all answered before reaching last slide */}
-                            {Object.keys(quizAnswers).length >= quizQuestions.length && quizSlideIndex < quizQuestions.length - 1 && (
-                              <button
-                                onClick={() => setQuizSubmitted(true)}
-                                className="w-full py-2 bg-emerald-50 hover:bg-emerald-100 text-[#00a859] border border-emerald-200 rounded-xl text-[10.5px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                                <span>All questions answered — Submit Quiz Now</span>
-                              </button>
-                            )}
                           </div>
                         ) : (
                           /* Quiz Results View with Carousel review */
@@ -4540,48 +4932,22 @@ export default function PhoneSimulator({
                               const total = quizQuestions.length;
                               const percentage = Math.round((correctCount / total) * 100);
                               return (
-                                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-2 text-left">
-                                  <div className="flex items-center justify-between">
-                                    <h5 className="font-extrabold text-xs text-emerald-900">Knowledge Check Complete</h5>
-                                    <span className="font-display font-extrabold text-lg text-[#00a859]">
-                                      {percentage}%
-                                    </span>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="font-bold text-xs text-emerald-950">Great work!</p>
-                                    <p className="text-[10.5px] text-emerald-800 leading-relaxed font-sans">
-                                      You've completed the Knowledge Check and reinforced the key information to help prepare for your counselling appointment.
-                                    </p>
-                                  </div>
+                                <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3 text-left">
+                                  <p className="text-[11px] text-emerald-800 font-medium">
+                                    {t('quiz_score_msg').replace('{percentage}', String(percentage))}
+                                  </p>
                                 </div>
                               );
                             })()}
 
                             {/* Carousel Review for Results */}
                             <div className="space-y-3">
-                              <div className="flex items-center justify-between text-[10.5px] font-bold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-150">
-                                <span className="font-mono text-[10px] text-emerald-800 font-bold">
-                                  Review Question {quizSlideIndex + 1} of {quizQuestions.length}
-                                </span>
-                                <div className="flex items-center gap-1.5">
-                                  {quizQuestions.map((q, idx) => {
-                                    const isCorrect = quizAnswers[q.id] === q.correctAnswer;
-                                    const isActive = idx === quizSlideIndex;
-                                    return (
-                                      <button
-                                        key={q.id}
-                                        onClick={() => setQuizSlideIndex(idx)}
-                                        title={`Review Question ${idx + 1}`}
-                                        className={`transition-all rounded-full cursor-pointer ${
-                                          isActive
-                                            ? 'w-5 h-2 bg-[#00a859]'
-                                            : isCorrect
-                                            ? 'w-2 h-2 bg-emerald-400'
-                                            : 'w-2 h-2 bg-rose-400'
-                                        }`}
-                                      />
-                                    );
-                                  })}
+                              <div className="px-0.5 pt-0.5">
+                                <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="font-bold text-[#00a859]">{t('quiz_review_label')} {quizSlideIndex + 1}</span>
+                                    <span className="text-slate-400 font-normal">{t('quiz_of')} {quizQuestions.length}</span>
+                                  </span>
                                 </div>
                               </div>
 
@@ -4593,15 +4959,17 @@ export default function PhoneSimulator({
                                   <div className={`p-3.5 rounded-xl border space-y-2.5 animate-fade-in ${
                                     isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/30 border-rose-200'
                                   }`}>
-                                    <div className="flex items-start justify-between gap-2">
+                                    <div className="space-y-1.5">
+                                      <div>
+                                        <span className={`inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
+                                          isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                        }`}>
+                                          {isCorrect ? t('quiz_correct') : t('quiz_incorrect')}
+                                        </span>
+                                      </div>
                                       <p className="text-[11px] font-bold text-slate-800 leading-snug">
                                         {quizSlideIndex + 1}. {q.question}
                                       </p>
-                                      <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ${
-                                        isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                                      }`}>
-                                        {isCorrect ? 'Correct' : 'Incorrect'}
-                                      </span>
                                     </div>
 
                                     <div className="space-y-1.5 pt-1">
@@ -4616,18 +4984,25 @@ export default function PhoneSimulator({
                                         }
 
                                         return (
-                                          <div key={optIdx} className={`p-2 rounded-lg text-[10px] border flex items-center justify-between ${badgeStyle}`}>
-                                            <span className="leading-tight">{opt}</span>
-                                            {isCorrectChoice && <span className="text-[9px] text-emerald-700 font-bold shrink-0 ml-2 flex items-center gap-0.5"><Check className="w-3 h-3 stroke-[3]" /> Correct Answer</span>}
-                                            {isUserChoice && !isCorrectChoice && <span className="text-[9px] text-rose-700 font-bold shrink-0 ml-2">Your Choice</span>}
+                                          <div key={optIdx} className={`p-2 rounded-lg text-[10px] border flex flex-col gap-0.5 items-start text-left ${badgeStyle}`}>
+                                            {(isCorrectChoice || (isUserChoice && !isCorrectChoice)) && (
+                                              <div className="flex items-center gap-1 flex-wrap">
+                                                {isCorrectChoice && (
+                                                  <span className="text-[7.5px] text-emerald-800 font-bold flex items-center gap-0.5 bg-emerald-200/90 px-1 py-0.5 rounded-xs leading-none">
+                                                    <Check className="w-2.5 h-2.5 stroke-[3]" /> {t('quiz_correct_answer_badge')}
+                                                  </span>
+                                                )}
+                                                {isUserChoice && !isCorrectChoice && (
+                                                  <span className="text-[7.5px] text-rose-800 font-bold bg-rose-200/90 px-1 py-0.5 rounded-xs leading-none">
+                                                    {t('quiz_your_choice_badge')}
+                                                  </span>
+                                                )}
+                                              </div>
+                                            )}
+                                            <span className="leading-relaxed">{opt}</span>
                                           </div>
                                         );
                                       })}
-                                    </div>
-
-                                    <div className="bg-white/80 p-2.5 rounded-lg border border-slate-200/60 text-[10px] text-slate-600 leading-relaxed">
-                                      <span className="font-bold text-slate-800">Explanation: </span>
-                                      {q.explanation}
                                     </div>
 
                                     {/* Results Carousel Controls */}
@@ -4642,7 +5017,7 @@ export default function PhoneSimulator({
                                         }`}
                                       >
                                         <ChevronLeft className="w-3 h-3" />
-                                        <span>Prev Question</span>
+                                        <span>{t('quiz_prev_question')}</span>
                                       </button>
 
                                       <button
@@ -4654,7 +5029,7 @@ export default function PhoneSimulator({
                                             : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer'
                                         }`}
                                       >
-                                        <span>Next Question</span>
+                                        <span>{t('quiz_next_question')}</span>
                                         <ChevronRight className="w-3 h-3" />
                                       </button>
                                     </div>
@@ -4685,83 +5060,139 @@ export default function PhoneSimulator({
                       {/* FAQ Accordion Section */}
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('faq_title').toUpperCase()}</h4>
+                          <h4 className="text-[10px] font-bold text-slate-500">{t('faq_title')}</h4>
                         </div>
 
-                        {/* Personalized FAQ Banner */}
-                        {onboardingCompleted && questionnaireStatus === 'completed' && (
-                          <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3 flex items-start gap-2.5 shadow-3xs">
-                            <Sparkles className="w-4 h-4 text-[#00a859] mt-0.5 shrink-0" />
-                            <div className="space-y-0.5 text-left min-w-0 flex-1">
-                              <div className="flex justify-between items-center gap-2">
-                                <span className="text-[9px] font-extrabold text-emerald-800 uppercase tracking-widest font-mono">
-                                  {language === 'ms' ? 'Soalan Lazim Dipersonalisasi' :
-                                   language === 'zh' ? '个性化常见问题' :
-                                   language === 'ta' ? 'தனிப்பயனாக்கப்பட்ட கேள்விகள்' :
-                                   'PERSONALIZED FAQS'}
-                                </span>
-                                <span className="text-[8px] bg-white text-emerald-800 font-extrabold px-1.5 py-0.5 rounded font-mono border border-emerald-200 shrink-0">
-                                  {language === 'ms' ? 'Mengikut Jawapan Soal Selidik' :
-                                   language === 'zh' ? '基于问卷回答' :
-                                   language === 'ta' ? 'கேள்வித்தாள் பதில்கள்' :
-                                   'Based on Questionnaire'}
-                                </span>
-                              </div>
-                              <p className="text-[10.5px] text-slate-700 leading-normal font-sans">
-                                {language === 'ms' ? 'Soalan yang paling relevan dengan pilihan topik dan kebimbangan anda telah diutamakan di atas.' :
-                                 language === 'zh' ? '根据您选择的主题和关注点，最相关的常见问题已优先置顶显示。' :
-                                 language === 'ta' ? 'நீங்கள் தேர்ந்தெடுத்த தலைப்புகள் மற்றும் கவலைகளுக்கு மிகவும் தொடர்புடைய கேள்விகள் மேலே வரிசைப்படுத்தப்பட்டுள்ளன.' :
-                                 'FAQs most relevant to your selected topics and concerns are prioritized at the top.'}
-                              </p>
-                            </div>
-                          </div>
-                        )}
 
                         {/* Category Filter Tabs */}
-                        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                          {[
-                            { id: 'all', label: t('faq_category_all') },
-                            { id: 'cost', label: t('faq_category_cost') },
-                            { id: 'insurance', label: t('faq_category_insurance') },
-                            { id: 'testing', label: t('faq_category_testing') },
-                            { id: 'medication', label: t('faq_category_medication') },
-                          ].map((cat) => (
-                            <button
-                              key={cat.id}
-                              onClick={() => {
-                                setActiveFaqCategory(cat.id);
-                                setFaqActiveIdx(null);
-                              }}
-                              className={`px-3 py-1.5 rounded-full text-[10px] font-extrabold tracking-tight shrink-0 transition cursor-pointer border ${
-                                activeFaqCategory === cat.id
-                                  ? 'bg-[#00a859] text-white border-[#00a859] shadow-3xs'
-                                  : 'bg-white text-slate-600 hover:text-slate-800 border-slate-200'
-                              }`}
-                            >
-                              {cat.label}
-                            </button>
-                          ))}
-                        </div>
+                        {(() => {
+                          const isQuizComplete = onboardingCompleted && questionnaireStatus === 'completed';
+                          return (
+                            <div className="space-y-1.5 pb-1">
+                              {isQuizComplete ? (
+                                <>
+                                  {/* Row 1: RECOMMENDED, ALL, COST */}
+                                  <div className="flex gap-1.5">
+                                    {[
+                                      { id: 'recommended', label: t('faq_category_recommended') },
+                                      { id: 'all', label: t('faq_category_all') },
+                                      { id: 'cost', label: t('faq_category_cost') },
+                                    ].map((cat) => (
+                                      <button
+                                        key={cat.id}
+                                        onClick={() => {
+                                          setActiveFaqCategory(cat.id);
+                                          setFaqActiveIdx(null);
+                                        }}
+                                        className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-tight transition cursor-pointer border flex-1 text-center ${
+                                          activeFaqCategory === cat.id
+                                            ? 'bg-[#00a859] text-white border-[#00a859] shadow-3xs'
+                                            : 'bg-white text-slate-600 hover:text-slate-800 border-slate-200'
+                                        }`}
+                                      >
+                                        {cat.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  {/* Row 2: INSURANCE, TESTING, MEDICATION */}
+                                  <div className="flex gap-1.5">
+                                    {[
+                                      { id: 'insurance', label: t('faq_category_insurance') },
+                                      { id: 'testing', label: t('faq_category_testing') },
+                                      { id: 'medication', label: t('faq_category_medication') },
+                                    ].map((cat) => (
+                                      <button
+                                        key={cat.id}
+                                        onClick={() => {
+                                          setActiveFaqCategory(cat.id);
+                                          setFaqActiveIdx(null);
+                                        }}
+                                        className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-tight transition cursor-pointer border flex-1 text-center ${
+                                          activeFaqCategory === cat.id
+                                            ? 'bg-[#00a859] text-white border-[#00a859] shadow-3xs'
+                                            : 'bg-white text-slate-600 hover:text-slate-800 border-slate-200'
+                                        }`}
+                                      >
+                                        {cat.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  {/* Row 1: ALL, COST, INSURANCE */}
+                                  <div className="flex gap-1.5">
+                                    {[
+                                      { id: 'all', label: t('faq_category_all') },
+                                      { id: 'cost', label: t('faq_category_cost') },
+                                      { id: 'insurance', label: t('faq_category_insurance') },
+                                    ].map((cat) => (
+                                      <button
+                                        key={cat.id}
+                                        onClick={() => {
+                                          setActiveFaqCategory(cat.id);
+                                          setFaqActiveIdx(null);
+                                        }}
+                                        className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-tight transition cursor-pointer border flex-1 text-center ${
+                                          activeFaqCategory === cat.id
+                                            ? 'bg-[#00a859] text-white border-[#00a859] shadow-3xs'
+                                            : 'bg-white text-slate-600 hover:text-slate-800 border-slate-200'
+                                        }`}
+                                      >
+                                        {cat.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  {/* Row 2: TESTING, MEDICATION */}
+                                  <div className="flex gap-1.5">
+                                    {[
+                                      { id: 'testing', label: t('faq_category_testing') },
+                                      { id: 'medication', label: t('faq_category_medication') },
+                                    ].map((cat) => (
+                                      <button
+                                        key={cat.id}
+                                        onClick={() => {
+                                          setActiveFaqCategory(cat.id);
+                                          setFaqActiveIdx(null);
+                                        }}
+                                        className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-tight transition cursor-pointer border flex-1 text-center ${
+                                          activeFaqCategory === cat.id
+                                            ? 'bg-[#00a859] text-white border-[#00a859] shadow-3xs'
+                                            : 'bg-white text-slate-600 hover:text-slate-800 border-slate-200'
+                                        }`}
+                                      >
+                                        {cat.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                         <div className="space-y-2">
-                          {sortedFaqs
-                            .filter(faq => activeFaqCategory === 'all' || faq.category === activeFaqCategory)
-                            .map((faq, idx) => {
+                          {(() => {
+                            const matchedFaqs = sortedFaqs.filter(faq => {
+                              if (activeFaqCategory === 'recommended') {
+                                return getFaqMatchScore(faq) > 0;
+                              }
+                              if (activeFaqCategory === 'all') return true;
+                              return faq.category === activeFaqCategory;
+                            });
+                            const listToRender = (activeFaqCategory === 'recommended' && matchedFaqs.length === 0)
+                              ? sortedFaqs.slice(0, 3)
+                              : matchedFaqs;
+
+                            return listToRender.map((faq, idx) => {
                               const isFaqExpanded = faqActiveIdx === idx;
-                              const matchReason = getFaqMatchReason(faq);
                               return (
-                                <div key={idx} className={`bg-white border rounded-xl overflow-hidden shadow-3xs transition ${matchReason ? 'border-emerald-300/80 ring-1 ring-emerald-500/10' : 'border-slate-200'}`}>
+                                <div key={idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-3xs transition">
                                   <button
                                     onClick={() => setFaqActiveIdx(isFaqExpanded ? null : idx)}
                                     className="w-full text-left p-3.5 text-xs font-bold text-slate-800 flex justify-between items-start hover:bg-slate-50 transition cursor-pointer gap-2"
                                   >
                                     <div className="space-y-1 flex-1 pr-1 min-w-0">
-                                      {matchReason && (
-                                        <span className="inline-flex items-center gap-1 text-[8.5px] font-extrabold bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-md border border-emerald-200/60 font-mono tracking-tight">
-                                          <Sparkles className="w-2.5 h-2.5 text-[#00a859] shrink-0" />
-                                          {language === 'ms' ? 'Disyorkan' : language === 'zh' ? '推荐关注' : language === 'ta' ? 'பரிந்துரைக்கப்பட்டது' : 'Recommended'}: {matchReason}
-                                        </span>
-                                      )}
                                       <span className="block font-bold text-slate-900 leading-snug">{faq.question}</span>
                                     </div>
                                     <ChevronRight className={`w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5 transition-transform ${isFaqExpanded ? 'rotate-90' : ''}`} />
@@ -4774,36 +5205,16 @@ export default function PhoneSimulator({
                                   )}
                                 </div>
                               );
-                            })}
+                            });
+                          })()}
                         </div>
                       </div>
 
                       {/* Helpful Resources Section (Grouped by Category) */}
                       <div className="space-y-3 pt-1">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono font-sans">{t('edu_helpful_resources')}</h4>
-                          <span className="text-[9px] bg-emerald-50 text-[#00a859] px-2 py-0.5 rounded-full font-bold border border-emerald-100/50 font-mono">
-                            {sortedHelpfulResources.length} {language === 'ms' ? 'Sumber' : language === 'zh' ? '项资源' : language === 'ta' ? 'வளங்கள்' : 'Resources'}
-                          </span>
+                          <h4 className="text-[11px] font-bold text-slate-500">{t('edu_helpful_resources')}</h4>
                         </div>
-
-                        {/* Personalized Resources Banner */}
-                        {onboardingCompleted && questionnaireStatus === 'completed' && (
-                          <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-2.5 flex items-center justify-between text-left">
-                            <div className="flex items-center gap-2">
-                              <Sparkles className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
-                              <span className="text-[10.5px] font-bold text-emerald-900 leading-tight">
-                                {language === 'ms' ? 'Risalah & Sumber Dipersonalisasi' :
-                                 language === 'zh' ? '针对性宣传册与资源' :
-                                 language === 'ta' ? 'தனிப்பயனாக்கப்பட்ட சிற்றேடுகள்' :
-                                 'Targeted Brochures & Educational Resources'}
-                              </span>
-                            </div>
-                            <span className="text-[8.5px] font-mono bg-white text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded font-extrabold shrink-0">
-                              {language === 'ms' ? 'Dipersonalisasi' : language === 'zh' ? '已个性化' : language === 'ta' ? 'தனிப்பயனாக்கப்பட்டது' : 'Personalized'}
-                            </span>
-                          </div>
-                        )}
 
                         {/* Resource Groups in Slide / Carousel Format */}
                         <div className="space-y-3">
@@ -4883,14 +5294,9 @@ export default function PhoneSimulator({
                                     </div>
                                     <span>{group.title}</span>
                                   </div>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className={`text-[8.5px] font-mono px-1.5 py-0.2 rounded-full font-extrabold ${group.badgeBg}`}>
-                                      {group.items.length} {group.items.length === 1 ? 'Item' : 'Items'}
-                                    </span>
-                                  </div>
                                 </div>
 
-                                {/* Slide Dots Indicator */}
+                                {/* Slide Dots Indicator & Navigation Controls */}
                                 <div className="flex items-center justify-between px-1 text-[10px]">
                                   <div className="flex items-center gap-1.5">
                                     {group.items.map((_, idx) => (
@@ -4906,33 +5312,58 @@ export default function PhoneSimulator({
                                       />
                                     ))}
                                   </div>
-                                  <span className="text-[9px] text-slate-400 font-mono font-medium">
-                                    {activeRes.type}
-                                  </span>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[9px] text-slate-400 font-mono font-medium mr-1">
+                                      {activeRes.type}
+                                    </span>
+                                    <button
+                                      onClick={() => group.setSlideIdx(prev => Math.max(0, prev - 1))}
+                                      disabled={currentIdx === 0}
+                                      title="Previous Slide"
+                                      className={`p-1 rounded-md transition shrink-0 flex items-center justify-center cursor-pointer ${
+                                        currentIdx === 0
+                                          ? 'text-slate-300 bg-slate-100/60 cursor-not-allowed opacity-40'
+                                          : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 shadow-3xs'
+                                      }`}
+                                    >
+                                      <ChevronLeft className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => group.setSlideIdx(prev => Math.min(group.items.length - 1, prev + 1))}
+                                      disabled={currentIdx === group.items.length - 1}
+                                      title="Next Slide"
+                                      className={`p-1 rounded-md transition shrink-0 flex items-center justify-center cursor-pointer ${
+                                        currentIdx === group.items.length - 1
+                                          ? 'text-slate-300 bg-slate-100/60 cursor-not-allowed opacity-40'
+                                          : 'text-white bg-[#00a859] hover:bg-emerald-700 shadow-3xs'
+                                      }`}
+                                    >
+                                      <ChevronRight className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
                                 </div>
 
-                                {/* Active Slide Resource Card (Flexible height so full video/brochure titles display clearly) */}
+                                {/* Active Slide Resource Card */}
                                 <button
                                   onClick={() => {
                                     setSelectedResource(activeRes);
                                     setResourcePage(0);
                                   }}
-                                  className={`w-full min-h-[115px] text-left bg-slate-50/60 border border-slate-100 rounded-xl p-3 transition group cursor-pointer flex flex-col justify-between ${hoverBorderClass}`}
+                                  className={`w-full min-h-[110px] text-left bg-slate-50/60 border border-slate-100 rounded-xl p-3 transition group cursor-pointer flex flex-col justify-between ${hoverBorderClass}`}
                                 >
                                   <div className="flex items-start gap-2.5 min-w-0">
                                     <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 transition ${bgClass}`}>
                                       {getIcon(activeRes.iconName, itemIconColor)}
                                     </div>
                                     <div className="space-y-0.5 flex-1 min-w-0">
-                                      <div className="flex justify-between items-start gap-2">
+                                      <div className="flex justify-between items-start gap-1">
                                         <h5 className="font-bold text-[11px] text-slate-800 group-hover:text-[#00a859] transition leading-snug line-clamp-2">{activeRes.title}</h5>
-                                        <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-extrabold shrink-0 micro-badge ${typeTagClass}`}>{activeRes.type}</span>
                                       </div>
-                                      <p className="text-[10px] text-slate-500 leading-normal line-clamp-2 mt-0.5">{activeRes.summary}</p>
+                                      <p className="text-[10px] text-slate-500 leading-normal line-clamp-3 mt-0.5">{activeRes.summary}</p>
                                     </div>
                                   </div>
                                   
-                                  <div className="flex justify-between items-center pl-9 pt-1.5">
+                                  <div className="pt-2 space-y-1">
                                     <div className="flex flex-wrap items-center gap-1 min-w-0">
                                       {matchReason && (
                                         <span className="text-[8px] hashtag-tag micro-badge bg-emerald-50 text-[#00a859] px-1.5 py-0.5 rounded font-mono font-extrabold border border-emerald-200/80 flex items-center gap-0.5 shrink-0">
@@ -4941,46 +5372,19 @@ export default function PhoneSimulator({
                                         </span>
                                       )}
                                       {activeRes.keywords.slice(0, 2).map((kw, i) => (
-                                        <span key={i} className="text-[8px] hashtag-tag micro-badge font-mono bg-white text-slate-500 px-1.5 py-0.5 rounded border border-slate-200/40 truncate max-w-[90px]">
+                                        <span key={i} className="text-[8px] hashtag-tag micro-badge font-mono bg-white text-slate-500 px-1.5 py-0.5 rounded border border-slate-200/40 break-words max-w-full">
                                           #{kw}
                                         </span>
                                       ))}
                                     </div>
-                                    <div className={`flex items-center text-[10px] font-bold gap-1 transition ${viewLinkColor} shrink-0`}>
+                                    <div className={`flex items-center text-[9.5px] font-bold gap-0.5 transition ${viewLinkColor} shrink-0 justify-end`}>
                                       <span>{t('edu_view_resource')}</span>
                                       <ExternalLink className="w-2.5 h-2.5 transition" />
                                     </div>
                                   </div>
                                 </button>
 
-                                {/* Slide Prev / Next Buttons */}
-                                <div className="flex items-center justify-between gap-2 pt-0.5">
-                                  <button
-                                    onClick={() => group.setSlideIdx(prev => Math.max(0, prev - 1))}
-                                    disabled={currentIdx === 0}
-                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
-                                      currentIdx === 0
-                                        ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
-                                        : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 cursor-pointer shadow-3xs'
-                                    }`}
-                                  >
-                                    <ChevronLeft className="w-3 h-3" />
-                                    <span>Prev Slide</span>
-                                  </button>
 
-                                  <button
-                                    onClick={() => group.setSlideIdx(prev => Math.min(group.items.length - 1, prev + 1))}
-                                    disabled={currentIdx === group.items.length - 1}
-                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${
-                                      currentIdx === group.items.length - 1
-                                        ? 'text-slate-300 bg-slate-100 cursor-not-allowed'
-                                        : 'text-white bg-[#00a859] hover:bg-emerald-700 cursor-pointer shadow-3xs'
-                                    }`}
-                                  >
-                                    <span>Next Slide</span>
-                                    <ChevronRight className="w-3 h-3" />
-                                  </button>
-                                </div>
                               </div>
                             );
                           })}
@@ -4988,24 +5392,6 @@ export default function PhoneSimulator({
                       </div>
                     </div>
                   )}
-
-                  {/* Contextual Booking Reinforcement Card */}
-                  <div className="bg-[#00a859] rounded-2xl p-5 text-center space-y-3.5 shadow-sm">
-                    <div className="space-y-1.5 px-1">
-                      <h4 className="font-display font-extrabold text-sm sm:text-base text-white leading-snug">
-                        Ready to book your GAC counselling slot?
-                      </h4>
-                      <p className="text-[11px] text-white/95 font-medium leading-relaxed max-w-[290px] mx-auto">
-                        Take the active step today. Booking takes under 20 seconds within HealthHub.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onChangeScreen(ScreenId.Booking)}
-                      className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a859] rounded-2xl text-xs font-extrabold transition cursor-pointer shadow-xs active:scale-[0.99]"
-                    >
-                      Go to Secure Booking
-                    </button>
-                  </div>
                 </div>
               </div>
             )}
@@ -5017,21 +5403,27 @@ export default function PhoneSimulator({
         {activeScreen === ScreenId.Booking && (
           <div className="flex-col flex flex-1 h-full overflow-hidden relative animate-slide-in">
             {showMonthPopup && (
-              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-3xl w-full max-w-[325px] p-6 shadow-2xl border border-slate-100 animate-fade-in text-left">
-                  <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-[#00a859]" />
-                      <h4 className="font-extrabold text-[15px] text-slate-800 tracking-tight">{t('booking_select_month')}</h4>
+              <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+                <div className="bg-white rounded-3xl w-full max-w-[335px] p-5 shadow-2xl border border-slate-100 text-left space-y-4">
+                  {/* Modal Header */}
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 bg-emerald-100/90 rounded-xl text-[#00a859] shrink-0">
+                        <Calendar className="w-4 h-4" />
+                      </div>
+                      <h4 className="font-extrabold text-sm text-slate-800 tracking-tight leading-tight">
+                        {t('booking_select_month')}
+                      </h4>
                     </div>
                     <button
                       onClick={() => setShowMonthPopup(false)}
-                      className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
+                      className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full cursor-pointer transition"
                     >
-                      <X className="w-4 h-4 text-slate-400" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
-                  
+
+                  {/* Year & Month Grid */}
                   {(() => {
                     const grouped: { [year: string]: string[] } = {};
                     availableMonths.forEach((m) => {
@@ -5042,30 +5434,40 @@ export default function PhoneSimulator({
                     });
 
                     return (
-                      <div className="space-y-5 max-h-[350px] overflow-y-auto pr-1">
+                      <div className="space-y-3.5 max-h-[320px] overflow-y-auto pr-1 text-left">
                         {Object.keys(grouped).sort().map((year) => (
-                          <div key={year} className="space-y-2.5 text-left">
-                            <div className="flex items-center pl-2 py-1 bg-slate-50/75 border-l-[3px] border-[#00a859] rounded-r-lg">
-                              <span className="text-[11.5px] font-extrabold text-slate-400 tracking-wider font-mono">{year}</span>
+                          <div key={year} className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-black tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60 font-mono">
+                                {year}
+                              </span>
+                              <div className="h-px bg-slate-100 flex-1" />
                             </div>
+
                             <div className="grid grid-cols-3 gap-2">
                               {grouped[year].map((m) => {
                                 const isSelected = m === selectedCalendarMonth;
+                                const isPast = isMonthBeforeCurrent(m);
                                 const shortName = getLocalizedMonthOnly(m, language);
                                 return (
                                   <button
                                     key={m}
+                                    disabled={isPast}
                                     onClick={() => {
-                                      selectMonth(m);
-                                      setShowMonthPopup(false);
+                                      if (!isPast) {
+                                        selectMonth(m);
+                                        setShowMonthPopup(false);
+                                      }
                                     }}
-                                    className={`h-9 px-1 rounded-xl text-[10.5px] font-bold text-center flex items-center justify-center transition-all cursor-pointer w-full border ${
-                                      isSelected
-                                        ? 'bg-[#00a859] border-[#00a859] text-white shadow-md shadow-emerald-700/10'
-                                        : 'bg-slate-50 border-slate-200/50 text-slate-700 hover:bg-emerald-50 hover:text-[#00a859] hover:border-emerald-200'
+                                    className={`py-2 px-1.5 rounded-xl text-[11.5px] font-extrabold text-center flex items-center justify-center transition-all cursor-pointer w-full border ${
+                                      isPast
+                                        ? 'opacity-30 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed pointer-events-none'
+                                        : isSelected
+                                        ? 'bg-[#00a859] border-[#00a859] text-white shadow-md shadow-emerald-700/20'
+                                        : 'bg-slate-50 hover:bg-emerald-50/80 border-slate-200/70 hover:border-emerald-300 text-slate-800 hover:text-[#00a859]'
                                     }`}
                                   >
-                                    {shortName}
+                                    <span>{shortName}</span>
                                   </button>
                                 );
                               })}
@@ -5089,732 +5491,728 @@ export default function PhoneSimulator({
               >
                 <ArrowLeft className="w-5 h-5 text-slate-700" />
               </button>
-              <span className="font-bold text-sm text-slate-800">{t('booking_header_title')}</span>
+              <span className="font-bold text-sm text-slate-800">
+                {appointment.status === 'booked' || appointment.status === 'confirmed' 
+                  ? t('booking_header_details') 
+                  : t('booking_header_title')}
+              </span>
             </div>
 
             {/* If appointment is BOOKED or CONFIRMED, show Feature 2 Confirmation Screen */}
             {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 animate-fade-in text-left">
-                {/* Booking Confirmation Card (Feature 2) */}
-                <div className="bg-white border border-emerald-200 rounded-2xl p-4 shadow-xs text-center space-y-3.5 relative overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-4 pb-36 space-y-4 animate-fade-in text-left">
+                {/* Booking Confirmation Header Status */}
+                <div className="bg-white border border-emerald-200 rounded-2xl p-4 shadow-xs text-center space-y-2.5 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-500" />
-                  <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
-                    <ShieldCheck className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 text-[#00a859] flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
+                    <Check className="w-6 h-6 stroke-[3]" />
                   </div>
                   
                   <div>
                     <h3 className="font-extrabold text-base text-slate-850">{t('booking_confirmed_status')}</h3>
-                    <p className="text-[10px] text-[#00a859] font-extrabold uppercase tracking-wide mt-1 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block border border-emerald-100">
-                      {t('booking_subsidized_slot')}
-                    </p>
                   </div>
+                </div>
 
-                  {/* Interactive Notification Bell to configure reminders (User Request 3) */}
-                  <button
-                    onClick={() => onChangeScreen(ScreenId.ReminderSettings)}
-                    className="w-full mt-1.5 p-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-[10px] text-amber-800 font-extrabold transition flex items-center justify-start gap-2 cursor-pointer shadow-3xs group relative overflow-hidden whitespace-nowrap"
-                  >
-                    <Bell className="w-3.5 h-3.5 text-amber-650 shrink-0" />
-                    <span className="truncate">{t('booking_setup_reminders')}</span>
-                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-amber-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                  </button>
+                {/* Single Combined Appointment Details Card (Care Clinic, Date, and Time in the SAME card) */}
+                {(() => {
+                  const clinicName = appointment.clinic || (isFHReferred ? "National University Hospital Genetic Clinic" : activeClinics[0].name);
+                  const clinicAddress = getClinicAddress(clinicName);
+                  const details = getAppointmentSlotDetails(
+                    clinicName,
+                    appointment.date,
+                    appointment.timeSlot
+                  );
+                  return (
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-xs text-left overflow-hidden">
+                      {/* Card Header Label */}
+                      <div className="px-4 pt-3 pb-2 border-b border-slate-100">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                          {t('booking_header_details')}
+                        </span>
+                      </div>
 
-                  {/* Relational details matching selected July dates */}
-                  {(() => {
-                    const details = getAppointmentSlotDetails(
-                      appointment.clinic || "National University Hospital Genetic Clinic",
-                      appointment.date,
-                      appointment.timeSlot
-                    );
-                    return (
-                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left space-y-3 text-xs">
-                        <div className="grid grid-cols-12 gap-x-2 items-start">
-                          <span className="col-span-5 text-slate-500 font-medium">{t('booking_care_clinic')}</span>
-                          <strong className="col-span-7 text-slate-800 text-right font-semibold leading-relaxed">
-                            {appointment.clinic || "National University Hospital Genetic Clinic"}
-                          </strong>
+                      <div className="p-4 space-y-3.5">
+                        {/* Care Clinic Details */}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 text-slate-500 font-medium text-[10.5px]">
+                            <Building2 className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                            <span className="font-semibold">{t('booking_care_clinic')}</span>
+                          </div>
+                          <p className="font-extrabold text-slate-850 text-xs leading-snug pl-5">
+                            {clinicName}
+                          </p>
+                          {clinicAddress && (
+                            <div className="flex items-start gap-1.5 text-[10.5px] text-slate-500 font-medium leading-relaxed pl-5 pt-0.5">
+                              <MapPin className="w-3 h-3 text-slate-400 shrink-0 mt-0.5" />
+                              <span>{clinicAddress}</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="grid grid-cols-12 gap-x-2 items-start">
-                          <span className="col-span-5 text-slate-500 font-medium">{t('booking_specialist')}</span>
-                          <strong className="col-span-7 text-slate-800 text-right font-semibold leading-relaxed">
-                            {details.provider} <span className="text-[10px] text-slate-500 font-normal block">({details.role})</span>
-                          </strong>
-                        </div>
-                        <div className="grid grid-cols-12 gap-x-2 items-center">
-                          <span className="col-span-5 text-slate-500 font-medium">{t('booking_scheduled_date')}</span>
-                          <strong className="col-span-7 text-slate-800 text-right font-semibold font-mono">{getLocalizedDate(appointment.date, language)}</strong>
-                        </div>
-                        <div className="grid grid-cols-12 gap-x-2 items-center">
-                          <span className="col-span-5 text-slate-500 font-medium">{t('booking_confirmed_time')}</span>
-                          <strong className="col-span-7 text-slate-800 text-right font-semibold font-mono">{appointment.timeSlot}</strong>
-                        </div>
-                        <div className="grid grid-cols-12 gap-x-2 items-center">
-                          <span className="col-span-5 text-slate-500 font-medium">{t('booking_session_duration')}</span>
-                          <strong className="col-span-7 text-slate-800 text-right font-semibold">{details.duration.replace('mins', t('booking_mins'))}</strong>
-                        </div>
-                        <div className="grid grid-cols-12 gap-x-2 items-start pt-2 border-t border-slate-200">
-                          <span className="col-span-5 text-slate-500 font-bold">{t('booking_out_of_pocket')}</span>
-                          <div className="col-span-7 text-right">
-                            <strong className="text-emerald-700 font-extrabold font-mono text-sm block">
-                              {FH_COST_DATA.indexPatientEstimatedCash}
-                            </strong>
-                            <span className="text-[10px] text-slate-500 font-medium block mt-0.5">
-                              {FH_COST_DATA.bookingConfirmationSubtext}
-                            </span>
+
+                        {/* Scheduled Date & Confirmed Time Block */}
+                        <div className="border-t border-slate-100 pt-3 grid grid-cols-2 gap-3 bg-slate-50/70 -mx-4 -mb-4 p-3.5">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-slate-500 font-medium text-[10px]">
+                              <Calendar className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                              <span className="font-semibold">{t('booking_scheduled_date')}</span>
+                            </div>
+                            <p className="font-extrabold text-slate-850 text-xs font-mono pl-5">
+                              {getLocalizedDate(appointment.date, language)}
+                            </p>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-slate-500 font-medium text-[10px]">
+                              <Clock className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                              <span className="font-semibold">{t('booking_confirmed_time')}</span>
+                            </div>
+                            <p className="font-extrabold text-slate-850 text-xs font-mono pl-5">
+                              {appointment.timeSlot}
+                            </p>
                           </div>
                         </div>
                       </div>
-                    );
-                  })()}
+                    </div>
+                  );
+                })()}
 
-                  {/* Feature 3: Calendar Integration buttons with elegant toggle menu */}
-                  <div className="space-y-2.5 pt-1.5">
-                    <button 
-                      onClick={() => setCalendarMenuOpen(!calendarMenuOpen)}
-                      className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-                    >
-                      <Calendar className="w-4 h-4 text-emerald-400" />
-                      {t('booking_add_device_calendar')}
-                    </button>
+                {/* Estimated Out-of-Pocket Cost Block */}
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 space-y-2 text-left shadow-xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-slate-800">
+                      {getLocalizedCostData(language).cardHeading}
+                    </span>
+                    <span className="text-sm font-black text-[#00a859] font-mono tracking-tight shrink-0 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/80">
+                      {getLocalizedCostData(language).indexPatientEstimatedCash}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 font-medium leading-normal border-t border-slate-100 pt-2">
+                    {getLocalizedCostData(language).supportingText}
+                  </p>
+                </div>
 
-                    {calendarMenuOpen && (
-                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 grid grid-cols-2 gap-2 animate-fade-in">
-                        <button 
-                          onClick={() => {
-                            downloadICSFile({
-                              date: appointment.date,
-                              time: appointment.timeSlot,
-                              clinic: appointment.clinic,
-                              address: getClinicAddress(appointment.clinic)
-                            });
-                            onAddCalendarEvent();
-                            triggerToast(t('booking_add_calendar_success'));
-                          }}
-                          className="py-2 px-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer animate-fade-in"
-                        >
-                          <Smartphone className="w-3.5 h-3.5 text-slate-500" /> Apple Calendar
-                        </button>
-                        <a 
-                          href={getGoogleCalendarUrl({
+                {/* Secondary Actions: Device Calendar + Customise Reminders */}
+                <div className="space-y-2 pt-1">
+                  <button 
+                    onClick={() => setCalendarMenuOpen(!calendarMenuOpen)}
+                    className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                  >
+                    <Calendar className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{t('booking_add_device_calendar')}</span>
+                  </button>
+
+                  {calendarMenuOpen && (
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 grid grid-cols-2 gap-2 animate-fade-in">
+                      <button 
+                        onClick={() => {
+                          downloadICSFile({
                             date: appointment.date,
                             time: appointment.timeSlot,
                             clinic: appointment.clinic,
                             address: getClinicAddress(appointment.clinic)
-                          })}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => {
-                            onAddCalendarEvent();
-                          }}
-                          className="py-2 px-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer text-center"
-                        >
-                          <Calendar className="w-3.5 h-3.5 text-[#00a859]" /> Google Calendar
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                          });
+                          onAddCalendarEvent();
+                          triggerToast(t('booking_add_calendar_success'));
+                        }}
+                        className="py-2 px-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer animate-fade-in"
+                      >
+                        <Smartphone className="w-3.5 h-3.5 text-slate-500" /> Apple Calendar
+                      </button>
+                      <a 
+                        href={getGoogleCalendarUrl({
+                          date: appointment.date,
+                          time: appointment.timeSlot,
+                          clinic: appointment.clinic,
+                          address: getClinicAddress(appointment.clinic)
+                        })}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                          onAddCalendarEvent();
+                        }}
+                        className="py-2 px-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer text-center"
+                      >
+                        <Calendar className="w-3.5 h-3.5 text-[#00a859]" /> Google Calendar
+                      </a>
+                    </div>
+                  )}
 
-                {/* Secure, calm prep card */}
-                <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4 space-y-3 text-xs text-left">
-                  <h4 className="font-bold text-emerald-900 flex items-center gap-2">
-                    <Info className="w-4 h-4 text-emerald-600 shrink-0" /> {t('booking_essential_prep')}
-                  </h4>
-                  <ul className="space-y-2 text-slate-600 text-[11px] leading-relaxed">
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-600 font-bold shrink-0">•</span>
-                      <span>{t('booking_prep_no_fasting')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-600 font-bold shrink-0">•</span>
-                      <span>{t('booking_prep_id_verif')}</span>
-                    </li>
-                    {/* Pre-counselling Checklist instruction */}
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-600 font-bold shrink-0">•</span>
-                      <span>{t('booking_prep_checklist')}</span>
-                    </li>
-                  </ul>
-                  <button 
-                    onClick={() => {
-                      setEduSubTab('guides');
-                      onChangeScreen(ScreenId.Education);
-                    }}
-                    className="text-[#00a859] font-extrabold text-[11px] hover:underline flex items-center gap-0.5 text-left pt-1"
+                  <button
+                    onClick={() => onChangeScreen(ScreenId.ReminderSettings)}
+                    className="w-full py-2.5 px-3 bg-white hover:bg-emerald-50 text-[#00a859] border border-[#00a859]/60 hover:border-[#00a859] rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-3xs group"
                   >
-                    {t('edu_tab_guides')} <ChevronRight className="w-3.5 h-3.5" />
+                    <Bell className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                    <span>{t('booking_setup_reminders')}</span>
                   </button>
                 </div>
 
-                {/* Manage and reschedule options */}
-                <div className="space-y-2 pt-1 text-left">
+                {/* "What's Next?" Section - Only shown for referred patients */}
+                {isFHReferred && (
+                  <div className="space-y-2 pt-2 text-left border-t border-slate-100">
+                    <h3 className="font-extrabold text-[11px] text-slate-800 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#00a859]" />
+                      <span>{t('booking_whats_next')}</span>
+                    </h3>
+
+                    <div className="bg-emerald-50/50 border border-emerald-200/90 rounded-2xl p-4 space-y-3 text-xs text-left">
+                      <h4 className="font-bold text-emerald-900 flex items-center gap-2">
+                        <Info className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{t('booking_essential_prep')}</span>
+                      </h4>
+                      <ul className="space-y-2 text-slate-600 text-[11px] leading-relaxed">
+                        <li className="flex items-start gap-2">
+                          <span className="text-emerald-600 font-bold shrink-0">•</span>
+                          <span>{t('booking_prep_no_fasting')}</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-emerald-600 font-bold shrink-0">•</span>
+                          <span>{t('booking_prep_id_verif')}</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-emerald-600 font-bold shrink-0">•</span>
+                          <span>{t('booking_prep_checklist')}</span>
+                        </li>
+                      </ul>
+                      <button 
+                        onClick={() => {
+                          setEduSubTab('guides');
+                          onChangeScreen(ScreenId.Education);
+                        }}
+                        className="text-[#00a859] font-extrabold text-[11px] hover:underline flex items-center gap-0.5 text-left pt-1 cursor-pointer"
+                      >
+                        {t('booking_prep_learn_more')} <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Primary Action Button (Return to Home) below preparation instructions */}
+                <button
+                  onClick={() => onChangeScreen(ScreenId.Home)}
+                  className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-md shadow-emerald-700/15 transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                >
+                  <Home className="w-4 h-4" />
+                  <span>{t('booking_return_home_btn')}</span>
+                </button>
+
+                {/* Manage and Reschedule Options */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2.5 text-xs">
                   <button
                     onClick={handleEnterReschedule}
-                    className="w-full py-2.5 bg-white hover:bg-slate-50 text-[#00a859] border border-emerald-600/40 rounded-xl text-xs font-bold transition cursor-pointer"
+                    className="flex-1 py-2 bg-white hover:bg-emerald-50 text-[#00a859] border border-slate-200 hover:border-emerald-300 rounded-xl text-[11px] font-bold transition cursor-pointer text-center"
                   >
                     {t('booking_reschedule_slot')}
                   </button>
                   <button
                     onClick={handleEnterCancelFlow}
-                    className="w-full py-2.5 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-xl text-xs font-semibold border border-slate-200 transition cursor-pointer"
+                    className="flex-1 py-2 bg-white hover:bg-red-50 text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-200 rounded-xl text-[11px] font-semibold transition cursor-pointer text-center"
                   >
                     {t('booking_cancel_slot')}
                   </button>
                 </div>
               </div>
             ) : (
-              /* Active Booking Steps */
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left">
-                {/* Step 1: Available list */}
-                {bookingStep === 'available' && (() => {
-                  // Pre-compute distances to find nearest clinic and sort by shortest to longest distance
-                  const clinicsWithDistances = activeClinics.map(clinic => {
-                    const dist = calculateDistance(
-                      patientCoords.lat,
-                      patientCoords.lng,
-                      clinic.lat,
-                      clinic.lng
-                    );
-                    return { ...clinic, distance: dist };
-                  }).sort((a, b) => a.distance - b.distance);
-                  const minDistance = Math.min(...clinicsWithDistances.map(c => c.distance));
+              /* Active Booking Steps - Redesigned 4-Section Flow */
+              <div className="flex-1 flex flex-col min-h-0 relative bg-slate-50/50">
+                <div className="flex-1 overflow-y-auto p-4 space-y-6 text-left pb-36">
+                  {bookingStep === 'available' && (() => {
+                    const selectedClinicObj = activeClinics.find(c => c.id === selectedClinicId);
+                    const daySlots = (selectedSlotMonth === selectedCalendarMonth && selectedCalendarDay > 0 && activeClinicSlotsDb[selectedClinicId]?.[selectedSlotMonth]?.[selectedCalendarDay] && !isTodayOrPast(selectedSlotMonth, selectedCalendarDay))
+                      ? activeClinicSlotsDb[selectedClinicId][selectedSlotMonth][selectedCalendarDay]
+                      : [];
 
-                  return (
-                    <div className="space-y-4">
-                      {/* Clinical recommendation banner */}
-                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 flex gap-2.5 items-start text-xs text-emerald-900">
-                        <ShieldAlert className="w-4.5 h-4.5 text-emerald-700 shrink-0 mt-0.5" />
-                        <div>
-                          <strong className="font-extrabold text-emerald-950">{t('action_recommended')}:</strong>
-                          <p className="text-[11px] text-emerald-800 leading-relaxed mt-0.5">
-                            {t('booking_eligible_subsidies')}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Your Location & Geolocation Control (User request 1) */}
-                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-3xs text-left">
-                        <div className="flex justify-between items-center">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('booking_location_label')}</span>
-                          <button 
-                            onClick={() => setShowLocationModal(!showLocationModal)}
-                            className="text-[11px] text-[#00a859] font-extrabold hover:underline flex items-center gap-1 cursor-pointer"
-                          >
-                            <MapPin className="w-3.5 h-3.5" />
-                            {showLocationModal ? t('booking_close_selector_btn') : t('booking_change_location')}
-                          </button>
-                        </div>
-                        
-                        <div className="flex items-center gap-2.5">
-                          <div className="p-2 bg-emerald-50 rounded-lg shrink-0">
-                            <MapPin className="w-4 h-4 text-[#00a859]" />
+                    return (
+                      <div className="space-y-6">
+                        {/* SECTION 1: Location & Recommended Clinic */}
+                        <section className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-[#00a859] flex items-center justify-center text-[11px] font-black shrink-0">1</span>
+                            <h3 className="font-extrabold text-xs text-slate-800">
+                              {t('booking_section1_title')}
+                            </h3>
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <h4 className="font-bold text-xs text-slate-800">{patientLocName}</h4>
-                              {patientLocName === patientAddress && (
-                                <span className="bg-emerald-50 text-[#00a859] text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
-                                  {t('booking_default_address')}
-                                </span>
+
+                          <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 space-y-3 shadow-3xs text-left">
+                            {/* Address & Outlined Change Location Button */}
+                            <div className="space-y-2.5">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <span className="text-[10px] font-bold text-slate-500 block">
+                                    {t('booking_location_label')}
+                                  </span>
+                                </div>
+                                {locationType === 'live' && (
+                                  <span className="inline-flex items-center gap-1 bg-emerald-500 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-2xs shrink-0">
+                                    <Navigation className="w-2.5 h-2.5 fill-white" />
+                                    <span>{t('live_gps_location')}</span>
+                                  </span>
+                                )}
+                              </div>
+
+                              {(() => {
+                                const cleanAddr = (patientLocName || '').replace(/,\s*Singapore\s*\d{6}/gi, '').trim();
+
+                                return (
+                                  <div className="flex items-start gap-2.5 bg-slate-50/80 border border-slate-150 rounded-xl p-2.5">
+                                    <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
+                                      locationType === 'live'
+                                        ? 'bg-emerald-500 text-white'
+                                        : 'bg-slate-200 text-slate-700'
+                                    }`}>
+                                      {locationType === 'live' ? (
+                                        <Crosshair className="w-4 h-4" />
+                                      ) : (
+                                        <MapPin className="w-4 h-4" />
+                                      )}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <h4 className="font-bold text-xs text-slate-800 leading-snug">
+                                        {locationType === 'live'
+                                          ? t('current_device_live_gps')
+                                          : cleanAddr}
+                                      </h4>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+
+                              <button 
+                                onClick={() => setShowLocationModal(!showLocationModal)}
+                                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] text-[#00a859] font-bold bg-white hover:bg-emerald-50 border border-[#00a859]/40 hover:border-[#00a859] rounded-xl cursor-pointer transition shadow-2xs mt-1"
+                              >
+                                <MapPin className="w-3.5 h-3.5 text-[#00a859] shrink-0" />
+                                <span>{showLocationModal ? t('booking_close_selector_btn') : t('booking_change_location')}</span>
+                              </button>
+
+                              {showLocationModal && (
+                                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-3 animate-fade-in text-xs shadow-inner">
+                                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                                    <span className="text-[10px] font-bold text-slate-600">
+                                      {t('booking_location_label')}
+                                    </span>
+                                  </div>
+
+                                  {/* Registered Address Option */}
+                                  <button
+                                    onClick={() => {
+                                      setPatientCoords(PERSONA_COORDS[currentPatientId] || { lat: 1.3625, lng: 103.8542 });
+                                      setPatientLocName(patientAddress);
+                                      setLocationType('registered');
+                                      setGpsError(null);
+                                      setShowLocationModal(false);
+                                      triggerToast(t('location_set_registered'));
+                                    }}
+                                    className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                                      locationType === 'registered'
+                                        ? 'bg-emerald-50/90 border-[#00a859] ring-1 ring-[#00a859]/30'
+                                        : 'bg-white border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                      <div className={`p-1.5 rounded-lg shrink-0 ${locationType === 'registered' ? 'bg-[#00a859] text-white' : 'bg-emerald-100 text-[#00a859]'}`}>
+                                        <Home className="w-3.5 h-3.5" />
+                                      </div>
+                                      <div className="min-w-0 flex-1">
+                                        <p className="font-extrabold text-[11px] text-slate-800 leading-tight">
+                                          {t('registered_address')}
+                                        </p>
+                                        <p className="text-[9.5px] text-slate-500 break-words mt-0.5">
+                                          {patientAddress}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {locationType === 'registered' && (
+                                      <span className="text-[8px] font-black uppercase text-[#00a859] bg-emerald-100 px-1.5 py-0.5 rounded shrink-0 ml-1">{t('status_active')}</span>
+                                    )}
+                                  </button>
+
+                                  {/* Live GPS Button */}
+                                  <div>
+                                    <button
+                                      onClick={detectLiveLocation}
+                                      disabled={isDetectingLoc}
+                                      className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                                        locationType === 'live'
+                                          ? 'bg-emerald-50/90 border-[#00a859] ring-1 ring-[#00a859]/30'
+                                          : 'bg-white border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30'
+                                      } disabled:opacity-60`}
+                                    >
+                                      <div className="flex items-center gap-2.5">
+                                        <div className={`p-1.5 rounded-lg ${locationType === 'live' ? 'bg-[#00a859] text-white' : 'bg-emerald-100 text-[#00a859]'}`}>
+                                          <Crosshair className="w-3.5 h-3.5" />
+                                        </div>
+                                        <p className="font-extrabold text-[11px] text-slate-800 leading-tight">
+                                          {isDetectingLoc ? t('gps_calculating') : t('live_gps_location')}
+                                        </p>
+                                      </div>
+                                      {locationType === 'live' && (
+                                        <span className="text-[8px] font-black uppercase text-[#00a859] bg-emerald-100 px-1.5 py-0.5 rounded">{t('status_active')}</span>
+                                      )}
+                                    </button>
+                                  </div>
+
+                                  {/* Denial Error Message Box */}
+                                  {gpsError && (
+                                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 space-y-1 text-left animate-fade-in">
+                                      <div className="flex items-center gap-1.5 text-red-700">
+                                        <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
+                                        <h5 className="font-bold text-xs text-red-800 leading-tight">
+                                          {t('location_permission_denied')}
+                                        </h5>
+                                      </div>
+                                      <p className="text-[10.5px] text-red-700 font-medium leading-relaxed pl-5.5">
+                                        {gpsError}
+                                      </p>
+                                    </div>
+                                  )}
+
+
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Recommended Clinic Selection */}
+                            <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                              <label className="text-[10px] font-bold text-slate-500 block">
+                                {t('select_clinic_title')}
+                              </label>
+                              <div className="relative">
+                                <button
+                                  onClick={() => setShowClinicDropdown(!showClinicDropdown)}
+                                  className="w-full bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200 rounded-xl p-3 flex justify-between items-center cursor-pointer text-left transition gap-2"
+                                >
+                                  <div className="flex gap-2.5 min-w-0 flex-1 items-center">
+                                    <div className="p-2 bg-emerald-100/70 rounded-lg shrink-0 text-[#00a859]">
+                                      <Building2 className="w-4 h-4" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <h4 className="font-bold text-xs text-slate-800 break-words leading-snug">
+                                        {selectedClinicObj?.name}
+                                      </h4>
+                                      <p className="text-[10.5px] text-slate-500 leading-snug mt-0.5 break-words">
+                                        {selectedClinicObj?.address}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+                                </button>
+
+                                {showClinicDropdown && (
+                                  <div className="absolute top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 shadow-md z-40 overflow-hidden divide-y divide-slate-100 animate-fade-in max-h-52 overflow-y-auto">
+                                    {activeClinics.map((clinic) => {
+                                      const isSelected = selectedClinicId === clinic.id;
+                                      return (
+                                        <button
+                                          key={clinic.id}
+                                          onClick={() => handleClinicChange(clinic.id)}
+                                          className={`w-full text-left p-3 transition flex justify-between items-start gap-2.5 hover:bg-emerald-50/10 cursor-pointer ${
+                                            isSelected ? 'bg-emerald-50/20' : 'bg-white'
+                                          }`}
+                                        >
+                                          <div className="space-y-1 min-w-0 flex-1">
+                                            <h5 className={`font-bold text-xs ${isSelected ? 'text-[#00a859]' : 'text-slate-800'} break-words leading-snug`}>
+                                              {clinic.name}
+                                            </h5>
+                                            <p className="text-[10px] text-slate-500 leading-snug break-words">
+                                              {clinic.address}
+                                            </p>
+                                          </div>
+                                          {isSelected && <Check className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* SECTION 2: Choose a Date */}
+                        <section className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-[#00a859] flex items-center justify-center text-[11px] font-black shrink-0">2</span>
+                            <h3 className="font-extrabold text-xs text-slate-800">
+                              {t('booking_choose_date')}
+                            </h3>
+                          </div>
+
+                          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left">
+                            {/* Month Switcher Header */}
+                            <div className="flex justify-between items-center bg-slate-50 border border-slate-200/60 p-2 rounded-xl">
+                              <button
+                                onClick={() => {
+                                  const idx = availableMonths.indexOf(selectedCalendarMonth);
+                                  if (idx > 0 && !isMonthBeforeCurrent(availableMonths[idx - 1])) {
+                                    selectMonth(availableMonths[idx - 1]);
+                                  }
+                                }}
+                                disabled={
+                                  availableMonths.indexOf(selectedCalendarMonth) <= 0 ||
+                                  isMonthBeforeCurrent(
+                                    availableMonths[availableMonths.indexOf(selectedCalendarMonth) - 1] || ''
+                                  )
+                                }
+                                className="p-1.5 hover:bg-slate-200 disabled:hover:bg-transparent rounded-lg disabled:opacity-25 cursor-pointer transition text-slate-600"
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                              </button>
+                              
+                              <button
+                                onClick={() => setShowMonthPopup(true)}
+                                className="flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 tracking-wide cursor-pointer transition"
+                              >
+                                <span>{formatMonthShorthand(selectedCalendarMonth, language)}</span>
+                                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                              </button>
+                              
+                              <button
+                                onClick={() => {
+                                  const idx = availableMonths.indexOf(selectedCalendarMonth);
+                                  if (idx < availableMonths.length - 1) {
+                                    selectMonth(availableMonths[idx + 1]);
+                                  }
+                                }}
+                                disabled={availableMonths.indexOf(selectedCalendarMonth) === availableMonths.length - 1}
+                                className="p-1.5 hover:bg-slate-200 disabled:hover:bg-transparent rounded-lg disabled:opacity-25 cursor-pointer transition text-slate-600"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Clean Calendar Grid without Legend */}
+                            <div className="relative">
+                              <div className={`space-y-2 transition-all ${isAfterDecember2026(selectedCalendarMonth) ? 'opacity-20 grayscale pointer-events-none select-none blur-[0.5px]' : ''}`}>
+                                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-extrabold text-slate-400">
+                                  <span>S</span>
+                                  <span>M</span>
+                                  <span>T</span>
+                                  <span>W</span>
+                                  <span>T</span>
+                                  <span>F</span>
+                                  <span>S</span>
+                                </div>
+
+                                <div className="grid grid-cols-7 gap-1">
+                                  {Array.from({ length: getMonthConfig(selectedCalendarMonth).emptyCells }).map((_, i) => (
+                                    <div key={`empty-${i}`} className="h-8" />
+                                  ))}
+
+                                  {Array.from({ length: getMonthConfig(selectedCalendarMonth).totalDays }).map((_, i) => {
+                                    const dayNum = i + 1;
+                                    const hasSlots = !!activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isTodayOrPast(selectedCalendarMonth, dayNum);
+                                    const isSelected = selectedSlotMonth === selectedCalendarMonth && selectedCalendarDay === dayNum;
+                                    const isCurrentDay = isToday(selectedCalendarMonth, dayNum);
+
+                                    return (
+                                      <button
+                                        key={`day-${dayNum}`}
+                                        disabled={!hasSlots}
+                                        onClick={() => {
+                                          setSelectedCalendarDay(dayNum);
+                                          setSelectedSlotMonth(selectedCalendarMonth);
+                                          const slots = activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum];
+                                          if (slots && slots.length > 0) {
+                                            setSelectedSlotObj(slots[0]);
+                                            setSelectedSlotIdx(0);
+                                          } else {
+                                            setSelectedSlotObj(null);
+                                            setSelectedSlotIdx(null);
+                                          }
+                                        }}
+                                        className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer mx-auto ${
+                                          isSelected
+                                            ? 'bg-[#00a859] text-white shadow-xs ring-2 ring-[#00a859]/30'
+                                            : isCurrentDay
+                                            ? 'bg-slate-200 text-slate-800 hover:bg-slate-300'
+                                            : hasSlots
+                                            ? 'bg-emerald-50/90 text-[#00a859] border border-emerald-200/70 hover:bg-emerald-100/80 font-bold'
+                                            : 'text-slate-300 pointer-events-none'
+                                        }`}
+                                      >
+                                        <span>{dayNum}</span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              {/* Overlay for months after December 2026 */}
+                              {isAfterDecember2026(selectedCalendarMonth) && (
+                                <div className="absolute inset-0 bg-slate-800/65 backdrop-blur-xs rounded-xl p-3.5 flex flex-col items-center justify-center text-center space-y-2 z-20 animate-fade-in shadow-xl border border-slate-600/40">
+                                  <div className="p-2 bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30">
+                                    <CalendarX className="w-4 h-4" />
+                                  </div>
+                                  <div className="space-y-1 max-w-[220px]">
+                                    <h4 className="font-extrabold text-xs text-white leading-tight">
+                                      {t('schedule_not_released')}
+                                    </h4>
+                                    <p className="text-[10px] text-slate-200 leading-snug font-medium">
+                                      {t('schedule_not_released_desc')}
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick={() => selectMonth('December 2026')}
+                                    className="mt-1 px-3 py-1.5 bg-[#00a859] hover:bg-emerald-600 text-white font-extrabold text-[10px] rounded-xl transition cursor-pointer shadow-sm flex items-center gap-1"
+                                  >
+                                    <span>{t('return_to_dec_2026')}</span>
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </div>
-                        </div>
+                        </section>
 
-                        {showLocationModal && (
-                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-3 animate-fade-in text-xs">
-                            <div className="space-y-1.5">
-                              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 font-mono">{t('booking_search_location')}</span>
-                              <div className="relative flex items-center">
-                                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
-                                <input
-                                  type="text"
-                                  value={locationSearchQuery}
-                                  onChange={(e) => setLocationSearchQuery(e.target.value)}
-                                  placeholder="Type to search e.g. Ang Mo Kio, Bedok..."
-                                  className="w-full pl-8 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#00a859] focus:border-[#00a859]"
-                                />
-                                {locationSearchQuery && (
-                                  <button
-                                    onClick={() => setLocationSearchQuery('')}
-                                    className="absolute right-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                )}
-                              </div>
+                        {/* SECTION 3: Choose an Appointment Time */}
+                        <section className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-[#00a859] flex items-center justify-center text-[11px] font-black shrink-0">3</span>
+                            <h3 className="font-extrabold text-xs text-slate-800">
+                              {t('booking_choose_time')}
+                            </h3>
+                          </div>
+
+                          {isAfterDecember2026(selectedCalendarMonth) ? (
+                            <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl text-center space-y-1">
+                              <p className="text-xs font-bold text-slate-700">{t('no_slots_2027_title')}</p>
+                              <p className="text-[10.5px] text-slate-500">{t('no_slots_2027_desc')}</p>
                             </div>
-
-                            {/* Live location / home shortcuts */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <button
-                                onClick={detectLiveLocation}
-                                disabled={isDetectingLoc}
-                                className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
-                              >
-                                <MapPin className="w-3.5 h-3.5 text-emerald-600 inline mr-1" />{isDetectingLoc ? t('booking_detecting') : t('booking_live_location')}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  const coords = PERSONA_COORDS[currentPatientId] || { lat: 1.3625, lng: 103.8542 };
-                                  setPatientCoords(coords);
-                                  setPatientLocName(patientAddress);
-                                  setLocationSearchQuery('');
-                                  triggerToast('Defaulted to profile residential address');
-                                }}
-                                className="py-2 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
-                              >
-                                <Home className="w-3.5 h-3.5 text-[#00a859] inline mr-1" />{t('booking_default_address')}
-                              </button>
-                            </div>
-
-                            {/* Search Results / Suggestions */}
-                            <div className="space-y-1">
-                              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-                                {locationSearchQuery ? t('booking_search_results') : t('booking_suggestions')}
-                              </span>
-                              <div className="max-h-32 overflow-y-auto space-y-1 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white p-1">
-                                {(locationSearchQuery 
-                                  ? SEARCHABLE_LOCATIONS.filter(loc => loc.name.toLowerCase().includes(locationSearchQuery.toLowerCase()))
-                                  : SEARCHABLE_LOCATIONS
-                                ).map((loc, idx) => (
+                          ) : daySlots.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-2.5">
+                              {daySlots.map((slot, idx) => {
+                                const isSelected = selectedSlotObj?.time === slot.time || selectedSlotIdx === idx;
+                                return (
                                   <button
                                     key={idx}
                                     onClick={() => {
-                                      setPatientCoords({ lat: loc.lat, lng: loc.lng });
-                                      setPatientLocName(loc.name);
-                                      setLocationSearchQuery('');
-                                      setShowLocationModal(false);
-                                      triggerToast(`Location changed to ${loc.name.split(',')[0]}`);
+                                      setSelectedSlotObj(slot);
+                                      setSelectedSlotIdx(idx);
                                     }}
-                                    className="w-full text-left p-2 hover:bg-emerald-50/50 rounded transition text-[11px] font-medium text-slate-700 flex items-center justify-between gap-1 cursor-pointer"
-                                  >
-                                    <span className="truncate flex-1">{loc.name}</span>
-                                    {loc.name === patientAddress && (
-                                      <span className="bg-emerald-50 text-[#00a859] text-[8px] font-extrabold px-1 py-0.5 rounded border border-emerald-100 shrink-0">
-                                        {t('booking_default_address')}
-                                      </span>
-                                    )}
-                                  </button>
-                                ))}
-                                {locationSearchQuery && SEARCHABLE_LOCATIONS.filter(loc => loc.name.toLowerCase().includes(locationSearchQuery.toLowerCase())).length === 0 && (
-                                  <div className="p-2 text-center text-[10px] text-slate-500">
-                                    {t('booking_no_matches')}
-                                    <button
-                                      onClick={() => {
-                                        setPatientCoords({ lat: 1.3521, lng: 103.8198 });
-                                        setPatientLocName(locationSearchQuery);
-                                        setLocationSearchQuery('');
-                                        setShowLocationModal(false);
-                                        triggerToast(`Custom location set!`);
-                                      }}
-                                      className="mt-1 w-full p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-bold block truncate"
-                                    >
-                                      "{locationSearchQuery}"
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {gpsError && (
-                              <p className="text-[9px] text-red-600 font-semibold leading-tight bg-red-50 border border-red-100 p-2 rounded">
-                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 inline mr-1" />{gpsError}
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Specialized Clinic Location Dropdown (User request 1) */}
-                      <div className="space-y-1.5 text-left">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('select_clinic_title')}</label>
-                        <div className="relative">
-                          <button
-                            onClick={() => setShowClinicDropdown(!showClinicDropdown)}
-                            className="w-full bg-white border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-3xs cursor-pointer text-left transition hover:border-emerald-600/40"
-                          >
-                            <div className="flex gap-3 min-w-0">
-                              <div className="p-2 bg-emerald-50 rounded-lg shrink-0 self-center">
-                                <MapPin className="w-4.5 h-4.5 text-[#00a859]" />
-                              </div>
-                              <div className="min-w-0">
-                                <h4 className="font-bold text-xs text-slate-800 truncate">
-                                  {activeClinics.find(c => c.id === selectedClinicId)?.name}
-                                </h4>
-                                <p className="text-[10px] text-slate-500 leading-snug mt-0.5 truncate">
-                                  {activeClinics.find(c => c.id === selectedClinicId)?.address}
-                                </p>
-                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                  <span className="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                    {t('booking_distance')} {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance.toFixed(1)} km
-                                  </span>
-                                  {clinicsWithDistances.find(c => c.id === selectedClinicId)?.distance === minDistance && (
-                                    <span className="text-[9px] font-sans font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 flex items-center gap-0.5">
-                                      <Sparkles className="w-3.5 h-3.5 text-amber-500 inline mr-1" />{t('booking_nearest_clinic')}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
-                          </button>
-
-                          {showClinicDropdown && (
-                            <div className="absolute top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 shadow-md z-40 overflow-hidden divide-y divide-slate-100 animate-fade-in max-h-52 overflow-y-auto">
-                              {clinicsWithDistances.map((clinic) => {
-                                const isSelected = selectedClinicId === clinic.id;
-                                const isNearest = clinic.distance === minDistance;
-                                return (
-                                  <button
-                                    key={clinic.id}
-                                    onClick={() => handleClinicChange(clinic.id)}
-                                    className={`w-full text-left p-3.5 transition flex justify-between items-start gap-3 hover:bg-emerald-50/10 cursor-pointer ${
-                                      isSelected ? 'bg-emerald-50/20' : 'bg-white'
+                                    className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2 ${
+                                      isSelected
+                                        ? 'bg-emerald-50/80 border-[#00a859] ring-2 ring-[#00a859]/25 shadow-xs'
+                                        : 'bg-white border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
                                     }`}
                                   >
-                                    <div className="space-y-1 min-w-0 flex-1">
-                                      <div className="flex items-center gap-1.5 flex-wrap">
-                                        <h5 className={`font-bold text-xs ${isSelected ? 'text-[#00a859]' : 'text-slate-800'}`}>
-                                          {clinic.name}
-                                        </h5>
-                                        {isNearest && (
-                                          <span className="text-[8px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100">
-                                            {t('booking_nearest_tag')}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <p className="text-[10px] text-slate-500 leading-tight truncate">
-                                        {clinic.address}
-                                      </p>
-                                      <p className="text-[9px] font-mono font-bold text-slate-400">
-                                        {t('booking_distance')} <span className="text-emerald-700">{clinic.distance.toFixed(1)} km</span>
+                                    <div className="space-y-0.5 min-w-0">
+                                      <p className="text-xs font-extrabold text-slate-900 font-mono tracking-tight">{slot.time}</p>
+                                      <p className="text-[10px] text-slate-500 font-medium">
+                                        {slot.duration.replace('mins', t('booking_mins'))}
                                       </p>
                                     </div>
-                                    {isSelected && <Check className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />}
+                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                      isSelected ? 'border-[#00a859] bg-[#00a859]' : 'border-slate-300 bg-white'
+                                    }`}>
+                                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                    </div>
                                   </button>
                                 );
                               })}
                             </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Feature 1 Calendar Layout Month Grid (User request 2) */}
-                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left animate-fade-in">
-                        <div className="flex flex-col gap-2.5 border-b border-slate-150 pb-3">
-                          <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 font-mono">
-                            {isFHReferred ? t('booking_select_counselling_slot') : (
-                              language === 'ms' ? 'Pilih slot janji temu' :
-                              language === 'zh' ? '选择预约时段' :
-                              language === 'ta' ? 'சந்திப்பு நேரத்தைத் தேர்ந்தெடுக்கவும்' :
-                              'Select appointment slot'
-                            )}
-                          </h4>
-                          
-                          {/* Easy Month-Flipping Header */}
-                          <div className="flex justify-between items-center bg-slate-50 border border-slate-200/60 p-2 rounded-xl">
-                            <button
-                              onClick={() => {
-                                const idx = availableMonths.indexOf(selectedCalendarMonth);
-                                if (idx > 0 && !isMonthBeforeCurrent(availableMonths[idx - 1])) {
-                                  selectMonth(availableMonths[idx - 1]);
-                                }
-                              }}
-                              disabled={
-                                availableMonths.indexOf(selectedCalendarMonth) <= 0 ||
-                                isMonthBeforeCurrent(
-                                  availableMonths[availableMonths.indexOf(selectedCalendarMonth) - 1] || ''
-                                )
-                              }
-                              className="p-1.5 hover:bg-slate-200 disabled:hover:bg-transparent rounded-lg disabled:opacity-25 cursor-pointer transition text-slate-600 self-center"
-                            >
-                              <ChevronLeft className="w-4 h-4" />
-                            </button>
-                            
-                            <button
-                              onClick={() => setShowMonthPopup(true)}
-                              className="flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 tracking-wide cursor-pointer transition"
-                            >
-                              <span>{formatMonthShorthand(selectedCalendarMonth, language)}</span>
-                              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-                            </button>
-                            
-                            <button
-                              onClick={() => {
-                                const idx = availableMonths.indexOf(selectedCalendarMonth);
-                                if (idx < availableMonths.length - 1) {
-                                  selectMonth(availableMonths[idx + 1]);
-                                }
-                              }}
-                              disabled={availableMonths.indexOf(selectedCalendarMonth) === availableMonths.length - 1}
-                              className="p-1.5 hover:bg-slate-200 disabled:hover:bg-transparent rounded-lg disabled:opacity-25 cursor-pointer transition text-slate-600 self-center"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Calendar Grid */}
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400">
-                            <span>S</span>
-                            <span>M</span>
-                            <span>T</span>
-                            <span>W</span>
-                            <span>T</span>
-                            <span>F</span>
-                            <span>S</span>
-                          </div>
-
-                          <div className="grid grid-cols-7 gap-1">
-                            {/* Empty cells to align correct starting weekday */}
-                            {Array.from({ length: getMonthConfig(selectedCalendarMonth).emptyCells }).map((_, i) => (
-                              <div key={`empty-${i}`} className="h-8" />
-                            ))}
-
-                            {/* Days 1 to totalDays */}
-                            {Array.from({ length: getMonthConfig(selectedCalendarMonth).totalDays }).map((_, i) => {
-                              const dayNum = i + 1;
-                              const hasSlots = !!activeClinicSlotsDb[selectedClinicId]?.[selectedCalendarMonth]?.[dayNum] && !isTodayOrPast(selectedCalendarMonth, dayNum);
-                              const isSelected = selectedSlotMonth === selectedCalendarMonth && selectedCalendarDay === dayNum;
-                              const isCurrentDay = isToday(selectedCalendarMonth, dayNum);
-
-                              return (
-                                <button
-                                  key={`day-${dayNum}`}
-                                  disabled={!hasSlots}
-                                  onClick={() => {
-                                    setSelectedCalendarDay(dayNum);
-                                    setSelectedSlotMonth(selectedCalendarMonth);
-                                    setSelectedSlotObj(null);
-                                    setSelectedSlotIdx(null);
-                                  }}
-                                  className={`h-8 w-8 rounded-full flex flex-col items-center justify-center text-[10.5px] font-extrabold transition relative cursor-pointer ${
-                                    isSelected
-                                      ? 'bg-[#00a859] text-white shadow-xs'
-                                      : isCurrentDay
-                                      ? 'bg-slate-400/20 border border-slate-300/80 text-slate-800 hover:bg-slate-400/30'
-                                      : hasSlots
-                                      ? 'bg-emerald-50 text-[#00a859] border border-emerald-200/55 hover:bg-emerald-100/60'
-                                      : 'text-slate-300 pointer-events-none'
-                                  }`}
-                                >
-                                  <span>{dayNum}</span>
-                                  {hasSlots && !isSelected && (
-                                    <span className="absolute bottom-1 w-1 h-1 bg-[#00a859] rounded-full" />
-                                  )}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        <div className="flex gap-3 items-center justify-center text-[9px] text-slate-400 pt-1.5 border-t border-slate-100 flex-wrap">
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center"><span className="w-1 h-1 bg-[#00a859] rounded-full" /></span>
-                            <span>{t('available_slots')}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-slate-400/20 border border-slate-300/80" />
-                            <span>{t('booking_legend_today')}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#00a859]" />
-                            <span>{t('booking_legend_selected')}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Month Picker Popup Modal */}
-                      {showMonthPopup && (
-                        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
-                          <div className="bg-white rounded-2xl max-w-xs w-full p-4 space-y-3 shadow-xl border border-slate-200">
-                            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                              <h3 className="font-bold text-xs text-slate-800 uppercase tracking-wider font-mono">Select Month</h3>
-                              <button onClick={() => setShowMonthPopup(false)} className="p-1 hover:bg-slate-100 rounded-lg text-slate-500 cursor-pointer">
-                                <X className="w-4 h-4" />
-                              </button>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto p-1">
-                              {availableMonths.map((m) => {
-                                const isPastMonth = isMonthBeforeCurrent(m);
-                                const isSelectedMonth = m === selectedCalendarMonth;
-                                return (
-                                  <button
-                                    key={m}
-                                    disabled={isPastMonth}
-                                    onClick={() => {
-                                      if (!isPastMonth) {
-                                        selectMonth(m);
-                                        setShowMonthPopup(false);
-                                      }
-                                    }}
-                                    className={`h-9 px-1 rounded-xl text-[10.5px] font-bold text-center flex items-center justify-center transition-all cursor-pointer w-full border ${
-                                      isPastMonth
-                                        ? 'opacity-30 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed pointer-events-none'
-                                        : isSelectedMonth
-                                        ? 'bg-[#00a859] border-[#00a859] text-white shadow-md shadow-emerald-700/10'
-                                        : 'bg-slate-50 border-slate-200/50 text-slate-700 hover:bg-emerald-50 hover:text-[#00a859] hover:border-emerald-200'
-                                    }`}
-                                  >
-                                    {formatMonthShorthand(m, language)}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Dynamic Slots for Selected Calendar Day */}
-                      <div className="space-y-2.5 text-left">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between items-center">
-                          <span>{t('available_slots')}</span>
-                        </label>
-                        <div className="space-y-2">
-                          {selectedSlotMonth === selectedCalendarMonth && selectedCalendarDay > 0 && activeClinicSlotsDb[selectedClinicId]?.[selectedSlotMonth]?.[selectedCalendarDay] && !isTodayOrPast(selectedSlotMonth, selectedCalendarDay) ? (
-                            activeClinicSlotsDb[selectedClinicId][selectedSlotMonth][selectedCalendarDay].map((slot, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => {
-                                  setSelectedSlotObj(slot);
-                                  setSelectedSlotIdx(idx);
-                                  setBookingStep('review');
-                                }}
-                                className="w-full bg-white hover:bg-emerald-50/15 border border-slate-200 hover:border-[#00a859]/40 p-3.5 rounded-xl text-left transition flex justify-between items-center cursor-pointer shadow-3xs hover:shadow-2xs"
-                                style={{ minHeight: '64px' }}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-slate-50 text-slate-500 rounded-lg shrink-0">
-                                    <Clock className="w-4 h-4 text-[#00a859]" />
-                                  </div>
-                                  <div className="space-y-0.5">
-                                    <p className="text-xs font-extrabold text-slate-800">{slot.time}</p>
-                                    <div className="flex items-center gap-1 text-[10px] text-slate-500">
-                                      <span className="font-semibold text-slate-600">{slot.provider}</span>
-                                      <span className="text-slate-300">•</span>
-                                      <span>{slot.duration.replace('mins', t('booking_mins'))}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                  <ChevronRight className="w-4 h-4 text-slate-400" />
-                                </div>
-                              </button>
-                            ))
                           ) : (
-                            <div className="bg-white border border-dashed border-slate-200 p-6 rounded-xl text-center text-xs text-slate-400">
+                            <div className="bg-white border border-dashed border-slate-200 p-5 rounded-2xl text-center text-xs text-slate-400">
                               {t('booking_no_slots_alert')}
                             </div>
                           )}
-                        </div>
-                      </div>
+                        </section>
 
-                      <div className="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl space-y-1.5 text-left">
-                        <div className="text-[10px] font-black text-[#00a859] tracking-wider uppercase font-mono">
-                          {FH_COST_DATA.cardHeading}
-                        </div>
-                        <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
-                          {FH_COST_DATA.indexPatientEstimatedCash}
-                        </div>
-                        <p className="text-[11px] text-slate-600 leading-snug font-medium">
-                          {FH_COST_DATA.supportingText}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Step 2: Review state */}
-                {bookingStep === 'review' && (selectedSlotObj !== null || selectedSlotIdx !== null) && (() => {
-                  const slot = selectedSlotObj || clinicalSlots[selectedSlotIdx || 0];
-                  return (
-                    <div className="space-y-4 animate-fade-in text-left">
-                      <div>
-                        <h3 className="font-extrabold text-sm text-slate-800">{t('booking_review_details')}</h3>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
-                          {isFHReferred ? t('booking_choose_subsidized_slot') : (
-                            language === 'ms' ? 'Pilih slot janji temu klinik am anda.' :
-                            language === 'zh' ? '选择您的普通门诊预约时段。' :
-                            language === 'ta' ? 'உங்கள் பொது மருத்துவமனை சந்திப்பு நேரத்தைத் தேர்ந்தெடுக்கவும்.' :
-                            'Choose your general clinic appointment slot.'
-                          )}
-                        </p>
-                      </div>
-
-                        <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-3xs text-left">
-                          <div className="space-y-1 border-b border-slate-100 pb-3 text-left font-sans">
-                            <span className="text-[9px] font-mono text-slate-400 uppercase font-bold tracking-wider">{t('booking_assigned_specialist')}</span>
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-full bg-slate-150 text-[#00a859] font-extrabold flex items-center justify-center text-xs">
-                                {slot.provider.split(' ').pop()?.substring(0, 2).toUpperCase() || 'HL'}
-                              </div>
-                              <div>
-                                <h4 className="font-bold text-xs text-slate-800">{slot.provider}</h4>
-                                <p className="text-[10px] text-slate-500">{slot.role}</p>
-                              </div>
-                            </div>
+                        {/* SECTION 4: Appointment Summary */}
+                        <section className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-[#00a859] flex items-center justify-center text-[11px] font-black shrink-0">4</span>
+                            <h3 className="font-extrabold text-xs text-slate-800">
+                              {t('booking_appointment_summary')}
+                            </h3>
                           </div>
 
-                          <div className="space-y-2 text-xs text-left">
-                            <div className="flex justify-between items-start gap-4">
-                              <span className="text-slate-500 font-medium">{t('booking_care_clinic')}</span>
-                              <span className="text-slate-800 text-right font-semibold">{slot.clinic}</span>
-                            </div>
-                            <div className="flex justify-between items-start gap-4">
-                              <span className="text-slate-500 font-medium">{t('booking_address_label')}</span>
-                              <span className="text-slate-500 text-right text-[11px] leading-snug">{slot.address}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-500 font-medium">{t('booking_date_label')}</span>
-                              <span className="text-slate-800 font-semibold font-mono">{getLocalizedDate(slot.date, language)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-500 font-medium">{t('booking_time_label')}</span>
-                              <span className="text-slate-800 font-semibold font-mono">{slot.time}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-500 font-medium">{t('booking_duration_label')}</span>
-                              <span className="text-slate-800 font-semibold">{slot.duration.replace('mins', t('booking_mins'))}</span>
-                            </div>
-                            <div className="border-t border-slate-100 pt-3 mt-3 space-y-1">
-                              <div className="flex justify-between items-center">
-                                <span className="text-slate-700 font-bold text-xs">{FH_COST_DATA.cardHeading}</span>
-                                <span className="text-[#00a859] font-black font-mono text-base">{FH_COST_DATA.indexPatientEstimatedCash}</span>
+                          <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-3xs text-left">
+                            <div className="p-4 space-y-3.5">
+                              {/* Clinic */}
+                              <div className="flex items-start gap-2.5">
+                                <Building2 className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs font-bold text-slate-800 leading-snug break-words">
+                                    {selectedClinicObj?.name}
+                                  </p>
+                                  <p className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5 break-words">
+                                    {selectedClinicObj?.address}
+                                  </p>
+                                </div>
                               </div>
-                              <p className="text-[10.5px] text-slate-500 leading-snug font-medium">
-                                {FH_COST_DATA.supportingText}
+
+                              <div className="border-t border-slate-100 pt-3 grid grid-cols-2 gap-3">
+                                {/* Date */}
+                                <div className="flex items-start gap-2">
+                                  <Calendar className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />
+                                  <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold text-slate-500 block">
+                                      {t('booking_date_label')}
+                                    </span>
+                                    <p className="text-xs font-extrabold text-slate-800 font-mono leading-snug break-words">
+                                      {selectedSlotMonth && selectedCalendarDay > 0
+                                        ? getLocalizedDate(`${selectedCalendarDay} ${selectedSlotMonth}`, language)
+                                        : (t('booking_choose_date') || 'Select a date')}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Time */}
+                                <div className="flex items-start gap-2">
+                                  <Clock className="w-4 h-4 text-[#00a859] shrink-0 mt-0.5" />
+                                  <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold text-slate-500 block">
+                                      {t('booking_time_label')}
+                                    </span>
+                                    <p className="text-xs font-extrabold text-slate-800 font-mono leading-snug break-words">
+                                      {selectedSlotObj ? selectedSlotObj.time : (t('booking_select_a_time') || 'Select a time')}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Integrated Estimated Out-of-Pocket Cost */}
+                            <div className="bg-emerald-50/90 border-t border-emerald-200/80 p-3.5 space-y-2 text-left">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs font-bold text-slate-800">
+                                  {getLocalizedCostData(language).cardHeading}
+                                </span>
+                                <span className="text-base font-black text-[#00a859] font-mono tracking-tight shrink-0 bg-white px-2.5 py-1 rounded-lg border border-emerald-200/80 shadow-2xs">
+                                  {getLocalizedCostData(language).indexPatientEstimatedCash}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-600 font-medium leading-normal border-t border-emerald-200/60 pt-2">
+                                {getLocalizedCostData(language).supportingText}
                               </p>
                             </div>
                           </div>
-                        </div>
-
-                        <div className="pt-2 space-y-2">
-                          <button
-                            onClick={() => handleBookSubmit(selectedSlotIdx || 0)}
-                            className="w-full py-3 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-700/10 transition cursor-pointer"
-                          >
-                            {t('booking_confirm_slot_btn')}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setBookingStep('available');
-                              setSelectedSlotIdx(null);
-                              setSelectedSlotObj(null);
-                            }}
-                            className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition cursor-pointer border border-slate-200"
-                          >
-                            {t('reschedule_slot')}
-                          </button>
-                        </div>
+                        </section>
                       </div>
                     );
                   })()}
                 </div>
-              )}
-            </div>
-          )}
+
+                {/* Sticky Bottom Book Appointment Bar */}
+                {bookingStep === 'available' && (
+                  <div className="sticky bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3.5 z-30 shadow-lg shrink-0">
+                    <button
+                      onClick={() => {
+                        if (selectedSlotObj || selectedSlotIdx !== null) {
+                          handleBookSubmit(selectedSlotIdx || 0);
+                        }
+                      }}
+                      disabled={!selectedSlotObj && selectedSlotIdx === null}
+                      className="w-full py-3.5 px-4 bg-[#00a859] hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-extrabold shadow-md shadow-emerald-700/15 transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>{t('booking_confirm_slot_btn')}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
 
           {/* ----------------- SCREEN 4: REMINDERS ----------------- */}
@@ -5860,16 +6258,16 @@ export default function PhoneSimulator({
                 <span className="font-bold text-sm text-slate-800">{t('settings_title')}</span>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-36">
                 {/* My Profile Access Card */}
                 <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs flex justify-between items-center text-left">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 text-[#00a859] font-extrabold flex items-center justify-center text-sm shrink-0">
                       {patientInitials}
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="font-bold text-xs text-slate-800 truncate">{patientFullName}</h4>
-                      <p className="text-[10px] text-slate-500 truncate">{patientNric} • {t('profile_verified_singpass')}</p>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-xs text-slate-800 break-words">{patientFullName}</h4>
+                      <p className="text-[10px] text-slate-500 break-words">{patientNric} • {t('profile_verified_singpass')}</p>
                     </div>
                   </div>
                   <button
@@ -5896,8 +6294,8 @@ export default function PhoneSimulator({
 
                 {/* Master Toggle */}
                 <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs flex justify-between items-center">
-                  <div>
-                    <h4 className="font-bold text-xs text-slate-800">
+                  <div className="min-w-0 flex-1 pr-3">
+                    <h4 className={scaleText("font-bold text-base text-slate-800 font-sans break-words")}>
                       {isFHReferred ? t('active_reminders') : (
                         language === 'ms' ? 'Peringatan Aktif' :
                         language === 'zh' ? '启用提醒' :
@@ -5905,11 +6303,11 @@ export default function PhoneSimulator({
                         'Active Reminders'
                       )}
                     </h4>
-                    <p className="text-[10px] text-slate-500 mt-0.5">{t('active_reminders_desc')}</p>
+                    <p className={scaleText("text-sm text-slate-500 mt-0.5 font-sans break-words")}>{t('active_reminders_desc')}</p>
                   </div>
                   <button
                     onClick={() => onUpdateReminderPrefs(!reminderPrefs.enabled, reminderPrefs.channel, reminderPrefs.frequency)}
-                    className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${reminderPrefs.enabled ? 'bg-[#00a859]' : 'bg-slate-300'}`}
+                    className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer shrink-0 ${reminderPrefs.enabled ? 'bg-[#00a859]' : 'bg-slate-300'}`}
                   >
                     <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${reminderPrefs.enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
@@ -5920,7 +6318,7 @@ export default function PhoneSimulator({
                     
                     {/* Select Channel - Multi-select Checkbox list (Without subdescriptions) */}
                     <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('notification_channel')}</label>
+                      <label className={scaleText("text-sm font-bold uppercase tracking-wider text-slate-500 font-sans block")}>{t('notification_channel')}</label>
                       
                       <div className="space-y-2">
                         {['sms', 'push', 'email', 'whatsapp'].map((chan) => {
@@ -5968,15 +6366,15 @@ export default function PhoneSimulator({
                               </div>
 
                               <div className="flex-1 min-w-0">
-                                <span className="text-xs font-bold text-slate-800">{info.title}</span>
+                                <span className={scaleText("text-base font-bold text-slate-800 font-sans break-words")}>{info.title}</span>
                               </div>
                             </button>
                           );
                         })}
                       </div>
 
-                      <p className="text-[10px] text-emerald-800 bg-emerald-50/50 border border-emerald-100/60 rounded-lg p-2.5 leading-normal font-medium flex items-center gap-1.5">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#00a859] animate-pulse shrink-0"></span>
+                      <p className={scaleText("text-sm text-emerald-900 bg-emerald-50/50 border border-emerald-100/60 rounded-lg p-2.5 leading-relaxed font-medium font-sans flex items-start gap-1.5 break-words")}>
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#00a859] shrink-0 mt-2"></span>
                         <span>
                           {language === 'ms' ? 'Peringatan akan dihantar ke semua saluran aktif terpilih secara serentak.' :
                            language === 'zh' ? '提醒将同时发送至所有已启用的活跃渠道。' :
@@ -5989,10 +6387,10 @@ export default function PhoneSimulator({
                     {/* Frequency settings - Multi-select Checkboxes Format (Without descriptions) */}
                     <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
                       <div className="space-y-0.5">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                        <label className={scaleText("text-sm font-bold uppercase tracking-wider text-slate-500 font-sans block")}>
                           {t('reminder_frequency')}
                         </label>
-                        <p className="text-[10px] text-slate-500 leading-normal">
+                        <p className={scaleText("text-sm text-slate-500 leading-relaxed font-sans break-words")}>
                           {t('frequency_desc')}
                         </p>
                       </div>
@@ -6034,7 +6432,7 @@ export default function PhoneSimulator({
                               </div>
 
                               <div className="flex-1 min-w-0">
-                                <span className="text-xs font-bold text-slate-800">{freqOption.label}</span>
+                                <span className={scaleText("text-base font-bold text-slate-800 font-sans break-words")}>{freqOption.label}</span>
                               </div>
                             </button>
                           );
@@ -6043,11 +6441,10 @@ export default function PhoneSimulator({
                     </div>
 
                     {/* Dynamic previews based on selected channels */}
-                    {selectedChannels.includes('sms') && (
+                    {isFHReferred && selectedChannels.includes('sms') && (
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex justify-between">
-                          <span>{t('settings_sms_preview_title')}</span>
-                          <span className="text-emerald-700">{t('settings_sms_verified_sender')}</span>
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                          {t('settings_sms_preview_title')}
                         </label>
                         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2">
                           <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 border-b border-slate-100 pb-2">
@@ -6079,50 +6476,6 @@ export default function PhoneSimulator({
                                 return `MOH HealthHub: Hi ${nameStr}, your General Outpatient Consultation slot at ${bookedClinicName} is confirmed on ${dateStr} at ${timeStr}. Means-tested MOH subsidies up to 70% cleared. Bring Singpass. Info: https://hh.gov.sg/gen-ref`;
                               }
                             })()}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedChannels.includes('push') && (
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-                          {t('settings_lockscreen_preview_title')}
-                        </label>
-                        <div className="bg-slate-900 border border-slate-700 text-white rounded-xl p-4 shadow-md space-y-2">
-                          <div className="flex items-center gap-1.5 text-[9px] text-slate-400 border-b border-slate-800 pb-1.5">
-                            <div className="w-4 h-4 bg-[#00a859] rounded flex items-center justify-center text-white text-[8px] font-black">HH</div>
-                            <span>{t('settings_lockscreen_header')}</span>
-                          </div>
-                          <div className="space-y-1">
-                            <h4 className="text-xs font-bold text-slate-100">
-                              {isFHReferred ? t('lock_counselling_reminder') : (
-                                language === 'ms' ? 'Peringatan Janji Temu Pesakit Luar' :
-                                language === 'zh' ? '普通门诊就诊提醒' :
-                                language === 'ta' ? 'வெளிநோயாளி சந்திப்பு நினைவூட்டல்' :
-                                'Outpatient Appointment Reminder'
-                              )}
-                            </h4>
-                            <p className="text-[10.5px] text-slate-300 leading-snug">
-                              {(() => {
-                                const dateStr = getLocalizedDate(appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.date : '22 July 2026', language);
-                                const timeStr = appointment.status === 'booked' || appointment.status === 'confirmed' ? appointment.timeSlot : '10:30 AM';
-                                if (isFHReferred) {
-                                  return t('lockscreen_push_msg')
-                                    .replace('{date}', dateStr)
-                                    .replace('{time}', timeStr);
-                                }
-                                if (language === 'ms') {
-                                  return `Konsultasi pesakit luar anda telah disahkan untuk ${dateStr} pukul ${timeStr}. Ketik untuk melengkapkan senarai semak.`;
-                                } else if (language === 'zh') {
-                                  return `您的普通门诊咨询预约已确认，时间为 ${dateStr} ${timeStr}。请点击以完善您的准备清单。`;
-                                } else if (language === 'ta') {
-                                  return `உங்கள் வெளிநோயாளி ஆலோசனை ${dateStr} அன்று ${timeStr} மணிக்கு உறுதிப்படுத்தப்பட்டுள்ளது. சரிபார்ப்புப் பட்டியலை முடிக்க தட்டவும்.`;
-                                } else {
-                                  return `Your outpatient consultation is confirmed for ${dateStr} at ${timeStr}. Tap to complete checklist.`;
-                                }
-                              })()}
-                            </p>
                           </div>
                         </div>
                       </div>
@@ -6250,14 +6603,34 @@ export default function PhoneSimulator({
                     )}
 
                     {/* Mock notify trigger */}
-                    <button
-                      onClick={onTriggerNotification}
-                      className="w-full py-2.5 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
-                    >
-                      <Bell className="w-4 h-4" /> {t('lock_trigger_push_alert')}
-                    </button>
+                    {isFHReferred && (
+                      <button
+                        onClick={onTriggerNotification}
+                        className="w-full py-2.5 bg-[#00a859] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                      >
+                        <Bell className="w-4 h-4" /> {t('lock_trigger_push_alert')}
+                      </button>
+                    )}
                   </div>
                 )}
+
+                {/* Log Out Action Button */}
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      triggerToast(t('logout_toast'));
+                      setShowSplash(true);
+                      setSplashFading(false);
+                      setShowLoginModal(false);
+                      onChangeScreen(ScreenId.Home);
+                    }}
+                    className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    id="settings-logout-btn"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {t('profile_logout')}
+                  </button>
+                </div>
 
             </div>
           </div>
@@ -6279,7 +6652,7 @@ export default function PhoneSimulator({
               <span className="font-bold text-sm text-slate-800">{t('journey_appointment_progress')}</span>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-12">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-left pb-36">
               {/* Countdown Header */}
               <div className="bg-gradient-to-r from-emerald-800 to-emerald-900 text-white p-4 rounded-2xl shadow-sm text-left">
                 <p className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 font-bold">{t('journey_appointment_status')}</p>
@@ -6319,23 +6692,12 @@ export default function PhoneSimulator({
                     </div>
                   </div>
 
-                  {/* Step 2: Education completed */}
-                  <div className="relative">
-                    <div className="absolute -left-[21px] w-5 h-5 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white shadow-xs">
-                      <Check className="w-2.5 h-2.5 stroke-[3]" />
-                    </div>
-                    <div>
-                      <h5 className="font-bold text-xs text-slate-800">{t('journey_edu_completed')}</h5>
-                      <p className="text-[10px] text-slate-500 leading-normal mt-0.5">{t('journey_edu_completed_desc')}</p>
-                    </div>
-                  </div>
-
-                  {/* Step 3: Appointment Booked */}
+                  {/* Step 2: Appointment Booked */}
                   <div className="relative">
                     <div className={`absolute -left-[21px] w-5 h-5 rounded-full border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs ${
                       (appointment.status === 'booked' || appointment.status === 'confirmed') ? 'bg-emerald-500' : 'bg-amber-500'
                     }`}>
-                      {(appointment.status === 'booked' || appointment.status === 'confirmed') ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '3'}
+                      {(appointment.status === 'booked' || appointment.status === 'confirmed') ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '2'}
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_slot_booked')}</h5>
@@ -6359,7 +6721,7 @@ export default function PhoneSimulator({
                     </div>
                   </div>
 
-                  {/* Step 4: Attend Counselling */}
+                  {/* Step 3: Attend Counselling */}
                   <div className="relative">
                     <div className={`absolute -left-[21px] w-5 h-5 rounded-full border-4 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-xs ${
                       appointment.status === 'confirmed' 
@@ -6368,7 +6730,7 @@ export default function PhoneSimulator({
                           ? 'bg-amber-500' 
                           : 'bg-slate-300'
                     }`}>
-                      {appointment.status === 'confirmed' ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '4'}
+                      {appointment.status === 'confirmed' ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '3'}
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-slate-800">{t('journey_attend_counselling')}</h5>
@@ -6407,23 +6769,6 @@ export default function PhoneSimulator({
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Prep Checklist link shortcut */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-2 text-xs text-left">
-                <h5 className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <CheckSquare className="w-4 h-4 text-emerald-600" />
-                  {t('journey_prep_title')}
-                </h5>
-                <p className="text-slate-500 text-[11px] leading-relaxed">
-                  {t('journey_prep_desc')}
-                </p>
-                <button
-                  onClick={() => onChangeScreen(ScreenId.Education)}
-                  className="text-[#00a859] font-bold underline text-[11px] hover:text-emerald-800 flex items-center gap-0.5 mt-1 cursor-pointer"
-                >
-                  {t('journey_review_checklist_btn')} <ChevronRight className="w-3.5 h-3.5" />
-                </button>
               </div>
 
             </div>
@@ -6521,7 +6866,7 @@ export default function PhoneSimulator({
             </div>
 
             {/* Bottom Swipe hint */}
-            <div className="relative text-center text-white/60 text-[10px] z-10 pb-4 font-mono animate-pulse">
+            <div className="relative text-center text-white/60 text-[10px] z-10 pb-4 font-mono">
               <span>{t('lockscreen_swipe_hint')}</span>
             </div>
           </div>
@@ -6532,16 +6877,16 @@ export default function PhoneSimulator({
         {activeScreen === ScreenId.Profile && (
           <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50 animate-fade-in">
             {/* Top Navigation Header */}
-            <div className="bg-white px-4 py-3.5 border-b border-slate-200 flex justify-between items-center sticky top-0 z-10 shrink-0">
-              <div className="flex items-center gap-2">
+            <div className="bg-white px-4 py-3 border-b border-slate-200 flex justify-between items-center sticky top-0 z-10 shrink-0">
+              <div className="flex items-center gap-2 min-w-0">
                 <button 
                   onClick={() => onChangeScreen(ScreenId.ReminderSettings)} 
-                  className="p-1 hover:bg-slate-100 rounded-full transition cursor-pointer"
+                  className="p-1 hover:bg-slate-100 rounded-full transition cursor-pointer shrink-0"
                   id="profile-back-btn"
                 >
                   <ArrowLeft className="w-5 h-5 text-slate-700" />
                 </button>
-                <span className="font-bold text-sm text-slate-800">{t('profile_my_profile')}</span>
+                <span className="font-bold text-sm text-slate-800 break-words min-w-0 flex-1">{t('profile_my_profile')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] bg-emerald-50 text-[#00a859] font-extrabold uppercase px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
@@ -6551,7 +6896,7 @@ export default function PhoneSimulator({
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 text-left pb-12">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 text-left pb-36">
               
               {/* Profile Avatar & Primary Status Card */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs flex items-center gap-4 relative overflow-hidden">
@@ -6565,7 +6910,6 @@ export default function PhoneSimulator({
                     <span className="text-[9px] bg-emerald-50 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded border border-emerald-100">{patientNric}</span>
                     <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded border border-slate-200">{patientGender === 'Male' ? t('gender_male') : t('gender_female')}, {patientAge} {t('profile_yrs')}</span>
                   </div>
-                  <p className="text-[9px] text-slate-400 font-semibold uppercase font-mono tracking-wider">{t('profile_moh_identity_cleared')}</p>
                 </div>
               </div>
 
@@ -6601,115 +6945,6 @@ export default function PhoneSimulator({
                 </div>
               </div>
 
-              {/* Contact Information */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
-                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_contact')}
-                </h4>
-                <div className="space-y-2 text-xs">
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_mobile')}</span>
-                    <span className="col-span-7 text-[#00a859] font-bold text-right font-mono">{patientMobile}</span>
-                  </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_email')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right truncate">{patientEmail}</span>
-                  </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-4 text-slate-500 font-medium">{t('profile_label_address')}</span>
-                    <span className="col-span-8 text-slate-600 text-[11px] leading-tight text-right">
-                      {patientAddress}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Emergency Contact */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
-                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <ShieldAlert className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_emergency')}
-                </h4>
-                <div className="space-y-2 text-xs">
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_contact_name')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientEmergencyName}</span>
-                  </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_relationship')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientEmergencyRelationship}</span>
-                  </div>
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_phone')}</span>
-                    <span className={`col-span-7 text-right ${patientEmergencyPhone === t('not_on_file') ? 'font-semibold text-slate-800' : 'font-bold font-mono text-slate-800'}`}>{patientEmergencyPhone}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Healthcare Preferences */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
-                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_healthcare')}
-                </h4>
-                <div className="space-y-3 text-xs">
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_preferred_clinic')}</span>
-                    <span className="col-span-7 text-slate-800 font-semibold text-right">{patientPrimaryClinic}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Medical Information */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3.5">
-                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
-                  <HeartPulse className="w-3.5 h-3.5 text-[#00a859]" /> {t('profile_section_medical')}
-                </h4>
-                <div className="space-y-2.5 text-xs">
-                  {patientLdlCholesterol != null && (
-                    <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                      <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_ldl')}</span>
-                      <span className={`col-span-7 text-right font-bold ${patientLdlCholesterol >= 4.9 ? 'text-rose-600' : 'text-emerald-700'}`}>
-                        {patientLdlCholesterol.toFixed(1)} mmol/L
-                      </span>
-                    </div>
-                  )}
-                  {isFHReferred && (
-                    <div className="grid grid-cols-12 gap-x-2 py-0.5 border-b border-slate-50">
-                      <span className="col-span-5 text-slate-500 font-medium">{t('profile_label_active_referrals')}</span>
-                      <span className="col-span-7 text-right">
-                        <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100 rounded text-[10px]">{t('profile_fh_testing_badge')}</span>
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-12 gap-x-2 py-0.5">
-                    <span className="col-span-4 text-slate-500 font-medium">{t('profile_label_upcoming_appts')}</span>
-                    <span className="col-span-8 text-right font-medium text-slate-800 leading-normal">
-                      {appointment.status === 'booked' || appointment.status === 'confirmed' ? (
-                        <div className="flex flex-col items-end">
-                          <span className="font-bold text-emerald-700">{appointment.clinic}</span>
-                          <span className="text-[10px] text-slate-500 mt-0.5 font-mono">{getLocalizedDate(appointment.date, language)} @ {appointment.timeSlot}</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-end gap-1">
-                          <span className="text-slate-400">{t('profile_no_appointments')}</span>
-                          <button 
-                            onClick={() => onChangeScreen(ScreenId.Booking)}
-                            className="text-[#00a859] font-bold text-[10px] hover:underline"
-                          >
-                            {isFHReferred ? t('profile_book_session_now') : (
-                              language === 'ms' ? 'Tempah janji temu sekarang' :
-                              language === 'zh' ? '立即预约普通门诊' :
-                              language === 'ta' ? 'இப்போதே முன்பதிவு செய்யுங்கள்' :
-                              'Book general appointment now'
-                            )}
-                          </button>
-                        </div>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
               {/* Account Section */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-3xs space-y-3">
                 <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-[#00a859] font-mono border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
@@ -6733,18 +6968,6 @@ export default function PhoneSimulator({
                       )}
                     </span>
                   </div>
-                  <div className="pt-2">
-                    <button
-                      onClick={() => {
-                        triggerToast("Successfully logged out from HealthHub simulation");
-                        onChangeScreen(ScreenId.Home);
-                      }}
-                      className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      {t('profile_logout')}
-                    </button>
-                  </div>
                 </div>
               </div>
 
@@ -6767,93 +6990,83 @@ export default function PhoneSimulator({
           <div className="absolute inset-0 bg-slate-900/45 backdrop-blur-xs flex flex-col justify-end z-50 animate-fade-in select-none">
             <div className="bg-white rounded-t-3xl h-[94%] flex flex-col shadow-2xl overflow-hidden animate-slide-up">
               {/* Document Header */}
-              <div className="bg-slate-50 px-4 py-3.5 border-b border-slate-200 flex justify-between items-center">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 bg-emerald-50 text-[#00a859] rounded-lg border border-emerald-200">
+              <div className="bg-slate-50 px-3.5 sm:px-4 py-3 border-b border-slate-200 flex justify-between items-center shrink-0 gap-2">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-1">
+                  <div className="p-1.5 bg-emerald-50 text-[#00a859] rounded-lg border border-emerald-200 shrink-0">
                     <FileText className="w-4 h-4 text-[#00a859]" />
                   </div>
-                  <div className="text-left">
-                    <span className="text-[8px] font-extrabold text-[#00a859] uppercase tracking-wider font-mono bg-emerald-50 px-1 py-0.2 border border-emerald-100/50 rounded">
+                  <div className="text-left min-w-0 flex-1">
+                    <span className="text-[8px] font-extrabold text-[#00a859] uppercase tracking-wider font-mono bg-emerald-50 px-1 py-0.2 border border-emerald-100/50 rounded inline-block">
                       {selectedResource.type}
                     </span>
-                    <h3 className="font-bold text-[11px] text-slate-800 line-clamp-1 max-w-[210px] mt-0.5">
+                    <h3 className="font-bold text-[12px] sm:text-[13px] text-slate-800 leading-snug mt-0.5">
                       {selectedResource.title}
                     </h3>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedResource(null)}
-                  className="p-1.5 hover:bg-slate-200 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer transition"
+                  className="p-1.5 hover:bg-slate-200 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer transition shrink-0"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Document Sub-Header / Tool Controls */}
-              <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 flex justify-between items-center text-[10px] text-slate-600 font-mono">
-                <span className="font-bold text-[9px]">{t('edu_doc_page_of').replace('{current}', String(resourcePage + 1)).replace('{total}', String(selectedResource.pages.length))}</span>
+              <div className="bg-slate-100/80 px-3.5 sm:px-4 py-2 border-b border-slate-200 flex justify-end items-center text-[10px] text-slate-600 font-mono">
                 <div className="flex items-center gap-1.5">
                   {selectedResource.externalUrl && (
                     <a 
                       href={selectedResource.externalUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-[#00a859] hover:text-emerald-800 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs"
+                      className="flex items-center gap-1 text-[#00a859] hover:text-emerald-800 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs text-[9.5px]"
                     >
-                      <ExternalLink className="w-3 h-3 text-[#00a859]" /> {t('edu_website_btn')}
+                      <ExternalLink className="w-3 h-3 text-[#00a859]" /> {t('edu_website_btn') || 'WEBSITE'}
                     </a>
                   )}
                   <button 
                     onClick={() => {
-                      setDownloadToast(`Saved ${selectedResource.title} (${selectedResource.downloadSize}) to local storage.`);
+                      setDownloadToast(`Saved ${selectedResource.title} to local storage.`);
                     }}
-                    className="flex items-center gap-1 hover:text-emerald-700 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs"
+                    className="flex items-center gap-1 hover:text-emerald-700 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs text-[9.5px]"
                   >
-                    <Download className="w-3 h-3 text-[#00a859]" /> {selectedResource.downloadSize}
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setDownloadToast("Sent document to printer...");
-                    }}
-                    className="flex items-center gap-1 hover:text-emerald-700 font-bold bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer shadow-3xs"
-                  >
-                    <Printer className="w-3 h-3 text-slate-500" /> {t('edu_print_btn')}
+                    <Download className="w-3 h-3 text-[#00a859]" /> {t('edu_download_btn') || 'DOWNLOAD'}
                   </button>
                 </div>
               </div>
 
               {/* Document Page Canvas */}
-              <div className="flex-1 bg-slate-200 p-4 overflow-y-auto flex justify-center">
-                <div className={`bg-white w-full max-w-[340px] min-h-[380px] rounded-lg shadow-md p-4.5 flex flex-col border border-slate-300 relative select-text ${
+              <div className="flex-1 bg-slate-200 p-3 sm:p-4 overflow-y-auto flex justify-center items-start">
+                <div className={`bg-white w-full max-w-full rounded-lg shadow-md p-4 sm:p-5 flex flex-col border border-slate-300 relative select-text ${
                   textSize === 'sm' ? 'education-text-sm' :
                   textSize === 'lg' ? 'education-text-lg' :
                   'education-text-md'
                 }`}>
-                  {/* Subtle watermarks and page header */}
-                  <div className="border-b border-slate-100 pb-2 mb-3 flex justify-between items-center text-[8px] text-slate-400 font-bold uppercase tracking-wider font-mono">
-                    <span>FIRST HEALTH GROUP • EDUCATIONAL SERVICES</span>
-                    <span>CONFIDENTIAL</span>
+                  {/* Watermarks and page header */}
+                  <div className="border-b border-slate-100 pb-2 mb-3 flex justify-between items-center text-[8.5px] text-slate-400 font-bold uppercase tracking-wider font-mono">
+                    <span>MOH CLINICAL EXCELLENCE ALLIANCE</span>
+                    <span>{t('edu_page_label')} {resourcePage + 1} / {selectedResource.pages.length}</span>
                   </div>
 
-                  <h4 className="font-display font-extrabold text-[12.5px] text-slate-900 tracking-tight leading-snug border-l-4 border-emerald-500 pl-2">
+                  <h4 className="font-display font-extrabold text-[13px] text-slate-900 tracking-tight leading-snug border-l-4 border-emerald-500 pl-2">
                     {selectedResource.pages[resourcePage].title}
                   </h4>
 
-                  <div className="mt-3.5 space-y-3 text-[10px] text-slate-700 leading-relaxed font-sans flex-1 text-left">
+                  <div className="mt-3.5 space-y-3 text-[11px] text-slate-700 leading-relaxed font-sans flex-1 text-left">
                     {selectedResource.pages[resourcePage].paragraphs.map((p, pIdx) => (
                       <p key={pIdx} className="indent-2">{p}</p>
                     ))}
                   </div>
 
                   {/* Watermark Logo */}
-                  <div className="absolute bottom-16 right-5 opacity-5 pointer-events-none">
+                  <div className="absolute bottom-12 right-4 opacity-5 pointer-events-none">
                     <HeartPulse className="w-20 h-20 text-slate-950" />
                   </div>
 
                   {/* Page Footer */}
-                  <div className="border-t border-slate-100 pt-2.5 mt-5 flex justify-between items-center text-[8px] text-slate-400 font-medium font-sans">
+                  <div className="border-t border-slate-100 pt-2.5 mt-5 flex justify-between items-center text-[8.5px] text-slate-400 font-medium font-sans">
                     <span>MOH Clinical Excellence Alliance</span>
-                    <span>{t('edu_page_label')} {resourcePage + 1}</span>
                   </div>
                 </div>
               </div>
@@ -6910,40 +7123,49 @@ export default function PhoneSimulator({
         ) : null}
 
         {/* Floating Contextual Action Button for FH Referred patients */}
-        {isFHReferred && activeScreen !== ScreenId.Booking && !(activeScreen === ScreenId.Education && !onboardingCompleted) && (
+        {isFHReferred && !selectedResource && activeScreen !== ScreenId.Home && activeScreen !== ScreenId.Booking && activeScreen !== ScreenId.ReminderSettings && activeScreen !== ScreenId.Profile && !(activeScreen === ScreenId.Education && !onboardingCompleted) && (
           <button
             onClick={() => onChangeScreen(ScreenId.Booking)}
             className="absolute bottom-4 right-4 z-40 bg-[#00a859] hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-full flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 text-xs font-bold font-sans"
-            title={appointment.status === 'booked' ? 'View Booking' : 'Book Now'}
+            title={appointment.status === 'booked' ? t('view_booking') : t('book_now_btn')}
           >
             <Calendar className="w-4 h-4 text-white" />
-            <span>{appointment.status === 'booked' ? 'View Booking' : 'Book Now'}</span>
+            <span>{appointment.status === 'booked' ? t('view_booking') : t('book_now_btn')}</span>
           </button>
         )}
 
       </div>
 
-      <div className="bg-white border-t border-slate-200 py-3 px-3 flex justify-around items-center z-40 select-none shrink-0">
+      <div className="bg-white border-t-2 border-slate-200 py-2 px-2.5 flex justify-between items-center gap-1.5 z-40 select-none shrink-0 shadow-lg no-text-scale">
         {[
-          { icon: <HeartPulse className="w-5 h-5" />, label: 'Home', screen: ScreenId.Home },
-          { icon: <Calendar className="w-5 h-5" />, label: 'Book', screen: ScreenId.Booking },
-          { icon: <Dna className="w-5 h-5" />, label: 'Learn', screen: ScreenId.Education },
+          { icon: <HeartPulse className="w-5 h-5 shrink-0 no-text-scale" />, label: t('nav_home'), screen: ScreenId.Home },
+          ...(isFHReferred ? [
+            { icon: <Calendar className="w-5 h-5 shrink-0 no-text-scale" />, label: t('nav_book'), screen: ScreenId.Booking },
+            { icon: <Dna className="w-5 h-5 shrink-0 no-text-scale" />, label: t('nav_learn'), screen: ScreenId.Education },
+          ] : []),
         ].map((tab) => (
           <button
-            key={tab.label}
+            key={tab.screen}
             onClick={() => {
               if (bookingSubFlow) {
                 handleExitReschedule();
                 handleExitCancelFlow();
               }
+              if (appointment?.status !== 'booked' && appointment?.status !== 'confirmed') {
+                setBookingStep('available');
+              }
               onChangeScreen(tab.screen);
             }}
-            className={`flex flex-col items-center gap-0.5 transition cursor-pointer ${
-              activeScreen === tab.screen && !bookingSubFlow ? 'text-[#00a859]' : 'text-slate-400 hover:text-slate-600'
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-1 transition-all cursor-pointer py-1.5 px-1 rounded-xl min-h-[52px] no-text-scale ${
+              activeScreen === tab.screen && !bookingSubFlow 
+                ? 'text-[#00733a] font-extrabold bg-emerald-50/80 border border-emerald-200' 
+                : 'text-slate-700 hover:text-slate-900 font-bold hover:bg-slate-100'
             }`}
           >
             {tab.icon}
-            <span className="text-[8px] font-bold uppercase tracking-tight">{tab.label}</span>
+            <span className="font-bold tracking-tight text-center leading-tight break-words max-w-full line-clamp-2 text-[11px] no-text-scale">
+              {tab.label}
+            </span>
           </button>
         ))}
       </div>

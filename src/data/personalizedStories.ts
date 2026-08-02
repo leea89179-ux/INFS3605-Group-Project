@@ -2,7 +2,7 @@ export interface StoryDetails {
   title: string;
   videoLabel: string;
   subtitle: string;
-  summary: string;
+  summary?: string;
   frames: string[];
   transcript: string[];
 }
@@ -18,7 +18,7 @@ export const STORIES: Record<string, LocalizedStory> = {
   family: {
     en: {
       title: "A Family Screening Journey",
-      videoLabel: "Patient Experience Story (Zack, 34)",
+      videoLabel: "Zack, 34",
       subtitle: "Learn how one family discovered FH and protected their next generation.",
       summary: "", // Will be dynamically selected based on knowledgeLevel
       frames: [
@@ -29,7 +29,7 @@ export const STORIES: Record<string, LocalizedStory> = {
       ],
       transcript: [
         "Hi, I'm Zack. When I was diagnosed with FH, my first thought was about my family. The counsellor explained that FH is autosomal dominant, meaning my parents, siblings, and children each have a 50% chance of having it too. It felt heavy, but the team reassured me that this knowledge is a powerful tool to protect them.",
-        "They gave me a simple family guide and personalized referral letters for my relatives. This made the conversation so much easier because I didn't have to explain all the complex medical terms myself. It was presented as a proactive health check, not a family burden.",
+        "They gave me a simple family guide and personalised referral letters for my relatives. This made the conversation so much easier because I didn't have to explain all the complex medical terms myself. It was presented as a proactive health check, not a family burden.",
         "My sister and brother took the letters to their nearest clinic. Thanks to cascade screening subsidies from MOH, their out-of-pocket costs were minimal. My sister tested positive, while my brother was clear. Because we caught it early, she started mild treatment immediately.",
         "Today, we support each other in keeping our hearts healthy. Sifting through our genetics together has brought us closer. It is not about assigning blame; it is about giving the people you love the chance to lead long, healthy lives."
       ]
@@ -99,12 +99,12 @@ export const STORIES: Record<string, LocalizedStory> = {
         "Before: A 30-minute counselling session to map your family history and answer any questions.",
         "During: A standard, quick blood draw or saliva collection at the outpatient clinic.",
         "After: Specialized laboratory analysis takes 4 to 6 weeks to map specific FH gene variants.",
-        "Follow-up: A personalized consultation to discuss results and outline a tailored heart plan."
+        "Follow-up: A personalised consultation to discuss results and outline a tailored heart plan."
       ],
       transcript: [
         "Hello, I'm May. I want to share my genetic testing experience because I was quite nervous beforehand. The process is completely outpatient and has three clear steps. It starts with pre-test counselling where a specialist maps your family health tree and answers any questions about privacy or insurance.",
         "The test itself is extremely simple—just a standard 10-minute blood draw. There is no fasting required, and you can go right back to your day immediately. The sample is then sent to a specialized local laboratory for DNA sequencing.",
-        "Over the next 4 to 6 weeks, geneticists analyze the sample, looking specifically for variations in the LDLR, APOB, and PCSK9 genes. The wait can feel long, but it is because they are doing a highly precise medical mapping.",
+        "Over the next 4 to 6 weeks, geneticists analyse the sample, looking specifically for variations in the LDLR, APOB, and PCSK9 genes. The wait can feel long, but it is because they are doing a highly precise medical mapping.",
         "Finally, you return for a post-test consultation. Your doctor explains the results clearly. If a variant is found, they help you start subsidized treatment that protects your heart. Knowing my genetic status took away the mystery and gave me a clear path forward."
       ]
     },
@@ -166,7 +166,7 @@ export const STORIES: Record<string, LocalizedStory> = {
   treatment: {
     en: {
       title: "Managing FH After Diagnosis",
-      videoLabel: "Patient Experience Story (Kumar, 42)",
+      videoLabel: "Kumar, 42",
       subtitle: "How monitoring, simple daily medication, and lifestyle keep risk at normal levels.",
       summary: "",
       frames: [
@@ -388,9 +388,8 @@ export const STORIES: Record<string, LocalizedStory> = {
   default: {
     en: {
       title: "What happens during FH testing?",
-      videoLabel: "Patient Experience Story (Chloe, 21)",
+      videoLabel: "Chloe, 21",
       subtitle: "See what to expect before your appointment.",
-      summary: "I live a healthy lifestyle, exercise regularly, and eat well, so I assumed high cholesterol was something only older people get. My doctor explained that FH is inherited from birth—it has nothing to do with lifestyle or age.",
       frames: [
         "I eat healthy and stay active. I thought high cholesterol was only for elderly people or those who lead an unhealthy lifestyle.",
         "The genetic counsellor didn't push me at all. They just laid out the facts and let me make my own decision.",
@@ -408,7 +407,6 @@ export const STORIES: Record<string, LocalizedStory> = {
       title: "Apa yang berlaku semasa ujian FH?",
       videoLabel: "Kisah Pengalaman Pesakit (Chloe, 21)",
       subtitle: "Lihat apa yang dijangka sebelum janji temu anda.",
-      summary: "Saya mengamalkan gaya hidup sihat tetapi doktor menjelaskan bahawa FH diwarisi sejak lahir—ia tiada kaitan dengan gaya hidup atau umur.",
       frames: [
         "Saya makan sihat dan aktif. Saya fikir kolesterol tinggi hanya untuk orang tua atau gaya hidup tidak sihat.",
         "Kaunselor genetik tidak mendesak saya. Mereka hanya membentangkan fakta dan membiarkan saya membuat keputusan sendiri.",
@@ -426,7 +424,6 @@ export const STORIES: Record<string, LocalizedStory> = {
       title: "FH检测期间会发生什么？",
       videoLabel: "患者体验故事 (Chloe, 21)",
       subtitle: "在预约前了解您可以预期的内容。",
-      summary: "我保持着健康的生活方式，但医生解释说，FH 是自出生起就遗传的，与生活方式或年龄无关。",
       frames: [
         "我饮食健康并保持活跃。我以为高胆固醇只属于老年人或生活方式不健康的人。",
         "遗传咨询师完全没有强迫我。他们只是列出事实，让我自己做决定。",
@@ -444,7 +441,6 @@ export const STORIES: Record<string, LocalizedStory> = {
       title: "FH சோதனையின் போது என்ன நடக்கும்?",
       videoLabel: "நோயாளி அனுபவக் கதை (Chloe, 21)",
       subtitle: "உங்கள் சந்திப்பிற்கு முன் என்ன எதிர்பார்க்கலாம் என்று அறிந்துகொள்ளுங்கள்.",
-      summary: "நான் ஆரோக்கியமான வாழ்க்கை முறையைப் பின்பற்றினாலும், FH பிறப்பிலிருந்தே மரபணு ரீதியாகப் பெறப்படுகிறது என்று மருத்துவர் விளக்கினார்.",
       frames: [
         "நான் ஆரோக்கியமாக உண்ணுகிறேன் மற்றும் சுறுசுறுப்பாக இருக்கிறேன். அதிக கொலஸ்ட்ரால் மூத்தவர்களுக்கு அல்லது ஆரோக்கியமற்ற வாழ்க்கை முறை கொண்டவர்களுக்கு மட்டுமே என நான் நினைத்தேன்.",
         "மரபணு ஆலோசகர் என்னை வற்புறுத்தவில்லை. அவர்கள் உண்மைகளை மட்டுமே முன்வைத்து முடிவெடுக்க எனக்கு விட்டுவிட்டார்கள்.",

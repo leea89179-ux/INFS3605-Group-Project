@@ -24,7 +24,7 @@ import {
 } from './supabaseClient';
 import PhoneSimulator from './components/PhoneSimulator';
 import DatabaseViewer from './components/DatabaseViewer';
-import { HeartPulse, Compass, Users, CircleCheck, Database } from 'lucide-react';
+import { HeartPulse, RotateCcw } from 'lucide-react';
 
 export default function App() {
   // Global Shared States for the Figma Prototype
@@ -159,7 +159,7 @@ export default function App() {
   const activeAppointment: Appointment = {
     date: patientAppt?.appointment_date || '22 July 2026',
     timeSlot: patientAppt?.appointment_time || '10:30 AM',
-    clinic: patientAppt?.clinic || 'National University Hospital Genetic Clinic',
+    clinic: patientAppt?.clinic || (isFHReferred ? 'National University Hospital Genetic Clinic' : 'Toa Payoh Polyclinic'),
     status: patientAppt?.status || 'pending',
   };
 
@@ -588,220 +588,91 @@ export default function App() {
     }
   };
 
+  const handleResetEmilyProgress = async () => {
+    // 1. Select Emily Wong
+    setSelectedPatientId('EW003');
+    setIsFHReferred(true);
+    setActiveScreen(ScreenId.Home);
+
+    // 2. Reset Educational Progress for Emily Wong to 0%
+    setEducationProgressTable(prev => {
+      const exists = prev.some(e => e.patient_id === 'EW003');
+      if (exists) {
+        return prev.map(e => e.patient_id === 'EW003' ? { ...e, percent_complete: 0, modules_viewed: 0 } : e);
+      } else {
+        return [...prev, { progress_id: 'EDU003', patient_id: 'EW003', percent_complete: 0, modules_viewed: 0, last_accessed: 'Never' }];
+      }
+    });
+
+    // 3. Trigger questionnaire reset in PhoneSimulator
+    setEmilyWongRefreshTrigger(prev => prev + 1);
+
+    // 4. Sync to Supabase
+    try {
+      await supabase.from('EducationProgress').upsert({
+        patient_id: 'EW003',
+        percent_complete: 0
+      });
+    } catch (err) {
+      console.error('Supabase reset education progress failed:', err);
+    }
+
+    // 5. Log SQL
+    logSQL("-- RESET EMILY WONG'S EDUCATION PROGRESS (0%) AND QUESTIONNAIRE (NOT COMPLETE)", 'DDL');
+    logSQL("UPDATE EducationProgress SET percent_complete = 0 WHERE patient_id = 'EW003';", 'UPDATE');
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-600 selection:text-white">
+    <div className="min-h-screen bg-[#f0f4f8] text-slate-800 flex flex-col font-sans selection:bg-[#00733a] selection:text-white">
       
       {/* 1. Official Singapore GovTech Styled Header banner */}
-      <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 shrink-0 shadow-lg">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="bg-rose-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-sm font-mono">
-                GovTech Singapore
-              </span>
-              <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded border border-emerald-500/20">
-                HealthHub v12.4
-              </span>
-            </div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-100 flex items-center gap-2 font-display">
-              <HeartPulse className="w-6 h-6 text-emerald-500 shrink-0" />
-              FH Genetic Referral Compliance Prototype
+      <header className="bg-white border-b border-slate-200/90 px-6 py-4 shrink-0 shadow-xs relative">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2.5 font-display">
+              <HeartPulse className="w-7 h-7 text-[#00733a] shrink-0" />
+              FHAssistant
             </h1>
-            <p className="text-xs text-slate-400">
-              Interactive application developed to reduce patient drop-off after clinical genetics referral
-            </p>
           </div>
 
-          {/* Quick Metrics */}
-          <div className="flex flex-wrap gap-2">
-            <div className="bg-slate-950 px-4 py-2 rounded-xl border border-rose-950/50 bg-rose-950/10 text-center">
-              <p className="text-[9px] uppercase tracking-wider text-rose-400 font-mono">Patient drop off</p>
-              <p className="text-sm font-bold text-rose-400">40%</p>
-            </div>
+          {/* Reset Icon Button on the Right */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleResetEmilyProgress}
+              className="p-2 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-[#00733a] active:bg-emerald-100 border border-slate-200/90 hover:border-emerald-300 rounded-xl transition-all duration-200 flex items-center justify-center cursor-pointer shadow-2xs active:scale-95 group"
+              title="Reset Emily's educational progress (0%) & personalisation questionnaire (Not complete)"
+              id="reset-emily-btn"
+              aria-label="Reset Emily's progress"
+            >
+              <RotateCcw className="w-4 h-4 text-slate-600 group-hover:text-[#00733a] group-hover:-rotate-90 transition-transform duration-300 shrink-0" />
+            </button>
           </div>
         </div>
       </header>
 
       {/* 2. Main Workspace Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* LEFT COLUMN (Lg: 4/12) - Prototype Simulation Control & AI Chatbot */}
-        <div className="lg:col-span-4 space-y-6">
-          
-          {/* Box 1: Interactive State Controller */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-4">
-            <div>
-              <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-wider font-mono flex items-center gap-2">
-                <Compass className="w-4 h-4 text-emerald-500" />
-                Prototype Controller
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Fast-forward the clinical journey to test specific behavioral triggers:
-              </p>
-            </div>
-
-            {/* Live Patient Persona Switcher */}
-            <div className="space-y-3">
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-emerald-500" />
-                Select Patient Persona
-              </label>
-
-              <div className="space-y-2.5">
-                {/* 1. Emily Wong */}
-                <button
-                  onClick={() => handleSelectPersona('EW003')}
-                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
-                    selectedPatientId === 'EW003'
-                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'EW003' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
-                      Emily Wong
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-amber-950/50 text-amber-400 border border-amber-900/30 uppercase tracking-wide">
-                      No Education
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
-                    FH Referred. Displays unbooked appointment booking alert & 0% educational progress.
-                  </p>
-                </button>
-
-                {/* 2. Sarah Lim */}
-                <button
-                  onClick={() => handleSelectPersona('SL001')}
-                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
-                    selectedPatientId === 'SL001'
-                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'SL001' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
-                      Sarah Lim
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-slate-800 text-slate-400 uppercase tracking-wide">
-                      No FH Referral
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
-                    Simulates standard healthcare view without cardiac genetics intervention.
-                  </p>
-                </button>
-
-                {/* 3. Daniel Tan */}
-                <button
-                  onClick={() => handleSelectPersona('DT002')}
-                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
-                    selectedPatientId === 'DT002'
-                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'DT002' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
-                      Daniel Tan
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-indigo-950/50 text-indigo-400 border border-indigo-900/30 uppercase tracking-wide">
-                      Partial Education
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
-                    FH Cascade Referral. Displays active compliance countdown with 50% completed modules.
-                  </p>
-                </button>
-
-              </div>
-            </div>
-
-            {/* Quick Informational Box on the Clinical Journey */}
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 space-y-2 text-xs">
-              <h4 className="font-bold text-slate-300 flex items-center gap-1.5">
-                <CircleCheck className="w-4 h-4 text-[#00a859]" />
-                Compliance Journey Summary
-              </h4>
-              <p className="text-slate-400 leading-normal text-[11px]">
-                Patients are immediately notified upon cardiac referral. Subsidies, checklist reminders, and single-screen booking are served progressively to counter clinic exit friction.
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-        {/* MIDDLE COLUMN (Lg: 4/12) - High Fidelity Mobile Device Simulator */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-3">
-          
-          <div className="text-center">
-            <span className="text-xs uppercase tracking-widest font-mono text-slate-500">Live Interactive Mockup</span>
-            <p className="text-xs text-emerald-400 font-semibold">Click any element inside the device to test flows</p>
-          </div>
-
-          <PhoneSimulator
-            activeScreen={activeScreen}
-            onChangeScreen={setActiveScreen}
-            appointment={activeAppointment}
-            onBookAppointment={handleBookingTransaction}
-            onAddCalendarEvent={handleCalendarAddedTransaction}
-            reminderPrefs={activeReminderPrefs}
-            onUpdateReminderPrefs={handleReminderPrefsTransaction}
-            onTriggerNotification={handleSimulateNotification}
-            onNotificationAction={handleNotificationActionTransaction}
-            onCancelAppointment={handleCancelAppointmentTransaction}
-            isFHReferred={isFHReferred}
-            patientRecord={activePatient}
-            percentComplete={percentComplete}
-            onUpdateEducationProgress={handleUpdateEducationProgress}
-          />
-
-        </div>
-
-        {/* RIGHT COLUMN (Lg: 4/12) - Integrated Live Database Panel */}
-        <div className="lg:col-span-4 flex flex-col space-y-4">
-          
-          {/* Header Badge */}
-          <div className="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl shadow-xl flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs font-bold text-slate-100 uppercase tracking-wider font-mono">
-                Live Relational Database
-              </span>
-            </div>
-            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              Live Sync
-            </span>
-          </div>
-
-          {/* Right Panel Main View */}
-          <div className="flex-1 min-h-[580px] lg:h-[630px]">
-            <DatabaseViewer 
-              patients={patientTable}
-              appointments={appointmentTable}
-              reminderPreferences={reminderPrefTable}
-              notificationHistory={notificationHistoryTable}
-              referrals={referralTable}
-              educationProgress={educationProgressTable}
-              results={resultsTable}
-              queryLogs={queryLogs}
-            />
-          </div>
-
-        </div>
+      <main className="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col items-center justify-center">
+        <PhoneSimulator
+          activeScreen={activeScreen}
+          onChangeScreen={setActiveScreen}
+          appointment={activeAppointment}
+          onBookAppointment={handleBookingTransaction}
+          onAddCalendarEvent={handleCalendarAddedTransaction}
+          reminderPrefs={activeReminderPrefs}
+          onUpdateReminderPrefs={handleReminderPrefsTransaction}
+          onTriggerNotification={handleSimulateNotification}
+          onNotificationAction={handleNotificationActionTransaction}
+          onCancelAppointment={handleCancelAppointmentTransaction}
+          isFHReferred={isFHReferred}
+          patientRecord={activePatient}
+          percentComplete={percentComplete}
+          onUpdateEducationProgress={handleUpdateEducationProgress}
+          emilyWongRefreshTrigger={emilyWongRefreshTrigger}
+          onSelectPersona={handleSelectPersona}
+          onResetEmily={handleResetEmilyProgress}
+        />
 
       </main>
-
-      {/* 3. Global Footer */}
-      <footer className="bg-slate-950 border-t border-slate-900 py-6 px-6 text-center text-xs text-slate-500 space-y-2 mt-auto shrink-0 font-mono">
-        <p>© 2026 Government Technology Agency (GovTech), Singapore. All rights reserved.</p>
-        <p className="text-[11px] text-slate-600">
-          Developed in compliance with the Ministry of Health (MOH) Singapore clinical directives.
-        </p>
-      </footer>
 
     </div>
   );

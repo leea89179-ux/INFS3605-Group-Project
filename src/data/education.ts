@@ -12,6 +12,7 @@ export interface EduSection {
   subsections?: { title: string; text: string }[];
   steps?: { num: number; title: string; description: string }[];
   visualItems?: { icon: string; label: string; text: string }[];
+  disclaimer?: string;
 }
 
 export interface HelpfulResource {
@@ -21,7 +22,7 @@ export interface HelpfulResource {
   keywords: string[];
   readingTime: string;
   iconName: string;
-  type: 'PDF Brochure' | 'Clinical Guide' | 'Official Code' | 'Video Story' | string;
+  type: 'PDF Brochure' | 'Clinical Guide' | 'Official Code' | 'Video' | string;
   downloadSize: string;
   pages: { title: string; paragraphs: string[] }[];
   externalUrl?: string;
@@ -53,7 +54,7 @@ export const educationalSections: EduSection[] = [
     title: 'Protecting Your Family',
     shortSummary: 'How family screening keeps your loved ones safe.',
     readingTime: '1 min read',
-    content: "Genetic testing is the gold standard to confirm if you have FH. Knowing your gene variation helps doctors customize your care and protect your family members who might have inherited the same gene.",
+    content: "Genetic testing is the gold standard to confirm if you have FH. Knowing your gene variation helps doctors customise your care and protect your family members who might have inherited the same gene.",
     keyTakeaway: 'A single test can help protect your siblings, children, and parents.',
     iconName: 'Users',
     tags: ['family', 'cascade screening'],
@@ -78,7 +79,7 @@ export const educationalSections: EduSection[] = [
     iconName: 'ClipboardList',
     tags: ['blood test', 'counselling'],
     steps: [
-      { num: 1, title: 'Learn about FH', description: 'Read these simple, personalized guides in your app.' },
+      { num: 1, title: 'Learn about FH', description: 'Read these simple, personalised guides in your app.' },
       { num: 2, title: 'Book counselling', description: 'Schedule your session easily directly on this app.' },
       { num: 3, title: 'Attend the session', description: 'A friendly 30-minute talk with a genetic counsellor.' },
       { num: 4, title: 'Simple blood draw', description: 'A 10-minute outpatient draw. No fasting needed.' },
@@ -113,7 +114,7 @@ export const educationalSections: EduSection[] = [
     subsections: [
       {
         title: 'NO IMPACT ON EXISTING PLANS',
-        text: 'Existing active policies (like MediShield Life or Integrated Shield Plans) can never be altered or canceled.'
+        text: 'Existing active policies (like MediShield Life or Integrated Shield Plans) can never be altered or cancelled.'
       },
       {
         title: 'STRICT LIA MORATORIUM',
@@ -167,7 +168,7 @@ export const faqs: FAQItem[] = [
   {
     category: 'medication',
     question: 'Can I stop my cholesterol medication during testing?',
-    answer: "No, you should never stop or change your prescribed medication unless explicitly directed by your physician. The genetic test analyzes your DNA, which remains completely unchanged by any medications you are taking."
+    answer: "No, you should never stop or change your prescribed medication unless explicitly directed by your physician. The genetic test analyses your DNA, which remains completely unchanged by any medications you are taking."
   }
 ];
 
@@ -179,7 +180,7 @@ export const helpfulResources: HelpfulResource[] = [
     keywords: ['patient-story', 'video', 'mother', 'pediatric-screening', 'family-hope'],
     readingTime: '6-min Video',
     iconName: 'Play',
-    type: 'Video Story',
+    type: 'Video',
     downloadSize: 'Video Stream',
     externalUrl: 'https://www.youtube.com/watch?v=3IKZzICJacw&feature=emb_imp_woyt',
     pages: [
@@ -216,7 +217,7 @@ export const helpfulResources: HelpfulResource[] = [
     keywords: ['patient-story', 'video', 'young-adult', 'lived-experience'],
     readingTime: '5-min Video',
     iconName: 'Play',
-    type: 'Video Story',
+    type: 'Video',
     downloadSize: 'Video Stream',
     externalUrl: 'https://www.youtube.com/watch?v=zEYN4xg5ACw',
     pages: [
@@ -328,7 +329,7 @@ export const helpfulResources: HelpfulResource[] = [
         paragraphs: [
           'Familial Hypercholesterolaemia (FH) is an inherited condition that causes extremely high levels of low-density lipoprotein (LDL) cholesterol (often called "bad" cholesterol) from birth.',
           'If you have FH, your body is unable to remove LDL cholesterol from your blood effectively. Over time, this excess cholesterol builds up in your blood vessels, including the coronary arteries of the heart.',
-          'Because this build-up starts in childhood, it can lead to early-onset heart disease if left untreated. Recognizing the signs early is key to initiating protective treatment.'
+          'Because this build-up starts in childhood, it can lead to early-onset heart disease if left untreated. Recognising the signs early is key to initiating protective treatment.'
         ]
       },
       {

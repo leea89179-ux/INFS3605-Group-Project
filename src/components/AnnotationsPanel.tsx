@@ -25,7 +25,7 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       title: 'Screen 1: HealthHub Home Screen & Banner',
       problemSolved: 'Out of sight, out of mind. Patients leave the clinic with a physical referral letter, pack it away, and forget to take action. They have no high-visibility reminder that they have an active genetic testing referral.',
       uxGuidelines: [
-        'Personalized Ambient Notification: Instead of a red alert (which creates cancer-like panic), use a gentle teal/amber background that looks informative and supportive.',
+        'Personalised Ambient Notification: Instead of a red alert (which creates cancer-like panic), use a gentle teal/amber background that looks informative and supportive.',
         'Immediate Status Tracking: A simple 3-stage progress bar showing exactly where the user stands in their journey (Referral Recieved → Booked → Completed).',
         'Direct Action Button: High contrast "Book Appointment" button right on the banner, reducing steps to booking to a minimum.',
       ],
@@ -47,9 +47,9 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       ],
       govTechPrinciples: [
         { label: 'Visual Calmness', desc: 'Avoids alarming illustrations of mutated chromosomes or hospital rooms. Uses friendly green and gray hues.' },
-        { label: 'Interactive Experience', desc: 'Includes a simulated 45-second "Patient Experience Story" animation that visualizes how simple and painless the process is.' }
+        { label: 'Interactive Experience', desc: 'Includes a simulated 45-second "Patient Experience Story" animation that visualises how simple and painless the process is.' }
       ],
-      accessibilityForSeniors: 'Uses clean icons from the familiar GovTech suite, large text size toggles, and clear spacing with no overlapping text. Content is personalized and translated into simple, bite-sized bullet points.',
+      accessibilityForSeniors: 'Uses clean icons from the familiar GovTech suite, large text size toggles, and clear spacing with no overlapping text. Content is personalised and translated into simple, bite-sized bullet points.',
       dropOffImpact: 'Directly combats patient drop-off caused by anxiety. Reassured patients who understand costs and protection are 68% more likely to proceed with their genetic testing appointment.'
     },
     [ScreenId.Booking]: {
@@ -62,18 +62,18 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       ],
       govTechPrinciples: [
         { label: 'Calendar Syncing', desc: 'Integrated options to automatically add the booking directly to Apple Calendar or Google Calendar to prevent forgetfulness.' },
-        { label: 'Subsidies Pre-Calculated', desc: 'Displays the approximate cost (subsidized by CHAS/MOH) before confirmation, providing final cost transparency.' }
+        { label: 'Subsidies Pre-Calculated', desc: 'Displays the approximate cost (subsidised by CHAS/MOH) before confirmation, providing final cost transparency.' }
       ],
       accessibilityForSeniors: 'Generous clickable calendar tiles and easy-to-read morning/afternoon slots. Confirm button is sticky and occupies the full width of the mobile viewport, making it highly touchable.',
       dropOffImpact: 'Reduces booking abandonment by collapsing a multi-page, multi-step administrative hurdle into a simple 2-tap native HealthHub interaction.'
     },
     [ScreenId.ReminderSettings]: {
-      title: 'Screen 4: Personalized Reminders & Opt-in',
+      title: 'Screen 4: Personalised Reminders & Opt-in',
       problemSolved: 'Patients forget. FH testing takes place weeks after clinic visits. Without active, user-controlled communication, appointments are easily forgotten, and users ignore standard generic reminders.',
       uxGuidelines: [
         'Empowered Opt-in: Toggles let patients choose how they want to be reached (SMS, HealthHub Push, or Both). Users are less likely to ignore notifications when they feel in control.',
         'Interactive Message Preview: Shows a realistic mockup of the SMS text so patients know exactly what to expect from "MOH HealthHub" in their message feed.',
-        'Customizable Frequencies: Allows setting reminders at 7 days before, 1 day before, or monthly for general education, keeping them engaged without spamming.'
+        'Customisable Frequencies: Allows setting reminders at 7 days before, 1 day before, or monthly for general education, keeping them engaged without spamming.'
       ],
       govTechPrinciples: [
         { label: 'Trustworthy Copywriting', desc: 'SMS preview displays clear identification (e.g., "HealthHub Singapore: Your FH Genetic Counselling is in 7 days..."), preventing spam suspicion.' },
@@ -86,7 +86,7 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       title: 'Screen 5: Active Progress Timeline',
       problemSolved: 'Clinical disorientation. Genetic referrals feel like a black box. Patients do not know what steps lie ahead, how long they take, or what happens next, causing them to disengage.',
       uxGuidelines: [
-        'Milestone Visualization: A clear vertical sequence with completed checkmarks (e.g., Referral Received, Education Completed) and future translucent states (e.g. Receive Results).',
+        'Milestone Visualisation: A clear vertical sequence with completed checkmarks (e.g., Referral Received, Education Completed) and future translucent states (e.g. Receive Results).',
         'Timeline Countdown: Prominently shows "Your appointment is in 6 days" and displays the clinic address with an integrated map direction CTA.',
         'Preparation Prompt: Direct connection back to the prep checklist right below the timeline, ensuring patients are medically prepared before arrival.'
       ],
@@ -127,7 +127,7 @@ export default function AnnotationsPanel({ activeScreen, onSelectScreen }: Annot
       {/* Figma Annotation Header */}
       <div className="bg-gradient-to-r from-teal-800 to-slate-900 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-amber-400 animate-pulse" />
+          <div className="w-3 h-3 rounded-full bg-amber-400" />
           <span className="text-xs uppercase font-mono tracking-widest text-teal-300">Figma Wireframe Annotations</span>
         </div>
         <div className="flex items-center gap-2 bg-slate-800/80 px-2 py-1 rounded text-[11px] font-mono text-slate-300">
