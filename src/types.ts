@@ -19,8 +19,8 @@ export interface Appointment {
 
 export interface ReminderPreferences {
   enabled: boolean;
-  channel: 'sms' | 'push' | 'both';
-  frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom';
+  channel: string;
+  frequency: string;
   previewText: string;
 }
 
@@ -41,6 +41,12 @@ export interface Annotation {
 }
 
 // Database Integration Interfaces (Feature 6)
+export interface OnboardingPreferences {
+  familiarity: 'new' | 'little' | 'research' | 'advanced' | null;
+  topics: string[];
+  concerns: string[];
+}
+
 export interface PatientRecord {
   patient_id: string;
   name: string;
@@ -74,8 +80,8 @@ export interface ReminderPreferenceRecord {
   reminder_id: string;
   patient_id: string;
   enabled: boolean;
-  notification_channel: 'sms' | 'push' | 'both' | null;
-  frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom' | null;
+  notification_channel: string | null;
+  frequency: string | null;
   next_notification_date: string | null;
 }
 

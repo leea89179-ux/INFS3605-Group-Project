@@ -24,11 +24,9 @@ export interface ReminderPreferences {
   previewText: string;
 }
 
-export interface FAQItem {
-  question: string;
-  answer: string;
-  category: 'about' | 'testing' | 'cost' | 'insurance' | 'medication' | 'family';
-}
+======
+Last updated: 02/08/2026 10:58am
+https://ai.studio/apps/dc66bd13-3b51-4278-9ed0-b88d5e66be23
 
 export interface Annotation {
   id: string;
