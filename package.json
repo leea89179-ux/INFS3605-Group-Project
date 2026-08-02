@@ -1,38 +1,88 @@
-{
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
-    "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@google/genai": "^2.4.0",
-    "@supabase/supabase-js": "^2.110.2",
-    "@tailwindcss/vite": "^4.1.14",
-    "@vitejs/plugin-react": "^5.0.4",
-    "dotenv": "^17.2.3",
-    "express": "^4.21.2",
-    "lucide-react": "^0.546.0",
-    "motion": "^12.23.24",
-    "react": "^19.0.1",
-    "react-dom": "^19.0.1",
-    "vite": "^6.2.3"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^22.14.0",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.21",
-    "esbuild": "^0.25.0",
-    "tailwindcss": "^4.1.14",
-    "tsx": "^4.21.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.3"
-  }
+import { createClient } from '@supabase/supabase-js';
+import {
+  PatientRecord,
+  AppointmentRecord,
+  PatientAppointmentRecord,
+  ReminderPreferenceRecord,
+  NotificationHistoryRecord,
+  ReferralRecord,
+  PersonalisationResponseRecord,
+  EducationProgressRecord,
+  ResultsRecord,
+} from './types';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+if (!supabaseUrl || !supabaseKey) {
+  // Fails loudly instead of silently falling back to fake data, so a
+  // missing .env is obvious immediately rather than discovered later
+  // when nothing shows up in the Supabase dashboard.
+  console.error(
+    'Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY. ' +
+    'Check your .env file — see SETUP_GUIDE.md.'
+  );
+}
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+// ------------------------------------------------------------
+// Typed fetch helpers — every one of these hits the real Supabase
+// REST API. If a table doesn't exist or a query fails, the error
+// is thrown so callers can't silently proceed as if it worked.
+// ------------------------------------------------------------
+export async function fetchPatients(): Promise<PatientRecord[]> {
+  const { data, error } = await supabase.from('Patient').select('*');
+  if (error) throw error;
+  return data as PatientRecord[];
+}
+
+// The calendar of available slots (no patient attached).
+export async function fetchAppointmentSlots(): Promise<AppointmentRecord[]> {
+  const { data, error } = await supabase.from('Appointment').select('*');
+  if (error) throw error;
+  return data as AppointmentRecord[];
+}
+
+// Which patients booked/cancelled which slots.
+export async function fetchPatientAppointments(): Promise<PatientAppointmentRecord[]> {
+  const { data, error } = await supabase.from('Patient_Appointment').select('*');
+  if (error) throw error;
+  return data as PatientAppointmentRecord[];
+}
+
+export async function fetchReminderPreferences(): Promise<ReminderPreferenceRecord[]> {
+  const { data, error } = await supabase.from('ReminderPreference').select('*');
+  if (error) throw error;
+  return data as ReminderPreferenceRecord[];
+}
+
+export async function fetchNotificationHistory(): Promise<NotificationHistoryRecord[]> {
+  const { data, error } = await supabase.from('NotificationHistory').select('*');
+  if (error) throw error;
+  return data as NotificationHistoryRecord[];
+}
+
+export async function fetchReferrals(): Promise<ReferralRecord[]> {
+  const { data, error } = await supabase.from('Referral').select('*');
+  if (error) throw error;
+  return data as ReferralRecord[];
+}
+
+export async function fetchPersonalisationResponses(): Promise<PersonalisationResponseRecord[]> {
+  const { data, error } = await supabase.from('PersonalisationResponse').select('*');
+  if (error) throw error;
+  return data as PersonalisationResponseRecord[];
+}
+
+export async function fetchEducationProgress(): Promise<EducationProgressRecord[]> {
+  const { data, error } = await supabase.from('EducationProgress').select('*');
+  if (error) throw error;
+  return data as EducationProgressRecord[];
+}
+
+export async function fetchResults(): Promise<ResultsRecord[]> {
+  const { data, error } = await supabase.from('Results').select('*');
+  if (error) throw error;
+  return data as ResultsRecord[];
 }
