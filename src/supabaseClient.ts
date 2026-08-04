@@ -29,14 +29,14 @@ const tables: {
   Appointment: [
     { appointment_id: 'APT101', patient_id: 'SL001', appointment_date: '21 July 2026', appointment_time: '10:00 AM', clinic: 'Toa Payoh Polyclinic', status: 'pending', attendance: null, calendar_added: false },
     { appointment_id: 'APT102', patient_id: 'DT002', appointment_date: '23 July 2026', appointment_time: '2:00 PM', clinic: 'National University Hospital Genetic Clinic', status: 'pending', attendance: null, calendar_added: false },
-    { appointment_id: 'APT103', patient_id: 'EW003', appointment_date: '22 July 2026', appointment_time: '10:30 AM', clinic: 'Singapore General Hospital Genetics Service', status: 'booked', attendance: null, calendar_added: true },
+    { appointment_id: 'APT103', patient_id: 'EW003', appointment_date: '22 July 2026', appointment_time: '10:30 AM', clinic: 'Singapore General Hospital Genetics Service', status: 'pending', attendance: null, calendar_added: false },
     { appointment_id: 'APT104', patient_id: 'ML004', appointment_date: '24 July 2026', appointment_time: '9:30 AM', clinic: 'National University Hospital Genetic Clinic', status: 'pending', attendance: null, calendar_added: false }
   ],
   ReminderPreference: [
-    { reminder_id: 'REM101', patient_id: 'SL001', enabled: true, notification_channel: 'both', frequency: '1_week', next_notification_date: '14 July 2026' },
-    { reminder_id: 'REM102', patient_id: 'DT002', enabled: true, notification_channel: 'sms', frequency: '2_weeks', next_notification_date: '09 July 2026' },
-    { reminder_id: 'REM103', patient_id: 'EW003', enabled: true, notification_channel: 'both', frequency: '1_week', next_notification_date: '15 July 2026' },
-    { reminder_id: 'REM104', patient_id: 'ML004', enabled: false, notification_channel: 'push', frequency: '1_day', next_notification_date: '23 July 2026' }
+    { reminder_id: 'REM101', patient_id: 'SL001', enabled: true, notification_channel: 'both', frequency: 'monthly,2_weeks,1_week,1_day', next_notification_date: '14 July 2026' },
+    { reminder_id: 'REM102', patient_id: 'DT002', enabled: true, notification_channel: 'sms', frequency: 'monthly,2_weeks,1_week,1_day', next_notification_date: '09 July 2026' },
+    { reminder_id: 'REM103', patient_id: 'EW003', enabled: true, notification_channel: 'both', frequency: 'monthly,2_weeks,1_week,1_day', next_notification_date: '15 July 2026' },
+    { reminder_id: 'REM104', patient_id: 'ML004', enabled: false, notification_channel: 'push', frequency: 'monthly,2_weeks,1_week,1_day', next_notification_date: '23 July 2026' }
   ],
   NotificationHistory: [
     { notification_id: 'NOT101', patient_id: 'SL001', appointment_id: 'APT101', sent_date: '07 July 2026', opened_status: 'opened', action_taken: 'education_viewed' },
@@ -49,8 +49,8 @@ const tables: {
   ],
   EducationProgress: [
     { patient_id: 'SL001', percent_complete: 45 },
-    { patient_id: 'DT002', percent_complete: 0 },
-    { patient_id: 'EW003', percent_complete: 100 },
+    { patient_id: 'DT002', percent_complete: 50 },
+    { patient_id: 'EW003', percent_complete: 0 },
     { patient_id: 'ML004', percent_complete: 15 }
   ],
   Results: [

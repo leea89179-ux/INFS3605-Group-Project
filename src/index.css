@@ -22,6 +22,15 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slideIn {
+  from { transform: translateX(16px); opacity: 0.95; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @keyframes bounceShort {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }

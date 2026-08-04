@@ -15,7 +15,7 @@ interface PhoneSimulatorProps {
   onBookAppointment: (date: string, time: string, clinic: string) => void;
   onAddCalendarEvent: () => void;
   reminderPrefs: ReminderPreferences;
-  onUpdateReminderPrefs: (enabled: boolean, channel: string, frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => void;
+  onUpdateReminderPrefs: (enabled: boolean, channel: string, frequency: string) => void;
   onTriggerNotification: () => void;
   onNotificationAction: (action: 'confirmed' | 'rescheduled' | 'education_viewed') => void;
   onCancelAppointment: () => void;
@@ -2689,16 +2689,16 @@ export default function PhoneSimulator({
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={activeScreen}
-              initial={{ x: 12, opacity: 0 }}
+              initial={{ x: 14, opacity: 0.96 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -12, opacity: 0 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
-              className="flex-col flex flex-1 min-h-0 h-full overflow-hidden relative"
+              exit={{ x: -14, opacity: 0.96 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              className="flex-col flex flex-1 min-h-0 h-full overflow-hidden relative animate-slide-in"
             >
 
         {/* ----------------- SCREEN 1: HOME ----------------- */}
         {activeScreen === ScreenId.Home && (
-          <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50 relative">
+          <div className="flex-col flex flex-1 h-full overflow-hidden bg-slate-50 relative animate-slide-in">
             {/* 1. Official HealthHub Top Header Row */}
             <div className="bg-white px-4 py-3 flex justify-between items-center border-b border-slate-100 shrink-0">
               {/* Notification Bell */}
@@ -3403,9 +3403,6 @@ export default function PhoneSimulator({
                       <div className="flex-1 flex flex-col space-y-4 animate-fade-in text-left">
                         <div className="space-y-1">
                           <h3 className="font-bold text-[16px] text-slate-900 tracking-tight leading-snug">{t('step1_title')}</h3>
-                          <p className="text-[11.5px] text-slate-500 leading-relaxed">
-                            {t('step1_subtitle')}
-                          </p>
                         </div>
 
                         <div className={`bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 flex items-center gap-2 text-slate-600 font-medium shrink-0 leading-normal ${
@@ -3421,30 +3418,29 @@ export default function PhoneSimulator({
                           </label>
                           <div className="space-y-2">
                             {[
-                              { id: 'new', label: t('step1_opt1_title'), desc: t('step1_opt1_desc') },
-                              { id: 'little', label: t('step1_opt2_title'), desc: t('step1_opt2_desc') },
-                              { id: 'research', label: t('step1_opt3_title'), desc: t('step1_opt3_desc') },
-                              { id: 'advanced', label: t('step1_opt4_title'), desc: t('step1_opt4_desc') },
+                              { id: 'new', label: t('step1_opt1_title') },
+                              { id: 'little', label: t('step1_opt2_title') },
+                              { id: 'research', label: t('step1_opt3_title') },
+                              { id: 'advanced', label: t('step1_opt4_title') },
                             ].map((opt) => {
                               const isSelected = onboardingFamiliarity === opt.id;
                               return (
                                 <button
                                   key={opt.id}
                                   onClick={() => setOnboardingFamiliarity(opt.id as any)}
-                                  className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
+                                  className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer flex items-center gap-3.5 ${
                                     isSelected
                                       ? 'bg-emerald-50/50 border-[#00a859] text-slate-900 shadow-xs'
                                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                                   }`}
                                 >
-                                  <div className={`w-4 h-4 rounded-full border-2 mt-0.5 shrink-0 flex items-center justify-center transition-all ${
+                                  <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
                                     isSelected ? 'border-[#00a859] bg-[#00a859]' : 'border-slate-300 bg-white'
                                   }`}>
                                     {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                                   </div>
-                                  <div className="space-y-0.5 min-w-0 flex-1">
+                                  <div className="min-w-0 flex-1">
                                     <span className="text-[12px] font-bold text-slate-800 leading-tight block">{opt.label}</span>
-                                    <span className="text-[10px] text-slate-500 leading-normal block">{opt.desc}</span>
                                   </div>
                                 </button>
                               );
@@ -3464,9 +3460,7 @@ export default function PhoneSimulator({
                           </p>
                         </div>
 
-                        <div className={`grid gap-2.5 pt-1 overflow-y-auto max-h-[340px] pr-1 ${
-                          language === 'ta' || language === 'ms' ? 'grid-cols-1' : 'grid-cols-2'
-                        }`}>
+                        <div className="grid grid-cols-2 gap-2 pt-1 overflow-y-auto max-h-[360px] pr-1">
                           {[
                             { id: 'topic-basics', iconName: 'Dna', label: t('step2_opt_basics') },
                             { id: 'topic-risk', iconName: 'HeartPulse', label: t('step2_opt_risk') },
@@ -3495,25 +3489,21 @@ export default function PhoneSimulator({
                                   }
                                   setShowCascadeTooltip(false);
                                 }}
-                                className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between min-h-[56px] relative bg-white ${
+                                className={`w-full text-left py-2 px-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between min-h-[44px] relative bg-white ${
                                   isSelected
                                     ? 'border-[#00a859] bg-emerald-50/40 ring-1 ring-[#00a859]/30 shadow-xs'
                                     : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300'
                                   }`}
                               >
-                                <div className="flex items-center gap-2 min-w-0 flex-1 pr-1.5">
-                                  <span className="text-[13px] shrink-0">{getIcon(opt.iconName || 'HelpCircle', "text-[#00a859]")}</span>
+                                <div className="flex items-center gap-1.5 min-w-0 flex-1 pr-1">
+                                  <span className="text-[12px] shrink-0">{getIcon(opt.iconName || 'HelpCircle', "text-[#00a859]")}</span>
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex items-center flex-wrap gap-1">
-                                      <span className={`font-semibold text-slate-800 leading-tight ${
-                                        language === 'ta' || language === 'ms' ? 'text-[11.5px]' : 'text-[11px]'
-                                      }`}>
-                                        {opt.label}
-                                      </span>
-                                    </div>
+                                    <span className="font-semibold text-slate-800 leading-snug text-[11px] block truncate">
+                                      {opt.label}
+                                    </span>
                                   </div>
                                 </div>
-                                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-all ${
                                   isSelected ? 'bg-[#00a859] border-[#00a859] text-white' : 'border-slate-300 bg-white'
                                 }`}>
                                   {isSelected && <Check className="w-2.5 h-2.5 stroke-[4px]" />}
@@ -5025,7 +5015,7 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 3: BOOKING ----------------- */}
         {activeScreen === ScreenId.Booking && (
-          <div className="flex-col flex flex-1 h-full overflow-hidden relative">
+          <div className="flex-col flex flex-1 h-full overflow-hidden relative animate-slide-in">
             {showMonthPopup && (
               <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
                 <div className="bg-white rounded-3xl w-full max-w-[325px] p-6 shadow-2xl border border-slate-100 animate-fade-in text-left">
@@ -5830,8 +5820,35 @@ export default function PhoneSimulator({
           {/* ----------------- SCREEN 4: REMINDERS ----------------- */}
           {activeScreen === ScreenId.ReminderSettings && (() => {
             const selectedChannels = deserializeChannels(reminderPrefs.channel);
+            
+            const ALL_FREQUENCIES = ['monthly', '2_weeks', '1_week', '1_day'];
+            const parseFrequencies = (freqStr: string): string[] => {
+              if (!freqStr) return ALL_FREQUENCIES;
+              const split = freqStr.split(',').map(s => s.trim()).filter(Boolean);
+              return split.length > 0 ? split : ALL_FREQUENCIES;
+            };
+            const serializeFrequencies = (freqs: string[]): string => freqs.join(',');
+
+            const selectedFrequencies = parseFrequencies(reminderPrefs.frequency);
+
+            const handleToggleFrequency = (freqId: string) => {
+              let next = [...selectedFrequencies];
+              if (next.includes(freqId)) {
+                if (next.length > 1) {
+                  next = next.filter(f => f !== freqId);
+                }
+              } else {
+                next.push(freqId);
+              }
+              onUpdateReminderPrefs(
+                reminderPrefs.enabled,
+                reminderPrefs.channel,
+                serializeFrequencies(next) as any
+              );
+            };
+
           return (
-            <div className="flex-col flex flex-1 h-full overflow-hidden">
+            <div className="flex-col flex flex-1 h-full overflow-hidden animate-slide-in">
               {/* Top Navigation */}
               <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left shrink-0">
                 <button 
@@ -5901,11 +5918,11 @@ export default function PhoneSimulator({
                 {reminderPrefs.enabled && (
                   <div className="space-y-4 animate-fade-in text-left">
                     
-                    {/* Select Channel - Multi-select Checkbox list */}
+                    {/* Select Channel - Multi-select Checkbox list (Without subdescriptions) */}
                     <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('notification_channel')}</label>
                       
-                      <div className="space-y-2.5">
+                      <div className="space-y-2">
                         {['sms', 'push', 'email', 'whatsapp'].map((chan) => {
                           const isChecked = selectedChannels.includes(chan);
                           const info = channelInfo[chan][language] || channelInfo[chan]['en'];
@@ -5934,10 +5951,11 @@ export default function PhoneSimulator({
                           return (
                             <button
                               key={chan}
+                              type="button"
                               onClick={handleToggle}
-                              className="w-full text-left flex gap-3 items-start p-2.5 rounded-xl border border-slate-150 hover:bg-slate-50/50 transition cursor-pointer select-none"
+                              className="w-full text-left flex gap-3 items-center p-2.5 rounded-xl border border-slate-150 hover:bg-slate-50/50 transition cursor-pointer select-none"
                             >
-                              <div className="mt-0.5 shrink-0">
+                              <div className="shrink-0">
                                 {isChecked ? (
                                   <CheckSquare className="w-5 h-5 text-[#00a859]" />
                                 ) : (
@@ -5949,11 +5967,8 @@ export default function PhoneSimulator({
                                 <IconComponent className="w-4 h-4" />
                               </div>
 
-                              <div className="flex-1 space-y-0.5 min-w-0">
-                                <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                                  <span>{info.title}</span>
-                                </div>
-                                <p className="text-[10px] text-slate-500 leading-normal">{info.desc}</p>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-xs font-bold text-slate-800">{info.title}</span>
                               </div>
                             </button>
                           );
@@ -5971,35 +5986,59 @@ export default function PhoneSimulator({
                       </p>
                     </div>
 
-                    {/* Frequency settings */}
+                    {/* Frequency settings - Multi-select Checkboxes Format (Without descriptions) */}
                     <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">{t('reminder_frequency')}</label>
-                      <div className="relative">
-                        <select
-                          id="reminder-frequency-select"
-                          value={reminderPrefs.frequency === 'custom' || reminderPrefs.frequency === '1_day' ? '1_week' : reminderPrefs.frequency}
-                          onChange={(e) => onUpdateReminderPrefs(reminderPrefs.enabled, reminderPrefs.channel, e.target.value as any)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-3 pr-10 text-xs text-slate-800 font-medium cursor-pointer appearance-none focus:outline-none focus:border-[#00a859] focus:ring-1 focus:ring-[#00a859] transition"
-                        >
-                          <option value="2_weeks">{t('freq_comprehensive')}</option>
-                          <option value="1_week">{t('freq_standard')}</option>
-                          <option value="monthly">{t('freq_minimal')}</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                          <ChevronDown className="w-4 h-4 text-slate-500" />
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-slate-500 leading-normal">
-                        {t('frequency_desc')}
-                      </p>
-                      <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3.5 space-y-1 text-left">
-                        <div className="text-[9.5px] font-bold text-emerald-800 tracking-wider font-mono uppercase">{t('active_schedule')}</div>
-                        <p className="text-xs font-bold text-slate-800 font-sans">
-                          {reminderPrefs.frequency === '2_weeks' && t('active_freq_comprehensive')}
-                          {reminderPrefs.frequency === '1_week' && t('active_freq_standard')}
-                          {reminderPrefs.frequency === 'monthly' && t('active_freq_minimal')}
-                          {reminderPrefs.frequency !== '2_weeks' && reminderPrefs.frequency !== '1_week' && reminderPrefs.frequency !== 'monthly' && t('active_freq_standard')}
+                      <div className="space-y-0.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                          {t('reminder_frequency')}
+                        </label>
+                        <p className="text-[10px] text-slate-500 leading-normal">
+                          {t('frequency_desc')}
                         </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        {[
+                          {
+                            id: 'monthly',
+                            label: language === 'ms' ? '1 bulan' : language === 'zh' ? '1个月' : language === 'ta' ? '1 மாதம்' : '1 month',
+                          },
+                          {
+                            id: '2_weeks',
+                            label: language === 'ms' ? '2 minggu' : language === 'zh' ? '2周' : language === 'ta' ? '2 வாரங்கள்' : '2 weeks',
+                          },
+                          {
+                            id: '1_week',
+                            label: language === 'ms' ? '1 minggu' : language === 'zh' ? '1周' : language === 'ta' ? '1 வாரம்' : '1 week',
+                          },
+                          {
+                            id: '1_day',
+                            label: language === 'ms' ? '1 hari' : language === 'zh' ? '1天' : language === 'ta' ? '1 நாள்' : '1 day',
+                          },
+                        ].map((freqOption) => {
+                          const isSelected = selectedFrequencies.includes(freqOption.id);
+
+                          return (
+                            <button
+                              key={freqOption.id}
+                              type="button"
+                              onClick={() => handleToggleFrequency(freqOption.id)}
+                              className="w-full text-left p-2.5 rounded-xl border border-slate-150 hover:bg-slate-50/50 transition cursor-pointer flex items-center gap-3 select-none"
+                            >
+                              <div className="shrink-0">
+                                {isSelected ? (
+                                  <CheckSquare className="w-5 h-5 text-[#00a859]" />
+                                ) : (
+                                  <Square className="w-5 h-5 text-slate-300" />
+                                )}
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <span className="text-xs font-bold text-slate-800">{freqOption.label}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -6220,30 +6259,6 @@ export default function PhoneSimulator({
                   </div>
                 )}
 
-              {/* ── Language Preferences ── */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-emerald-600" />
-                  {t('lang_pref_title')}
-                </label>
-                <p className="text-[10px] text-slate-500 leading-relaxed">{t('lang_pref_desc')}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {(Object.entries(LANG_LABELS) as [Language, string][]).map(([code, label]) => (
-                    <button
-                      key={code}
-                      onClick={() => handleLanguageChange(code)}
-                      className={`py-2 px-3 rounded-xl text-xs font-semibold transition border cursor-pointer ${
-                        language === code
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50 hover:border-emerald-200'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
             </div>
           </div>
         );
@@ -6252,7 +6267,7 @@ export default function PhoneSimulator({
 
         {/* ----------------- SCREEN 5: PROGRESS TIMELINE ----------------- */}
         {activeScreen === ScreenId.ProgressTimeline && (
-          <div className="flex-col flex flex-1 h-full overflow-hidden">
+          <div className="flex-col flex flex-1 h-full overflow-hidden animate-slide-in">
             {/* Top Navigation */}
             <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-left shrink-0">
               <button 
@@ -6895,7 +6910,7 @@ export default function PhoneSimulator({
         ) : null}
 
         {/* Floating Contextual Action Button for FH Referred patients */}
-        {isFHReferred && activeScreen !== ScreenId.Booking && (
+        {isFHReferred && activeScreen !== ScreenId.Booking && !(activeScreen === ScreenId.Education && !onboardingCompleted) && (
           <button
             onClick={() => onChangeScreen(ScreenId.Booking)}
             className="absolute bottom-4 right-4 z-40 bg-[#00a859] hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-full flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-500/20 text-xs font-bold font-sans"

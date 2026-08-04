@@ -23,15 +23,13 @@ import {
   fetchResults,
 } from './supabaseClient';
 import PhoneSimulator from './components/PhoneSimulator';
-import AnnotationsPanel from './components/AnnotationsPanel';
 import DatabaseViewer from './components/DatabaseViewer';
-import { HeartPulse, Compass, Settings, Layers, Users, BookOpen, Sparkles, Smartphone, CircleCheck, ShieldAlert, Undo, Calendar, Check, ArrowRight, CircleHelp as HelpCircle, Database, MessageSquare, X } from 'lucide-react';
+import { HeartPulse, Compass, Users, CircleCheck, Database } from 'lucide-react';
 
 export default function App() {
   // Global Shared States for the Figma Prototype
   const [activeScreen, setActiveScreen] = useState<ScreenId>(ScreenId.Home);
-  const [isFHReferred, setIsFHReferred] = useState<boolean>(false);
-  const [rightPanelTab, setRightPanelTab] = useState<'annotations' | 'database'>('database');
+  const [isFHReferred, setIsFHReferred] = useState<boolean>(true);
   
   // Feature 6: Relational Database Tables State
   // Starts empty — real values are loaded from Supabase in the
@@ -43,7 +41,7 @@ export default function App() {
   const [referralTable, setReferralTable] = useState<ReferralRecord[]>([]);
   const [educationProgressTable, setEducationProgressTable] = useState<EducationProgressRecord[]>([]);
   const [resultsTable, setResultsTable] = useState<ResultsRecord[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<string>('SL001');
+  const [selectedPatientId, setSelectedPatientId] = useState<string>('EW003');
   const [isLoadingDb, setIsLoadingDb] = useState<boolean>(true);
   const [emilyWongRefreshTrigger, setEmilyWongRefreshTrigger] = useState<number>(0);
 
@@ -169,7 +167,7 @@ export default function App() {
   const activeReminderPrefs: ReminderPreferences = {
     enabled: patientPrefs?.enabled ?? true,
     channel: patientPrefs?.notification_channel || 'both',
-    frequency: patientPrefs?.frequency || '1_week',
+    frequency: patientPrefs?.frequency || 'monthly,2_weeks,1_week,1_day',
     previewText: 'Your FH Genetic Testing appointment is in 7 days.\nPlease confirm your attendance or reschedule if needed.',
   };
 
@@ -251,7 +249,7 @@ export default function App() {
     );
   };
 
-  const handleReminderPrefsTransaction = async (enabled: boolean, channel: string, frequency: 'monthly' | '2_weeks' | '1_week' | '1_day' | 'custom') => {
+  const handleReminderPrefsTransaction = async (enabled: boolean, channel: string, frequency: string) => {
     const pref = reminderPrefTable.find(r => r.patient_id === selectedPatientId);
     const reminderId = pref?.reminder_id || `REM${Math.floor(100 + Math.random() * 900)}`;
 
@@ -402,7 +400,7 @@ export default function App() {
 
     setReminderPrefTable(prev => prev.map(pref =>
       pref.patient_id === selectedPatientId
-        ? { ...pref, enabled: true, notification_channel: 'both', frequency: '1_week' }
+        ? { ...pref, enabled: true, notification_channel: 'both', frequency: 'monthly,2_weeks,1_week,1_day' }
         : pref
     ));
 
@@ -425,7 +423,7 @@ export default function App() {
 
     const { error: e2 } = await supabase
       .from('ReminderPreference')
-      .update({ enabled: true, notification_channel: 'both', frequency: '1_week' })
+      .update({ enabled: true, notification_channel: 'both', frequency: 'monthly,2_weeks,1_week,1_day' })
       .eq('patient_id', selectedPatientId);
     if (e2) console.error('Supabase reset (reminder) failed:', e2);
 
@@ -442,7 +440,7 @@ export default function App() {
       'UPDATE'
     );
     logSQL(
-      `UPDATE ReminderPreference SET enabled = TRUE, notification_channel = 'both', frequency = '1_week' WHERE patient_id = '${selectedPatientId}';`,
+      `UPDATE ReminderPreference SET enabled = TRUE, notification_channel = 'both', frequency = 'monthly,2_weeks,1_week,1_day' WHERE patient_id = '${selectedPatientId}';`,
       'UPDATE'
     );
     logSQL(
@@ -650,30 +648,7 @@ export default function App() {
               </label>
 
               <div className="space-y-2.5">
-                {/* 1. Sarah Lim */}
-                <button
-                  onClick={() => handleSelectPersona('SL001')}
-                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
-                    selectedPatientId === 'SL001'
-                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'SL001' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
-                      Sarah Lim
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-slate-800 text-slate-400 uppercase tracking-wide">
-                      No FH Referral
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
-                    Simulates standard healthcare view without cardiac genetics intervention.
-                  </p>
-                </button>
-
-                {/* 2. Emily Wong */}
+                {/* 1. Emily Wong */}
                 <button
                   onClick={() => handleSelectPersona('EW003')}
                   className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
@@ -693,6 +668,29 @@ export default function App() {
                   </div>
                   <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
                     FH Referred. Displays unbooked appointment booking alert & 0% educational progress.
+                  </p>
+                </button>
+
+                {/* 2. Sarah Lim */}
+                <button
+                  onClick={() => handleSelectPersona('SL001')}
+                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
+                    selectedPatientId === 'SL001'
+                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'SL001' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                      Sarah Lim
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-slate-800 text-slate-400 uppercase tracking-wide">
+                      No FH Referral
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
+                    Simulates standard healthcare view without cardiac genetics intervention.
                   </p>
                 </button>
 
@@ -719,28 +717,6 @@ export default function App() {
                   </p>
                 </button>
 
-                {/* 4. Michael Lee */}
-                <button
-                  onClick={() => handleSelectPersona('ML004')}
-                  className={`w-full text-left p-3.5 rounded-xl border transition flex flex-col gap-1 cursor-pointer group ${
-                    selectedPatientId === 'ML004'
-                      ? 'bg-emerald-950/20 border-emerald-500 shadow-md shadow-emerald-950/30'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-xs text-slate-100 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${selectedPatientId === 'ML004' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
-                      Michael Lee
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-emerald-950/50 text-emerald-400 border border-emerald-900/30 uppercase tracking-wide">
-                      Completed GAC
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-normal font-medium pl-4">
-                    GAC completed, awaiting genetic test results. Simulates post-consult compliance state.
-                  </p>
-                </button>
               </div>
             </div>
 
@@ -785,67 +761,34 @@ export default function App() {
 
         </div>
 
-        {/* RIGHT COLUMN (Lg: 4/12) - Integrated Annotations or Database Panel */}
+        {/* RIGHT COLUMN (Lg: 4/12) - Integrated Live Database Panel */}
         <div className="lg:col-span-4 flex flex-col space-y-4">
           
-          {/* Column Tab Selector */}
-          <div className="bg-slate-950 p-1.5 rounded-xl border border-slate-800/80 flex gap-2 shrink-0">
-            <button
-              onClick={() => setRightPanelTab('database')}
-              className={`flex-1 py-2 px-3 text-center rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
-                rightPanelTab === 'database'
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/30'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Database className="w-4 h-4" /> Live Database (F6)
-            </button>
-            <button
-              onClick={() => setRightPanelTab('annotations')}
-              className={`flex-1 py-2 px-3 text-center rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
-                rightPanelTab === 'annotations'
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/30'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Layers className="w-4 h-4" /> UX Specifications
-            </button>
+          {/* Header Badge */}
+          <div className="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl shadow-xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4 text-emerald-500" />
+              <span className="text-xs font-bold text-slate-100 uppercase tracking-wider font-mono">
+                Live Relational Database
+              </span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Live Sync
+            </span>
           </div>
 
           {/* Right Panel Main View */}
           <div className="flex-1 min-h-[580px] lg:h-[630px]">
-            {rightPanelTab === 'database' ? (
-              <DatabaseViewer 
-                patients={patientTable}
-                appointments={appointmentTable}
-                reminderPreferences={reminderPrefTable}
-                notificationHistory={notificationHistoryTable}
-                referrals={referralTable}
-                educationProgress={educationProgressTable}
-                results={resultsTable}
-                queryLogs={queryLogs}
-              />
-            ) : (
-              <div className="space-y-6 h-full overflow-y-auto pr-1">
-                <div className="h-[550px]">
-                  <AnnotationsPanel 
-                    activeScreen={activeScreen} 
-                    onSelectScreen={setActiveScreen} 
-                  />
-                </div>
-
-                {/* Additional UX Strategy Box */}
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-3 shrink-0">
-                  <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider font-mono flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-500" />
-                    Prevention of Patient Leakage
-                  </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    GovTech's review highlights that clinic referrals leak due to <strong>cognitive latency</strong> and <strong>administrative drag</strong>. By integrating the educational cards directly into the booking journey, reassurance on subsidies (MediSave) and insurance (LIA moratorium) is delivered <em>before</em> the patient leaves the digital frame.
-                  </p>
-                </div>
-              </div>
-            )}
+            <DatabaseViewer 
+              patients={patientTable}
+              appointments={appointmentTable}
+              reminderPreferences={reminderPrefTable}
+              notificationHistory={notificationHistoryTable}
+              referrals={referralTable}
+              educationProgress={educationProgressTable}
+              results={resultsTable}
+              queryLogs={queryLogs}
+            />
           </div>
 
         </div>
